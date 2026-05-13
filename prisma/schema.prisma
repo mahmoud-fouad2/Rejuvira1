@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum ContentStatus {
+  DRAFT
+  REVIEW
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SubmissionStatus {
+  NEW
+  CONTACTED
+  FOLLOW_UP
+  BOOKED
+  CLOSED
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  name               String
+  email              String              @unique
+  hashedPassword     String
+  role               UserRole            @default(ADMIN)
+  avatarUrl          String?
+  lastLoginAt        DateTime?
+  assignedLeads      ContactSubmission[] @relation("LeadOwner")
+  createdAuditLogs   AuditLog[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+model Doctor {
+  id                 String         @id @default(cuid())
+  slug               String         @unique
+  nameAr             String
+  nameEn             String?
+  titleAr            String
+  titleEn            String?
+  specialtyAr        String
+  specialtyEn        String?
+  bioAr              String         @db.Text
+  bioEn              String?        @db.Text
+  photoUrl           String?
+  coverImageUrl      String?
+  education          Json?
+  publications       Json?
+  achievements       Json?
+  languages          String[]
+  yearsExperience    Int?
+  status             ContentStatus  @default(DRAFT)
+  isFeatured         Boolean        @default(false)
+  sortOrder          Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  services           Service[]      @relation("DoctorServices")
+}
+
+model Service {
+  id                 String              @id @default(cuid())
+  slug               String              @unique
+  nameAr             String
+  nameEn             String?
+  excerptAr          String              @db.Text
+  excerptEn          String?             @db.Text
+  descriptionAr      String              @db.Text
+  descriptionEn      String?             @db.Text
+  coverImageUrl      String?
+  categoryKey        String
+  seoTitleAr         String?
+  seoTitleEn         String?
+  seoDescriptionAr   String?             @db.Text
+  seoDescriptionEn   String?             @db.Text
+  status             ContentStatus       @default(DRAFT)
+  isFeatured         Boolean             @default(false)
+  sortOrder          Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  doctors            Doctor[]            @relation("DoctorServices")
+  devices            Device[]            @relation("ServiceDevices")
+  contactSubmissions ContactSubmission[]
+}
+
+model Device {
+  id                 String         @id @default(cuid())
+  slug               String         @unique
+  nameAr             String
+  nameEn             String?
+  excerptAr          String?        @db.Text
+  excerptEn          String?        @db.Text
+  descriptionAr      String         @db.Text
+  descriptionEn      String?        @db.Text
+  gallery            Json?
+  specifications     Json?
+  certifications     Json?
+  status             ContentStatus  @default(DRAFT)
+  isFeatured         Boolean        @default(false)
+  sortOrder          Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  services           Service[]      @relation("ServiceDevices")
+}
+
+model GalleryItem {
+  id                 String         @id @default(cuid())
+  slug               String         @unique
+  titleAr            String
+  titleEn            String?
+  beforeImageUrl     String
+  afterImageUrl      String
+  beforeImageAlt     String?
+  afterImageAlt      String?
+  categoryKey        String
+  descriptionAr      String?        @db.Text
+  descriptionEn      String?        @db.Text
+  consentDocumentUrl String?
+  status             ContentStatus  @default(DRAFT)
+  sortOrder          Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model JournalPost {
+  id                 String         @id @default(cuid())
+  slug               String         @unique
+  titleAr            String
+  titleEn            String?
+  excerptAr          String         @db.Text
+  excerptEn          String?        @db.Text
+  bodyAr             Json
+  bodyEn             Json?
+  coverImageUrl      String
+  categoryKey        String
+  readingTimeLabel   String?
+  relatedServiceSlugs String[]
+  relatedDoctorSlugs String[]
+  status             ContentStatus  @default(DRAFT)
+  publishedAt        DateTime?
+  sortOrder          Int            @default(0)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model ContactSubmission {
+  id                 String           @id @default(cuid())
+  fullName           String
+  phone              String
+  email              String?
+  message            String?          @db.Text
+  preferredLanguage  String           @default("ar")
+  source             String?
+  utmSource          String?
+  utmMedium          String?
+  utmCampaign        String?
+  status             SubmissionStatus @default(NEW)
+  internalNotes      String?          @db.Text
+  serviceId          String?
+  assignedToId       String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  service            Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  assignedTo         User?            @relation("LeadOwner", fields: [assignedToId], references: [id], onDelete: SetNull)
+}
+
+model ErrorLog {
+  id                 String   @id @default(cuid())
+  route              String?
+  message            String   @db.Text
+  stack              String?  @db.Text
+  statusCode         Int?
+  payload            Json?
+  isResolved         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model SiteSetting {
+  id                 String   @id @default(cuid())
+  key                String   @unique
+  value              Json
+  groupName          String
+  updatedAt          DateTime @updatedAt
+}
+
+model AuditLog {
+  id                 String   @id @default(cuid())
+  actorUserId        String
+  action             String
+  entityType         String
+  entityId           String?
+  metadata           Json?
+  createdAt          DateTime @default(now())
+  actor              User     @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+}
