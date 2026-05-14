@@ -7,7 +7,7 @@ services:
     autoDeploy: true
     healthCheckPath: /api/health
     buildCommand: npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run build
-    startCommand: cd .next/standalone && node --max-old-space-size=460 server.js
+    startCommand: npm run start:standalone
     envVars:
       - key: NODE_VERSION
         value: 22.19.0
