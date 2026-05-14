@@ -18,11 +18,16 @@ const heapFlag = nodeOptions.includes("--max-old-space-size")
   ? []
   : [`--max-old-space-size=${defaultHeap}`];
 
+const env = {
+  ...process.env,
+  HOSTNAME: process.env.BIND_HOST || "0.0.0.0",
+};
+
 const code =
   spawnSync(process.execPath, [...heapFlag, "server.js"], {
     cwd,
     stdio: "inherit",
-    env: process.env,
+    env,
   }).status ?? 1;
 
 process.exit(code);
