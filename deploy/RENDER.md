@@ -15,7 +15,7 @@ The full set of build/runtime variables is declared in
 | --- | --- |
 | Runtime | `Node` |
 | Region | `Frankfurt` (Europe) or `Oregon` — match the Neon region |
-| Plan | `Starter` (upgrade to `Standard` for production traffic) |
+| Plan | `Starter` allocates **512MB RAM**. Next.js production often exceeds that under modest traffic — expect **OOM / instance restarts** on Starter. Prefer **`standard`** (**2GB**) for reliable production (**Render → Billing / change plan**). |
 | Node version | `>= 22` (Render auto-detects `engines.node` from `package.json`) |
 | Persistent disk | **Not required.** All uploads go to Cloudflare R2. |
 
@@ -34,12 +34,19 @@ npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run pris
 ```
 
 ```bash
-# Start command
-npm run start
+# Start command — standalone Node server (smaller footprint than `next start` / npm wrapper)
+# and caps V8 heap for 512MB Render instances (tune if you upgrade plan).
+cd .next/standalone && NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=460" node server.js
 ```
+
+Local smoke (after `npm run build`): `npm run start:standalone` (runs `server.js` with correct cwd).
+
 
 Notes:
 
+- `npm run build` ends with copying `public/` and `.next/static/` into
+  `.next/standalone/` so the standalone `server.js` can serve assets (see
+  `scripts/sync-standalone-assets.mjs`).
 - `prisma migrate deploy` runs during the build (via
   `npm run prisma:migrate:deploy:retry`) so schema stays in sync before
   rollout. The wrapper retries on transient **P1002** advisory-lock timeouts
@@ -64,7 +71,7 @@ the first deploy. Optional values can be added later.
 
 | Key | Required | Sample value | Purpose |
 | --- | --- | --- | --- |
-| `DATABASE_URL` | Yes | Neon **pooled** URI (`…-pooler…` host when Neon offers it) | Used by the app at runtime (serverless-friendly). |
+| `DATABASE_URL` | Yes | Neon **pooled** URI (`…-pooler…` host when Neon offers it) | Used by the app at runtime (serverless-friendly). If Neon does not give a separate pooled string, use their default **non‑pooling** URI. Optional Prisma tightening: append `?connection_limit=5&pool_timeout=10` **after** `sslmode=require` (`&connection_limit=5…`) — adjust for traffic. |
 | `DIRECT_URL` | Yes | Neon **direct** URI (non-pooler host) | Required for `prisma migrate deploy` during build (advisory locks). Do **not** point both at the pooler-only endpoint. |
 | `NEXTAUTH_URL` | Yes | `https://rejuveracenter.sa` | Public base URL for NextAuth callbacks. |
 | `NEXTAUTH_SECRET` | Yes | `<random 32+ bytes>` | NextAuth session encryption secret. Generate with `openssl rand -base64 32`. Render can auto-generate this. |
@@ -86,6 +93,8 @@ the first deploy. Optional values can be added later.
 | `CONTACT_EMAIL_SECONDARY` | Optional | `info@rejuveracenter.com.sa` | Initial seed for DB Settings. |
 | `GOOGLE_MAPS_EMBED_URL` | Optional | `https://www.google.com/maps/embed?...` | Initial seed for `contact.mapsEmbedUrl`. |
 | `NEXT_TELEMETRY_DISABLED` | Optional | `1` | Disables Next.js anonymous telemetry. |
+| `NODE_OPTIONS` | Optional | Omit in dashboard | The **start command** already appends `--max-old-space-size=460` inside `.next/standalone`. Add extra Node flags here only when you want them applied consistently. |
+| `HOSTNAME` | Optional | `0.0.0.0` | Declared in `render.yaml`; ensures the standalone server binds publicly (Render supplies `PORT`). |
 
 > Secrets that the user has **not yet provided**:
 > - `R2_ACCESS_KEY_ID`
