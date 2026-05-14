@@ -7202,69 +7202,47 @@ html[data-theme="dark"] .admin-app aside { background-color: oklch(20% 0.04 285)
    All public-facing pages: header, footer, hero, sections, cards
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── 1. Mobile menu: contained within viewport ─────────────── */
+/* ── 1. Mobile menu: slide-down within header ──────────────── */
 .rv-mobile-details {
-  position: relative;
+  position: static;
 }
 .rv-v0-mobile-menu {
-  position: fixed !important;
-  top: auto !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
+  position: absolute !important;
+  top: calc(100% + 0.5rem) !important;
+  left: 0.5rem !important;
+  right: 0.5rem !important;
   max-height: 80dvh;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-radius: 1.4rem 1.4rem 0 0 !important;
+  border-radius: 1.2rem !important;
   z-index: 999;
   -webkit-overflow-scrolling: touch;
   padding-bottom: env(safe-area-inset-bottom, 0.75rem);
-  box-shadow: 0 -12px 48px rgba(28, 18, 48, 0.18);
-}
-.rv-mobile-details[open]::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  z-index: 998;
-  backdrop-filter: blur(4px);
+  box-shadow: 0 16px 48px rgba(28, 18, 48, 0.22), 0 4px 12px rgba(28, 18, 48, 0.08);
+  border: 1px solid var(--rv-line);
+  background: var(--rv-card) !important;
+  backdrop-filter: blur(24px);
 }
 
 /* ── 2. Header: logo legible on all sizes ──────────────────── */
 .rv-brand-logo-header {
-  width: clamp(3.2rem, 12vw, 6.76rem) !important;
-  height: clamp(3.2rem, 12vw, 6.76rem) !important;
+  width: clamp(3.5rem, 10vw, 6.76rem) !important;
+  height: clamp(3.5rem, 10vw, 6.76rem) !important;
 }
 .rv-brand-logo-footer {
-  width: clamp(3.6rem, 14vw, 7.52rem) !important;
-  height: clamp(3.6rem, 14vw, 7.52rem) !important;
+  width: clamp(4rem, 12vw, 7.52rem) !important;
+  height: clamp(4rem, 12vw, 7.52rem) !important;
 }
-
-@media (max-width: 480px) {
-  .rv-brand-logo-header {
-    width: 3rem !important;
-    height: 3rem !important;
-  }
-  .rv-brand-logo-footer {
-    width: 3.4rem !important;
-    height: 3.4rem !important;
-  }
-  .rv-v0-brand {
-    width: auto !important;
-    height: auto !important;
-    min-width: 0 !important;
-  }
+.rv-v0-brand {
+  width: auto !important;
+  height: auto !important;
+  padding: 0.2rem !important;
 }
-
-@media (min-width: 481px) and (max-width: 768px) {
-  .rv-brand-logo-header {
-    width: 3.8rem !important;
-    height: 3.8rem !important;
-  }
-  .rv-brand-logo-footer {
-    width: 4.2rem !important;
-    height: 4.2rem !important;
-  }
+.rv-v0-logo,
+.rv-v0-footer-logo {
+  filter: none !important;
+  width: auto !important;
+  height: auto !important;
 }
 
 /* ── 3. Nav bar: clean grid at every breakpoint ────────────── */
@@ -7308,23 +7286,17 @@ html[data-theme="dark"] .admin-app aside { background-color: oklch(20% 0.04 285)
   }
   .rv-v0-hero-copy {
     order: 1;
-    text-align: center;
   }
   .rv-v0-hero-visual {
     order: 2;
-    min-height: 20rem !important;
+    min-height: 18rem !important;
     max-width: 100%;
   }
   .rv-v0-hero-chips {
-    justify-content: center !important;
     flex-wrap: wrap;
   }
   .rv-v0-hero-actions {
-    justify-content: center !important;
     flex-wrap: wrap;
-  }
-  .rv-v0-stats {
-    justify-content: center !important;
   }
 }
 
@@ -7337,31 +7309,31 @@ html[data-theme="dark"] .admin-app aside { background-color: oklch(20% 0.04 285)
     gap: 1.5rem !important;
   }
   .rv-v0-hero-copy h1 {
-    font-size: clamp(1.65rem, 6.5vw, 2.5rem) !important;
-    line-height: 1.15 !important;
+    font-size: clamp(1.6rem, 7vw, 2.2rem) !important;
+    line-height: 1.2 !important;
   }
   .rv-v0-hero-copy p {
-    font-size: 0.92rem !important;
+    font-size: 0.9rem !important;
     line-height: 1.65 !important;
   }
   .rv-v0-hero-chips span {
-    font-size: 0.75rem !important;
-    padding: 0.4rem 0.65rem !important;
+    font-size: 0.73rem !important;
+    padding: 0.35rem 0.6rem !important;
   }
   .rv-v0-hero-visual {
-    min-height: 16rem !important;
+    min-height: 14rem !important;
     border-radius: 1.2rem;
     overflow: hidden;
   }
   .rv-v0-hero-card {
-    inset: 0.75rem !important;
+    inset: 0.5rem !important;
     border-radius: 1rem !important;
   }
   .rv-v0-primary,
   .rv-v0-secondary {
     width: 100%;
     justify-content: center;
-    font-size: 0.9rem !important;
+    font-size: 0.88rem !important;
     min-height: 2.75rem !important;
   }
   .rv-v0-hero-actions {
@@ -7371,17 +7343,28 @@ html[data-theme="dark"] .admin-app aside { background-color: oklch(20% 0.04 285)
   .rv-v0-stats {
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
-    gap: 0.75rem !important;
+    gap: 0.5rem !important;
     text-align: center;
   }
   .rv-v0-stats b {
-    font-size: 1.35rem !important;
+    font-size: 1.25rem !important;
   }
   .rv-v0-stats span {
-    font-size: 0.72rem !important;
+    font-size: 0.7rem !important;
   }
   .rv-v0-float {
     display: none !important;
+  }
+  .rv-v0-section-title h2 {
+    font-size: clamp(1.3rem, 5.5vw, 1.85rem) !important;
+    line-height: 1.25 !important;
+  }
+  .rv-v0-section-title p {
+    font-size: 0.85rem !important;
+  }
+  .rv-v0-service-card,
+  .rv-v0-device-card {
+    border-radius: 1rem !important;
   }
 }
 
