@@ -1,0 +1,82 @@
+services:
+  - type: web
+    name: rejuvira-center-web
+    runtime: node
+    plan: starter
+    rootDir: .
+    autoDeploy: true
+    healthCheckPath: /api/health
+    buildCommand: npm ci --include=dev --no-audit --no-fund && npx prisma generate && npx prisma migrate deploy && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.19.0
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      # ── Database (Neon Postgres) ──────────────────────────────
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      # ── NextAuth ──────────────────────────────────────────────
+      - key: NEXTAUTH_URL
+        value: https://rejuveracenter.sa
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      # Mirrors used by NextAuth v5 internals when AUTH_* not set.
+      - key: AUTH_URL
+        value: https://rejuveracenter.sa
+      - key: AUTH_SECRET
+        sync: false
+      # ── Canonical site URL ───────────────────────────────────
+      - key: SITE_URL
+        value: https://rejuveracenter.sa
+      # ── Cloudflare R2 ────────────────────────────────────────
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ENDPOINT
+        sync: false
+      - key: R2_BUCKET
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_PUBLIC_BASE_URL
+        sync: false
+      # ── reCAPTCHA v3 ─────────────────────────────────────────
+      - key: RECAPTCHA_SITE_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+        sync: false
+      # ── Optional contact seeds ───────────────────────────────
+      - key: CONTACT_PHONE_PRIMARY
+        sync: false
+      - key: CONTACT_PHONE_SECONDARY
+        sync: false
+      - key: CONTACT_EMAIL_PRIMARY
+        sync: false
+      - key: CONTACT_EMAIL_SECONDARY
+        sync: false
+      # ── Optional maps embed seed ─────────────────────────────
+      - key: GOOGLE_MAPS_EMBED_URL
+        sync: false
+
+# Optional: a nightly backup cron that POSTs to the running web service
+# `/api/admin/backup` endpoint. Replace `<BACKUP_TOKEN>` with the value
+# set in environment as `BACKUP_TRIGGER_TOKEN` to protect the endpoint.
+# Uncomment when you are ready to enable scheduled backups.
+#
+# - type: cron
+#   name: rejuvira-nightly-backup
+#   runtime: docker
+#   schedule: "30 1 * * *"
+#   dockerCommand: |
+#     curl -sS -X POST \
+#       -H "Authorization: Bearer $BACKUP_TRIGGER_TOKEN" \
+#       https://rejuveracenter.sa/api/admin/backup
+#   envVars:
+#     - key: BACKUP_TRIGGER_TOKEN
+#       sync: false

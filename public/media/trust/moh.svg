@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 88" role="img" aria-label="H2'1) 'D5-) - Ministry of Health">
+  <defs>
+    <linearGradient id="moh-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0c5e3a"/>
+      <stop offset="100%" stop-color="#0a8049"/>
+    </linearGradient>
+    <linearGradient id="moh-cross" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#dff7e6"/>
+    </linearGradient>
+  </defs>
+  <rect width="220" height="88" rx="14" fill="url(#moh-bg)"/>
+  <g transform="translate(18,16)">
+    <circle cx="28" cy="28" r="26" fill="#ffffff" opacity="0.12"/>
+    <circle cx="28" cy="28" r="22" fill="#ffffff" opacity="0.18"/>
+    <path d="M22 12h12v10h10v12h-10v10h-12V34H12V22h10z" fill="url(#moh-cross)"/>
+  </g>
+  <g fill="#ffffff" font-family="'Inter','IBM Plex Sans Arabic',sans-serif">
+    <text x="80" y="36" font-size="14" font-weight="700">H2'1) 'D5-)</text>
+    <text x="80" y="56" font-size="9.5" font-weight="600" opacity="0.85" letter-spacing="0.6">Ministry of Health � KSA</text>
+    <text x="80" y="72" font-size="8" opacity="0.7" letter-spacing="0.5">Licensed Medical Facility</text>
+  </g>
+</svg>

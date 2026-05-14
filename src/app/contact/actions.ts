@@ -1,0 +1,102 @@
+"use server";
+
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+import { z } from "zod";
+
+import { recordAppLog } from "@/lib/app-log";
+import { createContactLead, getRuntimeSettings } from "@/lib/content-repository";
+import { verifyRecaptchaToken } from "@/lib/recaptcha";
+
+export type ContactActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
+
+const contactSchema = z.object({
+  fullName: z.string().min(3),
+  phone: z.string().min(8),
+  email: z.string().email().optional().or(z.literal("")),
+  message: z.string().max(1000).optional().or(z.literal("")),
+  serviceSlug: z.string().optional().or(z.literal("")),
+  preferredLanguage: z.string().optional().or(z.literal("")),
+  recaptchaToken: z.string().optional().or(z.literal("")),
+});
+
+export async function submitContactAction(
+  _previousState: ContactActionState,
+  formData: FormData,
+): Promise<ContactActionState> {
+  const parsed = contactSchema.safeParse({
+    fullName: formData.get("fullName"),
+    phone: formData.get("phone"),
+    email: formData.get("email"),
+    message: formData.get("message"),
+    serviceSlug: formData.get("serviceSlug"),
+    preferredLanguage: formData.get("preferredLanguage"),
+    recaptchaToken: formData.get("recaptchaToken"),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message:
+        "يرجى مراجعة بيانات التواصل والخدمة المطلوبة قبل الإرسال. / Please review your details before submitting.",
+    };
+  }
+
+  const settings = await getRuntimeSettings();
+  const requireRecaptcha =
+    settings.ops.recaptchaEnabled !== false &&
+    Boolean(process.env.RECAPTCHA_SECRET_KEY);
+
+  if (requireRecaptcha) {
+    const headerStore = await headers();
+    const forwardedFor = headerStore.get("x-forwarded-for") ?? "";
+    const remoteIp = forwardedFor.split(",")[0]?.trim() || undefined;
+    const verification = await verifyRecaptchaToken(
+      parsed.data.recaptchaToken,
+      "contact",
+      { remoteIp },
+    );
+    if (!verification.success || verification.score < 0.4) {
+      await recordAppLog({
+        level: "warn",
+        kind: "recaptcha",
+        message: "Contact form rejected by reCAPTCHA",
+        meta: {
+          score: verification.score,
+          action: verification.action,
+          errors: verification.errors,
+        },
+      });
+      return {
+        status: "error",
+        message:
+          "تعذّر التحقّق من الطلب لأسباب أمنية. الرجاء المحاولة مرة أخرى. / Could not verify your request for security reasons. Please try again.",
+      };
+    }
+  }
+
+  const result = await createContactLead({
+    fullName: parsed.data.fullName,
+    phone: parsed.data.phone,
+    preferredLanguage: parsed.data.preferredLanguage || "ar",
+    source: "Website contact form",
+    ...(parsed.data.email ? { email: parsed.data.email } : {}),
+    ...(parsed.data.message ? { message: parsed.data.message } : {}),
+    ...(parsed.data.serviceSlug
+      ? { serviceSlug: parsed.data.serviceSlug }
+      : {}),
+  });
+
+  revalidatePath("/admin/crm");
+
+  return {
+    status: "success",
+    message:
+      result.mode === "database"
+        ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق في أقرب وقت. / Your request has been received."
+        : "تم استلام طلبك بنجاح، وسيتواصل معك الفريق في أقرب وقت. / Your request has been received.",
+  };
+}

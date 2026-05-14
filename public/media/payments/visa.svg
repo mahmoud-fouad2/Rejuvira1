@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 56" role="img" aria-label="Visa">
+  <rect width="96" height="56" rx="10" fill="#ffffff" stroke="#e6e6e9"/>
+  <g transform="translate(0,12)">
+    <text x="48" y="26" text-anchor="middle" font-family="'Inter',Arial,sans-serif" font-size="22" font-weight="900" font-style="italic" fill="#1a1f71" letter-spacing="1.4">VISA</text>
+    <rect x="20" y="32" width="56" height="3" rx="1.5" fill="#f7b600"/>
+  </g>
+</svg>
