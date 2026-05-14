@@ -34,9 +34,9 @@ npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run pris
 ```
 
 ```bash
-# Start command — standalone Node server (smaller footprint than `next start` / npm wrapper)
-# and caps V8 heap for 512MB Render instances (tune if you upgrade plan).
-cd .next/standalone && NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=460" node server.js
+# Start command — standalone Node server (smaller than `npm run start`) with a
+# capped V8 heap (~460MB) so the web process stays under Render Starter’s ~512MB limit.
+cd .next/standalone && node --max-old-space-size=460 server.js
 ```
 
 Local smoke (after `npm run build`): `npm run start:standalone` (runs `server.js` with correct cwd).
@@ -93,7 +93,7 @@ the first deploy. Optional values can be added later.
 | `CONTACT_EMAIL_SECONDARY` | Optional | `info@rejuveracenter.com.sa` | Initial seed for DB Settings. |
 | `GOOGLE_MAPS_EMBED_URL` | Optional | `https://www.google.com/maps/embed?...` | Initial seed for `contact.mapsEmbedUrl`. |
 | `NEXT_TELEMETRY_DISABLED` | Optional | `1` | Disables Next.js anonymous telemetry. |
-| `NODE_OPTIONS` | Optional | Omit in dashboard | The **start command** already appends `--max-old-space-size=460` inside `.next/standalone`. Add extra Node flags here only when you want them applied consistently. |
+| `NODE_OPTIONS` | Optional | e.g. `--inspect` extras | Rarely needed — the Render **start command** already passes `--max-old-space-size` via `node`. Extra flags merge with Node defaults. |
 | `HOSTNAME` | Optional | `0.0.0.0` | Declared in `render.yaml`; ensures the standalone server binds publicly (Render supplies `PORT`). |
 
 > Secrets that the user has **not yet provided**:
@@ -193,3 +193,11 @@ Timeouts often happen when:
 **Fix (ops):** keep Neon reachable during deploy; avoid triggering overlapping deploys; ensure **`DIRECT_URL`** is the **direct** (non-pooler) connection string Neon documents for migrations.
 
 Last resort (single-worker setups only): set **`PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1`** on Render — Prisma documents this for clustered DBs; disabling removes collision protection, so do not use if multiple processes might migrate concurrently.
+
+### Ran out of memory (512MB) / instance restarting
+
+Starter instances cap RAM at ~**512MB** total — **RSS** includes V8 heap, buffers, native Prisma/driver memory, Next.js caches, concurrent requests, exports (PDF/XLS), etc.
+
+**Operational fixes:**
+- Prefer upgrading the web service to **Standard (2GB)** when traffic or admin exports are non-trivial.
+- The production start path uses **standalone `server.js`** plus `node --max-old-space-size=460` to avoid the Node/V8 allocator claiming the whole slab at once — if you upgrade plans you can raise/remove that cap via the documented start command tweak.
