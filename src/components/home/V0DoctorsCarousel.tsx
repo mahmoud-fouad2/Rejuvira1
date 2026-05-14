@@ -50,7 +50,7 @@ const defaultEyebrow = (
 const defaultTitle = (
   <>
     <span className="lang-ar">أطباء واستشاريون يفهمون التفاصيل</span>
-    <span className="lang-en">Clinicians who sweat the subtle details</span>
+    <span className="lang-en">Physicians who understand the details</span>
   </>
 );
 
@@ -60,7 +60,7 @@ const defaultDescription = (
       كل ملف يبرز التخصص وأعوام الخبرة واللغات والخدمات المرتبطة — بصياغة هادئة كما ستجدينها في العيادة.
     </span>
     <span className="lang-en">
-      Each profile emphasizes specialty, tenure, spoken languages, and aligned services — written with the bedside tone you will meet in clinic.
+      Each profile highlights specialty, experience, languages, and related services — presented as you would find them in the clinic.
     </span>
   </>
 );

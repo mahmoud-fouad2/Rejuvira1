@@ -8011,7 +8011,295 @@ select:focus-visible {
   border-radius: 0.25rem;
 }
 
-/* ── 42. Print: basic cleanup ──────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   REJUVIRA · Visual Design Polish — Professional Medical Aesthetic
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 42. Header: refined sticky bar with subtle border ─────── */
+.rv-v0-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.rv-v0-nav-shell {
+  border-bottom: 1px solid rgba(74, 36, 118, 0.08) !important;
+}
+html[data-theme="dark"] .rv-v0-nav-shell {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── 43. Top strip: compact and refined ────────────────────── */
+.rv-v0-top-strip {
+  font-size: 0.78rem !important;
+  padding-block: 0.4rem !important;
+  letter-spacing: 0.01em;
+}
+.rv-v0-top-contact a {
+  gap: 0.4rem !important;
+  font-weight: 500;
+}
+
+/* ── 44. Hero: balanced visual weight ──────────────────────── */
+.rv-v0-hero {
+  padding-block: clamp(2rem, 5vw, 4.5rem) !important;
+}
+.rv-v0-hero-copy h1 {
+  text-wrap: balance;
+}
+.rv-v0-pill-live {
+  animation: rv-pill-pulse 3s ease-in-out infinite;
+}
+@keyframes rv-pill-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 36, 118, 0.15); }
+  50% { box-shadow: 0 0 0 6px rgba(74, 36, 118, 0); }
+}
+
+/* ── 45. Section spacing: consistent rhythm ────────────────── */
+.rv-v0-section {
+  padding-block: clamp(2.5rem, 5vw, 4rem) !important;
+}
+.rv-v0-section-title {
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem) !important;
+}
+
+/* ── 46. Cards: refined shadows and hover states ───────────── */
+.rv-v0-service-card,
+.rv-v0-device-card,
+.rv-v0-trust-card,
+.rv-v0-testimonial {
+  transition: transform 280ms ease, box-shadow 280ms ease, border-color 280ms ease !important;
+}
+.rv-v0-service-card:hover,
+.rv-v0-device-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 50px rgba(74, 36, 118, 0.12) !important;
+}
+
+/* ── 47. Trust grid: subtle gradient accent ────────────────── */
+.rv-v0-trust-card {
+  position: relative;
+  overflow: hidden;
+}
+.rv-v0-trust-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--rv-purple), var(--rv-purple-soft));
+  border-radius: 0 2px 2px 0;
+  opacity: 0;
+  transition: opacity 250ms ease;
+}
+.rv-v0-trust-card:hover::before {
+  opacity: 1;
+}
+
+/* ── 48. Doctors card: polished photo overlay ──────────────── */
+.rv-doctor-card-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(28, 18, 48, 0.5) 100%);
+  pointer-events: none;
+}
+
+/* ── 49. Footer: refined section separators ────────────────── */
+.rv-v0-footer-shell {
+  position: relative;
+}
+.rv-v0-footer-title {
+  position: relative;
+  padding-bottom: 0.6rem;
+}
+.rv-v0-footer-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: 2rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--rv-purple), transparent);
+  border-radius: 1px;
+}
+
+/* ── 50. Sub-page surface panels: consistent shadows ──────── */
+.surface-panel {
+  box-shadow: 0 4px 24px rgba(28, 18, 48, 0.04), 0 1px 3px rgba(28, 18, 48, 0.03) !important;
+  transition: box-shadow 300ms ease, transform 300ms ease !important;
+}
+.surface-panel:hover {
+  box-shadow: 0 12px 40px rgba(28, 18, 48, 0.08), 0 2px 8px rgba(28, 18, 48, 0.04) !important;
+}
+
+/* ── 51. Sub-page eyebrow labels: consistent styling ──────── */
+.eyebrow {
+  display: inline-block;
+  font-size: 0.68rem !important;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rv-purple) !important;
+  background: rgba(74, 36, 118, 0.06);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 36, 118, 0.1);
+}
+html[data-theme="dark"] .eyebrow {
+  color: oklch(78% 0.12 285) !important;
+  background: rgba(142, 90, 200, 0.1);
+  border-color: rgba(142, 90, 200, 0.15);
+}
+
+/* ── 52. Buttons: consistent primary/secondary styling ────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--rv-purple), var(--rv-purple-soft));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(74, 36, 118, 0.2);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(74, 36, 118, 0.28);
+}
+.btn-secondary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.35rem;
+  border-radius: 0.85rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--rv-purple-strong);
+  background: rgba(74, 36, 118, 0.04);
+  border: 1px solid var(--rv-line);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+.btn-secondary:hover,
+.btn-ghost:hover {
+  background: rgba(74, 36, 118, 0.08);
+  border-color: rgba(74, 36, 118, 0.2);
+}
+
+/* ── 53. Gallery page: refined card style ──────────────────── */
+.section-shell {
+  margin-inline: auto;
+  max-width: var(--max-width);
+  padding-inline: clamp(0.75rem, 3vw, 2.5rem);
+}
+
+/* ── 54. Smooth page transitions ───────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in { animation: none !important; }
+}
+
+/* ── 55. Mobile: refined mobile menu appearance ────────────── */
+@media (max-width: 768px) {
+  .rv-v0-mobile-menu {
+    background: var(--rv-card) !important;
+    border-top: 2px solid var(--rv-purple) !important;
+  }
+  .rv-v0-mobile-link {
+    border-radius: 0.75rem !important;
+    font-weight: 600;
+    transition: background 180ms ease;
+  }
+  .rv-v0-mobile-link:active {
+    background: rgba(74, 36, 118, 0.08);
+  }
+}
+
+/* ── 56. Doctor quotes slider: mobile ──────────────────────── */
+@media (max-width: 640px) {
+  .rv-v0-doc-quotes-shell {
+    position: relative;
+  }
+  .rv-v0-doc-quotes-nav {
+    display: none !important;
+  }
+  .rv-v0-doc-quote-slide {
+    width: min(85vw, 20rem) !important;
+    flex: 0 0 min(85vw, 20rem) !important;
+    scroll-snap-align: center;
+  }
+  .rv-v0-doc-quotes-viewport {
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ── 57. Badge component refinement ────────────────────────── */
+.rv-v0-mini-chip {
+  font-size: 0.75rem !important;
+  padding: 0.3rem 0.65rem !important;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+/* ── 58. Testimonial grid cards: refined ───────────────────── */
+.rv-v0-testimonial {
+  border-radius: 1.25rem !important;
+  padding: 1.25rem !important;
+}
+.rv-v0-testimonial b {
+  color: var(--rv-purple);
+  font-size: 2rem;
+  line-height: 1;
+}
+.rv-v0-stars {
+  color: #d4a44a;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+}
+
+/* ── 59. Contact section: visual cohesion ──────────────────── */
+.rv-v0-home-contact-section {
+  position: relative;
+}
+.rv-v0-home-contact-check {
+  color: var(--rv-purple) !important;
+  font-weight: 700;
+}
+
+/* ── 60. Wide stats: consistent bar design ─────────────────── */
+.rv-v0-wide-stats {
+  border-radius: 1.25rem !important;
+  padding: 1.25rem 1.5rem !important;
+}
+.rv-v0-wide-stats b {
+  background: linear-gradient(135deg, var(--rv-purple-strong), var(--rv-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 61. Selection / interaction feedback ──────────────────── */
+::selection {
+  background: rgba(74, 36, 118, 0.15);
+  color: inherit;
+}
+html[data-theme="dark"] ::selection {
+  background: rgba(142, 90, 200, 0.25);
+}
+
+/* ── 62. Print: basic cleanup ──────────────────────────────── */
 @media print {
   .rv-v0-header,
   .rv-mobile-details,
