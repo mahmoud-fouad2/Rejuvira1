@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:deploy:retry": "node scripts/render-migrate-deploy.mjs",
     "db:push": "prisma db push",
     "seed:admin": "node scripts/seed-admin.mjs"
   },

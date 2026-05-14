@@ -30,7 +30,7 @@ Use these **exact** strings in Render → Settings → Build & Deploy:
 ```bash
 # Build command (--include=dev: Render sets NODE_ENV=production; without this,
 # devDependencies like Prisma CLI / Tailwind tooling may be skipped and the build fails.)
-npm ci --include=dev --no-audit --no-fund && npx prisma generate && npx prisma migrate deploy && npm run build
+npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run build
 ```
 
 ```bash
@@ -40,8 +40,10 @@ npm run start
 
 Notes:
 
-- `prisma migrate deploy` is intentionally part of the build so
-  database schema is in sync **before** the new image is rolled out.
+- `prisma migrate deploy` runs during the build (via
+  `npm run prisma:migrate:deploy:retry`) so schema stays in sync before
+  rollout. The wrapper retries on transient **P1002** advisory-lock timeouts
+  (common with Neon cold starts or overlapping Render builds).
 - `npm ci` (not `npm install`) is used so the build is reproducible
   from `package-lock.json`.
 - The Next.js build is `next build` (with `output: "standalone"` set
@@ -62,8 +64,8 @@ the first deploy. Optional values can be added later.
 
 | Key | Required | Sample value | Purpose |
 | --- | --- | --- | --- |
-| `DATABASE_URL` | Yes | `postgresql://neondb_owner:...@ep-flat-bread-apt4kg3s.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require` | Neon pooled connection used at runtime. |
-| `DIRECT_URL` | Yes | same as above | Direct Neon connection used by `prisma migrate deploy`. |
+| `DATABASE_URL` | Yes | Neon **pooled** URI (`…-pooler…` host when Neon offers it) | Used by the app at runtime (serverless-friendly). |
+| `DIRECT_URL` | Yes | Neon **direct** URI (non-pooler host) | Required for `prisma migrate deploy` during build (advisory locks). Do **not** point both at the pooler-only endpoint. |
 | `NEXTAUTH_URL` | Yes | `https://rejuveracenter.sa` | Public base URL for NextAuth callbacks. |
 | `NEXTAUTH_SECRET` | Yes | `<random 32+ bytes>` | NextAuth session encryption secret. Generate with `openssl rand -base64 32`. Render can auto-generate this. |
 | `AUTH_URL` | Yes | `https://rejuveracenter.sa` | NextAuth v5 mirror of `NEXTAUTH_URL`. |
@@ -167,3 +169,18 @@ Render logs show the hostname **`HOST`** when **`DATABASE_URL` / `DIRECT_URL`** 
 5. Redeploy.
 
 After fixing, Prisma should resolve something like `ep-flat-bread-….neon.tech`, not `HOST`.
+
+### `P1002: … timed out … postgres advisory lock`
+
+Prisma Migrate waits up to **10 seconds** for `pg_advisory_lock`; this cannot be raised from config.
+Timeouts often happen when:
+
+- Neon compute was **asleep** and wakes slowly during the build.
+- **Two Render deploys** run `migrate deploy` at once (auto-deploy + manual redeploy).
+- Another session still holds the migrate lock.
+
+**Fix (repo):** the build uses `npm run prisma:migrate:deploy:retry`, which retries several times with a pause between attempts.
+
+**Fix (ops):** keep Neon reachable during deploy; avoid triggering overlapping deploys; ensure **`DIRECT_URL`** is the **direct** (non-pooler) connection string Neon documents for migrations.
+
+Last resort (single-worker setups only): set **`PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK=1`** on Render — Prisma documents this for clustered DBs; disabling removes collision protection, so do not use if multiple processes might migrate concurrently.
