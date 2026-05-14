@@ -29,49 +29,49 @@ type V0InspiredHomeProps = {
 const fallbackTestimonialsBi: readonly TestimonialItem[] = [
   {
     quoteAr: "تجربة راقية من أول تواصل، والخطة كانت واضحة والنتيجة طبيعية جدًا.",
-    quoteEn: "Refined bedside manner from hello — the roadmap made sense and the outcome still looks like me.",
+    quoteEn: "A refined experience from the start — the plan was clear and the results look natural.",
     authorAr: "نورة",
     authorEn: "Noura",
   },
   {
     quoteAr: "أكثر ما أعجبني هو هدوء الشرح وعدم الاستعجال في اتخاذ القرار.",
-    quoteEn: "They never rushed consent; explanations stayed calm even when questions piled up.",
+    quoteEn: "They never rushed the process; explanations were calm and thorough even with many questions.",
     authorAr: "سارة",
     authorEn: "Sarah",
   },
   {
     quoteAr: "المكان منظم، والحجز والمتابعة بعد الجلسة كانا على مستوى عالٍ.",
-    quoteEn: "Surgical cleanliness, painless scheduling, and proactive check-ins afterward.",
+    quoteEn: "Well-organized facility, smooth booking, and consistent follow-up after sessions.",
     authorAr: "ريم",
     authorEn: "Reem",
   },
   {
     quoteAr: "كل خطوة كانت مفهومة قبل البدء، وهذا منحني ثقة حقيقية.",
-    quoteEn: "Every modality was unpacked before we touched settings — restored my trust instantly.",
+    quoteEn: "Every step was explained before starting — that truly gave me confidence.",
     authorAr: "جود",
     authorEn: "Jood",
   },
   {
     quoteAr: "شرحٌ هادئ بلا ضغط، وتقييم مبني على معطيات الحالة فقط.",
-    quoteEn: "Zero pressure theatrics — decisions tracked directly to anatomical truths.",
+    quoteEn: "No pressure at all — decisions were based purely on my actual needs.",
     authorAr: "هند",
     authorEn: "Hind",
   },
   {
     quoteAr: "قراءة الحالة بدقة قبل أي إجراء، وهذا ما يفرق هنا.",
-    quoteEn: "They benchmarked physiology before prescribing devices — rare and appreciated.",
+    quoteEn: "They assessed my skin thoroughly before recommending any treatment — that's rare.",
     authorAr: "لمى",
     authorEn: "Lama",
   },
   {
     quoteAr: "تفاصيل المتابعة بعد الجلسة جعلت التجربة أكثر اطمئنانًا.",
-    quoteEn: "Post-op texts were clinician-written, not marketing bots.",
+    quoteEn: "The follow-up messages were personal and professional, not automated.",
     authorAr: "أمل",
     authorEn: "Amal",
   },
   {
     quoteAr: "استقبال منظم، وفريق يعرف ما يقول قبل أن يقول.",
-    quoteEn: "Front-of-house choreography matched medical rigor backstage.",
+    quoteEn: "Organized reception and a team that knows exactly what they're doing.",
     authorAr: "غادة",
     authorEn: "Ghada",
   },
@@ -82,25 +82,25 @@ const fallbackTrustItems = [
     badgeAr: "و",
     badgeEn: "M",
     titleAr: "وزارة الصحة",
-    titleEn: "Licensed oversight",
+    titleEn: "MOH Licensed",
     bodyAr: "تشغيل طبي منظم ومتوافق مع الاشتراطات المعتمدة.",
-    bodyEn: "Day-to-day operations aligned with published MOH frameworks.",
+    bodyEn: "Operations aligned with Ministry of Health standards.",
   },
   {
     badgeAr: "ب",
     badgeEn: "P",
     titleAr: "بروتوكولات معتمدة",
-    titleEn: "Peer-reviewed pathways",
+    titleEn: "Certified protocols",
     bodyAr: "تقنيات عالمية ضمن تقييم دقيق للحالة.",
-    bodyEn: "Global platforms deployed only after candidacy clears medical review.",
+    bodyEn: "International technologies used only after thorough case assessment.",
   },
   {
     badgeAr: "خ",
     badgeEn: "P",
     titleAr: "خصوصية سريرية",
-    titleEn: "Clinical privacy",
+    titleEn: "Complete privacy",
     bodyAr: "رحلة علاجية هادئة وسرية في كل خطوة.",
-    bodyEn: "Discreet choreography from intake through after-photos.",
+    bodyEn: "A private and comfortable experience at every step.",
   },
 ] as const;
 
@@ -208,10 +208,10 @@ export function V0InspiredHome({
                 [
                   {
                     ar: "أطباء واستشاريون معتمدون",
-                    en: "Board-aware physicians & injectors",
+                    en: "Board-certified physicians",
                   },
-                  { ar: "خطة علاجية مفهومة", en: "Readable treatment choreography" },
-                  { ar: "متابعة واضحة عبر الفريق", en: "Warm handoffs across the podium" },
+                  { ar: "خطة علاجية مفهومة", en: "Clear treatment plans" },
+                  { ar: "متابعة واضحة عبر الفريق", en: "Dedicated follow-up care" },
                 ] as const
               ).map((item) => (
                 <span key={item.ar}>
@@ -269,14 +269,9 @@ export function V0InspiredHome({
               />
             </div>
             <div className="rv-v0-float rv-v0-float-top">
-              <b>500+</b>
-              <span className="lang-ar">حجوزات هذا الشهر</span>
-              <span className="lang-en">Bookings this month</span>
-              <div>
-                <i>أ</i>
-                <i>س</i>
-                <i>م</i>
-              </div>
+              <b>{serviceSource.length}+</b>
+              <span className="lang-ar">خدمة متخصصة</span>
+              <span className="lang-en">Specialized services</span>
             </div>
             <div className="rv-v0-float rv-v0-moh">
               <span className="lang-ar">
@@ -310,7 +305,7 @@ export function V0InspiredHome({
           title={
             <>
               <span className="lang-ar">خدمات طبية بتجربة أوضح</span>
-              <span className="lang-en">Medical programs with quieter storytelling</span>
+              <span className="lang-en">Medical services designed for clarity</span>
             </>
           }
           lead={
@@ -319,7 +314,7 @@ export function V0InspiredHome({
                 كل خدمة تُصف بنفس الأولويات السريرية المعتمدة داخل المركز، مع تناسق بين الصفحة والعيادة.
               </span>
               <span className="lang-en">
-                Editorial order mirrors clinic triage priorities so expectation matches bedside reality.
+                Each service is presented with the same clinical priorities used inside the center, ensuring consistency between the page and the clinic.
               </span>
             </>
           }
@@ -460,7 +455,7 @@ export function V0InspiredHome({
           title={
             <>
               <span className="lang-ar">تقنيات حديثة ضمن خطة مناسبة</span>
-              <span className="lang-en">Modern energy platforms, responsibly slotted into plans</span>
+              <span className="lang-en">Advanced devices within tailored treatment plans</span>
             </>
           }
           lead={
@@ -469,7 +464,7 @@ export function V0InspiredHome({
                 تعرض هذه البطاقات الأجهزة المعتمدة داخل المركز مع شهاداتها لمساعدتك على فهم دور كل تقنية قبل الالتزام.
               </span>
               <span className="lang-en">
-                Credentials stay visible beside every platform so curiosity never outpaces evidence.
+                Each device is shown with its certifications so you can understand its role before committing.
               </span>
             </>
           }
@@ -551,13 +546,13 @@ export function V0InspiredHome({
           title={
             <>
               <span className="lang-ar">تجارب حقيقية بلغة أوضح</span>
-              <span className="lang-en">Plain-language testimonials</span>
+              <span className="lang-en">Real experiences in their own words</span>
             </>
           }
           lead={
             <>
               <span className="lang-ar">إشارات مختصرة عن التنسيق قبل الجلسة، أثناءها، وبعدها.</span>
-              <span className="lang-en">Micro-stories anchored to pre-, intra-, and post-visit choreography.</span>
+              <span className="lang-en">Brief notes about the experience before, during, and after each visit.</span>
             </>
           }
         />

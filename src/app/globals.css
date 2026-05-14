@@ -7898,7 +7898,120 @@ main {
   }
 }
 
-/* ── 34. Print: basic cleanup ──────────────────────────────── */
+/* ── 34. Scroll-to-top: mobile-friendly placement ──────────── */
+@media (max-width: 640px) {
+  .rv-v0-scroll-top {
+    bottom: 1rem !important;
+    inset-inline-start: 1rem !important;
+    width: 2.6rem !important;
+    height: 2.6rem !important;
+  }
+}
+
+/* ── 35. Touch targets: minimum 44px on mobile ─────────────── */
+@media (max-width: 768px) {
+  .rv-v0-nav-link,
+  .rv-v0-mobile-link,
+  .rv-v0-footer-link,
+  .rv-v0-footer-social-btn,
+  .rv-v0-footer-cta,
+  .rv-v0-footer-contact-row {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .rv-v0-mobile-link {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+  }
+  .rv-v0-footer-social-btn {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+}
+
+/* ── 36. Strip carousel: visible and scrollable on mobile ──── */
+@media (max-width: 640px) {
+  .rv-strip-slide {
+    width: min(80vw, 16rem) !important;
+  }
+  .rv-strip-card {
+    grid-template-rows: 8rem auto !important;
+  }
+  .rv-strip-head {
+    padding-inline: 0.75rem;
+  }
+  .rv-strip-head h2 {
+    font-size: clamp(1.25rem, 5vw, 1.8rem) !important;
+  }
+  .rv-strip-dots {
+    margin-top: 0.75rem;
+  }
+}
+
+/* ── 37. Doctors carousel: scroll snap on mobile ───────────── */
+@media (max-width: 640px) {
+  .v0-doctors-viewport {
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .v0-doctor-slide {
+    scroll-snap-align: start;
+    width: min(78vw, 16rem) !important;
+    flex: 0 0 min(78vw, 16rem) !important;
+  }
+  .v0-doctor-card {
+    min-width: 0 !important;
+  }
+  .rv-doctors-nav {
+    display: none !important;
+  }
+}
+
+/* ── 38. RTL consistency: flip arrows and directional spacing ─ */
+[dir="rtl"] .rv-v0-hero-actions svg,
+[dir="rtl"] .rv-strip-nav-prev svg {
+  transform: scaleX(-1);
+}
+
+/* ── 39. Contact form: clean on mobile ─────────────────────── */
+@media (max-width: 640px) {
+  .rv-v0-home-contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .rv-v0-home-contact-copy {
+    text-align: center;
+  }
+  .rv-v0-home-contact-benefits {
+    text-align: start;
+  }
+  .rv-v0-home-contact-channels {
+    grid-template-columns: 1fr !important;
+  }
+  .rv-v0-home-contact-form-card {
+    border-radius: 1.25rem !important;
+  }
+}
+
+/* ── 40. Smooth image loading placeholder ──────────────────── */
+img[data-nimg] {
+  background: linear-gradient(135deg, rgba(74, 36, 118, 0.04), rgba(201, 162, 106, 0.04));
+}
+
+/* ── 41. Focus visible: accessible outlines ────────────────── */
+a:focus-visible,
+button:focus-visible,
+[role="tab"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--rv-purple-strong, #4a2476);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* ── 42. Print: basic cleanup ──────────────────────────────── */
 @media print {
   .rv-v0-header,
   .rv-mobile-details,
