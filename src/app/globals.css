@@ -7697,204 +7697,25 @@ main {
   }
 }
 
-/* ── 24. Sub-pages: hero grids stack on mobile ─────────────── */
+/* ── 24. Sub-pages: mobile layout ──────────────────────────── */
 @media (max-width: 768px) {
-  /* All public pages use lg:grid-cols-[Xfr_Yfr] hero grids */
   .section-shell,
   main.mx-auto {
     padding-inline: 0.75rem !important;
   }
-  main .grid[class*="lg:grid-cols"] {
-    grid-template-columns: 1fr !important;
-  }
-  /* Large serif headings: clamp down */
-  .font-serif.text-5xl,
-  .font-serif.text-6xl {
-    font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
-    line-height: 1.18 !important;
-  }
-  .font-serif.text-4xl {
-    font-size: clamp(1.35rem, 5vw, 2rem) !important;
-    line-height: 1.22 !important;
-  }
-  .font-serif.text-3xl {
-    font-size: clamp(1.15rem, 4.5vw, 1.65rem) !important;
-    line-height: 1.25 !important;
-  }
-  /* Rounded panels: less aggressive rounding on mobile */
-  .surface-panel[class*="rounded-[2.5rem]"],
-  .surface-panel[class*="rounded-[2.75rem]"] {
-    border-radius: 1.25rem !important;
-  }
-  .surface-panel .rounded-\[2rem\] {
-    border-radius: 1rem !important;
-  }
-  /* Padding: tighter on mobile */
-  .surface-panel[class*="p-8"],
-  .surface-panel[class*="p-12"],
-  .surface-panel[class*="lg:p-12"],
-  .surface-panel[class*="lg:p-10"] {
-    padding: 1.25rem !important;
-  }
-  /* Stats rows inside sub-pages */
-  main .grid.gap-4.sm\:grid-cols-3 {
-    grid-template-columns: repeat(3, 1fr) !important;
-    gap: 0.5rem !important;
-  }
-  main .grid.gap-4.sm\:grid-cols-3 > div {
-    padding: 0.75rem !important;
-  }
-  main .grid.gap-4.sm\:grid-cols-3 .font-serif.text-3xl {
-    font-size: 1.3rem !important;
-  }
-  /* Large gap between sections: reduce on mobile */
   .flex.flex-col.gap-28 {
     gap: 3rem !important;
   }
   .flex.flex-col.gap-20 {
     gap: 2.5rem !important;
   }
-  /* Hero images: constrain height */
-  .relative.min-h-\[30rem\],
-  .relative.min-h-\[38rem\],
-  .relative.min-h-\[26rem\],
-  .relative.min-h-\[24rem\] {
-    min-height: 14rem !important;
-  }
-  /* Grid cols-2 inside cards: stack */
-  main .grid.grid-cols-2.gap-5,
-  main .grid.grid-cols-2.gap-3 {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem !important;
-  }
-  /* Eyebrow text */
-  .eyebrow {
-    font-size: 0.65rem !important;
-  }
-  /* Lead text */
-  .text-lg.leading-8 {
-    font-size: 0.92rem !important;
-    line-height: 1.65 !important;
-  }
-  /* Button: full width on small */
-  .btn-primary,
-  .btn-secondary,
-  .btn-ghost {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
-  /* Gallery page: mood grid smaller */
-  .relative.m-3.h-48 {
-    height: 8rem !important;
-    margin: 0.5rem !important;
-  }
-  .relative.m-2\.5.h-28 {
-    height: 5rem !important;
-    margin: 0.35rem !important;
-  }
 }
 
-/* ── 25. Tablet sub-page refinements ───────────────────────── */
-@media (min-width: 769px) and (max-width: 1024px) {
-  main .grid[class*="lg:grid-cols"][class*="xl:grid-cols-3"] {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
-  .font-serif.text-5xl,
-  .font-serif.text-6xl {
-    font-size: clamp(2rem, 4.5vw, 3.2rem) !important;
-  }
-}
-
-/* ── 26. Contact page: channel cards stack ─────────────────── */
-@media (max-width: 640px) {
-  main .grid.gap-4 > a.group {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.5rem !important;
-    padding: 1rem !important;
-  }
-  main .grid.gap-4 > a.group > span:last-child {
-    align-self: flex-end;
-  }
-  /* Contact page grid-cols-2 small cards */
-  main .grid.grid-cols-2.gap-5 > .surface-panel {
-    padding: 1rem !important;
-  }
-  main .grid.grid-cols-2.gap-5 .font-serif.text-4xl {
-    font-size: 1.5rem !important;
-  }
-}
-
-/* ── 27. Services/doctors grid: single col on mobile ──────── */
-@media (max-width: 768px) {
-  main .grid[class*="xl:grid-cols-2"],
-  main .grid[class*="lg:grid-cols-2"]:not([class*="sm:grid-cols"]) {
-    grid-template-columns: 1fr !important;
-  }
-  /* Service card inner grid */
-  main article.surface-panel .grid[class*="lg:grid-cols"] {
-    grid-template-columns: 1fr !important;
-  }
-  main .relative.min-h-\[22rem\] {
-    min-height: 12rem !important;
-  }
-}
-
-/* ── 28. Journal page: card grid responsive ────────────────── */
-@media (max-width: 640px) {
-  .rv-journal-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* ── 29. Glass card overlays: readable on mobile ───────────── */
+/* ── 25. Sub-page images: constrain on mobile ──────────────── */
 @media (max-width: 640px) {
   .glass-card {
     padding: 0.75rem !important;
     border-radius: 1rem !important;
-  }
-  .glass-card .font-serif.text-2xl {
-    font-size: 1.1rem !important;
-  }
-}
-
-/* ── 30. Smooth page padding top (below sticky header) ────── */
-@media (max-width: 768px) {
-  main.mx-auto,
-  main.section-shell {
-    padding-top: 1rem !important;
-    padding-bottom: 3rem !important;
-  }
-}
-
-/* ── 31. CTA section: stack on mobile ──────────────────────── */
-@media (max-width: 768px) {
-  .surface-panel .flex.flex-wrap.items-center.justify-between.gap-8 {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    text-align: center;
-  }
-  .surface-panel .flex.flex-wrap.gap-4 {
-    flex-direction: column;
-  }
-}
-
-/* ── 32. Doctor card images: shorter on mobile ─────────────── */
-@media (max-width: 640px) {
-  main article .group.relative.h-80 {
-    height: 14rem !important;
-  }
-}
-
-/* ── 33. About page timeline: tighter ──────────────────────── */
-@media (max-width: 640px) {
-  main .space-y-4 > div {
-    flex-direction: column !important;
-    gap: 0.5rem !important;
-  }
-  .text-gold.font-serif.text-3xl {
-    font-size: 1.5rem !important;
   }
 }
 
@@ -8125,11 +7946,8 @@ html[data-theme="dark"] .rv-v0-nav-shell {
 
 /* ── 50. Sub-page surface panels: consistent shadows ──────── */
 .surface-panel {
-  box-shadow: 0 4px 24px rgba(28, 18, 48, 0.04), 0 1px 3px rgba(28, 18, 48, 0.03) !important;
-  transition: box-shadow 300ms ease, transform 300ms ease !important;
-}
-.surface-panel:hover {
-  box-shadow: 0 12px 40px rgba(28, 18, 48, 0.08), 0 2px 8px rgba(28, 18, 48, 0.04) !important;
+  box-shadow: 0 4px 24px rgba(28, 18, 48, 0.04), 0 1px 3px rgba(28, 18, 48, 0.03);
+  transition: box-shadow 300ms ease, transform 300ms ease;
 }
 
 /* ── 51. Sub-page eyebrow labels: consistent styling ──────── */
@@ -8198,17 +8016,7 @@ html[data-theme="dark"] .eyebrow {
   padding-inline: clamp(0.75rem, 3vw, 2.5rem);
 }
 
-/* ── 54. Smooth page transitions ───────────────────────────── */
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-in { animation: none !important; }
-}
+/* animate-fade-in already defined globally — do not duplicate */
 
 /* ── 55. Mobile: refined mobile menu appearance ────────────── */
 @media (max-width: 768px) {
