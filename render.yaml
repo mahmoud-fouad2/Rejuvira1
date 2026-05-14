@@ -14,6 +14,10 @@ services:
       - key: HOSTNAME
         value: 0.0.0.0
       # ── Database (Neon Postgres) ──────────────────────────────
+      - key: PRISMA_MIGRATE_DEPLOY_RETRIES
+        value: 10
+      - key: PRISMA_MIGRATE_DEPLOY_RETRY_DELAY_MS
+        value: 30000
       - key: DATABASE_URL
         sync: false
       - key: DIRECT_URL

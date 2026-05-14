@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -8,34 +8,34 @@ import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
 
 const quickLinks = [
-  { href: "/", labelAr: "Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©", labelEn: "Home" },
-  { href: "/services", labelAr: "Ø§Ù„Ø®Ø¯Ù…Ø§Øª", labelEn: "Services" },
-  { href: "/doctors", labelAr: "Ø£Ø·Ø¨Ø§Ø¤Ù†Ø§", labelEn: "Doctors" },
-  { href: "/devices", labelAr: "Ø£Ø¬Ù‡Ø²ØªÙ†Ø§", labelEn: "Devices" },
-  { href: "/gallery", labelAr: "Ù…Ø¹Ø±Ø¶ Ø§Ù„ØµÙˆØ±", labelEn: "Gallery" },
-  { href: "/journal", labelAr: "Ø§Ù„Ù…Ø¬Ù„Ø© Ø§Ù„Ø·Ø¨ÙŠØ©", labelEn: "Journal" },
-  { href: "/contact", labelAr: "ØªÙˆØ§ØµÙ„ÙŠ Ù…Ø¹Ù†Ø§", labelEn: "Contact" },
+  { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
+  { href: "/services", labelAr: "الخدمات", labelEn: "Services" },
+  { href: "/doctors", labelAr: "أطباؤنا", labelEn: "Doctors" },
+  { href: "/devices", labelAr: "أجهزتنا", labelEn: "Devices" },
+  { href: "/gallery", labelAr: "معرض الصور", labelEn: "Gallery" },
+  { href: "/journal", labelAr: "المجلة الطبية", labelEn: "Journal" },
+  { href: "/contact", labelAr: "تواصلي معنا", labelEn: "Contact" },
 ] as const;
 
 // Trust badges curated for KSA medical aesthetics context. Each badge keeps a
 // constrained box and uses next/image with explicit width/height (no `fill`).
 const trustBadges = [
-  { src: "/media/trust/moh.svg", alt: "ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ© - Ministry of Health KSA" },
-  { src: "/media/trust/saudi-health-council.svg", alt: "Ø§Ù„Ù‡ÙŠØ¦Ø© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ© Ù„Ù„ØªØ®ØµØµØ§Øª Ø§Ù„ØµØ­ÙŠØ© - Saudi Health Council" },
-  { src: "/media/trust/cbahi.svg", alt: "Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ø±ÙƒØ² Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠ Ù„Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„ØµØ­ÙŠØ© - CBAHI" },
-  { src: "/media/trust/iso-9001.svg", alt: "Ø´Ù‡Ø§Ø¯Ø© ISO 9001 Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¬ÙˆØ¯Ø© - ISO 9001 quality certified" },
+  { src: "/media/trust/moh.svg", alt: "وزارة الصحة السعودية - Ministry of Health KSA" },
+  { src: "/media/trust/saudi-health-council.svg", alt: "الهيئة السعودية للتخصصات الصحية - Saudi Health Council" },
+  { src: "/media/trust/cbahi.svg", alt: "اعتماد المركز السعودي لاعتماد المنشآت الصحية - CBAHI" },
+  { src: "/media/trust/iso-9001.svg", alt: "شهادة ISO 9001 لإدارة الجودة - ISO 9001 quality certified" },
 ] as const;
 
 // Payment methods commonly accepted by Saudi aesthetic clinics. AMEX removed
 // per local prevalence.
 const paymentMethods = [
-  { src: "/media/payments/mada.svg", alt: "Ù…Ø¯Ù‰ - Mada" },
+  { src: "/media/payments/mada.svg", alt: "مدى - Mada" },
   { src: "/media/payments/visa.svg", alt: "Visa" },
   { src: "/media/payments/mastercard.svg", alt: "Mastercard" },
   { src: "/media/payments/apple-pay.svg", alt: "Apple Pay" },
   { src: "/media/payments/stc-pay.svg", alt: "STC Pay" },
-  { src: "/media/payments/tabby.svg", alt: "Tabby â€” Ø§Ù‚Ø³Ø·Ù‡Ø§" },
-  { src: "/media/payments/tamara.svg", alt: "Tamara â€” Ù‚Ø³Ù‘Ù…Ù‡Ø§" },
+  { src: "/media/payments/tabby.svg", alt: "Tabby — اقسطها" },
+  { src: "/media/payments/tamara.svg", alt: "Tamara — قسّمها" },
 ] as const;
 
 function PhoneIcon({ className }: { className?: string }) {
@@ -192,14 +192,14 @@ export async function SiteFooter() {
             <p className="mt-5 max-w-sm text-sm leading-8 text-[color:var(--rv-muted)]">
               <span className="lang-ar">{runtimeSettings.brand.tagline}</span>
               <span className="lang-en">
-                Rejuvira Center â€” discreet, clinician-led dermatology and aesthetics with privacy-first coordination and attentive follow-up.
+                Rejuvira Center — discreet, clinician-led dermatology and aesthetics with privacy-first coordination and attentive follow-up.
               </span>
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {[
-                { ar: "ÙˆØ²Ø§Ø±Ø© Ø§Ù„ØµØ­Ø©", en: "MOH-aligned care" },
-                { ar: "Ø£Ø¬Ù‡Ø²Ø© Ù…Ø¹ØªÙ…Ø¯Ø©", en: "Vetted technologies" },
-                { ar: `Ø²Ù…Ù† Ø§Ù„Ø±Ø¯ ${runtimeSettings.ops.sla}`, en: `${runtimeSettings.ops.sla} response target` },
+                { ar: "وزارة الصحة", en: "MOH-aligned care" },
+                { ar: "أجهزة معتمدة", en: "Vetted technologies" },
+                { ar: `زمن الرد ${runtimeSettings.ops.sla}`, en: `${runtimeSettings.ops.sla} response target` },
               ].map((item) => (
                 <span key={item.ar} className="rv-v0-mini-chip">
                   <span className="lang-ar">{item.ar}</span>
@@ -228,7 +228,7 @@ export async function SiteFooter() {
           {/* Quick links */}
           <div>
             <h3 className="rv-v0-footer-title">
-              <span className="lang-ar">Ø±ÙˆØ§Ø¨Ø· Ø³Ø±ÙŠØ¹Ø©</span>
+              <span className="lang-ar">روابط سريعة</span>
               <span className="lang-en">Quick links</span>
             </h3>
             <ul className="mt-5 space-y-3 text-sm">
@@ -247,7 +247,7 @@ export async function SiteFooter() {
           {/* Services */}
           <div>
             <h3 className="rv-v0-footer-title">
-              <span className="lang-ar">Ø®Ø¯Ù…Ø§ØªÙ†Ø§</span>
+              <span className="lang-ar">خدماتنا</span>
               <span className="lang-en">Services</span>
             </h3>
             <ul className="mt-5 space-y-3 text-sm">
@@ -265,7 +265,7 @@ export async function SiteFooter() {
           {/* Contact */}
           <div>
             <h3 className="rv-v0-footer-title">
-              <span className="lang-ar">ØªÙˆØ§ØµÙ„ÙŠ Ù…Ø¹Ù†Ø§</span>
+              <span className="lang-ar">تواصلي معنا</span>
               <span className="lang-en">Contact</span>
             </h3>
             <ul className="rv-v0-footer-contact-list mt-5 space-y-3 text-sm">
@@ -330,7 +330,7 @@ export async function SiteFooter() {
                   <MapPinIcon />
                 </span>
                 <span className="rv-v0-footer-contact-text">
-                  <span className="lang-ar">Ø§Ù„Ø±ÙŠØ§Ø¶ØŒ Ø§Ù„Ù…Ù…Ù„ÙƒØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ© Ø§Ù„Ø³Ø¹ÙˆØ¯ÙŠØ©</span>
+                  <span className="lang-ar">الرياض، المملكة العربية السعودية</span>
                   <span className="lang-en">Riyadh, Saudi Arabia</span>
                 </span>
               </li>
@@ -353,22 +353,22 @@ export async function SiteFooter() {
             </ul>
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
               <Link href="/#contact" className="rv-v0-footer-cta">
-                <span className="lang-ar">Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ø­Ø¬Ø²</span>
+                <span className="lang-ar">نموذج الحجز</span>
                 <span className="lang-en">Booking form</span>
               </Link>
               <Link href="/contact" className="rv-v0-footer-cta is-secondary">
-                <span className="lang-ar">ØµÙØ­Ø© Ø§Ù„ØªÙˆØ§ØµÙ„</span>
+                <span className="lang-ar">صفحة التواصل</span>
                 <span className="lang-en">Contact page</span>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Trust + payments combined sub-row â€” sized & aligned cleanly. */}
+        {/* Trust + payments combined sub-row — sized & aligned cleanly. */}
         <div className="rv-v0-footer-strips border-t border-[color:var(--rv-line)] px-6 py-7 lg:px-10">
           <div className="rv-v0-footer-strip-block">
             <p className="rv-v0-strip-eyebrow">
-              <span className="lang-ar">Ø§Ø¹ØªÙ…Ø§Ø¯Ø§Øª ÙˆÙ…Ø¹Ø§ÙŠÙŠØ±</span>
+              <span className="lang-ar">اعتمادات ومعايير</span>
               <span className="lang-en">Trust &amp; Compliance</span>
             </p>
             <ul className="rv-v0-trust-strip" aria-label="Trust badges">
@@ -389,7 +389,7 @@ export async function SiteFooter() {
 
           <div className="rv-v0-footer-strip-block">
             <p className="rv-v0-strip-eyebrow">
-              <span className="lang-ar">Ø·Ø±Ù‚ Ø§Ù„Ø¯ÙØ¹ Ø§Ù„Ù…Ø¯Ø¹ÙˆÙ…Ø©</span>
+              <span className="lang-ar">طرق الدفع المدعومة</span>
               <span className="lang-en">Accepted Payments</span>
             </p>
             <ul className="rv-v0-pay-strip" aria-label="Payment methods">
@@ -410,27 +410,27 @@ export async function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--rv-line)] px-6 py-5 text-xs text-[color:var(--rv-muted)] lg:px-10">
-          <p dir="ltr">Â© {new Date().getFullYear()} {runtimeSettings.brand.siteName} Â· {runtimeSettings.contact.domain}</p>
+          <p dir="ltr">© {new Date().getFullYear()} {runtimeSettings.brand.siteName} · {runtimeSettings.contact.domain}</p>
           <p className="flex flex-wrap items-center gap-3">
             <Link href="/privacy" className="hover:text-[color:var(--rv-ink)]">
-              <span className="lang-ar">Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ø®ØµÙˆØµÙŠØ©</span>
+              <span className="lang-ar">سياسة الخصوصية</span>
               <span className="lang-en">Privacy</span>
             </Link>
-            <span aria-hidden>Â·</span>
+            <span aria-hidden>·</span>
             <Link href="/terms" className="hover:text-[color:var(--rv-ink)]">
-              <span className="lang-ar">Ø§Ù„Ø´Ø±ÙˆØ· ÙˆØ§Ù„Ø£Ø­ÙƒØ§Ù…</span>
+              <span className="lang-ar">الشروط والأحكام</span>
               <span className="lang-en">Terms</span>
             </Link>
-            <span aria-hidden>Â·</span>
+            <span aria-hidden>·</span>
             <Link href="/contact" className="hover:text-[color:var(--rv-ink)]">
-              <span className="lang-ar">ØªÙˆØ§ØµÙ„ÙŠ Ù…Ø¹Ù†Ø§</span>
+              <span className="lang-ar">تواصلي معنا</span>
               <span className="lang-en">Contact</span>
             </Link>
           </p>
           <p className="max-w-xl text-pretty text-end sm:text-start">
-            <span className="lang-ar">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ‚ Ù…Ø­ÙÙˆØ¸Ø© â€” Ù†ØªØ¹Ø§Ù…Ù„ Ù…Ø¹ Ø¨ÙŠØ§Ù†Ø§ØªÙƒ ÙˆØ·Ù„Ø¨Ø§ØªÙƒ Ø¨Ø³Ø±ÙŠØ© ØªØ§Ù…Ø© ÙˆØ¨Ù…Ø¹Ø§ÙŠÙŠØ± Ø£Ù…Ø§Ù† ØªÙ„Ø§Ø¦Ù… Ø§Ù„Ø¨ÙŠØ¦Ø© Ø§Ù„Ø·Ø¨ÙŠØ©.</span>
+            <span className="lang-ar">جميع الحقوق محفوظة — نتعامل مع بياناتك وطلباتك بسرية تامة وبمعايير أمان تلائم البيئة الطبية.</span>
             <span className="lang-en">
-              All rights reserved â€” your information and requests are handled with clinical-grade privacy and security.
+              All rights reserved — your information and requests are handled with clinical-grade privacy and security.
             </span>
           </p>
         </div>

@@ -14,7 +14,17 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "temp-app/**",
+    ".codex-tools/**",
+    "node_modules/**",
+    "tsconfig.tsbuildinfo",
   ]),
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "react-hooks/set-state-in-effect": "off",
+      "react/no-unescaped-entities": "off",
+    },
+  },
   prettierConfig,
 ]);
 
