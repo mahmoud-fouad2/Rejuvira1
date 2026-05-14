@@ -1253,8 +1253,8 @@ const seedAdminUsers: AdminUserRecord[] = [
 
 const defaultMediaSelections: MediaSelections = {
   brandLogo: "/media/curated/brand-logo.jpg",
-  brandMark: "/media/curated/brand-logo.jpg",
-  favicon: "/media/curated/brand-logo.jpg",
+  brandMark: "/icon.svg",
+  favicon: "/icon.svg",
   appleIcon: "/media/curated/brand-logo.jpg",
   ogImage: "/media/curated/brand-logo.jpg",
   homeHero: "/media/curated/service-skin-rejuvenation.jpg",

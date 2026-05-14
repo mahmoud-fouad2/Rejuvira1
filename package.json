@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/sync-standalone-assets.mjs",
+    "postinstall": "node scripts/render-migrate-recover.mjs",
     "start": "node scripts/run-standalone-server.mjs",
     "start:standalone": "node scripts/run-standalone-server.mjs",
     "lint": "eslint .",

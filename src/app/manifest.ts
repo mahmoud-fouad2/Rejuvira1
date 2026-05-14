@@ -16,9 +16,9 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     dir: "rtl",
     icons: [
       {
-        src: settings.media.favicon || "/favicon.ico",
+        src: settings.media.favicon || "/icon.svg",
         sizes: "any",
-        type: "image/x-icon",
+        type: "image/svg+xml",
       },
       {
         src: settings.media.appleIcon || "/apple-icon.png",
