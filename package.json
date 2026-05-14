@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/sync-standalone-assets.mjs",
-    "start": "next start",
+    "start": "node scripts/run-standalone-server.mjs",
     "start:standalone": "node scripts/run-standalone-server.mjs",
     "lint": "eslint .",
     "format": "prettier . --write",
