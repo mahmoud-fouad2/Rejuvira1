@@ -33,7 +33,5 @@ export default auth((request) => {
 });
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|api/health).*)",
-  ],
+  matcher: ["/admin/:path*", "/login"],
 };
