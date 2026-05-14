@@ -7196,3 +7196,512 @@ html[data-theme="dark"] .v0-quote-card {
 /* Admin panel readability */
 html[data-theme="dark"] .admin-app .surface-panel { background-color: oklch(22% 0.04 285); }
 html[data-theme="dark"] .admin-app aside { background-color: oklch(20% 0.04 285); }
+
+/* ═══════════════════════════════════════════════════════════════
+   REJUVIRA · Comprehensive Mobile-First Responsive Overhaul
+   All public-facing pages: header, footer, hero, sections, cards
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. Mobile menu: contained within viewport ─────────────── */
+.rv-mobile-details {
+  position: relative;
+}
+.rv-v0-mobile-menu {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  max-height: 80dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 1.4rem 1.4rem 0 0 !important;
+  z-index: 999;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: env(safe-area-inset-bottom, 0.75rem);
+  box-shadow: 0 -12px 48px rgba(28, 18, 48, 0.18);
+}
+.rv-mobile-details[open]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 998;
+  backdrop-filter: blur(4px);
+}
+
+/* ── 2. Header: logo legible on all sizes ──────────────────── */
+.rv-brand-logo-header {
+  width: clamp(3.2rem, 12vw, 6.76rem) !important;
+  height: clamp(3.2rem, 12vw, 6.76rem) !important;
+}
+.rv-brand-logo-footer {
+  width: clamp(3.6rem, 14vw, 7.52rem) !important;
+  height: clamp(3.6rem, 14vw, 7.52rem) !important;
+}
+
+@media (max-width: 480px) {
+  .rv-brand-logo-header {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+  .rv-brand-logo-footer {
+    width: 3.4rem !important;
+    height: 3.4rem !important;
+  }
+  .rv-v0-brand {
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .rv-brand-logo-header {
+    width: 3.8rem !important;
+    height: 3.8rem !important;
+  }
+  .rv-brand-logo-footer {
+    width: 4.2rem !important;
+    height: 4.2rem !important;
+  }
+}
+
+/* ── 3. Nav bar: clean grid at every breakpoint ────────────── */
+.rv-v0-nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+@media (max-width: 1180px) {
+  .rv-v0-nav {
+    grid-template-columns: auto 1fr auto !important;
+    min-height: 3.8rem;
+  }
+  .rv-v0-menu-button {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+  .rv-nav-brand-wrap {
+    justify-self: end !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rv-v0-nav {
+    min-height: 3.4rem !important;
+    padding-inline: 0.75rem !important;
+    padding-block: 0.5rem !important;
+  }
+  .rv-v0-nav-shell {
+    padding: 0 !important;
+  }
+}
+
+/* ── 4. Hero section: stack vertically on mobile ───────────── */
+@media (max-width: 1023px) {
+  .rv-v0-hero-inner {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    padding-block: 2rem !important;
+  }
+  .rv-v0-hero-copy {
+    order: 1;
+    text-align: center;
+  }
+  .rv-v0-hero-visual {
+    order: 2;
+    min-height: 20rem !important;
+    max-width: 100%;
+  }
+  .rv-v0-hero-chips {
+    justify-content: center !important;
+    flex-wrap: wrap;
+  }
+  .rv-v0-hero-actions {
+    justify-content: center !important;
+    flex-wrap: wrap;
+  }
+  .rv-v0-stats {
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .rv-v0-hero {
+    padding-inline: 0.75rem !important;
+  }
+  .rv-v0-hero-inner {
+    padding-block: 1.25rem !important;
+    gap: 1.5rem !important;
+  }
+  .rv-v0-hero-copy h1 {
+    font-size: clamp(1.65rem, 6.5vw, 2.5rem) !important;
+    line-height: 1.15 !important;
+  }
+  .rv-v0-hero-copy p {
+    font-size: 0.92rem !important;
+    line-height: 1.65 !important;
+  }
+  .rv-v0-hero-chips span {
+    font-size: 0.75rem !important;
+    padding: 0.4rem 0.65rem !important;
+  }
+  .rv-v0-hero-visual {
+    min-height: 16rem !important;
+    border-radius: 1.2rem;
+    overflow: hidden;
+  }
+  .rv-v0-hero-card {
+    inset: 0.75rem !important;
+    border-radius: 1rem !important;
+  }
+  .rv-v0-primary,
+  .rv-v0-secondary {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.9rem !important;
+    min-height: 2.75rem !important;
+  }
+  .rv-v0-hero-actions {
+    flex-direction: column;
+    gap: 0.6rem !important;
+  }
+  .rv-v0-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.75rem !important;
+    text-align: center;
+  }
+  .rv-v0-stats b {
+    font-size: 1.35rem !important;
+  }
+  .rv-v0-stats span {
+    font-size: 0.72rem !important;
+  }
+  .rv-v0-float {
+    display: none !important;
+  }
+}
+
+/* ── 5. Section titles: readable on small screens ──────────── */
+@media (max-width: 640px) {
+  .rv-v0-section-title h2 {
+    font-size: clamp(1.35rem, 5.5vw, 2rem) !important;
+    line-height: 1.2 !important;
+  }
+  .rv-v0-section-title p {
+    font-size: 0.88rem !important;
+    line-height: 1.6 !important;
+  }
+  .rv-v0-section-title .rv-v0-pill {
+    font-size: 0.72rem !important;
+  }
+}
+
+/* ── 6. Service cards grid: responsive ─────────────────────── */
+@media (max-width: 640px) {
+  .rv-v0-services-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.85rem !important;
+  }
+  .rv-v0-service-card {
+    padding: 1rem !important;
+  }
+  .rv-v0-service-card:nth-child(4):last-child {
+    grid-column: auto !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .rv-v0-services-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1rem !important;
+  }
+}
+
+/* ── 7. Devices grid: responsive ───────────────────────────── */
+@media (max-width: 640px) {
+  .rv-v0-devices-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.85rem !important;
+  }
+  .rv-v0-devices-grid .rv-v0-device-card:nth-child(odd):last-child {
+    grid-column: auto !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  .rv-v0-devices-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── 8. Doctors carousel: scroll snapping on mobile ────────── */
+@media (max-width: 640px) {
+  .v0-doctors-scroll {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 0.75rem !important;
+    padding-inline: 0.75rem !important;
+  }
+  .v0-doctor-card {
+    scroll-snap-align: start;
+    min-width: 72vw !important;
+    flex: 0 0 72vw !important;
+  }
+}
+
+/* ── 9. Before/After gallery: full width on mobile ─────────── */
+@media (max-width: 640px) {
+  .rv-v0-gallery-grid {
+    gap: 1rem !important;
+  }
+  .rv-v0-before-after {
+    max-width: 100% !important;
+  }
+  .rv-v0-before-after .ba-container {
+    aspect-ratio: 3 / 4 !important;
+    border-radius: 1rem !important;
+  }
+}
+
+/* ── 10. Testimonials rail: smaller cards on mobile ────────── */
+@media (max-width: 640px) {
+  .rv-split-card {
+    width: clamp(13rem, 75vw, 16rem) !important;
+    padding: 0.85rem !important;
+  }
+  .rv-split-card-body {
+    font-size: 0.82rem !important;
+  }
+}
+
+/* ── 11. Footer: single-column on mobile, fix badge overflow ─ */
+@media (max-width: 767px) {
+  .rv-v0-footer-shell {
+    padding-inline: 0.5rem !important;
+  }
+  .rv-v0-footer-shell > div {
+    border-radius: 1.25rem !important;
+  }
+  .rv-v0-footer-shell .grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    padding: 1.5rem 1rem !important;
+  }
+  .rv-v0-footer-title {
+    font-size: 0.95rem !important;
+  }
+}
+
+/* Trust badges: wrap and scale on mobile */
+.rv-v0-trust-strip,
+.rv-v0-pay-strip {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+@media (max-width: 480px) {
+  .rv-v0-trust-badge {
+    max-width: 5rem !important;
+    height: 2.2rem !important;
+  }
+  .rv-v0-trust-badge-img {
+    max-height: 2.2rem !important;
+  }
+  .rv-v0-pay-card {
+    height: 2rem !important;
+    min-width: 2.8rem !important;
+    padding: 0 0.35rem !important;
+  }
+  .rv-v0-pay-img {
+    max-height: 1.4rem !important;
+  }
+  .rv-v0-footer-strips {
+    padding: 1rem 0.75rem !important;
+  }
+  .rv-v0-strip-eyebrow {
+    font-size: 0.65rem !important;
+  }
+}
+
+/* Footer bottom bar: stack on mobile */
+@media (max-width: 640px) {
+  .rv-v0-footer-shell .flex.flex-wrap.items-center.justify-between {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 0.75rem !important;
+  }
+}
+
+/* ── 12. Contact section: responsive form ──────────────────── */
+@media (max-width: 640px) {
+  .rv-v0-contact-section {
+    padding-inline: 0.75rem !important;
+  }
+  .rv-v0-contact-form-inner {
+    padding: 1.25rem !important;
+  }
+}
+
+/* ── 13. Wide stats bar: horizontal scroll on very small ───── */
+@media (max-width: 480px) {
+  .rv-v0-wide-stats {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    gap: 1rem !important;
+    padding: 0.75rem !important;
+    justify-content: flex-start !important;
+  }
+  .rv-v0-wide-stats > div {
+    flex: 0 0 auto;
+    min-width: 5.5rem;
+  }
+}
+
+/* ── 14. Partners strip: wrap on small screens ─────────────── */
+@media (max-width: 640px) {
+  .rv-v0-partners {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 0.75rem !important;
+    padding: 1rem !important;
+  }
+  .rv-v0-partners img {
+    max-height: 1.8rem !important;
+  }
+}
+
+/* ── 15. Trust block (3-column): stack on mobile ───────────── */
+@media (max-width: 768px) {
+  .rv-v0-trust-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+}
+
+/* ── 16. Mega menu: full-width panel on tablet/mobile ──────── */
+@media (max-width: 1100px) {
+  .rv-mega-panel {
+    width: min(96vw, 40rem) !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(-0.4rem) !important;
+    padding: 1rem !important;
+  }
+  .rv-mega-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.85rem !important;
+  }
+  .rv-mega-feature {
+    min-height: 8rem !important;
+  }
+}
+
+/* ── 17. Legal pages: no sidebar on mobile ─────────────────── */
+@media (max-width: 768px) {
+  .rv-legal-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .rv-legal-toc {
+    position: static !important;
+    max-height: none !important;
+  }
+  .rv-legal-shell {
+    padding-inline: 1rem !important;
+  }
+}
+
+/* ── 18. Services/Doctors/Devices detail pages ─────────────── */
+@media (max-width: 640px) {
+  .rv-detail-header {
+    padding: 1.25rem 0.75rem !important;
+  }
+  .rv-detail-header h1 {
+    font-size: clamp(1.4rem, 5.5vw, 2.2rem) !important;
+  }
+  .rv-detail-body {
+    padding-inline: 0.75rem !important;
+  }
+  .rv-detail-sidebar {
+    display: none;
+  }
+}
+
+/* ── 19. Contact page grid: single column on mobile ────────── */
+@media (max-width: 768px) {
+  .rv-contact-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── 20. Global overflow protection ────────────────────────── */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+.rv-v0-home,
+main {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* ── 21. Tablet optimizations (769–1024px) ─────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .rv-v0-hero-inner {
+    gap: 2rem !important;
+  }
+  .rv-v0-hero-copy h1 {
+    font-size: clamp(2rem, 4vw, 3rem) !important;
+  }
+  .rv-v0-footer-shell .grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 2rem !important;
+  }
+}
+
+/* ── 22. Strip/carousel sections: edge-to-edge on mobile ───── */
+@media (max-width: 640px) {
+  .rv-strip-section,
+  .rv-doctors-section {
+    padding-inline: 0 !important;
+  }
+  .rv-strip-section > .mx-auto,
+  .rv-doctors-section > .mx-auto {
+    padding-inline: 0.75rem;
+  }
+  .rv-strip-scroll,
+  .v0-doctors-scroll {
+    padding-inline: 0.75rem !important;
+  }
+}
+
+/* ── 23. Book/CTA button: full-width on small mobile ──────── */
+@media (max-width: 480px) {
+  .rv-v0-book {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.85rem !important;
+    min-height: 2.5rem !important;
+    padding: 0.55rem 0.85rem !important;
+  }
+  .rv-v0-footer-cta {
+    width: 100% !important;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* ── 24. Print: basic cleanup ──────────────────────────────── */
+@media print {
+  .rv-v0-header,
+  .rv-mobile-details,
+  .rv-v0-float,
+  .rv-site-intro-overlay { display: none !important; }
+  body { background: white !important; color: black !important; }
+}

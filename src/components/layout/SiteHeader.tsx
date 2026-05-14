@@ -144,11 +144,11 @@ export async function SiteHeader() {
             </Link>
           </div>
 
-          <details className="rv-mobile-details group relative">
+          <details className="rv-mobile-details group">
             <summary className="rv-v0-menu-button flex h-11 w-11 cursor-pointer list-none items-center justify-center">
               <MenuIcon />
             </summary>
-            <div className="rv-v0-mobile-menu absolute left-0 right-0 top-[calc(100%+0.85rem)] rounded-[1.4rem] p-3">
+            <div className="rv-v0-mobile-menu p-3">
               <div className="grid gap-1">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} className="rv-v0-mobile-link">
