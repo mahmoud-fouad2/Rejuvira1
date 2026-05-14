@@ -7,12 +7,12 @@ services:
     autoDeploy: true
     healthCheckPath: /api/health
     buildCommand: npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run build
-    startCommand: npm run start
+    startCommand: cd .next/standalone && NODE_OPTIONS="${NODE_OPTIONS:-} --max-old-space-size=460" node server.js
     envVars:
       - key: NODE_VERSION
         value: 22.19.0
-      - key: NEXT_TELEMETRY_DISABLED
-        value: "1"
+      - key: HOSTNAME
+        value: 0.0.0.0
       # ── Database (Neon Postgres) ──────────────────────────────
       - key: DATABASE_URL
         sync: false

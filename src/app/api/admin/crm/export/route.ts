@@ -1,10 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import fontkit from "@pdf-lib/fontkit";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { NextRequest, NextResponse } from "next/server";
-import * as XLSX from "xlsx";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
@@ -26,6 +23,13 @@ function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
 async function createPdfBuffer(
   submissions: Awaited<ReturnType<typeof getCrmSubmissions>>,
 ) {
+  const [{ PDFDocument, StandardFonts, rgb }, fontkitMod] = await Promise.all([
+    import("pdf-lib"),
+    import("@pdf-lib/fontkit"),
+  ]);
+
+  const fontkit = fontkitMod.default;
+
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
 
@@ -124,6 +128,7 @@ export async function GET(request: NextRequest) {
   const submissions = await getCrmSubmissions();
 
   if (format === "xlsx") {
+    const XLSX = await import("xlsx");
     const rows = buildRows(submissions);
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(rows);

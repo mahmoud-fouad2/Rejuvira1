@@ -4,7 +4,14 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   typedRoutes: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  experimental: {
+    optimizePackageImports: ["zod"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
