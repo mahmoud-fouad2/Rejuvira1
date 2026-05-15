@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 
@@ -63,11 +63,11 @@ export default async function AboutPage() {
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm lg:p-12">
             <p className="eyebrow text-ink-soft"><span className="lang-ar">من نحن</span><span className="lang-en">About Us</span></p>
             <h1 className="balanced-text text-ink-strong mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] lg:text-6xl">
-              <span className="lang-ar">مركز يقدّم الرعاية الجلدية والتجميلية بمنهج واضح، منظم، ومبني على التشخيص.</span>
-              <span className="lang-en">A center delivering dermatology and medical aesthetics through a clear, organized, diagnosis-led approach.</span>
+              <span className="lang-ar">مركز طبي متكامل يقدّم خدمات التجميل الطبي، العناية بالبشرة، والجسم — بمنهج واضح ومبني على التشخيص الدقيق.</span>
+              <span className="lang-en">A full-service medical aesthetic center offering cosmetic treatments, skin care, and body care — built on precise diagnosis and personalized planning.</span>
             </h1>
             <p className="text-ink-soft mt-6 text-lg leading-8">
-              <span className="lang-ar">يركّز المركز على شرح الخدمة والإجراء وتحديد الخطة الأنسب لكل حالة قبل البدء، بحيث يُبنى القرار على فهم واضح لا على انطباع سريع.</span>
+              <span className="lang-ar">يشرح الفريق الطبي الخدمة والإجراء ويحدد الخطة المناسبة قبل البدء، حتى يكون قرارك مبنياً على معلومة واضحة لا على انطباع أولي.</span>
               <span className="lang-en">The center focuses on explaining the service, the procedure, and the right plan for each case before starting, so decisions are based on clarity rather than impulse.</span>
             </p>
             <div className="mt-10 grid gap-4 md:grid-cols-2">
@@ -108,8 +108,7 @@ export default async function AboutPage() {
               رؤيتنا: تقديم رعاية واضحة تقود إلى قرار علاجي أدق.
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              نسعى إلى أن يكون المركز مرجعًا واضحًا للخدمات الجلدية والتجميلية
-              غير الجراحية، مع محتوى يشرح الخيارات المتاحة دون مبالغة.
+              نسعى إلى أن يكون المركز وجهة موثوقة لخدمات التجميل الطبي والعناية بالبشرة والجسم، مع محتوى يشرح الخيارات بوضوح دون مبالغة.
             </p>
           </article>
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-0.5 lg:p-12">

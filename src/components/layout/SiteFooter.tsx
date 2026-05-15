@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -179,7 +179,7 @@ export async function SiteFooter() {
         <div className="grid gap-10 px-6 py-10 md:grid-cols-2 lg:grid-cols-[1.35fr_0.85fr_0.85fr_1.1fr] lg:px-10">
           {/* Brand + tagline + socials */}
           <div>
-            <Link href="/" className="inline-flex items-center gap-3">
+            <Link href="/" className="inline-block" aria-label="Rejuvira Center">
               <BrandLogo
                 alt={runtimeSettings.brand.logoAlt}
                 width={564}
@@ -192,13 +192,13 @@ export async function SiteFooter() {
             <p className="mt-5 max-w-sm text-sm leading-8 text-[color:var(--rv-muted)]">
               <span className="lang-ar">{runtimeSettings.brand.tagline}</span>
               <span className="lang-en">
-                Rejuvira Center — discreet, clinician-led dermatology and aesthetics with privacy-first coordination and attentive follow-up.
+                Rejuvira Center — a full-service medical aesthetic center in Riyadh, offering advanced dermatology, cosmetic treatments, and body care.
               </span>
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {[
-                { ar: "وزارة الصحة", en: "MOH-aligned care" },
-                { ar: "أجهزة معتمدة", en: "Vetted technologies" },
+                { ar: "ترخيص وزارة الصحة", en: "MOH Licensed" },
+                { ar: "أجهزة معتمدة دولياً", en: "Internationally Certified" },
                 { ar: `زمن الرد ${runtimeSettings.ops.sla}`, en: `${runtimeSettings.ops.sla} response target` },
               ].map((item) => (
                 <span key={item.ar} className="rv-v0-mini-chip">
@@ -428,10 +428,8 @@ export async function SiteFooter() {
             </Link>
           </p>
           <p className="max-w-xl text-pretty text-end sm:text-start">
-            <span className="lang-ar">جميع الحقوق محفوظة — نتعامل مع بياناتك وطلباتك بسرية تامة وبمعايير أمان تلائم البيئة الطبية.</span>
-            <span className="lang-en">
-              All rights reserved — your information and requests are handled with clinical-grade privacy and security.
-            </span>
+            <span className="lang-ar">© جميع الحقوق محفوظة — بياناتك وطلباتك تُعامَل بسرية تامة.</span>
+            <span className="lang-en">All rights reserved. Your information is kept strictly confidential.</span>
           </p>
         </div>
       </div>

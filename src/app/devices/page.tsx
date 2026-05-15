@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -20,7 +20,7 @@ export default async function DevicesPage() {
       <div className="public-page-atmosphere" aria-hidden />
       <SiteHeader />
 
-      <main className="section-shell flex flex-col gap-20 pt-8 pb-24">
+      <main className="section-shell flex flex-col gap-28 pt-8 pb-32">
         {/* ── PAGE HERO ──────────────────────────────────── */}
         <section className="grid gap-6 lg:grid-cols-[1fr_1fr] lg:items-stretch">
           <article className="surface-panel flex flex-col justify-between rounded-[2.75rem] p-8 lg:p-12">
@@ -36,19 +36,19 @@ export default async function DevicesPage() {
               </p>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
+              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
                 <p className="text-ink-soft text-sm">أجهزة معتمدة</p>
                 <p className="text-ink mt-2 font-serif text-3xl">
                   {devices.length}
                 </p>
               </div>
-              <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
+              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
                 <p className="text-ink-soft text-sm">تقنيات نشطة</p>
                 <p className="text-ink mt-2 font-serif text-3xl">
                   {devices.filter((d) => d.status === "PUBLISHED").length}
                 </p>
               </div>
-              <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
+              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
                 <p className="text-ink-soft text-sm">شهادات دولية</p>
                 <p className="text-ink mt-2 font-serif text-3xl">
                   {devices.reduce((sum, d) => sum + d.certifications.length, 0)}

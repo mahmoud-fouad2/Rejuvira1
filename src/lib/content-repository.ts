@@ -1,4 +1,4 @@
-import { ContentStatus, SubmissionStatus, UserRole } from "@prisma/client";
+﻿import { ContentStatus, SubmissionStatus, UserRole } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
@@ -923,7 +923,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "emailSecondary",
         label: "البريد البديل",
-        value: "info@rejuveracenter.com.sa",
+        value: "info@rejuveracenter.sa",
       },
       { key: "whatsapp", label: "واتساب", value: "0114999959" },
       { key: "domain", label: "النطاق الرسمي", value: "rejuveracenter.sa" },
@@ -1657,7 +1657,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       emailSecondary: getValue(
         "contact",
         "emailSecondary",
-        process.env.CONTACT_EMAIL_SECONDARY || "info@rejuveracenter.com.sa",
+        process.env.CONTACT_EMAIL_SECONDARY || "info@rejuveracenter.sa",
       ),
       whatsapp: getValue("contact", "whatsapp", "0114999959"),
       domain: getValue("contact", "domain", "rejuveracenter.sa"),

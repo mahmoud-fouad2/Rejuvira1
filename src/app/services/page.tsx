@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
@@ -42,10 +42,10 @@ export default async function ServicesPage() {
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 lg:p-12">
             <p className="eyebrow">الخدمات</p>
             <h1 className="balanced-text mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] text-ink">
-              خدمات علاجية وتجميلية مصاغة لتسهيل الاختيار بثقة ووضوح.
+              خدمات طبية وتجميلية متكاملة لوجهك وجسمك.
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-ink-soft">
-              يعرض هذا القسم كل خدمة مع تعريف مهني مختصر، فئتها، وأبرز فوائدها، بما يساعد على المقارنة قبل طلب الاستشارة.
+              يضم المركز خدمات طبية وتجميلية متكاملة، تشمل العناية بالبشرة، الليزر، الحقن، وتجميل الجسم — موضحة بتفاصيل واضحة تساعد على الاختيار.
             </p>
 
             {/* Stats row */}
@@ -53,7 +53,7 @@ export default async function ServicesPage() {
               {[
                 { label: "الخدمات المتاحة", value: services.length },
                 { label: "الأقسام", value: categoryCount },
-                { label: "مناسبة لـ", value: "بشرة ووجه" },
+                { label: "تغطي الوجه والجسم", value: "وجه وجسم" },
               ].map((stat) => (
                 <div
                   key={stat.label}

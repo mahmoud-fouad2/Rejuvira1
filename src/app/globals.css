@@ -8261,3 +8261,254 @@ html[data-theme="dark"] .rv-v0-partners > span {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   REJUVIRA · Logo Fix + Dark Mode Complete + Mobile Polish
+   ═══════════════════════════════════════════════════════ */
+
+/* ── LOGO: definitive transparent container fix ─────── */
+a.rv-v0-brand,
+a.rv-v0-brand > span,
+.rv-brand-logo,
+.rv-brand-logo *,
+.rv-brand-logo-header,
+.rv-brand-logo-footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Footer logo: inline display no box */
+footer .rv-brand-logo,
+footer .rv-brand-logo-footer {
+  display: inline-block !important;
+  line-height: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+footer .rv-brand-logo-img {
+  width: auto !important;
+  height: 3.5rem !important;
+  max-width: 9rem !important;
+  object-fit: contain !important;
+}
+
+/* Header logo */
+header .rv-brand-logo,
+header .rv-brand-logo-header {
+  display: inline-block !important;
+  line-height: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+header .rv-brand-logo-img {
+  width: auto !important;
+  height: 3rem !important;
+  max-width: 8rem !important;
+  object-fit: contain !important;
+}
+
+/* ── DARK MODE: comprehensive fixes ─────────────────── */
+
+/* Nav shell */
+html[data-theme="dark"] .rv-v0-nav-shell {
+  background: rgba(12, 8, 20, 0.92) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Mobile menu */
+html[data-theme="dark"] .rv-v0-mobile-menu {
+  background: oklch(18% 0.05 285) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Top strip */
+html[data-theme="dark"] .rv-v0-top-strip {
+  background: oklch(20% 0.07 285) !important;
+}
+
+/* Surface panels on sub-pages */
+html[data-theme="dark"] .surface-panel {
+  background: oklch(22% 0.04 285 / 0.95) !important;
+  border-color: oklch(36% 0.05 285 / 0.5) !important;
+}
+
+/* Eyebrow labels */
+html[data-theme="dark"] .eyebrow {
+  color: oklch(80% 0.1 285) !important;
+  background: oklch(80% 0.1 285 / 0.1) !important;
+  border-color: oklch(80% 0.1 285 / 0.2) !important;
+}
+
+/* Serif headings */
+html[data-theme="dark"] .text-ink,
+html[data-theme="dark"] h1.text-ink,
+html[data-theme="dark"] h2.text-ink,
+html[data-theme="dark"] h3.text-ink {
+  color: oklch(95% 0.015 85) !important;
+}
+html[data-theme="dark"] .text-ink-strong {
+  color: oklch(98% 0.01 85) !important;
+}
+html[data-theme="dark"] .text-ink-soft {
+  color: oklch(75% 0.03 285) !important;
+}
+html[data-theme="dark"] .text-ink-faint {
+  color: oklch(60% 0.04 285) !important;
+}
+
+/* Borders */
+html[data-theme="dark"] .border-line {
+  border-color: oklch(36% 0.05 285 / 0.6) !important;
+}
+
+/* Buttons */
+html[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, oklch(52% 0.15 285), oklch(58% 0.18 285)) !important;
+  box-shadow: 0 8px 24px oklch(52% 0.15 285 / 0.35) !important;
+}
+html[data-theme="dark"] .btn-secondary {
+  color: oklch(78% 0.12 285) !important;
+  background: oklch(78% 0.12 285 / 0.08) !important;
+  border-color: oklch(78% 0.12 285 / 0.2) !important;
+}
+
+/* Hero section */
+html[data-theme="dark"] .rv-v0-hero {
+  background: oklch(14% 0.05 285) !important;
+}
+html[data-theme="dark"] .rv-v0-hero::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 80% 20%, oklch(45% 0.12 285 / 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 20% 80%, oklch(72% 0.12 75 / 0.08) 0%, transparent 55%) !important;
+}
+
+/* Service / device cards */
+html[data-theme="dark"] .rv-v0-service-card,
+html[data-theme="dark"] .rv-v0-device-card {
+  background: oklch(22% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.5) !important;
+}
+
+/* Trust cards */
+html[data-theme="dark"] .rv-v0-trust-card {
+  background: oklch(22% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.4) !important;
+}
+
+/* Testimonial cards */
+html[data-theme="dark"] .rv-v0-testimonial {
+  background: oklch(22% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.4) !important;
+}
+
+/* Wide stats bar */
+html[data-theme="dark"] .rv-v0-wide-stats {
+  background: oklch(20% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.4) !important;
+}
+
+/* Partners chips */
+html[data-theme="dark"] .rv-v0-partners > span {
+  background: oklch(78% 0.12 285 / 0.07) !important;
+  border-color: oklch(78% 0.12 285 / 0.15) !important;
+  color: oklch(78% 0.12 285) !important;
+}
+
+/* Home contact section */
+html[data-theme="dark"] .rv-v0-home-contact-section {
+  background: oklch(16% 0.05 285) !important;
+}
+html[data-theme="dark"] .rv-v0-home-contact-form-card {
+  background: oklch(20% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.4) !important;
+}
+
+/* Contact channels */
+html[data-theme="dark"] .rv-v0-home-contact-channel {
+  background: oklch(22% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.5) !important;
+}
+
+/* Gallery before/after pills */
+html[data-theme="dark"] .ba-pill {
+  background: oklch(20% 0.04 285 / 0.85) !important;
+}
+
+/* Form fields */
+html[data-theme="dark"] .field-public {
+  background: oklch(20% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.5) !important;
+  color: oklch(94% 0.015 85) !important;
+}
+
+/* Footer */
+html[data-theme="dark"] .rv-v0-footer-shell,
+html[data-theme="dark"] .rv-v0-footer-shell > div > div {
+  background: oklch(18% 0.04 285) !important;
+  border-color: oklch(32% 0.05 285 / 0.5) !important;
+}
+html[data-theme="dark"] .rv-v0-footer-link,
+html[data-theme="dark"] .rv-v0-footer-contact-text {
+  color: oklch(72% 0.04 285) !important;
+}
+html[data-theme="dark"] .rv-v0-footer-title {
+  color: oklch(92% 0.015 85) !important;
+}
+html[data-theme="dark"] .rv-v0-pay-card {
+  background: oklch(95% 0.005 85) !important;
+}
+html[data-theme="dark"] .rv-v0-mini-chip {
+  background: oklch(78% 0.1 285 / 0.1) !important;
+  border-color: oklch(78% 0.1 285 / 0.2) !important;
+  color: oklch(78% 0.1 285) !important;
+}
+
+/* Scroll rail testimonials */
+html[data-theme="dark"] .rv-split-card {
+  background: oklch(22% 0.04 285) !important;
+  border-color: oklch(36% 0.05 285 / 0.4) !important;
+}
+
+/* bg-surface (used on inner pages) */
+html[data-theme="dark"] .bg-surface,
+html[data-theme="dark"] [class*="bg-surface"] {
+  background-color: oklch(26% 0.045 285 / 0.8) !important;
+}
+
+/* Public page atmosphere */
+html[data-theme="dark"] .public-page-atmosphere {
+  background:
+    radial-gradient(ellipse 110% 70% at 100% 0%, oklch(45% 0.12 285 / 0.18) 0%, transparent 58%),
+    radial-gradient(ellipse 90% 55% at 0% 10%, oklch(72% 0.1 75 / 0.08) 0%, transparent 52%) !important;
+}
+
+/* ── Mobile: final responsive polish ────────────────── */
+@media (max-width: 640px) {
+  /* Header: compact */
+  .rv-v0-nav {
+    padding-block: 0.6rem !important;
+  }
+  /* Footer: no horizontal overflow */
+  .rv-v0-footer-shell {
+    padding-inline: 0.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+  .rv-v0-footer-shell > .mx-auto {
+    border-radius: 1.25rem !important;
+  }
+  /* Contact channels: compact */
+  .rv-v0-home-contact-channel {
+    padding: 0.75rem 1rem !important;
+  }
+  .rv-v0-home-contact-channel-icon {
+    width: 2rem !important;
+    height: 2rem !important;
+  }
+  /* Hero stats on mobile */
+  .rv-v0-hero-copy .rv-v0-stats {
+    margin-top: 1.25rem !important;
+  }
+}

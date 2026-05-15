@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useActionState } from "react";
 
@@ -127,7 +127,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           name="emailSecondary"
           type="email"
           defaultValue={getFieldValue(groups, "contact", "emailSecondary")}
-          placeholder="البريد البديل (info@rejuveracenter.com.sa)"
+          placeholder="البريد البديل (info@rejuveracenter.sa)"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
           dir="ltr"
