@@ -63,11 +63,15 @@ export function CinematicIntro({ logoSrc, logoAlt }: CinematicIntroProps) {
     if (!visible || !imageReady) return;
 
     const startSequence = () => {
-      const t1 = window.setTimeout(() => setPhase("curtain"), 120);
-      const t2 = window.setTimeout(() => setPhase("logo"), 2300);
-      const t3 = window.setTimeout(() => setPhase("words"), 3600);
-      const t4 = window.setTimeout(() => setPhase("exit"), 5900);
-      const t5 = window.setTimeout(() => setVisible(false), 7000);
+      // Phase plan:
+      // - curtain: closed curtain + logo/text fully visible (the hero moment).
+      // - logo: curtain slides open and stage fades out simultaneously.
+      // - exit: final fade-out of the whole overlay.
+      const t1 = window.setTimeout(() => setPhase("curtain"), 100);
+      const t2 = window.setTimeout(() => setPhase("words"), 900);
+      const t3 = window.setTimeout(() => setPhase("logo"), 3200);
+      const t4 = window.setTimeout(() => setPhase("exit"), 5000);
+      const t5 = window.setTimeout(() => setVisible(false), 5900);
       timersRef.current.push(t1, t2, t3, t4, t5);
     };
 

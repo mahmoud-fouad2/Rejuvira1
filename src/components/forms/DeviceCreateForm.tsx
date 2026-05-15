@@ -23,30 +23,64 @@ export function DeviceCreateForm() {
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">
-            <span className="lang-ar">الاسم</span>
-            <span className="lang-en">Name</span>
+            <span className="lang-ar">الاسم (عربي)</span>
+            <span className="lang-en">Name (Arabic)</span>
           </span>
-          <input name="name" required className="admin-input" />
+          <input name="name" required dir="rtl" className="admin-input" />
         </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الاسم (إنجليزي)</span>
+            <span className="lang-en">Name (English)</span>
+          </span>
+          <input name="nameEn" dir="ltr" className="admin-input" />
+        </label>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
           <input name="slug" required dir="ltr" className="admin-input font-mono" />
         </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">رابط صورة الجهاز</span>
+            <span className="lang-en">Image URL</span>
+          </span>
+          <input name="imageUrl" dir="ltr" className="admin-input" />
+        </label>
       </div>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">ملخص</span>
-          <span className="lang-en">Excerpt</span>
-        </span>
-        <input name="excerpt" required className="admin-input" />
-      </label>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">الوصف</span>
-          <span className="lang-en">Description</span>
-        </span>
-        <textarea name="description" rows={4} required className="admin-input" />
-      </label>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">ملخص (عربي)</span>
+            <span className="lang-en">Excerpt (Arabic)</span>
+          </span>
+          <input name="excerpt" required dir="rtl" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">ملخص (إنجليزي)</span>
+            <span className="lang-en">Excerpt (English)</span>
+          </span>
+          <input name="excerptEn" dir="ltr" className="admin-input" />
+        </label>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الوصف (عربي)</span>
+            <span className="lang-en">Description (Arabic)</span>
+          </span>
+          <textarea name="description" rows={4} required dir="rtl" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الوصف (إنجليزي)</span>
+            <span className="lang-en">Description (English)</span>
+          </span>
+          <textarea name="descriptionEn" rows={4} dir="ltr" className="admin-input" />
+        </label>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -63,13 +97,6 @@ export function DeviceCreateForm() {
           <input name="serviceSlugs" dir="ltr" className="admin-input" />
         </label>
       </div>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">رابط صورة الجهاز</span>
-          <span className="lang-en">Image URL</span>
-        </span>
-        <input name="imageUrl" dir="ltr" className="admin-input" />
-      </label>
       {state.message ? (
         <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
           {state.message}

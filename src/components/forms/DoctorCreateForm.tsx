@@ -23,28 +23,21 @@ export function DoctorCreateForm() {
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">
-            <span className="lang-ar">الاسم</span>
-            <span className="lang-en">Name</span>
+            <span className="lang-ar">الاسم (عربي)</span>
+            <span className="lang-en">Name (Arabic)</span>
           </span>
-          <input name="name" required className="admin-input" />
+          <input name="name" required dir="rtl" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الاسم (إنجليزي)</span>
+            <span className="lang-en">Name (English)</span>
+          </span>
+          <input name="nameEn" dir="ltr" className="admin-input" />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
           <input name="slug" required dir="ltr" className="admin-input font-mono" />
-        </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">المسمى</span>
-            <span className="lang-en">Title</span>
-          </span>
-          <input name="title" required className="admin-input" />
-        </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">التخصص</span>
-            <span className="lang-en">Specialty</span>
-          </span>
-          <input name="specialty" required className="admin-input" />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -55,40 +48,79 @@ export function DoctorCreateForm() {
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
+            <span className="lang-ar">المسمى (عربي)</span>
+            <span className="lang-en">Title (Arabic)</span>
+          </span>
+          <input name="title" required dir="rtl" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">المسمى (إنجليزي)</span>
+            <span className="lang-en">Title (English)</span>
+          </span>
+          <input name="titleEn" dir="ltr" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">التخصص (عربي)</span>
+            <span className="lang-en">Specialty (Arabic)</span>
+          </span>
+          <input name="specialty" required dir="rtl" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">التخصص (إنجليزي)</span>
+            <span className="lang-en">Specialty (English)</span>
+          </span>
+          <input name="specialtyEn" dir="ltr" className="admin-input" />
+        </label>
+        <label className="grid gap-1 md:col-span-2">
+          <span className="admin-field-label">
             <span className="lang-ar">اللغات</span>
             <span className="lang-en">Languages (CSV)</span>
           </span>
           <input name="languages" placeholder="العربية، الإنجليزية" required className="admin-input" />
         </label>
       </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">رابط صورة الطبيب</span>
+            <span className="lang-en">Photo URL</span>
+          </span>
+          <input name="photoUrl" dir="ltr" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">رابط صورة الغلاف</span>
+            <span className="lang-en">Cover URL</span>
+          </span>
+          <input name="coverImageUrl" dir="ltr" className="admin-input" />
+        </label>
+      </div>
       <label className="grid gap-1">
         <span className="admin-field-label">
-          <span className="lang-ar">رابط صورة الطبيب</span>
-          <span className="lang-en">Photo URL</span>
+          <span className="lang-ar">ملخص (عربي)</span>
+          <span className="lang-en">Summary (Arabic)</span>
         </span>
-        <input name="photoUrl" dir="ltr" className="admin-input" />
+        <textarea name="summary" rows={2} required dir="rtl" className="admin-input" />
       </label>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">رابط صورة الغلاف</span>
-          <span className="lang-en">Cover URL</span>
-        </span>
-        <input name="coverImageUrl" dir="ltr" className="admin-input" />
-      </label>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">ملخص</span>
-          <span className="lang-en">Summary</span>
-        </span>
-        <textarea name="summary" rows={2} required className="admin-input" />
-      </label>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">السيرة</span>
-          <span className="lang-en">Bio</span>
-        </span>
-        <textarea name="bio" rows={4} required className="admin-input" />
-      </label>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">السيرة (عربي)</span>
+            <span className="lang-en">Bio (Arabic)</span>
+          </span>
+          <textarea name="bio" rows={4} required dir="rtl" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">السيرة (إنجليزي)</span>
+            <span className="lang-en">Bio (English)</span>
+          </span>
+          <textarea name="bioEn" rows={4} dir="ltr" className="admin-input" />
+        </label>
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="admin-input flex items-center gap-3">
           <input type="checkbox" name="featured" value="true" />

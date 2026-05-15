@@ -43,6 +43,8 @@ export function BookingModal({
   source?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [state, setState] = useState<"closed" | "opening" | "open" | "closing">("closed");
   const [mounted, setMounted] = useState(false);
   const titleId = useId();
 
@@ -50,10 +52,28 @@ export function BookingModal({
     setMounted(true);
   }, []);
 
+  const startClose = () => {
+    setState("closing");
+    window.setTimeout(() => {
+      setOpen(false);
+      setVisible(false);
+      setState("closed");
+    }, 260);
+  };
+
+  const startOpen = () => {
+    setOpen(true);
+    setVisible(true);
+    setState("opening");
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setState("open"));
+    });
+  };
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") startClose();
     };
     const html = document.documentElement;
     const body = document.body;
@@ -85,7 +105,7 @@ export function BookingModal({
       <button
         type="button"
         className={buttonClassName}
-        onClick={() => setOpen(true)}
+        onClick={startOpen}
       >
         <span className="lang-ar">
           {labelAr ?? (compactLabel ? "احجزي" : "احجزي موعدك")}
@@ -95,13 +115,14 @@ export function BookingModal({
         </span>
         {buttonClassName === "rv-v0-book" ? <CalendarIcon /> : null}
       </button>
-      {open && mounted
+      {visible && mounted
         ? createPortal(
             <div
               role="dialog"
               aria-modal="true"
               aria-labelledby={titleId}
               className="rv-booking-modal"
+              data-state={state}
               style={{
                 position: "fixed",
                 top: 0,
@@ -124,7 +145,7 @@ export function BookingModal({
                 type="button"
                 className="rv-booking-backdrop"
                 aria-label="Close booking form"
-                onClick={() => setOpen(false)}
+                onClick={startClose}
                 style={{
                   position: "fixed",
                   top: 0,
@@ -165,7 +186,7 @@ export function BookingModal({
                   <button
                     type="button"
                     className="rv-booking-close"
-                    onClick={() => setOpen(false)}
+                    onClick={startClose}
                     aria-label="Close"
                   >
                     ×

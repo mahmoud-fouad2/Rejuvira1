@@ -201,7 +201,7 @@ export function V0InspiredHome({
   const heroPillEn = "Rejuvira Aesthetic Medical Center";
 
   return (
-    <main className="rv-v0-home" dir="rtl">
+    <main className="rv-v0-home">
       <section className="rv-v0-hero">
         <div className="rv-v0-dots" />
         <div className="rv-v0-hero-inner">

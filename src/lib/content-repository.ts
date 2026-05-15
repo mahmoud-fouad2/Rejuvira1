@@ -6,10 +6,15 @@ export type DoctorRecord = {
   id: string;
   slug: string;
   name: string;
+  nameEn?: string | null;
   title: string;
+  titleEn?: string | null;
   specialty: string;
+  specialtyEn?: string | null;
   summary: string;
+  summaryEn?: string | null;
   bio: string;
+  bioEn?: string | null;
   photoUrl: string;
   coverImageUrl: string;
   yearsExperience: number;
@@ -26,9 +31,12 @@ export type ServiceRecord = {
   id: string;
   slug: string;
   name: string;
+  nameEn?: string | null;
   category: string;
   excerpt: string;
+  excerptEn?: string | null;
   description: string;
+  descriptionEn?: string | null;
   coverImageUrl: string;
   benefits: readonly string[];
   doctorSlugs: readonly string[];
@@ -41,8 +49,11 @@ export type DeviceRecord = {
   id: string;
   slug: string;
   name: string;
+  nameEn?: string | null;
   excerpt: string;
+  excerptEn?: string | null;
   description: string;
+  descriptionEn?: string | null;
   imageUrl: string;
   certifications: readonly string[];
   serviceSlugs: readonly string[];
@@ -300,10 +311,14 @@ export type AdminUserRecord = {
 export type CreateDoctorInput = {
   slug: string;
   name: string;
+  nameEn?: string | undefined;
   title: string;
+  titleEn?: string | undefined;
   specialty: string;
+  specialtyEn?: string | undefined;
   summary: string;
   bio?: string | undefined;
+  bioEn?: string | undefined;
   yearsExperience: number;
   languages: string[];
   photoUrl?: string | undefined;
@@ -316,10 +331,14 @@ export type UpdateDoctorInput = {
   id: string;
   slug: string;
   name: string;
+  nameEn?: string | undefined;
   title: string;
+  titleEn?: string | undefined;
   specialty: string;
+  specialtyEn?: string | undefined;
   summary: string;
   bio: string;
+  bioEn?: string | undefined;
   yearsExperience: number;
   languages: string[];
   photoUrl?: string | undefined;
@@ -331,17 +350,23 @@ export type UpdateDoctorInput = {
 export type CreateServiceInput = {
   slug: string;
   name: string;
+  nameEn?: string | undefined;
   category: string;
   excerpt: string;
+  excerptEn?: string | undefined;
   description: string;
+  descriptionEn?: string | undefined;
   coverImageUrl?: string | undefined;
 };
 
 export type CreateDeviceInput = {
   slug: string;
   name: string;
+  nameEn?: string | undefined;
   excerpt: string;
+  excerptEn?: string | undefined;
   description: string;
+  descriptionEn?: string | undefined;
   certifications: string[];
   serviceSlugs: string[];
   imageUrl?: string | undefined;
@@ -350,7 +375,9 @@ export type CreateDeviceInput = {
 export type CreateJournalPostInput = {
   slug: string;
   title: string;
+  titleEn?: string | undefined;
   excerpt: string;
+  excerptEn?: string | undefined;
   body: string[];
   category: string;
   readingTime: string;
@@ -391,9 +418,12 @@ export type UpdateServiceInput = {
   id: string;
   slug: string;
   name: string;
+  nameEn?: string | undefined;
   category: string;
   excerpt: string;
+  excerptEn?: string | undefined;
   description: string;
+  descriptionEn?: string | undefined;
   status: ContentStatus;
   featured: boolean;
   coverImageUrl?: string | undefined;
@@ -403,8 +433,11 @@ export type UpdateDeviceInput = {
   id: string;
   slug: string;
   name: string;
+  nameEn?: string | undefined;
   excerpt: string;
+  excerptEn?: string | undefined;
   description: string;
+  descriptionEn?: string | undefined;
   certifications: string[];
   serviceSlugs: string[];
   status: ContentStatus;
@@ -1940,10 +1973,15 @@ export async function getDoctors() {
         id: doctor.id,
         slug: doctor.slug,
         name: doctor.nameAr,
+        nameEn: doctor.nameEn,
         title: doctor.titleAr,
+        titleEn: doctor.titleEn,
         specialty: doctor.specialtyAr,
+        specialtyEn: doctor.specialtyEn,
         summary: toDoctorSummary(doctor.publications, doctor.bioAr),
+        summaryEn: doctor.bioEn ? toDoctorSummary(doctor.publications, doctor.bioEn) : null,
         bio: doctor.bioAr,
+        bioEn: doctor.bioEn,
         photoUrl: toDoctorAsset(doctor.slug, doctor.photoUrl),
         coverImageUrl: toDoctorAsset(doctor.slug, doctor.coverImageUrl ?? doctor.photoUrl),
         yearsExperience: doctor.yearsExperience ?? 0,
@@ -1989,9 +2027,12 @@ export async function getServices() {
         id: service.id,
         slug: service.slug,
         name: service.nameAr,
+        nameEn: service.nameEn,
         category: service.categoryKey,
         excerpt: service.excerptAr,
+        excerptEn: service.excerptEn,
         description: service.descriptionAr,
+        descriptionEn: service.descriptionEn,
         coverImageUrl: toDisplayAsset(
           service.coverImageUrl,
           serviceImageForSlug(service.slug),
@@ -2032,8 +2073,11 @@ export async function getDevices() {
       id: device.id,
       slug: device.slug,
       name: device.nameAr,
+      nameEn: device.nameEn,
       excerpt: device.excerptAr ?? device.descriptionAr.slice(0, 120),
+      excerptEn: device.excerptEn,
       description: device.descriptionAr,
+      descriptionEn: device.descriptionEn,
       imageUrl: toPrimaryAsset(
         device.gallery,
         deviceImageForSlug(device.slug),
@@ -2861,9 +2905,13 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
     data: {
       slug: input.slug,
       nameAr: input.name,
+      nameEn: input.nameEn || null,
       titleAr: input.title,
+      titleEn: input.titleEn || null,
       specialtyAr: input.specialty,
+      specialtyEn: input.specialtyEn || null,
       bioAr: input.bio ?? input.summary,
+      bioEn: input.bioEn || null,
       languages: input.languages,
       yearsExperience: input.yearsExperience,
       education: [],
@@ -2889,9 +2937,13 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
     data: {
       slug: input.slug,
       nameAr: input.name,
+      nameEn: input.nameEn || null,
       titleAr: input.title,
+      titleEn: input.titleEn || null,
       specialtyAr: input.specialty,
+      specialtyEn: input.specialtyEn || null,
       bioAr: input.bio,
+      bioEn: input.bioEn || null,
       languages: input.languages,
       yearsExperience: input.yearsExperience,
       publications: input.summary ? [input.summary] : [],
@@ -2947,9 +2999,12 @@ export async function createServiceDraft(input: CreateServiceInput) {
     data: {
       slug: input.slug,
       nameAr: input.name,
+      nameEn: input.nameEn || null,
       categoryKey: input.category,
       excerptAr: input.excerpt,
+      excerptEn: input.excerptEn || null,
       descriptionAr: input.description,
+      descriptionEn: input.descriptionEn || null,
       status: ContentStatus.DRAFT,
       ...(input.coverImageUrl
         ? {
@@ -2978,8 +3033,11 @@ export async function createDeviceDraft(input: CreateDeviceInput) {
     data: {
       slug: input.slug,
       nameAr: input.name,
+      nameEn: input.nameEn || null,
       excerptAr: input.excerpt,
+      excerptEn: input.excerptEn || null,
       descriptionAr: input.description,
+      descriptionEn: input.descriptionEn || null,
       certifications: input.certifications,
       status: ContentStatus.DRAFT,
       ...(input.imageUrl
@@ -3009,7 +3067,9 @@ export async function createJournalPostDraft(input: CreateJournalPostInput) {
     data: {
       slug: input.slug,
       titleAr: input.title,
+      titleEn: input.titleEn || null,
       excerptAr: input.excerpt,
+      excerptEn: input.excerptEn || null,
       bodyAr: input.body,
       coverImageUrl:
         input.coverImageUrl ?? serviceImages.laser,
@@ -3085,8 +3145,10 @@ export async function deleteJournalPost(slug: string) {
 export type CreateGalleryItemInput = {
   slug: string;
   title: string;
+  titleEn?: string | undefined;
   category: string;
   description: string;
+  descriptionEn?: string | undefined;
   beforeImageUrl: string;
   afterImageUrl: string;
   beforeImageAlt: string;
@@ -3108,8 +3170,10 @@ export async function createGalleryItem(input: CreateGalleryItemInput) {
     data: {
       slug: input.slug,
       titleAr: input.title,
+      titleEn: input.titleEn || null,
       categoryKey: input.category,
       descriptionAr: input.description,
+      descriptionEn: input.descriptionEn || null,
       beforeImageUrl: input.beforeImageUrl,
       afterImageUrl: input.afterImageUrl,
       beforeImageAlt: input.beforeImageAlt,
@@ -3132,8 +3196,10 @@ export async function updateGalleryItem(input: UpdateGalleryItemInput) {
     data: {
       slug: input.slug,
       titleAr: input.title,
+      titleEn: input.titleEn || null,
       categoryKey: input.category,
       descriptionAr: input.description,
+      descriptionEn: input.descriptionEn || null,
       beforeImageUrl: input.beforeImageUrl,
       afterImageUrl: input.afterImageUrl,
       beforeImageAlt: input.beforeImageAlt,
@@ -3242,9 +3308,12 @@ export async function updateService(input: UpdateServiceInput) {
     data: {
       slug: input.slug,
       nameAr: input.name,
+      nameEn: input.nameEn || null,
       categoryKey: input.category,
       excerptAr: input.excerpt,
+      excerptEn: input.excerptEn || null,
       descriptionAr: input.description,
+      descriptionEn: input.descriptionEn || null,
       status: input.status,
       isFeatured: input.featured,
       ...(input.coverImageUrl ? { coverImageUrl: input.coverImageUrl } : {}),
@@ -3289,8 +3358,11 @@ export async function updateDevice(input: UpdateDeviceInput) {
     data: {
       slug: input.slug,
       nameAr: input.name,
+      nameEn: input.nameEn || null,
       excerptAr: input.excerpt,
+      excerptEn: input.excerptEn || null,
       descriptionAr: input.description,
+      descriptionEn: input.descriptionEn || null,
       certifications: input.certifications,
       status: input.status,
       isFeatured: input.featured,

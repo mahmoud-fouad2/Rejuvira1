@@ -55,7 +55,7 @@ export function HomeContactSection({
     : null;
 
   return (
-    <section className="rv-v0-home-contact-section" id="contact" dir="rtl">
+    <section className="rv-v0-home-contact-section" id="contact">
       <div className="rv-v0-home-contact-bg" aria-hidden />
       <div className="rv-v0-home-contact-inner">
         <div className="rv-v0-home-contact-grid">

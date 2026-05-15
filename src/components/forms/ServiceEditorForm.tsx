@@ -15,9 +15,12 @@ type Props = {
     id: string;
     slug: string;
     name: string;
+    nameEn?: string | null;
     category: string;
     excerpt: string;
+    excerptEn?: string | null;
     description: string;
+    descriptionEn?: string | null;
     coverImageUrl: string;
     status: ContentStatus;
     featured: boolean;
@@ -32,16 +35,34 @@ export function ServiceEditorForm({ service }: Props) {
       <input type="hidden" name="id" value={service.id} />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">الاسم</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">الاسم (عربي)</span>
+            <span className="lang-en">Name (Arabic)</span>
+          </span>
           <input
             name="name"
             defaultValue={service.name}
             required
+            dir="rtl"
             className="admin-input"
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">المعرف (slug)</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">الاسم (إنجليزي)</span>
+            <span className="lang-en">Name (English)</span>
+          </span>
+          <input
+            name="nameEn"
+            defaultValue={service.nameEn ?? ""}
+            dir="ltr"
+            className="admin-input"
+          />
+        </label>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">Slug</span>
           <input
             name="slug"
             defaultValue={service.slug}
@@ -51,7 +72,10 @@ export function ServiceEditorForm({ service }: Props) {
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">التصنيف</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">التصنيف</span>
+            <span className="lang-en">Category</span>
+          </span>
           <input
             name="category"
             defaultValue={service.category}
@@ -59,48 +83,92 @@ export function ServiceEditorForm({ service }: Props) {
             className="admin-input"
           />
         </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">رابط صورة الغلاف</span>
-          <input
-            name="coverImageUrl"
-            defaultValue={service.coverImageUrl}
-            dir="ltr"
-            className="admin-input"
-          />
-        </label>
       </div>
       <label className="grid gap-1">
-        <span className="admin-field-label">ملخص</span>
-        <textarea
-          name="excerpt"
-          rows={2}
-          defaultValue={service.excerpt}
-          required
-          className="admin-input"
-        />
-      </label>
-      <label className="grid gap-1">
-        <span className="admin-field-label">الوصف</span>
-        <textarea
-          name="description"
-          rows={4}
-          defaultValue={service.description}
-          required
+        <span className="admin-field-label">
+          <span className="lang-ar">رابط صورة الغلاف</span>
+          <span className="lang-en">Cover image URL</span>
+        </span>
+        <input
+          name="coverImageUrl"
+          defaultValue={service.coverImageUrl}
+          dir="ltr"
           className="admin-input"
         />
       </label>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">الحالة</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">ملخص (عربي)</span>
+            <span className="lang-en">Excerpt (Arabic)</span>
+          </span>
+          <textarea
+            name="excerpt"
+            rows={2}
+            defaultValue={service.excerpt}
+            required
+            dir="rtl"
+            className="admin-input"
+          />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">ملخص (إنجليزي)</span>
+            <span className="lang-en">Excerpt (English)</span>
+          </span>
+          <textarea
+            name="excerptEn"
+            rows={2}
+            defaultValue={service.excerptEn ?? ""}
+            dir="ltr"
+            className="admin-input"
+          />
+        </label>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الوصف (عربي)</span>
+            <span className="lang-en">Description (Arabic)</span>
+          </span>
+          <textarea
+            name="description"
+            rows={4}
+            defaultValue={service.description}
+            required
+            dir="rtl"
+            className="admin-input"
+          />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الوصف (إنجليزي)</span>
+            <span className="lang-en">Description (English)</span>
+          </span>
+          <textarea
+            name="descriptionEn"
+            rows={4}
+            defaultValue={service.descriptionEn ?? ""}
+            dir="ltr"
+            className="admin-input"
+          />
+        </label>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الحالة</span>
+            <span className="lang-en">Status</span>
+          </span>
           <select
             name="status"
             defaultValue={service.status}
             className="admin-input"
           >
-            <option value={ContentStatus.DRAFT}>مسودة</option>
-            <option value={ContentStatus.REVIEW}>قيد المراجعة</option>
-            <option value={ContentStatus.PUBLISHED}>منشور</option>
-            <option value={ContentStatus.ARCHIVED}>مؤرشف</option>
+            <option value={ContentStatus.DRAFT}>Draft</option>
+            <option value={ContentStatus.REVIEW}>Review</option>
+            <option value={ContentStatus.PUBLISHED}>Published</option>
+            <option value={ContentStatus.ARCHIVED}>Archived</option>
           </select>
         </label>
         <label className="admin-input flex items-center gap-3">
@@ -110,7 +178,10 @@ export function ServiceEditorForm({ service }: Props) {
             value="true"
             defaultChecked={service.featured}
           />
-          <span className="text-sm text-ink-soft">عرض ضمن الخدمات المميزة</span>
+          <span className="text-sm">
+            <span className="lang-ar">عرض ضمن الخدمات المميزة</span>
+            <span className="lang-en">Show in featured services</span>
+          </span>
         </label>
       </div>
       {state.message ? (
@@ -128,7 +199,17 @@ export function ServiceEditorForm({ service }: Props) {
           disabled={pending}
           className="admin-btn-primary"
         >
-          {pending ? "جاري الحفظ..." : "حفظ التعديلات"}
+          {pending ? (
+            <>
+              <span className="lang-ar">جاري الحفظ...</span>
+              <span className="lang-en">Saving...</span>
+            </>
+          ) : (
+            <>
+              <span className="lang-ar">حفظ التعديلات</span>
+              <span className="lang-en">Save changes</span>
+            </>
+          )}
         </button>
       </div>
     </form>

@@ -19,9 +19,12 @@ export type ServiceActionState = {
 const serviceSchema = z.object({
   slug: z.string().min(3),
   name: z.string().min(3),
+  nameEn: z.string().optional().or(z.literal("")),
   category: z.string().min(2),
   excerpt: z.string().min(8),
+  excerptEn: z.string().optional().or(z.literal("")),
   description: z.string().min(20),
+  descriptionEn: z.string().optional().or(z.literal("")),
   coverImageUrl: z.string().optional().or(z.literal("")),
 });
 
@@ -46,9 +49,12 @@ export async function createServiceAction(
   const parsed = serviceSchema.safeParse({
     slug: formData.get("slug"),
     name: formData.get("name"),
+    nameEn: formData.get("nameEn"),
     category: formData.get("category"),
     excerpt: formData.get("excerpt"),
+    excerptEn: formData.get("excerptEn"),
     description: formData.get("description"),
+    descriptionEn: formData.get("descriptionEn"),
     coverImageUrl: formData.get("coverImageUrl"),
   });
 
@@ -59,9 +65,12 @@ export async function createServiceAction(
   await createServiceDraft({
     slug: parsed.data.slug,
     name: parsed.data.name,
+    ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
     category: parsed.data.category,
     excerpt: parsed.data.excerpt,
+    ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
     description: parsed.data.description,
+    ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
     ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
   });
 
@@ -77,9 +86,12 @@ export async function updateServiceAction(
     id: formData.get("id"),
     slug: formData.get("slug"),
     name: formData.get("name"),
+    nameEn: formData.get("nameEn"),
     category: formData.get("category"),
     excerpt: formData.get("excerpt"),
+    excerptEn: formData.get("excerptEn"),
     description: formData.get("description"),
+    descriptionEn: formData.get("descriptionEn"),
     coverImageUrl: formData.get("coverImageUrl"),
     status: formData.get("status"),
     featured: formData.get("featured"),
@@ -93,9 +105,12 @@ export async function updateServiceAction(
     id: parsed.data.id,
     slug: parsed.data.slug,
     name: parsed.data.name,
+    ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
     category: parsed.data.category,
     excerpt: parsed.data.excerpt,
+    ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
     description: parsed.data.description,
+    ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
     status: parsed.data.status,
     featured: parsed.data.featured,
     ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),

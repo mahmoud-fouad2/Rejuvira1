@@ -53,7 +53,20 @@ export function SiteMegaMenu({
 }: SiteMegaMenuProps) {
   const { lang } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  const closeTimerRef = useRef<number | null>(null);
   const [open, setOpen] = useState(false);
+
+  // Hover with grace delay so a slow cursor between trigger and panel does not close.
+  const cancelClose = () => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimerRef.current = window.setTimeout(() => setOpen(false), 220);
+  };
 
   // Close on outside click and Escape; restore focus to trigger.
   useEffect(() => {
@@ -72,6 +85,8 @@ export function SiteMegaMenu({
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  useEffect(() => () => cancelClose(), []);
 
   const columns: Column[] = [
     {
@@ -110,9 +125,20 @@ export function SiteMegaMenu({
     <div
       ref={containerRef}
       className="rv-mega-shell"
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      onFocus={() => setOpen(true)}
+      onMouseEnter={() => {
+        cancelClose();
+        setOpen(true);
+      }}
+      onMouseLeave={scheduleClose}
+      onFocus={() => {
+        cancelClose();
+        setOpen(true);
+      }}
+      onBlur={(event) => {
+        if (!containerRef.current?.contains(event.relatedTarget as Node | null)) {
+          scheduleClose();
+        }
+      }}
     >
       <button
         type="button"
