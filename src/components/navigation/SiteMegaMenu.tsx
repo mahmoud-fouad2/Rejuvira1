@@ -5,6 +5,7 @@ import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { useLanguage } from "@/components/providers/LanguageProvider";
 import type {
   DeviceRecord,
   DoctorRecord,
@@ -19,7 +20,8 @@ type SiteMegaMenuProps = {
 };
 
 type Column = {
-  title: string;
+  titleAr: string;
+  titleEn: string;
   items: ReadonlyArray<{
     title: string;
     subtitle: string;
@@ -49,6 +51,7 @@ export function SiteMegaMenu({
   doctors,
   devices,
 }: SiteMegaMenuProps) {
+  const { lang } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
 
@@ -72,7 +75,8 @@ export function SiteMegaMenu({
 
   const columns: Column[] = [
     {
-      title: "خدماتنا",
+      titleAr: "خدماتنا",
+      titleEn: "Services",
       items: services.slice(0, 4).map((service) => ({
         title: service.name,
         subtitle: service.category,
@@ -81,7 +85,8 @@ export function SiteMegaMenu({
       })),
     },
     {
-      title: "الأطباء",
+      titleAr: "الأطباء",
+      titleEn: "Doctors",
       items: doctors.slice(0, 4).map((doctor) => ({
         title: doctor.name,
         subtitle: doctor.specialty,
@@ -90,7 +95,8 @@ export function SiteMegaMenu({
       })),
     },
     {
-      title: "الأجهزة",
+      titleAr: "الأجهزة",
+      titleEn: "Devices",
       items: devices.slice(0, 4).map((device) => ({
         title: device.name,
         subtitle: device.certifications[0] ?? "تقنية معتمدة",
@@ -123,7 +129,7 @@ export function SiteMegaMenu({
           }
         }}
       >
-        <span>{triggerLabel}</span>
+        <span>{lang === "en" ? "Services" : triggerLabel}</span>
         {ChevronIcon}
       </button>
 
@@ -131,20 +137,24 @@ export function SiteMegaMenu({
         className="rv-mega-panel"
         data-open={open || undefined}
         role="menu"
-        aria-label={triggerLabel}
+        aria-label={lang === "en" ? "Services mega menu" : triggerLabel}
       >
         <div className="rv-mega-grid">
           {columns.map((column) => (
-            <div key={column.title} className="rv-mega-col">
-              <p className="rv-mega-col-title">{column.title}</p>
+            <div key={`${column.titleAr}-${column.titleEn}`} className="rv-mega-col">
+              <p className="rv-mega-col-title">
+                <span className="lang-ar">{column.titleAr}</span>
+                <span className="lang-en">{column.titleEn}</span>
+              </p>
               {column.items.length === 0 ? (
                 <p className="text-xs text-[color:var(--rv-muted)]">
-                  لا توجد عناصر منشورة بعد.
+                  <span className="lang-ar">لا توجد عناصر منشورة بعد.</span>
+                  <span className="lang-en">No published items yet.</span>
                 </p>
               ) : (
                 column.items.map((item) => (
                   <Link
-                    key={`${column.title}-${item.title}`}
+                    key={`${column.titleAr}-${item.title}`}
                     href={item.href}
                     role="menuitem"
                     className="rv-mega-link"
@@ -171,13 +181,22 @@ export function SiteMegaMenu({
 
           {/* Feature CTA column */}
           <div className="rv-mega-feature" role="presentation">
-            <p className="rv-mega-feature-eyebrow">احجزي استشارتك</p>
+            <p className="rv-mega-feature-eyebrow">
+              <span className="lang-ar">احجزي استشارتك</span>
+              <span className="lang-en">Book a consultation</span>
+            </p>
             <div>
               <p className="rv-mega-feature-title">
-                خطة طبية واضحة تبدأ من تقييم دقيق للحالة
+                <span className="lang-ar">خطة طبية واضحة تبدأ من تقييم دقيق للحالة</span>
+                <span className="lang-en">A clear plan begins with a careful assessment</span>
               </p>
               <p style={{ marginTop: "0.45rem", fontSize: "0.82rem", opacity: 0.86, lineHeight: 1.55 }}>
-                أرسلي طلبك ليصلك تأكيد سريع من فريق الاستقبال خلال ساعات العمل.
+                <span className="lang-ar">
+                  أرسلي طلبك ليصلك تأكيد من فريق الاستقبال خلال ساعات العمل.
+                </span>
+                <span className="lang-en">
+                  Send a request and the front desk will confirm during business hours.
+                </span>
               </p>
             </div>
             <Link
@@ -185,7 +204,8 @@ export function SiteMegaMenu({
               className="rv-mega-feature-cta"
               onClick={() => setOpen(false)}
             >
-              ابدئي الآن
+              <span className="lang-ar">ابدئي الآن</span>
+              <span className="lang-en">Get started</span>
               <span aria-hidden>←</span>
             </Link>
           </div>

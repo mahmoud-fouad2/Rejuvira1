@@ -8,19 +8,21 @@ import Image from "next/image";
  * Shows a polished hero sequence with brand logo + texture overlay,
  * then auto‑collapses so the main hero beneath takes over.
  */
+type CinematicIntroProps = {
+  logoSrc: string;
+  logoAlt: string;
+  brandName: string;
+  skinTextureSrc: string;
+  /** Reserved for future intro sequences */
+  clientImageSrc?: string;
+};
+
 export function CinematicIntro({
   logoSrc,
   logoAlt,
   brandName,
   skinTextureSrc,
-  clientImageSrc: _clientImageSrc,
-}: {
-  logoSrc: string;
-  logoAlt: string;
-  brandName: string;
-  skinTextureSrc: string;
-  clientImageSrc: string;
-}) {
+}: CinematicIntroProps) {
   const [visible, setVisible] = useState(true);
   const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
   useEffect(() => {

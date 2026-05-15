@@ -380,7 +380,7 @@ export async function SiteFooter() {
                     width={120}
                     height={48}
                     className="rv-v0-trust-badge-img"
-                    style={{ width: "auto", height: "100%" }}
+                    unoptimized
                   />
                 </li>
               ))}

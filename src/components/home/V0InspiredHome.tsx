@@ -268,28 +268,31 @@ export function V0InspiredHome({
                 className="object-cover"
               />
             </div>
-            <div className="rv-v0-float rv-v0-float-top">
-              <b>{serviceSource.length}+</b>
-              <span className="lang-ar">خدمة متخصصة</span>
-              <span className="lang-en">Specialized services</span>
-            </div>
-            <div className="rv-v0-float rv-v0-moh">
-              <span className="lang-ar">
-                معتمد
-                <br />
+          </div>
+        </div>
+
+        <div className="rv-v0-hero-trust-strip" aria-label="Trust highlights">
+          {trustItems.map((card) => (
+            <div key={card.titleAr} className="rv-v0-hero-trust-chip">
+              <span className="rv-v0-hero-trust-chip-badge" aria-hidden>
+                <span className="lang-ar">{card.badgeAr}</span>
+                <span className="lang-en">{card.badgeEn}</span>
               </span>
-              <span className="lang-en">
-                Credentialed
-                <br />
+              <span className="rv-v0-hero-trust-chip-text">
+                <span className="lang-ar">{card.titleAr}</span>
+                <span className="lang-en">{card.titleEn}</span>
               </span>
-              MOH
             </div>
-            <div className="rv-v0-float rv-v0-rating">
-              <b>4.9</b>
-              <span className="lang-ar">تقييم المراجعين</span>
-              <span className="lang-en">Review score</span>
-              <small>★★★★★</small>
-            </div>
+          ))}
+          <div className="rv-v0-hero-trust-chip">
+            <span className="rv-v0-hero-trust-chip-badge" aria-hidden>
+              <span className="lang-ar">م</span>
+              <span className="lang-en">R</span>
+            </span>
+            <span className="rv-v0-hero-trust-chip-text">
+              <span className="lang-ar">{`استجابة فريق الاستقبال ${settings.ops.sla}`}</span>
+              <span className="lang-en">{`Reception response target ${settings.ops.sla}`}</span>
+            </span>
           </div>
         </div>
       </section>
@@ -353,93 +356,15 @@ export function V0InspiredHome({
             <span className="lang-en">Browse the full catalog</span>
           </Link>
         </div>
-      </section>
-
-      <section className="rv-v0-section rv-v0-trust-section">
-        <SectionTitle
-          eyebrow={
-            <>
-              <span className="lang-ar">{hp.trustEyebrow}</span>
-              <span className="lang-en">{hp.trustEyebrowEn}</span>
-            </>
-          }
-          title={
-            <>
-              <span className="lang-ar">{hp.trustTitle}</span>
-              <span className="lang-en">{hp.trustTitleEn}</span>
-            </>
-          }
-          lead={
-            <>
-              <span className="lang-ar">{hp.trustDescription}</span>
-              <span className="lang-en">{hp.trustDescriptionEn}</span>
-            </>
-          }
-        />
-        <div className="rv-v0-trust-grid">
-          {trustItems.map((card) => (
-            <article key={card.titleAr} className="rv-v0-trust-card">
-              <span>
-                <span className="lang-ar">{card.badgeAr}</span>
-                <span className="lang-en">{card.badgeEn}</span>
-              </span>
-              <h3>
-                <span className="lang-ar">{card.titleAr}</span>
-                <span className="lang-en">{card.titleEn}</span>
-              </h3>
-              <p>
-                <span className="lang-ar">{card.bodyAr}</span>
-                <span className="lang-en">{card.bodyEn}</span>
-              </p>
-            </article>
-          ))}
-          <article className="rv-v0-trust-card">
-            <span>
-              <span className="lang-ar">م</span>
-              <span className="lang-en">C</span>
-            </span>
-            <h3>
-              <span className="lang-ar">متابعة واضحة</span>
-              <span className="lang-en">Operational clarity</span>
-            </h3>
-            <p>
-              <span className="lang-ar">{`زمن الاستجابة المتوقع ${settings.ops.sla}`}</span>
-              <span className="lang-en">{`Target response window ${settings.ops.sla}`}</span>
-            </p>
-          </article>
-        </div>
-        <div className="rv-v0-partners">
-          {["Allergan", "Galderma", "Merz", "Candela", "Lumenis", "Cynosure"].map((name) => (
-            <span key={name}>{name}</span>
-          ))}
-        </div>
-        <div className="rv-v0-wide-stats">
-          <div>
-            <b>98%</b>
-            <span className="lang-ar">رضا</span>
-            <span className="lang-en">Satisfaction</span>
-          </div>
-          <div>
-            <b>15,000+</b>
-            <span className="lang-ar">عميلة</span>
-            <span className="lang-en">Guests served</span>
-          </div>
-          <div>
-            <b>50+</b>
-            <span className="lang-ar">تقنية</span>
-            <span className="lang-en">Modalities</span>
-          </div>
-          <div>
-            <b>25+</b>
-            <span className="lang-ar">طبيبة وطبيب</span>
-            <span className="lang-en">Clinicians</span>
-          </div>
-          <div>
-            <b>10+</b>
-            <span className="lang-ar">سنوات</span>
-            <span className="lang-en">Years</span>
-          </div>
-        </div>
+        <p className="rv-v0-partners-note">
+          <span className="lang-ar">
+            مواد حقن وتقنيات مستخدمة ضمن بروتوكولات المركز وتُدار حسب تقييم الطبيب المعالج لكل حالة.
+          </span>
+          <span className="lang-en">
+            Injectables and device-based treatments are chosen within the center&apos;s protocols and tailored by the treating
+            clinician.
+          </span>
+        </p>
       </section>
 
       <V0DoctorsCarousel doctors={featuredDoctors} />
@@ -539,65 +464,25 @@ export function V0InspiredHome({
         <SectionTitle
           eyebrow={
             <>
-              <span className="lang-ar">ماذا تقول عميلاتنا</span>
-              <span className="lang-en">What guests remember</span>
+              <span className="lang-ar">ملاحظات المراجعين</span>
+              <span className="lang-en">Guest feedback</span>
             </>
           }
           title={
             <>
-              <span className="lang-ar">آراء عملائنا</span>
-              <span className="lang-en">What Our Clients Say</span>
+              <span className="lang-ar">آراء مختصرة</span>
+              <span className="lang-en">Recent notes</span>
             </>
           }
           lead={
             <>
-              <span className="lang-ar">تجارب حقيقية موثقة من عملائنا في الرياض.</span>
-              <span className="lang-en">Verified experiences from our clients in Riyadh.</span>
+              <span className="lang-ar">عبارات مختارة من استبيانات المتابعة داخل نفس السياسة الخصوصية للمركز.</span>
+              <span className="lang-en">Short excerpts from follow-up surveys, handled under the center&apos;s privacy policy.</span>
             </>
           }
         />
-        <div className="rv-v0-testimonials">
-          {fallbackTestimonialsBi.slice(0, 4).map((row) => (
-            <article key={row.authorAr} className="rv-v0-testimonial">
-              <b>”</b>
-              <div className="rv-v0-stars" aria-hidden>
-                ★★★★★
-              </div>
-              <p>
-                <span className="lang-ar">{row.quoteAr}</span>
-                <span className="lang-en">{row.quoteEn}</span>
-              </p>
-              <strong>
-                <span className="lang-ar">{row.authorAr}</span>
-                <span className="lang-en">{row.authorEn}</span>
-              </strong>
-            </article>
-          ))}
-        </div>
 
         <TestimonialsSplitCarousel items={fallbackTestimonialsBi} perRow={6} />
-        <div className="rv-v0-wide-stats rv-v0-review-stats">
-          <div>
-            <b>4.9</b>
-            <span className="lang-ar">تقييم</span>
-            <span className="lang-en">Score</span>
-          </div>
-          <div>
-            <b>15,000+</b>
-            <span className="lang-ar">عميلة</span>
-            <span className="lang-en">Guests</span>
-          </div>
-          <div>
-            <b>98%</b>
-            <span className="lang-ar">رضا</span>
-            <span className="lang-en">Relief</span>
-          </div>
-          <div>
-            <b>5,000+</b>
-            <span className="lang-ar">استشارة</span>
-            <span className="lang-en">Consults</span>
-          </div>
-        </div>
       </section>
 
       {doctorQuotes.length > 0 ? (

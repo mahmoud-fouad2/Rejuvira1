@@ -157,10 +157,6 @@ export async function SiteHeader() {
                     <span className="lang-en">{link.labelEn}</span>
                   </Link>
                 ))}
-                <Link href="/journal" className="rv-v0-mobile-link">
-                  <span className="lang-ar">المجلة الطبية</span>
-                  <span className="lang-en">Journal</span>
-                </Link>
               </div>
               <div className="mt-3 flex items-center justify-between gap-2 border-t border-[color:var(--rv-line)] pt-3">
                 <div className="flex items-center gap-2">

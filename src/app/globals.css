@@ -6717,14 +6717,38 @@ html[data-theme="dark"] .rv-doctors-nav {
   border-radius: 1.25rem;
   padding: 1rem 1.1rem;
   box-shadow: 0 6px 18px rgba(74, 36, 118, 0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.rv-split-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.rv-split-card-avatar {
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(145deg, #4a2476, #9b6dc6);
+  border: 1px solid rgba(74, 36, 118, 0.35);
 }
 
 .rv-split-card-quote {
   display: block;
-  font-size: 1.55rem;
+  font-size: 1.45rem;
   line-height: 1;
   color: var(--rv-purple);
-  margin-bottom: 0.35rem;
 }
 
 .rv-split-card-stars {
@@ -8310,6 +8334,100 @@ header .rv-brand-logo-img {
   object-fit: contain !important;
 }
 
+/* Header logo: no square frame from equal width/height box */
+header .rv-brand-logo-header {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+
+header .rv-v0-brand {
+  min-height: 0 !important;
+}
+
+/* Homepage: compact trust strip below hero */
+.rv-v0-hero-trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.45rem 0.6rem;
+  margin-top: clamp(1rem, 3vw, 1.75rem);
+  padding-top: clamp(0.85rem, 2vw, 1.25rem);
+  border-top: 1px solid rgba(74, 36, 118, 0.1);
+}
+
+.rv-v0-hero-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(74, 36, 118, 0.06);
+  border: 1px solid rgba(74, 36, 118, 0.12);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  max-width: min(100%, 16rem);
+}
+
+.rv-v0-hero-trust-chip-badge {
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 0.62rem;
+  color: #fff;
+  background: linear-gradient(145deg, #4a2476, #6f35a1);
+}
+
+.rv-v0-hero-trust-chip-text {
+  font-weight: 600;
+  color: var(--rv-muted);
+}
+
+.rv-v0-partners-note {
+  margin-top: 1.75rem;
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--rv-muted);
+  max-width: 44rem;
+  margin-inline: auto;
+  padding-inline: 0.5rem;
+}
+
+html[data-theme="dark"] .rv-v0-hero-trust-strip {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="dark"] .rv-v0-hero-trust-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+html[data-theme="dark"] .rv-v0-hero-trust-chip-text {
+  color: rgba(245, 240, 255, 0.75);
+}
+
+@media (max-width: 640px) {
+  .rv-v0-hero-trust-strip {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.25rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rv-v0-hero-trust-chip {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+}
+
 /* ── DARK MODE: comprehensive fixes ─────────────────── */
 
 /* Nav shell */
@@ -8470,6 +8588,10 @@ html[data-theme="dark"] .rv-v0-mini-chip {
 html[data-theme="dark"] .rv-split-card {
   background: oklch(22% 0.04 285) !important;
   border-color: oklch(36% 0.05 285 / 0.4) !important;
+}
+
+html[data-theme="dark"] .rv-split-card-avatar {
+  border-color: oklch(36% 0.05 285 / 0.45) !important;
 }
 
 /* bg-surface (used on inner pages) */

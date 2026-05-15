@@ -20,6 +20,17 @@ type Props = {
 /**
  * TestimonialsSplitCarousel — two marquee-style rows drifting opposite directions.
  */
+
+function initialsFromName(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    const a = parts[0]?.[0];
+    const b = parts[parts.length - 1]?.[0];
+    if (a && b) return (a + b).toUpperCase();
+  }
+  return name.trim().slice(0, 2).toUpperCase() || "—";
+}
+
 export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
   const { topRow, bottomRow } = useMemo(() => {
     const list = items.length > 0 ? items : [];
@@ -55,7 +66,13 @@ export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
       <ul className="rv-split-rail-row" aria-hidden={false}>
         {[...topRow, ...topRow].map((t, i) => (
           <li key={`top-${i}-${t.authorAr}`} className="rv-split-card">
-            <span className="rv-split-card-quote">”</span>
+            <span className="rv-split-card-top">
+              <span className="rv-split-card-avatar" aria-hidden>
+                <span className="lang-ar">{initialsFromName(t.authorAr)}</span>
+                <span className="lang-en">{initialsFromName(t.authorEn)}</span>
+              </span>
+              <span className="rv-split-card-quote">”</span>
+            </span>
             <span className="rv-split-card-stars" aria-hidden>
               ★★★★★
             </span>
@@ -74,7 +91,13 @@ export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
       <ul className="rv-split-rail-row is-reverse" aria-hidden>
         {[...bottomRow, ...bottomRow].map((t, i) => (
           <li key={`bot-${i}-${t.authorAr}`} className="rv-split-card">
-            <span className="rv-split-card-quote">”</span>
+            <span className="rv-split-card-top">
+              <span className="rv-split-card-avatar" aria-hidden>
+                <span className="lang-ar">{initialsFromName(t.authorAr)}</span>
+                <span className="lang-en">{initialsFromName(t.authorEn)}</span>
+              </span>
+              <span className="rv-split-card-quote">”</span>
+            </span>
             <span className="rv-split-card-stars" aria-hidden>
               ★★★★★
             </span>

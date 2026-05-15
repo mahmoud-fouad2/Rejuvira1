@@ -1362,6 +1362,10 @@ export async function getDoctors() {
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
 
+    if (doctors.length === 0) {
+      return sortFeaturedFirst([...seedDoctors]);
+    }
+
     return sortFeaturedFirst(
       doctors.map((doctor) => ({
         id: doctor.id,
@@ -1410,6 +1414,10 @@ export async function getServices() {
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
 
+    if (services.length === 0) {
+      return sortFeaturedFirst([...seedServices]);
+    }
+
     return sortFeaturedFirst(
       services.map((service) => ({
         id: service.id,
@@ -1449,6 +1457,10 @@ export async function getDevices() {
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
 
+    if (devices.length === 0) {
+      return [...seedDevices];
+    }
+
     return devices.map((device) => ({
       id: device.id,
       slug: device.slug,
@@ -1477,6 +1489,10 @@ export async function getGalleryItems() {
     const gallery = await prisma.galleryItem.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
+
+    if (gallery.length === 0) {
+      return [...seedGallery];
+    }
 
     return gallery.map((item) => ({
       id: item.id,

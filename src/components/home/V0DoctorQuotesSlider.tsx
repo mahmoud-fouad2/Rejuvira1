@@ -75,7 +75,7 @@ export function V0DoctorQuotesSlider({ homepage, doctors }: V0DoctorQuotesSlider
                 <footer className="rv-v0-doc-quote-footer">
                   <div className="rv-v0-doc-quote-avatar">
                     <Image
-                      src={doctor.photoUrl}
+                      src={doctor.photoUrl || doctor.coverImageUrl}
                       alt={doctor.name}
                       width={52}
                       height={52}
