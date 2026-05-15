@@ -1,215 +1,425 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { ContentStatus, SubmissionStatus } from "@prisma/client";
 
-import { auth } from "@/auth";
 import { listAppLogs } from "@/lib/app-log";
 import { runConnectionChecks } from "@/lib/backup";
-import { getDashboardSnapshot } from "@/lib/content-repository";
-import { adminModules, heroMetrics } from "@/lib/site-content";
+import {
+  getCrmSubmissions,
+  getDevices,
+  getDoctors,
+  getGalleryItems,
+  getJournalPosts,
+  getServices,
+  getAdminUsers,
+} from "@/lib/content-repository";
 
-const readinessCards = [
-  { label: "المحتوى", value: "الأطباء، الخدمات، الأجهزة، المجلة" },
-  { label: "الصور", value: "الميديا والمعرض وصور الصفحات" },
-  { label: "التشغيل", value: "CRM، السجلات، الصيانة، المستخدمون" },
-] as const;
+const pipelineOrder: SubmissionStatus[] = [
+  SubmissionStatus.NEW,
+  SubmissionStatus.CONTACTED,
+  SubmissionStatus.FOLLOW_UP,
+  SubmissionStatus.BOOKED,
+  SubmissionStatus.CLOSED,
+];
 
-const pipelineStages = ["جديد", "تم التواصل", "متابعة", "محجوز", "مغلق"] as const;
+const pipelineLabelsAr: Record<SubmissionStatus, string> = {
+  NEW: "جديد",
+  CONTACTED: "تم التواصل",
+  FOLLOW_UP: "متابعة",
+  BOOKED: "محجوز",
+  CLOSED: "مغلق",
+};
+const pipelineLabelsEn: Record<SubmissionStatus, string> = {
+  NEW: "New",
+  CONTACTED: "Contacted",
+  FOLLOW_UP: "Follow-up",
+  BOOKED: "Booked",
+  CLOSED: "Closed",
+};
+
+function statusBadge(status: ContentStatus) {
+  switch (status) {
+    case ContentStatus.PUBLISHED:
+      return { className: "is-published", labelAr: "منشور", labelEn: "Published" };
+    case ContentStatus.REVIEW:
+      return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
+    case ContentStatus.ARCHIVED:
+      return { className: "is-archived", labelAr: "مؤرشف", labelEn: "Archived" };
+    default:
+      return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
+  }
+}
+
+const Icon = ({ d }: { d: string }) => (
+  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+    <path d={d} />
+  </svg>
+);
 
 export default async function AdminPage() {
-  const session = await auth();
-  const [snapshot, checks] = await Promise.all([
-    getDashboardSnapshot(),
-    runConnectionChecks(),
-  ]);
+  const [doctors, services, devices, gallery, journal, submissions, users, checks] =
+    await Promise.all([
+      getDoctors(),
+      getServices(),
+      getDevices(),
+      getGalleryItems(),
+      getJournalPosts(),
+      getCrmSubmissions(),
+      getAdminUsers(),
+      runConnectionChecks(),
+    ]);
+
   const analytics = await listAppLogs({ kind: "analytics.pageview", limit: 200 });
   const pageCounts = new Map<string, number>();
   const referrerCounts = new Map<string, number>();
   analytics.items.forEach((item) => {
     const path = typeof item.meta?.path === "string" ? item.meta.path : "/";
-    const referrer = typeof item.meta?.referrer === "string" && item.meta.referrer
-      ? item.meta.referrer
-      : "Direct";
+    const referrer =
+      typeof item.meta?.referrer === "string" && item.meta.referrer
+        ? item.meta.referrer
+        : "Direct";
     pageCounts.set(path, (pageCounts.get(path) ?? 0) + 1);
     referrerCounts.set(referrer, (referrerCounts.get(referrer) ?? 0) + 1);
   });
   const topPages = Array.from(pageCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const topReferrers = Array.from(referrerCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  const pipelineCounts = pipelineOrder.map((status) => ({
+    status,
+    count: submissions.filter((s) => s.status === status).length,
+  }));
+
+  const recentLeads = submissions.slice(0, 6);
+
   const healthPills = [
-    { key: "DB", state: checks.database.ok, detail: checks.database.detail },
-    { key: "R2", state: checks.r2.ok, detail: checks.r2.detail },
-    { key: "reCAPTCHA", state: checks.recaptcha.ok, detail: checks.recaptcha.detail },
+    { key: "Database", state: checks.database.ok },
+    { key: "Storage (R2)", state: checks.r2.ok },
+    { key: "reCAPTCHA", state: checks.recaptcha.ok },
   ];
+
+  const kpis = [
+    {
+      label: { ar: "الأطباء", en: "Doctors" },
+      value: doctors.length,
+      href: "/admin/doctors",
+      icon: <Icon d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />,
+    },
+    {
+      label: { ar: "الخدمات", en: "Services" },
+      value: services.length,
+      href: "/admin/services",
+      icon: <Icon d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z M12 12 3 8.5 M12 12v9 M12 12l9-3.5" />,
+      iconCls: "is-gold",
+    },
+    {
+      label: { ar: "الأجهزة", en: "Devices" },
+      value: devices.length,
+      href: "/admin/devices",
+      icon: <Icon d="M2 7h20v14H2z M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />,
+    },
+    {
+      label: { ar: "الطلبات", en: "Leads" },
+      value: submissions.length,
+      href: "/admin/crm",
+      icon: <Icon d="M21 11.5a8.4 8.4 0 0 1-2 5.4l-3 3-3-3a8.4 8.4 0 1 1 8-5.4Z M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />,
+      iconCls: "is-success",
+    },
+    {
+      label: { ar: "المعرض", en: "Gallery" },
+      value: gallery.length,
+      href: "/admin/gallery",
+      icon: <Icon d="M3 3h18v18H3z M3 16l5-5 4 4 4-4 5 5" />,
+      iconCls: "is-gold",
+    },
+    {
+      label: { ar: "المجلة", en: "Journal" },
+      value: journal.length,
+      href: "/admin/journal",
+      icon: <Icon d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />,
+    },
+    {
+      label: { ar: "المستخدمون", en: "Users" },
+      value: users.length,
+      href: "/admin/users",
+      icon: <Icon d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M22 11V9a2 2 0 0 0-2-2h-2" />,
+    },
+    {
+      label: { ar: "محجوزة", en: "Booked" },
+      value: submissions.filter((s) => s.status === SubmissionStatus.BOOKED).length,
+      href: "/admin/crm",
+      icon: <Icon d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2 M9 14l2 2 4-4" />,
+      iconCls: "is-success",
+    },
+  ] as const;
 
   return (
     <>
-      <section className="admin-dashboard-hero surface-panel relative overflow-hidden rounded-[1.5rem] p-5 shadow-sm lg:p-7">
-        <div className="pointer-events-none absolute -start-32 top-0 h-72 w-72 rounded-full bg-accent/12 blur-3xl" />
-        <div className="pointer-events-none absolute -end-24 bottom-0 h-64 w-64 rounded-full bg-purple-mid/10 blur-3xl" />
-
-        <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="admin-status-pill">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
-                جلسة نشطة
-              </span>
-              <span className="admin-status-pill">
-                {session?.user?.name ?? session?.user?.email ?? "Super Admin"}
-              </span>
-            </div>
-            <h1 className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.12] tracking-tight text-ink-strong sm:text-4xl lg:text-5xl">
-              لوحة تشغيل واضحة للمحتوى والطلبات والصور
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
-              ابدأ من الطلبات، أو حدّث محتوى الموقع، أو ارفع الصور من الميديا بدون البحث داخل صفحات طويلة.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {healthPills.map((pill) => (
-                <span
-                  key={pill.key}
-                  title={pill.detail ?? ""}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold ${
-                    pill.state
-                      ? "border-emerald/25 bg-emerald/10 text-emerald"
-                      : "border-burgundy/25 bg-burgundy/10 text-burgundy"
-                  }`}
-                >
-                  <span className={`h-1.5 w-1.5 rounded-full ${pill.state ? "bg-emerald" : "bg-burgundy"}`} />
-                  {pill.key}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid gap-3">
-            {heroMetrics.map((metric) => (
-              <div key={metric.label} className="admin-mini-module">
-                <span className="text-lg font-semibold text-ink-strong">{metric.value}</span>
-                <span className="text-xs text-ink-soft">{metric.label}</span>
-              </div>
-            ))}
-          </div>
+      <div className="admin-page-header">
+        <div>
+          <h1>
+            <span className="lang-ar">نظرة عامة</span>
+            <span className="lang-en">Overview</span>
+          </h1>
+          <p>
+            <span className="lang-ar">جميع الأرقام محدّثة من قاعدة البيانات.</span>
+            <span className="lang-en">All metrics reflect the live database.</span>
+          </p>
         </div>
-      </section>
+        <div className="admin-page-header__actions">
+          {healthPills.map((pill) => (
+            <span
+              key={pill.key}
+              className={`admin-shell__pill ${pill.state ? "is-success" : "is-danger"}`}
+            >
+              {pill.key}
+            </span>
+          ))}
+        </div>
+      </div>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {(
-          [
-            { label: "الأطباء", value: snapshot.doctorCount, href: "/admin/doctors" },
-            { label: "الخدمات", value: snapshot.serviceCount, href: "/admin/services" },
-            { label: "الطلبات", value: snapshot.leadCount, href: "/admin/crm" },
-            { label: "الأجهزة", value: snapshot.deviceCount, href: "/admin/devices" },
-          ] as const
-        ).map((row) => (
-          <Link key={row.label} href={row.href as Route} className="admin-stat-card">
-            <span className="text-sm font-medium text-ink-soft">{row.label}</span>
-            <strong className="mt-2 block text-4xl font-semibold tabular-nums text-ink-strong">
-              {row.value}
-            </strong>
-            <span className="mt-3 inline-flex text-xs font-semibold text-accent">
-              إدارة القسم ←
+      <section className="admin-grid-4">
+        {kpis.map((kpi) => (
+          <Link key={kpi.label.ar} href={kpi.href as Route} className="admin-kpi">
+            <span className={`admin-kpi__icon ${("iconCls" in kpi && kpi.iconCls) || ""}`}>{kpi.icon}</span>
+            <span className="min-w-0">
+              <span className="admin-kpi__value">{kpi.value}</span>
+              <span className="admin-kpi__label">
+                <span className="lang-ar">{kpi.label.ar}</span>
+                <span className="lang-en">{kpi.label.en}</span>
+              </span>
             </span>
           </Link>
         ))}
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
-        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+      <section className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+        <article className="admin-card">
+          <div className="admin-card__header">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">CRM Pipeline</p>
-              <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">
-                مسار الطلبات
-              </h2>
+              <div className="admin-card__subtitle">CRM</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">مسار الطلبات</span>
+                <span className="lang-en">Lead pipeline</span>
+              </div>
             </div>
-            <Link href={"/admin/crm" as Route} className="admin-link-pill">
-              فتح CRM
+            <Link href={"/admin/crm" as Route} className="admin-btn-secondary">
+              <span className="lang-ar">فتح</span>
+              <span className="lang-en">Open</span>
             </Link>
           </div>
-
-          <div className="mt-6 grid gap-3 md:grid-cols-5">
-            {pipelineStages.map((stage, index) => (
-              <div key={stage} className="admin-pipeline-step">
-                <span className="text-[10px] font-semibold text-ink-faint">0{index + 1}</span>
-                <span className="mt-2 block text-sm font-semibold text-ink-strong">{stage}</span>
-              </div>
-            ))}
+          <div className="admin-card__body">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+              {pipelineCounts.map(({ status, count }) => (
+                <div
+                  key={status}
+                  className="rounded-xl border p-3"
+                  style={{
+                    borderColor: "var(--admin-border)",
+                    background: "var(--admin-panel-soft)",
+                  }}
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--admin-text-faint)]">
+                    {status}
+                  </p>
+                  <p className="mt-1 text-[0.8rem] font-semibold text-[color:var(--admin-text-soft)]">
+                    <span className="lang-ar">{pipelineLabelsAr[status]}</span>
+                    <span className="lang-en">{pipelineLabelsEn[status]}</span>
+                  </p>
+                  <p className="mt-2 text-2xl font-bold tabular-nums text-[color:var(--admin-text)]">{count}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </article>
 
-        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
-            Work Areas
-          </p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">
-            مناطق العمل
-          </h2>
-          <div className="mt-5 grid gap-3">
-            {readinessCards.map((card) => (
-              <div key={card.label} className="admin-compact-row">
-                <span className="text-sm font-semibold text-ink-strong">{card.label}</span>
-                <span className="text-xs text-ink-soft">{card.value}</span>
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Leads</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">آخر الطلبات</span>
+                <span className="lang-en">Latest leads</span>
               </div>
-            ))}
+            </div>
+            <Link href={"/admin/crm" as Route} className="admin-btn-ghost">
+              <span className="lang-ar">عرض الكل</span>
+              <span className="lang-en">View all</span>
+            </Link>
           </div>
-        </article>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-2">
-        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">Analytics</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">الصفحات الأكثر زيارة</h2>
-          <div className="mt-5 grid gap-3">
-            {(topPages.length > 0 ? topPages : [["لا توجد بيانات بعد", 0] as const]).map(([path, count]) => (
-              <div key={path} className="admin-compact-row">
-                <span className="truncate text-sm font-semibold text-ink-strong" dir="ltr">{path}</span>
-                <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-ink">{count}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">Sources</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">مصادر الزيارات</h2>
-          <div className="mt-5 grid gap-3">
-            {(topReferrers.length > 0 ? topReferrers : [["Direct", 0] as const]).map(([source, count]) => (
-              <div key={source} className="admin-compact-row">
-                <span className="truncate text-sm font-semibold text-ink-strong" dir="ltr">{source}</span>
-                <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-ink">{count}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-      </section>
-
-      <section>
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">Modules</p>
-            <h2 className="text-2xl font-semibold tracking-tight text-ink-strong">اختصارات الإدارة</h2>
-          </div>
-        </div>
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {adminModules.map((module) => (
-            <Link
-              key={module.title}
-              href={module.href as Route}
-              className="admin-module-card surface-panel group relative block rounded-[1.5rem] p-5 shadow-sm transition duration-200 hover:-translate-y-0.5"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-lg font-semibold tracking-tight text-ink-strong">{module.title}</p>
-                <span className="shrink-0 rounded-full border border-line bg-surface-strong px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
-                  {module.metric}
+          <div className="admin-data-list">
+            {recentLeads.length === 0 ? (
+              <div className="admin-data-row">
+                <span className="admin-data-row__title text-[color:var(--admin-text-faint)]">
+                  <span className="lang-ar">لا توجد طلبات بعد</span>
+                  <span className="lang-en">No leads yet</span>
                 </span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-ink-soft">{module.description}</p>
-              <span className="text-accent mt-6 inline-flex items-center gap-1 text-xs font-semibold opacity-90 transition group-hover:gap-2 group-hover:opacity-100">
-                فتح القسم
-                <span aria-hidden>←</span>
-              </span>
+            ) : (
+              recentLeads.map((lead) => (
+                <div key={lead.id} className="admin-data-row">
+                  <div className="min-w-0">
+                    <p className="admin-data-row__title truncate">{lead.fullName}</p>
+                    <p className="admin-data-row__meta truncate" dir="ltr">{lead.phone}</p>
+                  </div>
+                  <span className="admin-status-badge is-review">
+                    <span className="lang-ar">{pipelineLabelsAr[lead.status]}</span>
+                    <span className="lang-en">{pipelineLabelsEn[lead.status]}</span>
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Analytics</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">الصفحات الأكثر زيارة</span>
+                <span className="lang-en">Top pages</span>
+              </div>
+            </div>
+            <Link href={"/admin/logs" as Route} className="admin-btn-ghost">
+              <span className="lang-ar">السجل</span>
+              <span className="lang-en">Logs</span>
             </Link>
-          ))}
-        </div>
+          </div>
+          <div className="admin-data-list">
+            {(topPages.length > 0
+              ? topPages
+              : ([["/", 0]] as Array<[string, number]>)
+            ).map(([path, count]) => (
+              <div key={path} className="admin-data-row">
+                <span className="admin-data-row__title truncate" dir="ltr">{path}</span>
+                <span className="admin-data-row__value">{count}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Sources</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">مصادر الزيارات</span>
+                <span className="lang-en">Traffic sources</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {(topReferrers.length > 0
+              ? topReferrers
+              : ([["Direct", 0]] as Array<[string, number]>)
+            ).map(([source, count]) => (
+              <div key={source} className="admin-data-row">
+                <span className="admin-data-row__title truncate" dir="ltr">{source}</span>
+                <span className="admin-data-row__value">{count}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <section className="admin-grid-3">
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Content</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">حالة الأطباء</span>
+                <span className="lang-en">Doctors status</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {[
+              ContentStatus.PUBLISHED,
+              ContentStatus.DRAFT,
+              ContentStatus.REVIEW,
+              ContentStatus.ARCHIVED,
+            ].map((status) => {
+              const meta = statusBadge(status);
+              const count = doctors.filter((d) => d.status === status).length;
+              return (
+                <div key={status} className="admin-data-row">
+                  <span className={`admin-status-badge ${meta.className}`}>
+                    <span className="lang-ar">{meta.labelAr}</span>
+                    <span className="lang-en">{meta.labelEn}</span>
+                  </span>
+                  <span className="admin-data-row__value">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </article>
+
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Content</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">حالة الخدمات</span>
+                <span className="lang-en">Services status</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {[
+              ContentStatus.PUBLISHED,
+              ContentStatus.DRAFT,
+              ContentStatus.REVIEW,
+              ContentStatus.ARCHIVED,
+            ].map((status) => {
+              const meta = statusBadge(status);
+              const count = services.filter((s) => s.status === status).length;
+              return (
+                <div key={status} className="admin-data-row">
+                  <span className={`admin-status-badge ${meta.className}`}>
+                    <span className="lang-ar">{meta.labelAr}</span>
+                    <span className="lang-en">{meta.labelEn}</span>
+                  </span>
+                  <span className="admin-data-row__value">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </article>
+
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Content</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">حالة الأجهزة</span>
+                <span className="lang-en">Devices status</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {[
+              ContentStatus.PUBLISHED,
+              ContentStatus.DRAFT,
+              ContentStatus.REVIEW,
+              ContentStatus.ARCHIVED,
+            ].map((status) => {
+              const meta = statusBadge(status);
+              const count = devices.filter((d) => d.status === status).length;
+              return (
+                <div key={status} className="admin-data-row">
+                  <span className={`admin-status-badge ${meta.className}`}>
+                    <span className="lang-ar">{meta.labelAr}</span>
+                    <span className="lang-en">{meta.labelEn}</span>
+                  </span>
+                  <span className="admin-data-row__value">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </article>
       </section>
     </>
   );

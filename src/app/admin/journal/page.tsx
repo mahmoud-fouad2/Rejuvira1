@@ -5,7 +5,6 @@ import {
   deleteJournalPostAction,
   updateJournalPostStatusAction,
 } from "@/app/admin/journal/actions";
-import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
 import { JournalCreateForm } from "@/components/forms/JournalCreateForm";
 import { getJournalPosts } from "@/lib/content-repository";
 
@@ -16,106 +15,115 @@ const publishableStatuses = [
   ContentStatus.ARCHIVED,
 ] as const;
 
+const statusLabelsAr: Record<ContentStatus, string> = {
+  DRAFT: "مسودة",
+  REVIEW: "مراجعة",
+  APPROVED: "معتمد",
+  PUBLISHED: "منشور",
+  ARCHIVED: "مؤرشف",
+};
+const statusLabelsEn: Record<ContentStatus, string> = {
+  DRAFT: "Draft",
+  REVIEW: "Review",
+  APPROVED: "Approved",
+  PUBLISHED: "Published",
+  ARCHIVED: "Archived",
+};
+
+function statusClass(status: ContentStatus) {
+  if (status === ContentStatus.PUBLISHED) return "is-published";
+  if (status === ContentStatus.REVIEW) return "is-review";
+  if (status === ContentStatus.ARCHIVED) return "is-archived";
+  return "is-draft";
+}
+
 export default async function AdminJournalPage() {
   const posts = await getJournalPosts();
 
   return (
     <>
-      <section className="surface-panel rounded-[2rem] p-6 lg:p-8">
-        <p className="eyebrow">Journal Module</p>
-        <h1 className="text-ink mt-4 font-serif text-5xl tracking-[-0.05em]">
-          إدارة المجلة الطبية
-        </h1>
-        <p className="text-ink-soft mt-4 max-w-3xl text-base leading-8">
-          من هذه الوحدة تتم إدارة المقالات، مراجعة جاهزيتها، واعتماد النشر أو
-          الأرشفة من مكان واحد.
-        </p>
-      </section>
-      <section className="grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
-        <article className="surface-panel rounded-[2rem] p-6">
-          <h2 className="text-ink font-serif text-3xl tracking-[-0.04em]">
-            إضافة مسودة مقال
-          </h2>
-          <div className="mt-6">
+      <div className="admin-page-header">
+        <div>
+          <h1>
+            <span className="lang-ar">المجلة</span>
+            <span className="lang-en">Journal</span>
+          </h1>
+          <p>
+            <span className="lang-ar">{posts.length} مقال</span>
+            <span className="lang-en">{posts.length} articles</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">New</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">إضافة مقال</span>
+                <span className="lang-en">Add article</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-card__body">
             <JournalCreateForm />
           </div>
         </article>
-        <div className="grid gap-4">
-          {posts.map((post) => (
-            <article
-              key={post.id}
-              className="surface-panel overflow-hidden rounded-[1.85rem] md:grid md:grid-cols-[11rem_1fr]"
-            >
-              <div className="relative min-h-44">
-                <Image
-                  src={post.coverImageUrl}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                />
+
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Articles</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">المقالات</span>
+                <span className="lang-en">Articles</span>
               </div>
-              <div className="p-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-ink text-lg font-semibold">
-                      {post.title}
-                    </p>
-                    <p className="text-ink-soft mt-1 text-sm">
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {posts.map((post) => (
+              <div key={post.id} className="admin-data-row !block">
+                <div className="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3">
+                  <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
+                    <Image src={post.coverImageUrl} alt={post.title} fill className="object-cover" sizes="56px" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="admin-data-row__title truncate">{post.title}</p>
+                    <p className="admin-data-row__meta truncate">
                       {post.category} · {post.readingTime}
                     </p>
                   </div>
-                  <AdminStatusBadge status={ContentStatus.PUBLISHED} />
+                  <span className={`admin-status-badge ${statusClass(ContentStatus.PUBLISHED)}`}>
+                    <span className="lang-ar">{statusLabelsAr.PUBLISHED}</span>
+                    <span className="lang-en">{statusLabelsEn.PUBLISHED}</span>
+                  </span>
                 </div>
-                <p className="text-ink-soft mt-3 text-sm leading-7">
-                  {post.excerpt}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {post.relatedServiceSlugs.map((slug) => (
-                    <span
-                      key={slug}
-                      className="border-line bg-surface text-ink-soft rounded-full border px-3 py-1 text-xs"
-                    >
-                      {slug}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-5 flex flex-wrap gap-3">
+
+                <div className="mt-3 flex flex-wrap gap-2">
                   {publishableStatuses.map((status) => (
-                    <form
-                      key={`${post.slug}-${status}`}
-                      action={updateJournalPostStatusAction}
-                    >
+                    <form key={`${post.slug}-${status}`} action={updateJournalPostStatusAction}>
                       <input type="hidden" name="slug" value={post.slug} />
                       <input type="hidden" name="status" value={status} />
-                      <button
-                        type="submit"
-                        className="border-line text-ink hover:bg-surface rounded-full border px-4 py-2 text-xs font-semibold transition-colors"
-                      >
-                        {status === ContentStatus.DRAFT
-                          ? "مسودة"
-                          : status === ContentStatus.REVIEW
-                            ? "قيد المراجعة"
-                            : status === ContentStatus.PUBLISHED
-                              ? "نشر"
-                              : "أرشفة"}
+                      <button type="submit" className="admin-btn-secondary">
+                        <span className="lang-ar">{statusLabelsAr[status]}</span>
+                        <span className="lang-en">{statusLabelsEn[status]}</span>
                       </button>
                     </form>
                   ))}
                   <form action={deleteJournalPostAction}>
                     <input type="hidden" name="slug" value={post.slug} />
-                    <button
-                      type="submit"
-                      className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100"
-                    >
-                      حذف
+                    <button type="submit" className="admin-btn-danger">
+                      <span className="lang-ar">حذف</span>
+                      <span className="lang-en">Delete</span>
                     </button>
                   </form>
                 </div>
               </div>
-            </article>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </article>
+      </div>
     </>
   );
 }

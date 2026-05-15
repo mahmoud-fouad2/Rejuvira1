@@ -19,57 +19,67 @@ export function ServiceCreateForm() {
   );
 
   return (
-    <form action={formAction} className="grid gap-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="name"
-          placeholder="اسم الخدمة"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
-        <input
-          name="slug"
-          placeholder="المعرف المختصر للرابط"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
+    <form action={formAction} className="grid gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الاسم</span>
+            <span className="lang-en">Name</span>
+          </span>
+          <input name="name" required className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">Slug</span>
+          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+        </label>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="category"
-          placeholder="التصنيف"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
-        <input
-          name="coverImageUrl"
-          placeholder="رابط صورة الغلاف"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        />
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">التصنيف</span>
+            <span className="lang-en">Category</span>
+          </span>
+          <input name="category" required className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">رابط صورة الغلاف</span>
+            <span className="lang-en">Cover image URL</span>
+          </span>
+          <input name="coverImageUrl" dir="ltr" className="admin-input" />
+        </label>
       </div>
-      <textarea
-        name="excerpt"
-        rows={3}
-        placeholder="ملخص قصير"
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        required
-      />
-      <textarea
-        name="description"
-        rows={5}
-        placeholder="وصف تفصيلي"
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        required
-      />
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">ملخص</span>
+          <span className="lang-en">Excerpt</span>
+        </span>
+        <textarea name="excerpt" rows={2} required className="admin-input" />
+      </label>
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">الوصف</span>
+          <span className="lang-en">Description</span>
+        </span>
+        <textarea name="description" rows={4} required className="admin-input" />
+      </label>
       {state.message ? (
-        <p className="text-emerald text-sm">{state.message}</p>
+        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+          {state.message}
+        </p>
       ) : null}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-ink text-canvas rounded-[1.15rem] px-5 py-3 text-sm font-semibold disabled:opacity-60"
-      >
-        {isPending ? "جاري الحفظ..." : "حفظ مسودة خدمة"}
+      <button type="submit" disabled={isPending} className="admin-btn-primary">
+        {isPending ? (
+          <>
+            <span className="lang-ar">جاري الحفظ...</span>
+            <span className="lang-en">Saving...</span>
+          </>
+        ) : (
+          <>
+            <span className="lang-ar">حفظ</span>
+            <span className="lang-en">Save</span>
+          </>
+        )}
       </button>
     </form>
   );

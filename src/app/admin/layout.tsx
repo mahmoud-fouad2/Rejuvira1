@@ -20,119 +20,94 @@ export default async function AdminLayout({
     canAccessAdminRoute(item.href, session?.user?.role),
   );
   const currentDateAr = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
-    weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
   }).format(new Date());
   const currentDateEn = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   }).format(new Date());
 
   return (
-    <div className="admin-app min-h-screen font-[family-name:var(--font-rejuvira-sans)] text-ink antialiased">
+    <div className="admin-shell admin-app font-[family-name:var(--font-rejuvira-sans)] antialiased">
       <AdminLanguageBridge />
-      <div className="mx-auto grid min-h-screen w-full max-w-[112rem] grid-cols-1 gap-5 px-4 py-5 sm:px-5 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-6 lg:px-6 xl:grid-cols-[19.5rem_minmax(0,1fr)]">
-        <aside className="admin-sidebar surface-panel relative flex w-full flex-col overflow-hidden rounded-[1.5rem] p-4 shadow-sm lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)] lg:self-start">
-          <div className="pointer-events-none absolute -start-24 top-0 h-52 w-52 rounded-full bg-accent/15 blur-3xl" />
-          <div className="pointer-events-none absolute -end-20 bottom-0 h-44 w-44 rounded-full bg-purple-mid/10 blur-3xl" />
-
-          <Link href={"/admin" as Route} className="admin-brand-card relative">
-            <BrandLogo
-              alt="Rejuvira Center"
-              width={220}
-              height={160}
-              variant="header"
-              sizes="96px"
-              className="admin-sidebar-logo"
-            />
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold tracking-tight text-ink-strong">
-                <span className="lang-ar">إدارة Rejuvira</span>
-                <span className="lang-en">Rejuvira Admin</span>
-              </p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
-                <span className="lang-ar">Operations</span>
-                <span className="lang-en">Operations</span>
-              </p>
-            </div>
+      <div className="admin-shell__layout">
+        <aside className="admin-shell__sidebar">
+          <Link href={"/admin" as Route} className="admin-shell__brand">
+            <span className="admin-shell__brand-logo">
+              <BrandLogo
+                alt="Rejuvira"
+                width={120}
+                height={90}
+                variant="header"
+                sizes="48px"
+              />
+            </span>
+            <span>
+              <span className="admin-shell__brand-name">
+                <span className="lang-ar">Rejuvira</span>
+                <span className="lang-en">Rejuvira</span>
+              </span>
+              <span className="admin-shell__brand-meta">
+                <span className="lang-ar">لوحة الإدارة</span>
+                <span className="lang-en">Admin Console</span>
+              </span>
+            </span>
           </Link>
 
-          <div className="admin-session-card relative mt-4">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-ink-strong">
+          <div className="admin-shell__session">
+            <span className="min-w-0 flex-1">
+              <strong className="truncate">
                 {session?.user?.name ?? "Super Admin"}
-              </p>
-              <p className="mt-0.5 truncate text-[11px] text-ink-soft">
-                {session?.user?.email ?? "admin session"}
-              </p>
-            </div>
-            <span className="rounded-full border border-accent/25 bg-accent-soft/50 px-2.5 py-1 text-[10px] font-semibold text-ink">
-              {getRoleLabel(session?.user?.role)}
+              </strong>
+              <span className="truncate" dir="ltr">
+                {session?.user?.email ?? ""}
+              </span>
             </span>
+            <em>{getRoleLabel(session?.user?.role)}</em>
           </div>
 
-          <div className="relative mt-5 min-h-0 flex-1 overflow-y-auto pe-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav className="admin-shell__nav" aria-label="Admin navigation">
             <AdminSideNav items={availableNavigation} />
-          </div>
+          </nav>
 
-          <div className="relative mt-4 grid grid-cols-2 gap-2">
-            <Link
-              href={"/" as Route}
-              className="admin-sidebar-action"
-            >
-              <span className="lang-ar">الموقع</span>
-              <span className="lang-en">Site</span>
-            </Link>
-            <Link
-              href={"/admin/media" as Route}
-              className="admin-sidebar-action"
-            >
-              <span className="lang-ar">الصور</span>
-              <span className="lang-en">Media</span>
+          <div className="admin-shell__sidebar-footer">
+            <Link href={"/" as Route} className="admin-shell__sidebar-link">
+              <span className="lang-ar">زيارة الموقع</span>
+              <span className="lang-en">View site</span>
             </Link>
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-col gap-5">
-          <header className="admin-topbar surface-panel flex flex-col gap-4 rounded-[1.5rem] px-4 py-4 shadow-sm sm:px-5 xl:flex-row xl:items-center xl:justify-between">
+        <div className="admin-shell__main">
+          <header className="admin-shell__topbar">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-faint">
-                Rejuvira Command Center
-              </p>
-              <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong sm:text-2xl">
+              <p className="admin-shell__topbar-title">
                 <span className="lang-ar">لوحة الإدارة</span>
                 <span className="lang-en">Admin Panel</span>
-              </h1>
+              </p>
             </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
-              <span className="admin-notification-pill">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
-                <span className="lang-ar">لا توجد تنبيهات حرجة</span>
-                <span className="lang-en">No critical alerts</span>
+            <div className="admin-shell__topbar-meta">
+              <span className="admin-shell__pill is-success">
+                <span className="lang-ar">جلسة نشطة</span>
+                <span className="lang-en">Session active</span>
               </span>
-              <span className="rounded-full border border-line bg-surface-strong px-3 py-2 text-[11px] font-medium text-ink-soft">
+              <span className="admin-shell__pill">
                 <span className="lang-ar">{currentDateAr}</span>
                 <span className="lang-en">{currentDateEn}</span>
               </span>
               <LanguageToggle />
               <ThemeToggle />
-              <Link
-                href={"/" as Route}
-                className="rounded-full border border-line bg-ink-strong px-4 py-2 text-xs font-semibold text-canvas transition hover:opacity-90"
-              >
-                <span className="lang-ar">زيارة الموقع</span>
-                <span className="lang-en">View Site</span>
+              <Link href={"/" as Route} className="admin-shell__topbar-cta">
+                <span className="lang-ar">الموقع</span>
+                <span className="lang-en">Site</span>
               </Link>
             </div>
           </header>
 
-          <main className="admin-main flex min-w-0 flex-1 flex-col gap-5">
-            {children}
-          </main>
+          <main className="admin-shell__content">{children}</main>
         </div>
       </div>
     </div>

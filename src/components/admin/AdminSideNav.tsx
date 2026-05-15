@@ -146,15 +146,15 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
   }
 
   return (
-    <nav className="grid gap-4" aria-label="التنقل الإداري">
+    <>
       {groupOrder.map((groupKey) => {
         const groupItems = grouped.get(groupKey);
         if (!groupItems || groupItems.length === 0) return null;
         const groupMeta = adminNavGroups[groupKey];
         const groupLabel = groupLabels[groupKey];
         return (
-          <div key={groupKey} className="grid gap-1">
-            <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-faint">
+          <div key={groupKey} className="admin-shell__nav-group">
+            <p className="admin-shell__nav-group-label">
               <span className="lang-ar">{groupMeta.label}</span>
               <span className="lang-en">{groupLabel.en}</span>
             </p>
@@ -164,46 +164,21 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                 <Link
                   key={item.href}
                   href={item.href as Route}
-                  className={`admin-nav-item group relative flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-[background,border-color,box-shadow,transform] duration-200 ${
-                    active
-                      ? "is-active border-accent/35 bg-gradient-to-l from-accent-soft/90 via-surface/50 to-transparent text-ink-strong shadow-[0_10px_28px_oklch(52%_0.11_195/0.1)]"
-                      : "border-transparent text-ink-soft hover:border-line hover:bg-surface/80 hover:text-ink-strong"
-                  } `}
+                  className={`admin-shell__nav-item ${active ? "is-active" : ""}`}
                 >
-                  <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors ${
-                      active
-                        ? "border-accent/40 bg-surface text-accent shadow-sm"
-                        : "border-line bg-surface-strong text-ink-soft group-hover:border-accent/25 group-hover:text-ink"
-                    }`}
-                  >
+                  <span className="admin-shell__nav-icon">
                     {iconFor(item.href)}
                   </span>
                   <span className="min-w-0">
-                    <span
-                      className={`block font-semibold tracking-tight ${
-                        active
-                          ? "text-ink-strong"
-                          : "text-ink group-hover:text-ink-strong"
-                      }`}
-                    >
-                      <span className="lang-ar">{item.label}</span>
-                      <span className="lang-en">{item.labelEn ?? item.label}</span>
-                    </span>
-                    <span className="mt-0.5 block truncate text-[11px] leading-snug text-ink-faint group-hover:text-ink-soft">
-                      <span className="lang-ar">{item.description}</span>
-                      <span className="lang-en">{item.descriptionEn ?? item.description}</span>
-                    </span>
+                    <span className="lang-ar">{item.label}</span>
+                    <span className="lang-en">{item.labelEn ?? item.label}</span>
                   </span>
-                  {active ? (
-                    <span className="pointer-events-none absolute start-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-full bg-accent" />
-                  ) : null}
                 </Link>
               );
             })}
           </div>
         );
       })}
-    </nav>
+    </>
   );
 }

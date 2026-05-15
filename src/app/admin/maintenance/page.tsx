@@ -6,17 +6,18 @@ export default async function AdminMaintenancePage() {
 
   return (
     <>
-      <section className="surface-panel rounded-[2rem] p-6 lg:p-8">
-        <p className="eyebrow">العمليات والصيانة</p>
-        <h1 className="text-ink mt-4 font-serif text-5xl tracking-[-0.05em]">
-          مركز الصيانة والتشغيل
-        </h1>
-        <p className="text-ink-soft mt-4 max-w-3xl text-base leading-8">
-          أدوات تشغيلية يومية: نسخ احتياطية إلى Cloudflare R2، تصدير سجلات
-          الطلبات، فحص الاتصال بقواعد البيانات والخدمات الخارجية، وضع الصيانة
-          العامة، وإدارة ذاكرة المؤقت بنقرة واحدة.
-        </p>
-      </section>
+      <div className="admin-page-header">
+        <div>
+          <h1>
+            <span className="lang-ar">الصيانة</span>
+            <span className="lang-en">Maintenance</span>
+          </h1>
+          <p>
+            <span className="lang-ar">النسخ الاحتياطي، فحص الاتصال، وضع الصيانة، وتفريغ ذاكرة المؤقت.</span>
+            <span className="lang-en">Backups, connectivity checks, maintenance mode, cache.</span>
+          </p>
+        </div>
+      </div>
       <MaintenancePanel
         initialMaintenance={Boolean(settings.ops.maintenanceMode)}
       />

@@ -387,6 +387,31 @@ export type UpdateAdminUserRoleInput = {
   role: UserRole;
 };
 
+export type UpdateServiceInput = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  excerpt: string;
+  description: string;
+  status: ContentStatus;
+  featured: boolean;
+  coverImageUrl?: string | undefined;
+};
+
+export type UpdateDeviceInput = {
+  id: string;
+  slug: string;
+  name: string;
+  excerpt: string;
+  description: string;
+  certifications: string[];
+  serviceSlugs: string[];
+  status: ContentStatus;
+  featured: boolean;
+  imageUrl?: string | undefined;
+};
+
 const doctorPortraitBySlug = {
   "loai-alsalmi": "/media/doctors/loai-alsalmi.png",
   "maher-alahdab": "/media/doctors/maher-alahdab.png",
@@ -3204,4 +3229,120 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
 export async function getMediaSelections(): Promise<MediaSelections> {
   const runtimeSettings = await getRuntimeSettings();
   return runtimeSettings.media;
+}
+
+/* ── Service CRUD (extra) ────────────────────────────────── */
+
+export async function updateService(input: UpdateServiceInput) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, input };
+  }
+  const item = await prisma.service.update({
+    where: { id: input.id },
+    data: {
+      slug: input.slug,
+      nameAr: input.name,
+      categoryKey: input.category,
+      excerptAr: input.excerpt,
+      descriptionAr: input.description,
+      status: input.status,
+      isFeatured: input.featured,
+      ...(input.coverImageUrl ? { coverImageUrl: input.coverImageUrl } : {}),
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function updateServiceStatus(id: string, status: ContentStatus) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id, status };
+  }
+  const item = await prisma.service.update({
+    where: { id },
+    data: { status },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function deleteService(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  const item = await prisma.service.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+/* ── Device CRUD (extra) ─────────────────────────────────── */
+
+export async function updateDevice(input: UpdateDeviceInput) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, input };
+  }
+  const relatedServices = input.serviceSlugs.length
+    ? await prisma.service.findMany({
+        where: { slug: { in: input.serviceSlugs } },
+        select: { id: true },
+      })
+    : [];
+  const item = await prisma.device.update({
+    where: { id: input.id },
+    data: {
+      slug: input.slug,
+      nameAr: input.name,
+      excerptAr: input.excerpt,
+      descriptionAr: input.description,
+      certifications: input.certifications,
+      status: input.status,
+      isFeatured: input.featured,
+      ...(input.imageUrl ? { gallery: [input.imageUrl] } : {}),
+      services: {
+        set: relatedServices.map((service) => ({ id: service.id })),
+      },
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function updateDeviceStatus(id: string, status: ContentStatus) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id, status };
+  }
+  const item = await prisma.device.update({ where: { id }, data: { status } });
+  return { mode: "database" as const, item };
+}
+
+export async function deleteDevice(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  const item = await prisma.device.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+/* ── Doctor CRUD (extra) ─────────────────────────────────── */
+
+export async function updateDoctorStatus(id: string, status: ContentStatus) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id, status };
+  }
+  const item = await prisma.doctor.update({ where: { id }, data: { status } });
+  return { mode: "database" as const, item };
+}
+
+export async function deleteDoctor(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  const item = await prisma.doctor.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+/* ── Admin User delete ───────────────────────────────────── */
+
+export async function deleteAdminUser(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  const item = await prisma.user.delete({ where: { id } });
+  return { mode: "database" as const, item };
 }

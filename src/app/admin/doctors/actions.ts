@@ -6,7 +6,9 @@ import { z } from "zod";
 
 import {
   createDoctorDraft,
+  deleteDoctor,
   updateDoctorProfile,
+  updateDoctorStatus,
 } from "@/lib/content-repository";
 
 export type DoctorActionState = {
@@ -166,4 +168,27 @@ export async function updateDoctorAction(
         ? "تم تحديث ملف الطبيب بنجاح."
         : "تم تحديث الملف داخل بيئة العمل الحالية بنجاح.",
   };
+}
+
+export async function setDoctorStatusAction(formData: FormData) {
+  const id = formData.get("id");
+  const status = formData.get("status");
+  if (typeof id !== "string" || !id) return;
+  const parsed = z.nativeEnum(ContentStatus).safeParse(status);
+  if (!parsed.success) return;
+  await updateDoctorStatus(id, parsed.data);
+  revalidatePath("/admin/doctors");
+  revalidatePath("/doctors");
+  revalidatePath("/doctors/[slug]", "page");
+  revalidatePath("/");
+}
+
+export async function deleteDoctorAction(formData: FormData) {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  await deleteDoctor(id);
+  revalidatePath("/admin/doctors");
+  revalidatePath("/doctors");
+  revalidatePath("/doctors/[slug]", "page");
+  revalidatePath("/");
 }

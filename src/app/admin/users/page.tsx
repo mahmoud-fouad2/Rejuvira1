@@ -1,5 +1,6 @@
 import { UserRole } from "@prisma/client";
 
+import { deleteAdminUserAction } from "@/app/admin/users/actions";
 import { auth } from "@/auth";
 import { AdminUserCreateForm } from "@/components/forms/AdminUserCreateForm";
 import { AdminUserRoleForm } from "@/components/forms/AdminUserRoleForm";
@@ -24,181 +25,139 @@ export default async function AdminUsersPage() {
     label: roleLabels[role],
     users: users.filter((user) => user.role === role),
   }));
+  const canManage = session?.user?.role === UserRole.SUPER_ADMIN;
 
   return (
     <>
-      <section className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-        <p className="eyebrow text-ink-soft">المستخدمون والصلاحيات</p>
-        <h1 className="text-ink-strong mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
-          إدارة الحسابات، الأدوار، وحدود الوصول.
-        </h1>
-        <p className="text-ink-soft mt-5 max-w-3xl text-lg leading-8">
-          هذه الوحدة تجمع الحسابات التشغيلية في هيكل واضح، وتعرض مصفوفة الوصول
-          المعتمدة داخل اللوحة، مع إمكانية ضبط الدور لكل مستخدم من نفس المكان.
-        </p>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-        <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm">
-          <h2 className="text-ink-strong font-serif text-3xl tracking-[-0.02em]">
-            إضافة حساب جديد
-          </h2>
-          <p className="text-ink-soft mt-3 text-sm leading-7">
-            أنشئ حسابًا جديدًا وحدد مستوى الوصول من البداية بما يتوافق مع مهام
-            الفريق.
+      <div className="admin-page-header">
+        <div>
+          <h1>
+            <span className="lang-ar">المستخدمون والصلاحيات</span>
+            <span className="lang-en">Users & permissions</span>
+          </h1>
+          <p>
+            <span className="lang-ar">{users.length} حساب</span>
+            <span className="lang-en">{users.length} accounts</span>
           </p>
-          <div className="mt-8">
-            <AdminUserCreateForm />
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1fr_1.5fr]">
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">New</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">إضافة حساب</span>
+                <span className="lang-en">Add user</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-card__body">
+            {canManage ? (
+              <AdminUserCreateForm />
+            ) : (
+              <p className="text-sm text-[color:var(--admin-text-faint)]">
+                <span className="lang-ar">إضافة الحسابات متاحة للمسؤول الأعلى فقط.</span>
+                <span className="lang-en">Only Super Admins can add accounts.</span>
+              </p>
+            )}
           </div>
         </article>
-        <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
+
+        <article className="admin-card">
+          <div className="admin-card__header">
             <div>
-              <h2 className="text-ink-strong font-serif text-3xl tracking-[-0.02em]">
-                شجرة المستخدمين
-              </h2>
-              <p className="text-ink-soft mt-3 text-sm leading-7">
-                الهيكل الحالي مبني على طبقات الدور التشغيلي، من الإدارة العليا
-                حتى الحسابات الرقابية.
-              </p>
+              <div className="admin-card__subtitle">By role</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">توزيع الحسابات</span>
+                <span className="lang-en">Accounts by role</span>
+              </div>
             </div>
-            <span className="border-line bg-surface text-ink-soft rounded-full border px-4 py-2 text-sm">
-              عدد الحسابات: {users.length}
-            </span>
           </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
+          <div className="admin-data-list">
             {groupedUsers.map((group) => (
-              <div
-                key={group.role}
-                className="border-line bg-surface rounded-[1.8rem] border p-5 shadow-sm"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-ink-strong text-lg font-semibold">
-                    {group.label}
-                  </p>
-                  <span className="border-line bg-canvas text-ink-soft rounded-full border px-3 py-1 text-xs">
-                    {group.users.length}
+              <div key={group.role} className="admin-data-row">
+                <div>
+                  <p className="admin-data-row__title">{roleLabels[group.role]}</p>
+                  <p className="admin-data-row__meta" dir="ltr">{group.role}</p>
+                </div>
+                <span className="admin-data-row__value">{group.users.length}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+      </div>
+
+      <article className="admin-card">
+        <div className="admin-card__header">
+          <div>
+            <div className="admin-card__subtitle">Accounts</div>
+            <div className="admin-card__title">
+              <span className="lang-ar">الحسابات</span>
+              <span className="lang-en">Accounts</span>
+            </div>
+          </div>
+        </div>
+        <div className="admin-data-list">
+          {users.map((user) => (
+            <div key={user.id} className="admin-data-row grid-cols-[1fr_auto] !items-start">
+              <div className="min-w-0">
+                <p className="admin-data-row__title truncate">{user.name}</p>
+                <p className="admin-data-row__meta truncate" dir="ltr">{user.email}</p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  <span className="admin-chip">{getRoleLabel(user.role)}</span>
+                  <span className="admin-chip">
+                    <span className="lang-ar">طلبات: {user.leadCount}</span>
+                    <span className="lang-en">Leads: {user.leadCount}</span>
                   </span>
                 </div>
-                <div className="mt-4 grid gap-3">
-                  {group.users.length > 0 ? (
-                    group.users.map((user) => (
-                      <div
-                        key={user.id}
-                        className="border-line bg-canvas rounded-[1.4rem] border px-4 py-4"
-                      >
-                        <p className="text-ink-strong text-sm font-semibold">
-                          {user.name}
-                        </p>
-                        <p className="text-ink-soft mt-1 text-xs" dir="ltr">
-                          {user.email}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="border-line bg-canvas text-ink-soft rounded-[1.4rem] border border-dashed px-4 py-4 text-sm">
-                      لا توجد حسابات ضمن هذا المستوى حاليًا.
-                    </div>
-                  )}
-                </div>
               </div>
-            ))}
-          </div>
-        </article>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.12fr_0.88fr]">
-        <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm">
-          <h2 className="text-ink-strong font-serif text-3xl tracking-[-0.02em]">
-            الحسابات الحالية
-          </h2>
-          <div className="mt-8 grid gap-4">
-            {users.map((user) => (
-              <article
-                key={user.id}
-                className="border-line bg-surface rounded-[1.8rem] border p-5 shadow-sm"
-              >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="text-ink-strong text-lg font-semibold">
-                      {user.name}
-                    </p>
-                    <p className="text-ink-soft mt-1 text-sm" dir="ltr">
-                      {user.email}
-                    </p>
-                    <div className="text-ink-soft mt-4 flex flex-wrap gap-2 text-xs">
-                      <span className="border-line bg-canvas rounded-full border px-3 py-1">
-                        الدور: {getRoleLabel(user.role)}
-                      </span>
-                      <span className="border-line bg-canvas rounded-full border px-3 py-1">
-                        الطلبات المسندة: {user.leadCount}
-                      </span>
-                      <span className="border-line bg-canvas rounded-full border px-3 py-1">
-                        آخر دخول:{" "}
-                        {user.lastLoginAt
-                          ? new Date(user.lastLoginAt).toLocaleDateString(
-                              "ar-SA",
-                            )
-                          : "لم يسجل بعد"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="min-w-[18rem]">
-                    <AdminUserRoleForm
-                      userId={user.id}
-                      currentRole={user.role}
-                    />
-                    {session?.user?.id === user.id ? (
-                      <p className="text-ink-faint mt-2 text-xs">
-                        هذا هو الحساب المستخدم في الجلسة الحالية.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        </article>
-
-        <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm">
-          <h2 className="text-ink-strong font-serif text-3xl tracking-[-0.02em]">
-            مصفوفة الصلاحيات
-          </h2>
-          <p className="text-ink-soft mt-3 text-sm leading-7">
-            توضح هذه المصفوفة الأقسام التي يحق لكل مستوى وظيفي الوصول إليها داخل
-            اللوحة.
-          </p>
-          <div className="mt-8 grid gap-3">
-            {permissionMatrix.map((rule) => (
-              <div
-                key={rule.prefix}
-                className="border-line bg-surface rounded-[1.5rem] border px-5 py-4 shadow-sm"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-ink-strong text-sm font-semibold">
-                      {rule.label}
-                    </p>
-                    <p className="text-ink-faint mt-1 text-xs" dir="ltr">
-                      {rule.prefix}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    {rule.roles.map((role) => (
-                      <span
-                        key={role}
-                        className="border-line bg-canvas text-ink-soft rounded-full border px-3 py-1"
-                      >
-                        {roleLabels[role]}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+              <div className="grid gap-2 justify-items-end">
+                <AdminUserRoleForm userId={user.id} currentRole={user.role} />
+                {canManage && session?.user?.id !== user.id ? (
+                  <form action={deleteAdminUserAction}>
+                    <input type="hidden" name="id" value={user.id} />
+                    <button type="submit" className="admin-btn-danger">
+                      <span className="lang-ar">حذف الحساب</span>
+                      <span className="lang-en">Delete</span>
+                    </button>
+                  </form>
+                ) : null}
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+      </article>
+
+      <article className="admin-card">
+        <div className="admin-card__header">
+          <div>
+            <div className="admin-card__subtitle">Matrix</div>
+            <div className="admin-card__title">
+              <span className="lang-ar">مصفوفة الصلاحيات</span>
+              <span className="lang-en">Permission matrix</span>
+            </div>
           </div>
-        </article>
-      </section>
+        </div>
+        <div className="admin-data-list">
+          {permissionMatrix.map((rule) => (
+            <div key={rule.prefix} className="admin-data-row">
+              <div>
+                <p className="admin-data-row__title">{rule.label}</p>
+                <p className="admin-data-row__meta" dir="ltr">{rule.prefix}</p>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {rule.roles.map((role) => (
+                  <span key={role} className="admin-chip">
+                    {roleLabels[role]}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </article>
     </>
   );
 }

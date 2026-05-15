@@ -1,9 +1,15 @@
 "use server";
 
+import { ContentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { createServiceDraft } from "@/lib/content-repository";
+import {
+  createServiceDraft,
+  deleteService,
+  updateService,
+  updateServiceStatus,
+} from "@/lib/content-repository";
 
 export type ServiceActionState = {
   status: "idle" | "success" | "error";
@@ -19,6 +25,20 @@ const serviceSchema = z.object({
   coverImageUrl: z.string().optional().or(z.literal("")),
 });
 
+const updateServiceSchema = serviceSchema.extend({
+  id: z.string().min(3),
+  status: z.nativeEnum(ContentStatus),
+  featured: z.coerce.boolean().optional().default(false),
+});
+
+function revalidate() {
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  revalidatePath("/services/[slug]", "page");
+  revalidatePath("/");
+  revalidatePath("/doctors");
+}
+
 export async function createServiceAction(
   _previousState: ServiceActionState,
   formData: FormData,
@@ -33,35 +53,71 @@ export async function createServiceAction(
   });
 
   if (!parsed.success) {
-    return {
-      status: "error",
-      message: "يرجى استكمال بيانات الخدمة بشكل صحيح.",
-    };
+    return { status: "error", message: "بيانات الخدمة غير مكتملة." };
   }
 
-  const result = await createServiceDraft({
+  await createServiceDraft({
     slug: parsed.data.slug,
     name: parsed.data.name,
     category: parsed.data.category,
     excerpt: parsed.data.excerpt,
     description: parsed.data.description,
-    ...(parsed.data.coverImageUrl
-      ? {
-          coverImageUrl: parsed.data.coverImageUrl,
-        }
-      : {}),
+    ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
   });
 
-  revalidatePath("/admin/services");
-  revalidatePath("/services");
-  revalidatePath("/");
-  revalidatePath("/doctors");
+  revalidate();
+  return { status: "success", message: "تم حفظ الخدمة." };
+}
 
-  return {
-    status: "success",
-    message:
-      result.mode === "database"
-        ? "تم حفظ الخدمة بنجاح."
-        : "تم اعتماد الخدمة داخل بيئة العمل الحالية بنجاح.",
-  };
+export async function updateServiceAction(
+  _previousState: ServiceActionState,
+  formData: FormData,
+): Promise<ServiceActionState> {
+  const parsed = updateServiceSchema.safeParse({
+    id: formData.get("id"),
+    slug: formData.get("slug"),
+    name: formData.get("name"),
+    category: formData.get("category"),
+    excerpt: formData.get("excerpt"),
+    description: formData.get("description"),
+    coverImageUrl: formData.get("coverImageUrl"),
+    status: formData.get("status"),
+    featured: formData.get("featured"),
+  });
+
+  if (!parsed.success) {
+    return { status: "error", message: "بيانات الخدمة غير صالحة للتحديث." };
+  }
+
+  await updateService({
+    id: parsed.data.id,
+    slug: parsed.data.slug,
+    name: parsed.data.name,
+    category: parsed.data.category,
+    excerpt: parsed.data.excerpt,
+    description: parsed.data.description,
+    status: parsed.data.status,
+    featured: parsed.data.featured,
+    ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
+  });
+
+  revalidate();
+  return { status: "success", message: "تم تحديث الخدمة." };
+}
+
+export async function setServiceStatusAction(formData: FormData) {
+  const id = formData.get("id");
+  const status = formData.get("status");
+  if (typeof id !== "string" || !id) return;
+  const parsed = z.nativeEnum(ContentStatus).safeParse(status);
+  if (!parsed.success) return;
+  await updateServiceStatus(id, parsed.data);
+  revalidate();
+}
+
+export async function deleteServiceAction(formData: FormData) {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  await deleteService(id);
+  revalidate();
 }

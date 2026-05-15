@@ -1,86 +1,130 @@
 import Image from "next/image";
+import { ContentStatus } from "@prisma/client";
 
-import { AdminStatusBadge } from "@/components/admin/AdminStatusBadge";
+import {
+  deleteDoctorAction,
+  setDoctorStatusAction,
+} from "@/app/admin/doctors/actions";
 import { DoctorCreateForm } from "@/components/forms/DoctorCreateForm";
 import { DoctorEditorForm } from "@/components/forms/DoctorEditorForm";
 import { getDoctors } from "@/lib/content-repository";
+
+function statusMeta(status: ContentStatus) {
+  switch (status) {
+    case ContentStatus.PUBLISHED:
+      return { className: "is-published", labelAr: "منشور", labelEn: "Published" };
+    case ContentStatus.REVIEW:
+      return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
+    case ContentStatus.ARCHIVED:
+      return { className: "is-archived", labelAr: "مؤرشف", labelEn: "Archived" };
+    default:
+      return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
+  }
+}
 
 export default async function AdminDoctorsPage() {
   const doctors = await getDoctors();
 
   return (
     <>
-      <section className="surface-panel rounded-[2rem] p-6 lg:p-8">
-        <p className="eyebrow">Doctors Module</p>
-        <h1 className="text-ink mt-4 font-serif text-5xl tracking-[-0.05em]">
-          إدارة ملفات الأطباء
-        </h1>
-        <p className="text-ink-soft mt-4 max-w-3xl text-base leading-8">
-          تتيح هذه الوحدة مراجعة ملفات الأطباء الحالية وإضافة ملفات جديدة ضمن
-          سير عمل التحرير المعتمد.
-        </p>
-      </section>
-      <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-        <article className="surface-panel rounded-[2rem] p-6">
-          <h2 className="text-ink font-serif text-3xl tracking-[-0.04em]">
-            إضافة مسودة طبيب
-          </h2>
-          <div className="mt-6">
+      <div className="admin-page-header">
+        <div>
+          <h1>
+            <span className="lang-ar">الأطباء</span>
+            <span className="lang-en">Doctors</span>
+          </h1>
+          <p>
+            <span className="lang-ar">{doctors.length} طبيب</span>
+            <span className="lang-en">{doctors.length} doctors</span>
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">New</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">إضافة طبيب</span>
+                <span className="lang-en">Add doctor</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-card__body">
             <DoctorCreateForm />
           </div>
         </article>
-        <div className="grid gap-4">
-          {doctors.map((doctor) => (
-            <details
-              key={doctor.id}
-              className="surface-panel overflow-hidden rounded-[1.85rem]"
-            >
-              <summary className="grid cursor-pointer gap-0 md:grid-cols-[9rem_1fr]">
-                <div className="relative min-h-40">
-                  <Image
-                    src={doctor.photoUrl}
-                    alt={doctor.name}
-                    fill
-                    className="bg-[radial-gradient(circle_at_top,rgba(201,162,106,0.18),rgba(255,255,255,0.98))] object-contain p-3"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-ink text-lg font-semibold">
-                        {doctor.name}
-                      </p>
-                      <p className="text-ink-soft mt-1 text-sm">
-                        {doctor.specialty}
-                      </p>
-                    </div>
-                    <AdminStatusBadge status={doctor.status} />
-                  </div>
-                  <p className="text-ink-soft mt-3 text-sm leading-7">
-                    {doctor.summary}
-                  </p>
-                </div>
-              </summary>
-              <div className="border-line border-t p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-ink text-lg font-semibold">
-                      تحرير الملف الطبي
-                    </p>
-                    <p className="text-ink-soft mt-1 text-sm">
-                      الصور المحلية والاقتباس والنصوص هنا مرتبطة مباشرة بواجهة
-                      الموقع.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <DoctorEditorForm doctor={doctor} />
-                </div>
+
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Library</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">الأطباء الحاليون</span>
+                <span className="lang-en">Current doctors</span>
               </div>
-            </details>
-          ))}
-        </div>
-      </section>
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {doctors.map((doctor) => {
+              const meta = statusMeta(doctor.status);
+              return (
+                <details key={doctor.id} className="admin-data-row !block">
+                  <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
+                    <div className="relative h-12 w-12 overflow-hidden rounded-full" style={{ background: "var(--admin-panel-soft)" }}>
+                      <Image src={doctor.photoUrl} alt={doctor.name} fill className="object-cover" sizes="48px" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="admin-data-row__title truncate">{doctor.name}</p>
+                      <p className="admin-data-row__meta truncate">{doctor.specialty}</p>
+                    </div>
+                    <span className={`admin-status-badge ${meta.className}`}>
+                      <span className="lang-ar">{meta.labelAr}</span>
+                      <span className="lang-en">{meta.labelEn}</span>
+                    </span>
+                  </summary>
+
+                  <div className="mt-4 grid gap-4 border-t pt-4" style={{ borderColor: "var(--admin-border)" }}>
+                    <DoctorEditorForm doctor={doctor} />
+
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        ContentStatus.DRAFT,
+                        ContentStatus.REVIEW,
+                        ContentStatus.PUBLISHED,
+                        ContentStatus.ARCHIVED,
+                      ].map((status) => {
+                        const m = statusMeta(status);
+                        return (
+                          <form key={status} action={setDoctorStatusAction}>
+                            <input type="hidden" name="id" value={doctor.id} />
+                            <input type="hidden" name="status" value={status} />
+                            <button
+                              type="submit"
+                              className={`admin-btn-secondary ${doctor.status === status ? "border-[color:var(--admin-accent)] text-[color:var(--admin-accent)]" : ""}`}
+                            >
+                              <span className="lang-ar">{m.labelAr}</span>
+                              <span className="lang-en">{m.labelEn}</span>
+                            </button>
+                          </form>
+                        );
+                      })}
+                      <form action={deleteDoctorAction}>
+                        <input type="hidden" name="id" value={doctor.id} />
+                        <button type="submit" className="admin-btn-danger">
+                          <span className="lang-ar">حذف</span>
+                          <span className="lang-en">Delete</span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        </article>
+      </div>
     </>
   );
 }

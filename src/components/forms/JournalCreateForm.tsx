@@ -19,76 +19,88 @@ export function JournalCreateForm() {
   );
 
   return (
-    <form action={formAction} className="grid gap-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="title"
-          placeholder="عنوان المقال"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
-        <input
-          name="slug"
-          placeholder="المعرف المختصر للرابط"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
+    <form action={formAction} className="grid gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">العنوان</span>
+            <span className="lang-en">Title</span>
+          </span>
+          <input name="title" required className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">Slug</span>
+          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">التصنيف</span>
+            <span className="lang-en">Category</span>
+          </span>
+          <input name="category" required className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">زمن القراءة</span>
+            <span className="lang-en">Reading time</span>
+          </span>
+          <input name="readingTime" defaultValue="4 دقائق" required className="admin-input" />
+        </label>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="category"
-          placeholder="التصنيف"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
-        <input
-          name="readingTime"
-          placeholder="زمن القراءة"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          defaultValue="4 دقائق"
-          required
-        />
-      </div>
-      <input
-        name="coverImageUrl"
-        placeholder="رابط صورة الغلاف"
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-      />
-      <textarea
-        name="excerpt"
-        placeholder="مقدمة مختصرة للمقال"
-        rows={3}
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm leading-7 outline-none"
-        required
-      />
-      <textarea
-        name="body"
-        placeholder="متن المقال، فقرة في كل سطر مستقل"
-        rows={8}
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm leading-7 outline-none"
-        required
-      />
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="relatedServiceSlugs"
-          placeholder="معرفات الخدمات المرتبطة"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        />
-        <input
-          name="relatedDoctorSlugs"
-          placeholder="معرفات الأطباء المرتبطين"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        />
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">رابط صورة الغلاف</span>
+          <span className="lang-en">Cover URL</span>
+        </span>
+        <input name="coverImageUrl" dir="ltr" className="admin-input" />
+      </label>
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">المقدمة</span>
+          <span className="lang-en">Excerpt</span>
+        </span>
+        <textarea name="excerpt" rows={2} required className="admin-input" />
+      </label>
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">المتن (فقرة في كل سطر)</span>
+          <span className="lang-en">Body (paragraph per line)</span>
+        </span>
+        <textarea name="body" rows={7} required className="admin-input" />
+      </label>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">خدمات مرتبطة (slugs)</span>
+            <span className="lang-en">Related services</span>
+          </span>
+          <input name="relatedServiceSlugs" dir="ltr" className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">أطباء مرتبطون (slugs)</span>
+            <span className="lang-en">Related doctors</span>
+          </span>
+          <input name="relatedDoctorSlugs" dir="ltr" className="admin-input" />
+        </label>
       </div>
       {state.message ? (
-        <p className="text-emerald text-sm">{state.message}</p>
+        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+          {state.message}
+        </p>
       ) : null}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-ink text-canvas rounded-[1.15rem] px-5 py-3 text-sm font-semibold disabled:opacity-60"
-      >
-        {isPending ? "جاري الحفظ..." : "إنشاء مسودة مقال"}
+      <button type="submit" disabled={isPending} className="admin-btn-primary">
+        {isPending ? (
+          <>
+            <span className="lang-ar">جاري الحفظ...</span>
+            <span className="lang-en">Saving...</span>
+          </>
+        ) : (
+          <>
+            <span className="lang-ar">حفظ</span>
+            <span className="lang-en">Save</span>
+          </>
+        )}
       </button>
     </form>
   );

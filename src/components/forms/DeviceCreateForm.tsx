@@ -19,61 +19,74 @@ export function DeviceCreateForm() {
   );
 
   return (
-    <form action={formAction} className="grid gap-4">
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="name"
-          placeholder="اسم الجهاز"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
-        <input
-          name="slug"
-          placeholder="المعرف المختصر للرابط"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
+    <form action={formAction} className="grid gap-3">
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الاسم</span>
+            <span className="lang-en">Name</span>
+          </span>
+          <input name="name" required className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">Slug</span>
+          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+        </label>
       </div>
-      <input
-        name="excerpt"
-        placeholder="ملخص مختصر للجهاز"
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        required
-      />
-      <textarea
-        name="description"
-        rows={4}
-        placeholder="وصف الجهاز"
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        required
-      />
-      <div className="grid gap-4 md:grid-cols-2">
-        <input
-          name="certifications"
-          placeholder="الاعتمادات أو المزايا الرئيسية"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-          required
-        />
-        <input
-          name="serviceSlugs"
-          placeholder="الخدمات المرتبطة"
-          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-        />
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">ملخص</span>
+          <span className="lang-en">Excerpt</span>
+        </span>
+        <input name="excerpt" required className="admin-input" />
+      </label>
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">الوصف</span>
+          <span className="lang-en">Description</span>
+        </span>
+        <textarea name="description" rows={4} required className="admin-input" />
+      </label>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الاعتمادات</span>
+            <span className="lang-en">Certifications</span>
+          </span>
+          <input name="certifications" required className="admin-input" />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">الخدمات المرتبطة (slugs)</span>
+            <span className="lang-en">Related services (slugs)</span>
+          </span>
+          <input name="serviceSlugs" dir="ltr" className="admin-input" />
+        </label>
       </div>
-      <input
-        name="imageUrl"
-        placeholder="رابط صورة الجهاز"
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-      />
+      <label className="grid gap-1">
+        <span className="admin-field-label">
+          <span className="lang-ar">رابط صورة الجهاز</span>
+          <span className="lang-en">Image URL</span>
+        </span>
+        <input name="imageUrl" dir="ltr" className="admin-input" />
+      </label>
       {state.message ? (
-        <p className="text-emerald text-sm">{state.message}</p>
+        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+          {state.message}
+        </p>
       ) : null}
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-ink text-canvas rounded-[1.15rem] px-5 py-3 text-sm font-semibold disabled:opacity-60"
-      >
-        {isPending ? "جاري الحفظ..." : "حفظ مسودة جهاز"}
+      <button type="submit" disabled={isPending} className="admin-btn-primary">
+        {isPending ? (
+          <>
+            <span className="lang-ar">جاري الحفظ...</span>
+            <span className="lang-en">Saving...</span>
+          </>
+        ) : (
+          <>
+            <span className="lang-ar">حفظ</span>
+            <span className="lang-en">Save</span>
+          </>
+        )}
       </button>
     </form>
   );

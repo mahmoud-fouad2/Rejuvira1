@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { auth } from "@/auth";
-import { createAdminUser, updateAdminUserRole } from "@/lib/content-repository";
+import {
+  createAdminUser,
+  deleteAdminUser,
+  updateAdminUserRole,
+} from "@/lib/content-repository";
 
 export type AdminUserActionState = {
   status: "idle" | "success" | "error";
@@ -132,4 +136,22 @@ export async function updateAdminUserRoleAction(
     status: "success",
     message: "تم تحديث الدور بنجاح.",
   };
+}
+
+export async function deleteAdminUserAction(formData: FormData) {
+  let session;
+  try {
+    session = await ensureSuperAdmin();
+  } catch {
+    return;
+  }
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  if (session.user.id === id) return;
+  try {
+    await deleteAdminUser(id);
+  } catch {
+    return;
+  }
+  revalidatePath("/admin/users");
 }

@@ -14,10 +14,10 @@ const initialState: AdminUserActionState = {
 };
 
 const roleOptions = [
-  { value: UserRole.SUPER_ADMIN, label: "إدارة عليا" },
-  { value: UserRole.ADMIN, label: "مدير" },
-  { value: UserRole.EDITOR, label: "محرر" },
-  { value: UserRole.VIEWER, label: "مراقب" },
+  { value: UserRole.SUPER_ADMIN, label: "Super Admin" },
+  { value: UserRole.ADMIN, label: "Admin" },
+  { value: UserRole.EDITOR, label: "Editor" },
+  { value: UserRole.VIEWER, label: "Viewer" },
 ] as const;
 
 export function AdminUserRoleForm({
@@ -33,34 +33,33 @@ export function AdminUserRoleForm({
   );
 
   return (
-    <form
-      action={formAction}
-      className="flex flex-col gap-3 md:flex-row md:items-center"
-    >
+    <form action={formAction} className="flex items-center gap-2">
       <input type="hidden" name="id" value={userId} />
-      <select
-        name="role"
-        defaultValue={currentRole}
-        className="border-line bg-surface text-ink focus:border-gold rounded-[1rem] border px-4 py-2.5 text-sm outline-none"
-      >
+      <select name="role" defaultValue={currentRole} className="admin-input !py-1.5 !text-xs">
         {roleOptions.map((role) => (
           <option key={role.value} value={role.value}>
             {role.label}
           </option>
         ))}
       </select>
-      <button
-        type="submit"
-        disabled={isPending}
-        className="bg-ink text-canvas rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-60"
-      >
-        {isPending ? "جارٍ الحفظ" : "حفظ"}
+      <button type="submit" disabled={isPending} className="admin-btn-secondary">
+        {isPending ? (
+          <>
+            <span className="lang-ar">حفظ...</span>
+            <span className="lang-en">Save...</span>
+          </>
+        ) : (
+          <>
+            <span className="lang-ar">حفظ</span>
+            <span className="lang-en">Save</span>
+          </>
+        )}
       </button>
-      <span
-        className={`text-xs ${state.status === "error" ? "text-burgundy" : "text-ink-faint"}`}
-      >
-        {state.message || "تحديث الدور مباشرة من البطاقة."}
-      </span>
+      {state.message ? (
+        <span className={`text-[11px] ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+          {state.message}
+        </span>
+      ) : null}
     </form>
   );
 }
