@@ -4320,7 +4320,8 @@ html[data-theme="dark"] .rv-v0-footer-social-btn:hover {
   position: fixed;
   z-index: 50;
   bottom: 1.5rem;
-  inset-inline-start: 1.5rem;
+  left: 1.5rem;
+  right: auto;
   width: 3rem;
   height: 3rem;
   border-radius: 999px;
@@ -8116,7 +8117,8 @@ main {
 @media (max-width: 640px) {
   .rv-v0-scroll-top {
     bottom: 1rem !important;
-    inset-inline-start: 1rem !important;
+    left: 1rem !important;
+    right: auto !important;
     width: 2.6rem !important;
     height: 2.6rem !important;
   }
@@ -9124,22 +9126,60 @@ html[data-theme="dark"] .rv-v0-hero-trust-chip,
 html[data-theme="dark"] .rv-v0-partners-note,
 html[data-theme="dark"] .rv-v0-secondary,
 html[data-theme="dark"] .rv-v0-hero-chips > span {
-  background: rgba(255,255,255,0.16) !important;
-  color: #fff !important;
-  border-color: rgba(255,255,255,0.24) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(124, 70, 178, 0.32),
+    rgba(74, 36, 118, 0.42)
+  ) !important;
+  color: #f7eeff !important;
+  border-color: rgba(216, 180, 255, 0.4) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.16),
-    0 14px 34px rgba(0,0,0,0.22) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 16px 38px rgba(0, 0, 0, 0.34) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 html[data-theme="dark"] .rv-v0-hero-chips > span svg {
-  color: #d9bcff !important;
+  color: #f0c976 !important;
+  filter: drop-shadow(0 0 6px rgba(240, 201, 118, 0.35));
 }
 
 html[data-theme="dark"] .rv-v0-hero-chips > span .lang-ar,
 html[data-theme="dark"] .rv-v0-hero-chips > span .lang-en {
-  color: #fff !important;
+  color: #f7eeff !important;
   opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="dark"] .rv-v0-stats div {
+  background: linear-gradient(
+    135deg,
+    rgba(124, 70, 178, 0.18),
+    rgba(36, 18, 70, 0.32)
+  ) !important;
+  border: 1px solid rgba(216, 180, 255, 0.22) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 40px rgba(0, 0, 0, 0.32) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html[data-theme="dark"] .rv-v0-stats div b,
+html[data-theme="dark"] .rv-v0-wide-stats div b {
+  background: linear-gradient(135deg, #f0c976 0%, #e9a857 50%, #f0c976 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  filter: drop-shadow(0 0 8px rgba(240, 201, 118, 0.18));
+}
+
+html[data-theme="dark"] .rv-v0-stats div span,
+html[data-theme="dark"] .rv-v0-wide-stats div span {
+  color: rgba(247, 238, 255, 0.82) !important;
+  font-weight: 500 !important;
 }
 
 html[data-theme="dark"] .rv-v0-primary,
