@@ -22,7 +22,6 @@ export function CinematicIntro({
   logoSrc,
   logoAlt,
   brandName,
-  skinTextureSrc,
 }: CinematicIntroProps) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -73,35 +72,19 @@ export function CinematicIntro({
             ? "opacity-0 [--scale:1.04] scale-[var(--scale)] blur-sm"
             : "opacity-100 scale-100"
       }`}
-      style={{
-        background:
-          "radial-gradient(ellipse at 50% 0%, rgba(126,64,166,0.35), transparent 55%), linear-gradient(145deg, #130a1f 0%, #2b1146 48%, #0d0714 100%)",
-      }}
     >
       <button type="button" className="rv-cinematic-skip" onClick={closeIntro}>
         <span className="lang-ar">تخطي</span>
         <span className="lang-en">Skip</span>
       </button>
 
-      {/* Background texture */}
-      <div className="absolute inset-0 overflow-hidden">
-        <Image
-          src={skinTextureSrc}
-          alt=""
-          fill
-          className="object-cover opacity-[0.16] mix-blend-screen"
-          priority
-          sizes="100vw"
-        />
-      </div>
-
       {/* Subtle light bloom */}
-      <div className="absolute top-1/3 left-1/2 h-[44vh] w-[66vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.16),transparent_70%)]" />
+      <div className="absolute top-1/2 left-1/2 h-[46vh] w-[62vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.72),transparent_68%)]" />
 
       {/* Main content */}
-      <div className="relative flex flex-col items-center gap-8 px-6 text-center">
+      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
         {/* Brand logo */}
-        <div className="relative h-32 w-52 overflow-hidden rounded-none shadow-[0_0_90px_rgba(255,255,255,0.2)] sm:h-36 sm:w-60">
+        <div className="relative h-48 w-80 overflow-visible rounded-none bg-transparent sm:h-56 sm:w-96">
           <Image
             src={logoSrc}
             alt={logoAlt}
@@ -114,20 +97,20 @@ export function CinematicIntro({
 
         {/* Brand name */}
         <div className="text-center">
-          <p className="font-serif text-4xl font-semibold tracking-[-0.04em] text-[#fff8f0] sm:text-5xl lg:text-6xl">
+          <p className="font-serif text-3xl font-semibold tracking-[-0.04em] text-[#4a2476] sm:text-4xl lg:text-5xl">
             {brandName}
           </p>
-          <p className="mt-3 text-[11px] tracking-[0.22em] text-white/68 uppercase">
+          <p className="mt-3 text-[11px] tracking-[0.22em] text-[#4a2476]/68 uppercase">
             <span className="lang-ar">جراحات تجميلية · جلدية · عناية بالبشرة</span>
             <span className="lang-en">Aesthetic Surgery · Dermatology · Skin Care</span>
           </p>
         </div>
 
         {/* Decorative line */}
-        <div className="h-px w-24 bg-gradient-to-r from-transparent via-white to-transparent opacity-45" />
+        <div className="h-px w-24 bg-gradient-to-r from-transparent via-[#4a2476] to-transparent opacity-30" />
 
         {/* Tagline */}
-        <p className="max-w-md text-center text-sm leading-relaxed tracking-wide text-white/70">
+        <p className="max-w-md text-center text-sm leading-relaxed tracking-wide text-[#4a2476]/72">
           حيث تلتقي الخبرة الطبية مع الجمال الطبيعي
         </p>
       </div>

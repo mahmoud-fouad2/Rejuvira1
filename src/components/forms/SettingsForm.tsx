@@ -412,6 +412,31 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />
+      </div>
+      <div className="grid gap-4 md:grid-cols-3">
+        <input
+          name="heroCard1"
+          defaultValue={getFieldValue(groups, "media", "heroCard1") || "/media/hero/rejuvira-hero-1.jpg"}
+          placeholder="صورة الهيرو الأولى"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          required
+        />
+        <input
+          name="heroCard2"
+          defaultValue={getFieldValue(groups, "media", "heroCard2") || "/media/hero/rejuvira-hero-2.jpg"}
+          placeholder="صورة الهيرو الثانية"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          required
+        />
+        <input
+          name="heroCard3"
+          defaultValue={getFieldValue(groups, "media", "heroCard3") || "/media/hero/rejuvira-hero-3.jpg"}
+          placeholder="صورة الهيرو الثالثة"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          required
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
         <input
           name="doctorsHero"
           defaultValue={getFieldValue(groups, "media", "doctorsHero")}

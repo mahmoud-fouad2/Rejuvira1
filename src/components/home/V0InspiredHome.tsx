@@ -174,10 +174,10 @@ export function V0InspiredHome({
       ? settings.homepage.testimonials
       : fallbackTestimonialsBi;
   const heroCards = [
-    "/media/hero/rejuvira-hero-consultation.svg",
-    "/media/hero/rejuvira-hero-technology.svg",
-    "/media/hero/rejuvira-hero-care.svg",
-  ];
+    settings.media.heroCard1,
+    settings.media.heroCard2,
+    settings.media.heroCard3,
+  ].filter((src, index, list): src is string => Boolean(src) && list.indexOf(src) === index);
 
   const doctorQuotes = doctorSource.filter(
     (d) => d.status === ContentStatus.PUBLISHED && d.summary.trim().length > 0,

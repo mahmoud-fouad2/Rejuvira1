@@ -132,6 +132,9 @@ export type MediaSelections = {
   appleIcon: string;
   ogImage: string;
   homeHero: string;
+  heroCard1: string;
+  heroCard2: string;
+  heroCard3: string;
   doctorsHero: string;
   servicesHero: string;
   aboutHero: string;
@@ -1466,7 +1469,22 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "homeHero",
         label: "صورة الصفحة الرئيسية",
-        value: serviceImages.aestheticSurgery,
+        value: "/media/hero/rejuvira-hero-1.jpg",
+      },
+      {
+        key: "heroCard1",
+        label: "صورة الهيرو الأولى",
+        value: "/media/hero/rejuvira-hero-1.jpg",
+      },
+      {
+        key: "heroCard2",
+        label: "صورة الهيرو الثانية",
+        value: "/media/hero/rejuvira-hero-2.jpg",
+      },
+      {
+        key: "heroCard3",
+        label: "صورة الهيرو الثالثة",
+        value: "/media/hero/rejuvira-hero-3.jpg",
       },
       {
         key: "doctorsHero",
@@ -1729,7 +1747,10 @@ const defaultMediaSelections: MediaSelections = {
   favicon: "/icon.svg",
   appleIcon: "/media/brand-logo-main.png",
   ogImage: "/media/brand-logo-main.png",
-  homeHero: serviceImages.aestheticSurgery,
+  homeHero: "/media/hero/rejuvira-hero-1.jpg",
+  heroCard1: "/media/hero/rejuvira-hero-1.jpg",
+  heroCard2: "/media/hero/rejuvira-hero-2.jpg",
+  heroCard3: "/media/hero/rejuvira-hero-3.jpg",
   doctorsHero: doctorPortraits[0],
   servicesHero: serviceImages.aestheticSurgery,
   aboutHero: serviceImages.devices,
@@ -2324,6 +2345,9 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
         defaultMediaSelections.ogImage,
       ), defaultMediaSelections.ogImage),
       homeHero: toDisplayAsset(getValue("media", "homeHero", defaultMediaSelections.homeHero), defaultMediaSelections.homeHero),
+      heroCard1: toDisplayAsset(getValue("media", "heroCard1", defaultMediaSelections.heroCard1), defaultMediaSelections.heroCard1),
+      heroCard2: toDisplayAsset(getValue("media", "heroCard2", defaultMediaSelections.heroCard2), defaultMediaSelections.heroCard2),
+      heroCard3: toDisplayAsset(getValue("media", "heroCard3", defaultMediaSelections.heroCard3), defaultMediaSelections.heroCard3),
       doctorsHero: toDisplayAsset(getValue(
         "media",
         "doctorsHero",

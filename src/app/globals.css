@@ -9147,13 +9147,22 @@ html[data-theme="dark"] .rv-v0-hero-trust-chip,
 html[data-theme="dark"] .rv-v0-partners-note,
 html[data-theme="dark"] .rv-v0-secondary,
 html[data-theme="dark"] .rv-v0-hero-chips > span {
-  background: rgba(255,255,255,0.08) !important;
-  color: #f7efff !important;
-  border-color: rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.16) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    0 14px 34px rgba(0,0,0,0.22) !important;
 }
 
 html[data-theme="dark"] .rv-v0-hero-chips > span svg {
   color: #d9bcff !important;
+}
+
+html[data-theme="dark"] .rv-v0-hero-chips > span .lang-ar,
+html[data-theme="dark"] .rv-v0-hero-chips > span .lang-en {
+  color: #fff !important;
+  opacity: 1 !important;
 }
 
 html[data-theme="dark"] .rv-v0-primary,
@@ -10021,25 +10030,44 @@ footer .rv-brand-logo-footer {
 }
 
 .rv-booking-modal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147482500 !important;
+  display: grid !important;
   align-items: center !important;
   justify-items: center !important;
   place-items: center !important;
   padding: clamp(1rem, 4vw, 2rem) !important;
+  isolation: isolate;
 }
 
 .rv-booking-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: -1 !important;
   cursor: pointer;
 }
 
 .rv-booking-card {
+  position: relative !important;
+  z-index: 1 !important;
   max-height: min(88dvh, 46rem) !important;
   overflow: auto !important;
   overscroll-behavior: contain;
 }
 
 .rv-cinematic-intro {
-  background: radial-gradient(ellipse at 50% 0%, rgba(126,64,166,0.5), transparent 55%), linear-gradient(145deg, #130a1f 0%, #2b1146 48%, #0d0714 100%) !important;
+  background: transparent !important;
   opacity: 1;
+  backdrop-filter: none !important;
+}
+
+.rv-cinematic-intro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,0.82), rgba(255,248,240,0.26) 36%, transparent 70%);
+  pointer-events: none;
 }
 
 header .rv-brand-logo,
