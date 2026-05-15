@@ -1365,7 +1365,7 @@ const seedSettings: SettingsGroup[] = [
     description:
       "إدارة أكواد خارجية مؤقتة مثل Chatbase و Google tags وروابط Webhook للنماذج دون تعديل الكود.",
     fields: [
-      { key: "chatbaseEnabled", label: "تفعيل Chatbase", value: "true" },
+      { key: "chatbaseEnabled", label: "تفعيل Chatbase", value: "false" },
       {
         key: "chatbaseWidgetId",
         label: "Chatbase Widget ID",
@@ -2616,7 +2616,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
     seo: buildSeoSettings(getValue),
     integrations: {
       chatbaseEnabled:
-        getValue("integrations", "chatbaseEnabled", "true") !== "false",
+        getValue("integrations", "chatbaseEnabled", "false") === "true",
       chatbaseWidgetId: getValue(
         "integrations",
         "chatbaseWidgetId",

@@ -23,7 +23,7 @@ export async function authenticate(
 
   try {
     await signIn("credentials", {
-      email,
+      email: email.trim(),
       password,
       redirectTo: "/admin",
     });
@@ -35,12 +35,12 @@ export async function authenticate(
     if (error instanceof AuthError) {
       if (error.type === "CredentialsSignin") {
         return {
-          message: "بيانات الدخول غير صحيحة. راجع البريد وكلمة المرور.",
+          message: "البريد أو كلمة المرور غير صحيحة.",
         };
       }
 
       return {
-        message: "تعذر تسجيل الدخول حاليًا. حاول مرة أخرى.",
+        message: "تعذر تسجيل الدخول حالياً. حاولي بعد قليل.",
       };
     }
 

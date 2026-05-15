@@ -35,8 +35,6 @@ export default async function HomePage() {
       <CinematicIntro
         logoSrc="/media/brand/logo-light.png"
         logoAlt={settings.brand.logoAlt}
-        brandName={settings.brand.siteName}
-        skinTextureSrc={settings.media.homeHero}
       />
       <SiteHeader />
       <V0InspiredHome

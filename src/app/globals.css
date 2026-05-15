@@ -9888,13 +9888,6 @@ footer .rv-brand-logo-footer {
   height: clamp(5rem, 7vw, 6.8rem) !important;
 }
 
-.rv-booking-modal {
-  align-items: flex-start !important;
-  justify-items: center !important;
-  place-items: start center !important;
-  padding-top: clamp(4.8rem, 9vh, 7.5rem) !important;
-}
-
 .rv-booking-card {
   width: min(100%, 42rem) !important;
 }
@@ -10072,18 +10065,18 @@ footer .rv-brand-logo-footer {
 
 header .rv-brand-logo,
 header .rv-brand-logo-header {
-  width: clamp(11.5rem, 17vw, 16.5rem) !important;
-  height: clamp(5.9rem, 8.8vw, 8rem) !important;
+  width: clamp(13rem, 19vw, 18rem) !important;
+  height: clamp(6.6rem, 9.6vw, 8.6rem) !important;
 }
 
 footer .rv-brand-logo,
 footer .rv-brand-logo-footer {
-  width: clamp(12.25rem, 18vw, 17.5rem) !important;
-  height: clamp(6.4rem, 9vw, 8.4rem) !important;
+  width: clamp(13.5rem, 20vw, 19rem) !important;
+  height: clamp(7rem, 10vw, 9rem) !important;
 }
 
 .rv-brand-logo-img {
-  transform: scale(2.04) !important;
+  transform: scale(2.18) !important;
 }
 
 @media (max-width: 640px) {
@@ -10166,17 +10159,376 @@ footer .rv-brand-logo-footer {
 
   header .rv-brand-logo,
   header .rv-brand-logo-header {
-    width: clamp(10.8rem, 43vw, 13.2rem) !important;
-    height: 5.85rem !important;
+    width: clamp(11.8rem, 47vw, 14.4rem) !important;
+    height: 6.4rem !important;
   }
 
   footer .rv-brand-logo,
   footer .rv-brand-logo-footer {
-    width: clamp(11rem, 49vw, 14rem) !important;
-    height: 6.15rem !important;
+    width: clamp(12rem, 52vw, 15.2rem) !important;
+    height: 6.6rem !important;
   }
 
   .rv-brand-logo-img {
-    transform: scale(2.08) !important;
+    transform: scale(2.22) !important;
   }
+}
+
+/* ── Cinematic intro (refreshed) ─────────────────────────────────── */
+.rv-intro {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100dvw !important;
+  height: 100dvh !important;
+  z-index: 2147483000 !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: clamp(1rem, 4vw, 2rem);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255,255,255,0.96), rgba(252,247,236,0.86) 36%, rgba(244,238,228,0.72) 70%, rgba(232,222,206,0.48) 100%);
+  overflow: hidden !important;
+  overscroll-behavior: contain;
+  cursor: pointer;
+  transition: opacity 700ms ease, transform 700ms ease;
+  opacity: 1;
+  transform: scale(1);
+}
+
+:root[data-theme="dark"] .rv-intro {
+  background:
+    radial-gradient(circle at 50% 38%, rgba(31,16,60,0.96), rgba(20,10,42,0.92) 36%, rgba(10,4,24,0.92) 70%, rgba(6,2,16,0.96) 100%);
+}
+
+.rv-intro[data-phase="enter"] {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.rv-intro[data-phase="exit"] {
+  opacity: 0;
+  transform: scale(1.03);
+  pointer-events: none;
+}
+
+.rv-intro-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: clamp(0.9rem, 2.2vw, 1.4rem);
+  max-width: min(92vw, 36rem);
+  text-align: center;
+  animation: rv-intro-stage-in 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes rv-intro-stage-in {
+  0% { opacity: 0; transform: translateY(14px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.rv-intro-logo {
+  position: relative;
+  width: clamp(14rem, 38vw, 22rem);
+  height: clamp(8rem, 22vw, 12.5rem);
+  filter: drop-shadow(0 24px 60px rgba(74,36,118,0.18));
+}
+
+:root[data-theme="dark"] .rv-intro-logo {
+  filter: drop-shadow(0 24px 60px rgba(123,69,165,0.34)) brightness(1.12);
+}
+
+.rv-intro-rule {
+  width: clamp(4.5rem, 14vw, 8.5rem);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(74,36,118,0.55), transparent);
+  opacity: 0.85;
+}
+
+:root[data-theme="dark"] .rv-intro-rule {
+  background: linear-gradient(90deg, transparent, rgba(216,180,255,0.55), transparent);
+}
+
+.rv-intro-words {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(0.55rem, 1.8vw, 1rem);
+  font-family: var(--font-rejuvira-display, var(--font-rejuvira-sans, system-ui));
+  color: #4a2476;
+  font-size: clamp(0.95rem, 1.6vw, 1.18rem);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+:root[data-theme="dark"] .rv-intro-words {
+  color: #efe5ff;
+}
+
+.rv-intro-words .rv-intro-dot {
+  opacity: 0.55;
+  font-weight: 400;
+}
+
+/* ── Login screen (clean, centered) ───────────────────────────────── */
+.rv-login-shell {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 4vw, 2.4rem);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(123, 69, 165, 0.18), transparent 55%),
+    radial-gradient(circle at 84% 88%, rgba(74, 36, 118, 0.16), transparent 60%),
+    linear-gradient(160deg, #faf6ef 0%, #f3ecdc 100%);
+}
+
+:root[data-theme="dark"] .rv-login-shell {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(123, 69, 165, 0.28), transparent 55%),
+    radial-gradient(circle at 84% 88%, rgba(74, 36, 118, 0.22), transparent 60%),
+    linear-gradient(160deg, #110725 0%, #07031a 100%);
+}
+
+.rv-login-card {
+  position: relative;
+  width: min(100%, 26rem);
+  padding: clamp(1.75rem, 4vw, 2.4rem);
+  border-radius: 1.8rem;
+  border: 1px solid rgba(74, 36, 118, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 32px 80px rgba(20, 10, 36, 0.16),
+    0 4px 14px rgba(20, 10, 36, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+:root[data-theme="dark"] .rv-login-card {
+  border-color: rgba(216, 180, 255, 0.18);
+  background: rgba(18, 8, 38, 0.88);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.55),
+    0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.rv-login-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.rv-login-brand {
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+  margin-bottom: 0.4rem;
+  width: clamp(11rem, 60%, 14.5rem);
+  height: clamp(5.6rem, 18vw, 7.2rem);
+  position: relative;
+  overflow: hidden;
+}
+
+.rv-login-brand img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.rv-login-brand-light { display: block; }
+.rv-login-brand-dark { display: none; }
+:root[data-theme="dark"] .rv-login-brand-light { display: none; }
+:root[data-theme="dark"] .rv-login-brand-dark { display: block; }
+
+.rv-login-heading {
+  text-align: center;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.rv-login-heading h1 {
+  font-family: var(--font-rejuvira-display, var(--font-rejuvira-sans, system-ui));
+  font-size: clamp(1.4rem, 3vw, 1.7rem);
+  font-weight: 700;
+  color: var(--ink-strong, #1a0f30);
+  letter-spacing: -0.01em;
+}
+
+:root[data-theme="dark"] .rv-login-heading h1 {
+  color: #efe5ff;
+}
+
+.rv-login-heading p {
+  font-size: 0.82rem;
+  color: var(--ink-soft, #6a5f7b);
+  line-height: 1.55;
+}
+
+:root[data-theme="dark"] .rv-login-heading p {
+  color: rgba(216, 200, 240, 0.74);
+}
+
+.rv-login-field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.rv-login-field > span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-strong, #1a0f30);
+}
+
+:root[data-theme="dark"] .rv-login-field > span {
+  color: rgba(245, 235, 255, 0.92);
+}
+
+.rv-login-field input {
+  width: 100%;
+  height: 2.85rem;
+  padding-inline: 0.95rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(74, 36, 118, 0.18);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink-strong, #1a0f30);
+  font-size: 0.88rem;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+:root[data-theme="dark"] .rv-login-field input {
+  border-color: rgba(216, 180, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5ecff;
+}
+
+.rv-login-field input:focus {
+  outline: none;
+  border-color: rgba(74, 36, 118, 0.55);
+  box-shadow: 0 0 0 4px rgba(74, 36, 118, 0.12);
+}
+
+:root[data-theme="dark"] .rv-login-field input:focus {
+  border-color: rgba(216, 180, 255, 0.65);
+  box-shadow: 0 0 0 4px rgba(216, 180, 255, 0.16);
+}
+
+.rv-login-password {
+  position: relative;
+}
+
+.rv-login-password input {
+  padding-inline-end: 2.85rem;
+}
+
+.rv-login-password button {
+  position: absolute;
+  inset-inline-end: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.7rem;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft, #6a5f7b);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.rv-login-password button:hover {
+  color: var(--ink-strong, #1a0f30);
+  background: rgba(74, 36, 118, 0.06);
+}
+
+:root[data-theme="dark"] .rv-login-password button:hover {
+  color: #efe5ff;
+  background: rgba(216, 180, 255, 0.1);
+}
+
+.rv-login-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.1rem;
+}
+
+.rv-login-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft, #6a5f7b);
+  user-select: none;
+  cursor: pointer;
+}
+
+.rv-login-remember input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #4a2476;
+  cursor: pointer;
+}
+
+:root[data-theme="dark"] .rv-login-remember {
+  color: rgba(216, 200, 240, 0.8);
+}
+
+.rv-login-hint {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4a2476;
+  text-decoration: none;
+}
+
+:root[data-theme="dark"] .rv-login-hint {
+  color: #d8b4ff;
+}
+
+.rv-login-hint:hover {
+  text-decoration: underline;
+}
+
+.rv-login-error {
+  border-radius: 0.85rem;
+  border: 1px solid rgba(178, 36, 64, 0.25);
+  background: rgba(178, 36, 64, 0.08);
+  color: #8b1c34;
+  font-size: 0.78rem;
+  padding: 0.65rem 0.85rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+:root[data-theme="dark"] .rv-login-error {
+  border-color: rgba(255, 140, 160, 0.35);
+  background: rgba(178, 36, 64, 0.22);
+  color: #ffd2dd;
+}
+
+.rv-login-submit {
+  margin-top: 0.4rem;
+  height: 2.95rem;
+  border-radius: 0.95rem;
+  border: 0;
+  background: linear-gradient(135deg, #4a2476 0%, #7b45a5 100%);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  box-shadow: 0 18px 40px rgba(74, 36, 118, 0.28);
+  transition: transform 200ms ease, box-shadow 200ms ease, opacity 200ms ease;
+}
+
+.rv-login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 50px rgba(74, 36, 118, 0.36);
+}
+
+.rv-login-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
 }

@@ -4,33 +4,22 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 
-/**
- * CinematicIntro — premium full‑viewport brand reveal
- * Shows a polished hero sequence with brand logo + texture overlay,
- * then auto‑collapses so the main hero beneath takes over.
- */
 type CinematicIntroProps = {
   logoSrc: string;
   logoAlt: string;
-  brandName: string;
-  skinTextureSrc: string;
-  /** Reserved for future intro sequences */
-  clientImageSrc?: string;
+  /** Kept for backwards compatibility — not rendered. */
+  brandName?: string;
+  /** Kept for backwards compatibility — not rendered. */
+  skinTextureSrc?: string;
 };
 
-export function CinematicIntro({
-  logoSrc,
-  logoAlt,
-  brandName,
-}: CinematicIntroProps) {
+const PHRASES_AR = ["اعتني بجمالكِ", "نحن هنا لخدمتكِ"];
+const PHRASES_EN = ["Care for your beauty", "We are here for you"];
+
+export function CinematicIntro({ logoSrc, logoAlt }: CinematicIntroProps) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [phase, setPhase] = useState<"idle" | "exit">("idle");
-
-  const closeIntro = () => {
-    setPhase("exit");
-    window.setTimeout(() => setVisible(false), 520);
-  };
+  const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
 
   useEffect(() => {
     setMounted(true);
@@ -40,25 +29,27 @@ export function CinematicIntro({
       if (win.__rejuviraIntroPlayed) return;
       win.__rejuviraIntroPlayed = true;
     } catch {
-      /* continue without persistence */
+      /* continue */
     }
 
     setVisible(true);
-    const t1 = setTimeout(() => setPhase("exit"), 5200);
-    const t2 = setTimeout(() => setVisible(false), 5900);
+    const enterTimer = window.setTimeout(() => setPhase("idle"), 120);
+    const exitTimer = window.setTimeout(() => setPhase("exit"), 2600);
+    const hideTimer = window.setTimeout(() => setVisible(false), 3300);
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
+      window.clearTimeout(enterTimer);
+      window.clearTimeout(exitTimer);
+      window.clearTimeout(hideTimer);
     };
   }, []);
 
   useEffect(() => {
     if (!visible) return;
-    const previousOverflow = document.body.style.overflow;
+    const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previous;
     };
   }, [visible]);
 
@@ -67,55 +58,31 @@ export function CinematicIntro({
   return createPortal(
     <div
       role="presentation"
-      className={`rv-cinematic-intro fixed inset-0 z-[2147483000] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-        phase === "exit"
-            ? "opacity-0 [--scale:1.04] scale-[var(--scale)] blur-sm"
-            : "opacity-100 scale-100"
-      }`}
+      data-phase={phase}
+      className="rv-intro"
+      onClick={() => setPhase("exit")}
     >
-      <button type="button" className="rv-cinematic-skip" onClick={closeIntro}>
-        <span className="lang-ar">تخطي</span>
-        <span className="lang-en">Skip</span>
-      </button>
-
-      {/* Subtle light bloom */}
-      <div className="absolute top-1/2 left-1/2 h-[46vh] w-[62vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.72),transparent_68%)]" />
-
-      {/* Main content */}
-      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
-        {/* Brand logo */}
-        <div className="relative h-48 w-80 overflow-visible rounded-none bg-transparent sm:h-56 sm:w-96">
+      <div className="rv-intro-stage">
+        <div className="rv-intro-logo">
           <Image
             src={logoSrc}
             alt={logoAlt}
             fill
-            className="object-contain"
+            sizes="(max-width: 768px) 240px, 320px"
             priority
-            sizes="208px"
+            className="object-contain"
           />
         </div>
-
-        {/* Brand name */}
-        <div className="text-center">
-          <p className="font-serif text-3xl font-semibold tracking-[-0.04em] text-[#4a2476] sm:text-4xl lg:text-5xl">
-            {brandName}
-          </p>
-          <p className="mt-3 text-[11px] tracking-[0.22em] text-[#4a2476]/68 uppercase">
-            <span className="lang-ar">جراحات تجميلية · جلدية · عناية بالبشرة</span>
-            <span className="lang-en">Aesthetic Surgery · Dermatology · Skin Care</span>
-          </p>
+        <div className="rv-intro-rule" aria-hidden />
+        <div className="rv-intro-words">
+          <span className="lang-ar">{PHRASES_AR[0]}</span>
+          <span className="lang-en">{PHRASES_EN[0]}</span>
+          <span className="rv-intro-dot" aria-hidden>·</span>
+          <span className="lang-ar">{PHRASES_AR[1]}</span>
+          <span className="lang-en">{PHRASES_EN[1]}</span>
         </div>
-
-        {/* Decorative line */}
-        <div className="h-px w-24 bg-gradient-to-r from-transparent via-[#4a2476] to-transparent opacity-30" />
-
-        {/* Tagline */}
-        <p className="max-w-md text-center text-sm leading-relaxed tracking-wide text-[#4a2476]/72">
-          حيث تلتقي الخبرة الطبية مع الجمال الطبيعي
-        </p>
       </div>
     </div>,
     document.body,
   );
 }
-
