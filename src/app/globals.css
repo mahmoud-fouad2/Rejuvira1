@@ -584,8 +584,8 @@ textarea.field-public {
   animation: page-enter 0.6s var(--ease-out) both;
 }
 @keyframes page-enter {
-  from { opacity: 0; translate: 0 30px; }
-  to   { opacity: 1; translate: 0 0; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ── Scroll Progress Bar ─────────────────────────────────── */
@@ -8966,30 +8966,7 @@ html[data-theme="dark"] .rv-v0-pay-card {
 }
 
 /* ── Admin-controlled booking modal + smaller payments ───────────── */
-.rv-booking-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  display: grid;
-  place-items: center;
-  padding: clamp(1rem, 3vw, 2rem);
-}
-
-.rv-booking-backdrop {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(128, 70, 168, 0.28), transparent 36%),
-    rgba(12, 7, 19, 0.58);
-  backdrop-filter: blur(16px);
-}
-
 .rv-booking-card {
-  position: relative;
-  width: min(100%, 44rem);
-  max-height: min(92vh, 48rem);
-  overflow-y: auto;
   border: 1px solid rgba(255,255,255,0.42);
   border-radius: clamp(1.5rem, 3vw, 2.4rem);
   background:
@@ -9615,34 +9592,6 @@ html[data-theme="dark"] ::selection {
   object-fit: contain;
 }
 
-.rv-cinematic-intro {
-  top: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  width: 100dvw !important;
-  height: 100dvh !important;
-  min-height: 100dvh !important;
-  pointer-events: auto;
-  overflow: hidden !important;
-  overscroll-behavior: contain;
-}
-
-.rv-cinematic-skip {
-  position: absolute;
-  top: clamp(1rem, 3vw, 1.7rem);
-  left: clamp(1rem, 3vw, 1.7rem);
-  z-index: 2;
-  border: 1px solid rgba(255,255,255,0.24);
-  border-radius: 999px;
-  background: rgba(255,255,255,0.1);
-  color: #fff;
-  padding: 0.55rem 0.95rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  backdrop-filter: blur(14px);
-}
-
 .rv-mobile-inline-actions {
   display: none;
 }
@@ -10022,45 +9971,11 @@ footer .rv-brand-logo-footer {
   68%, 92% { z-index: 3; opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
 }
 
-.rv-booking-modal {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: 2147482500 !important;
-  display: grid !important;
-  align-items: center !important;
-  justify-items: center !important;
-  place-items: center !important;
-  padding: clamp(1rem, 4vw, 2rem) !important;
-  isolation: isolate;
-}
-
-.rv-booking-backdrop {
-  position: fixed !important;
-  inset: 0 !important;
-  z-index: -1 !important;
-  cursor: pointer;
-}
-
 .rv-booking-card {
-  position: relative !important;
-  z-index: 1 !important;
-  max-height: min(88dvh, 46rem) !important;
-  overflow: auto !important;
-  overscroll-behavior: contain;
-}
-
-.rv-cinematic-intro {
-  background: transparent !important;
-  opacity: 1;
-  backdrop-filter: none !important;
-}
-
-.rv-cinematic-intro::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,0.82), rgba(255,248,240,0.26) 36%, transparent 70%);
-  pointer-events: none;
+  /* Centering & positioning live as inline styles inside the React component
+     so we can guarantee the modal renders at the viewport center regardless
+     of the surrounding CSS cascade. */
+  isolation: isolate;
 }
 
 header .rv-brand-logo,
@@ -10148,11 +10063,6 @@ footer .rv-brand-logo-footer {
     min-height: 2.28rem !important;
   }
 
-  .rv-booking-modal {
-    padding: calc(env(safe-area-inset-top) + 0.8rem) 0.8rem calc(env(safe-area-inset-bottom) + 0.8rem) !important;
-    place-items: center !important;
-  }
-
   .rv-booking-card {
     max-height: calc(100dvh - 1.6rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
   }
@@ -10174,7 +10084,7 @@ footer .rv-brand-logo-footer {
   }
 }
 
-/* ── Cinematic intro (refreshed) ─────────────────────────────────── */
+/* ── Cinematic intro (curtain reveal) ─────────────────────────────── */
 .rv-intro {
   position: fixed !important;
   inset: 0 !important;
@@ -10183,90 +10093,250 @@ footer .rv-brand-logo-footer {
   z-index: 2147483000 !important;
   display: grid !important;
   place-items: center !important;
-  padding: clamp(1rem, 4vw, 2rem);
-  background:
-    radial-gradient(circle at 50% 38%, rgba(255,255,255,0.96), rgba(252,247,236,0.86) 36%, rgba(244,238,228,0.72) 70%, rgba(232,222,206,0.48) 100%);
+  padding: clamp(1rem, 4vw, 2.5rem);
   overflow: hidden !important;
   overscroll-behavior: contain;
   cursor: pointer;
-  transition: opacity 700ms ease, transform 700ms ease;
-  opacity: 1;
-  transform: scale(1);
+  background:
+    radial-gradient(ellipse at 50% 42%, #fbf6ec 0%, #f2e8d4 38%, #e8d8b8 72%, #d9c39a 100%);
+  transition: opacity 720ms cubic-bezier(0.22, 1, 0.36, 1), transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  isolation: isolate;
 }
 
 :root[data-theme="dark"] .rv-intro {
   background:
-    radial-gradient(circle at 50% 38%, rgba(31,16,60,0.96), rgba(20,10,42,0.92) 36%, rgba(10,4,24,0.92) 70%, rgba(6,2,16,0.96) 100%);
-}
-
-.rv-intro[data-phase="enter"] {
-  opacity: 0;
-  transform: scale(0.98);
+    radial-gradient(ellipse at 50% 42%, #1f1040 0%, #150929 38%, #0c0420 72%, #050111 100%);
 }
 
 .rv-intro[data-phase="exit"] {
   opacity: 0;
-  transform: scale(1.03);
+  transform: scale(1.04);
   pointer-events: none;
 }
 
-.rv-intro-stage {
-  position: relative;
-  display: grid;
-  place-items: center;
-  gap: clamp(0.9rem, 2.2vw, 1.4rem);
-  max-width: min(92vw, 36rem);
-  text-align: center;
-  animation: rv-intro-stage-in 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+/* Background accents */
+.rv-intro-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
 }
 
-@keyframes rv-intro-stage-in {
-  0% { opacity: 0; transform: translateY(14px) scale(0.97); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+.rv-intro-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  animation: rv-intro-pulse 6s ease-in-out infinite alternate;
+}
+
+.rv-intro-glow-a {
+  top: 18%;
+  left: 14%;
+  width: 38vmin;
+  height: 38vmin;
+  background: radial-gradient(circle, rgba(123, 69, 165, 0.55), transparent 70%);
+}
+
+.rv-intro-glow-b {
+  bottom: 14%;
+  right: 12%;
+  width: 44vmin;
+  height: 44vmin;
+  background: radial-gradient(circle, rgba(218, 165, 32, 0.42), transparent 70%);
+  animation-delay: 1.6s;
+}
+
+:root[data-theme="dark"] .rv-intro-glow-a {
+  background: radial-gradient(circle, rgba(186, 130, 232, 0.55), transparent 70%);
+}
+
+:root[data-theme="dark"] .rv-intro-glow-b {
+  background: radial-gradient(circle, rgba(232, 184, 90, 0.32), transparent 70%);
+}
+
+@keyframes rv-intro-pulse {
+  0% { transform: scale(0.92); opacity: 0.4; }
+  100% { transform: scale(1.06); opacity: 0.7; }
+}
+
+.rv-intro-grain {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(74, 36, 118, 0.06) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+}
+
+:root[data-theme="dark"] .rv-intro-grain {
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+
+/* Curtains */
+.rv-intro-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 52%;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(74, 36, 118, 0.98) 0%, rgba(48, 22, 86, 0.98) 100%);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
+  transform: translateX(0);
+  transition: transform 1100ms cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+:root[data-theme="dark"] .rv-intro-curtain {
+  background:
+    linear-gradient(180deg, rgba(20, 10, 38, 0.99) 0%, rgba(8, 3, 22, 0.99) 100%);
+}
+
+.rv-intro-curtain-left { left: 0; }
+.rv-intro-curtain-right { right: 0; }
+
+.rv-intro-curtain::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.5rem;
+  background: linear-gradient(90deg, rgba(255, 215, 130, 0.0), rgba(255, 215, 130, 0.42));
+  filter: blur(2px);
+}
+
+.rv-intro-curtain-left::after { right: -0.6rem; }
+.rv-intro-curtain-right::after {
+  left: -0.6rem;
+  background: linear-gradient(270deg, rgba(255, 215, 130, 0.0), rgba(255, 215, 130, 0.42));
+}
+
+.rv-intro[data-phase="logo"] .rv-intro-curtain-left,
+.rv-intro[data-phase="words"] .rv-intro-curtain-left,
+.rv-intro[data-phase="exit"] .rv-intro-curtain-left {
+  transform: translateX(-102%);
+}
+
+.rv-intro[data-phase="logo"] .rv-intro-curtain-right,
+.rv-intro[data-phase="words"] .rv-intro-curtain-right,
+.rv-intro[data-phase="exit"] .rv-intro-curtain-right {
+  transform: translateX(102%);
+}
+
+/* Stage */
+.rv-intro-stage {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  gap: clamp(0.95rem, 2.4vw, 1.6rem);
+  max-width: min(94vw, 42rem);
+  text-align: center;
 }
 
 .rv-intro-logo {
   position: relative;
-  width: clamp(14rem, 38vw, 22rem);
-  height: clamp(8rem, 22vw, 12.5rem);
-  filter: drop-shadow(0 24px 60px rgba(74,36,118,0.18));
+  width: clamp(16rem, 40vw, 24rem);
+  height: clamp(9rem, 22vw, 13rem);
+  filter: drop-shadow(0 30px 70px rgba(74, 36, 118, 0.28));
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+  transition:
+    opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root[data-theme="dark"] .rv-intro-logo {
-  filter: drop-shadow(0 24px 60px rgba(123,69,165,0.34)) brightness(1.12);
+  filter: drop-shadow(0 30px 70px rgba(123, 69, 165, 0.5)) brightness(1.18);
+}
+
+.rv-intro[data-phase="logo"] .rv-intro-logo,
+.rv-intro[data-phase="words"] .rv-intro-logo,
+.rv-intro[data-phase="exit"] .rv-intro-logo {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .rv-intro-rule {
-  width: clamp(4.5rem, 14vw, 8.5rem);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74,36,118,0.55), transparent);
-  opacity: 0.85;
+  width: 0;
+  height: 1.5px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(74, 36, 118, 0.7) 40%,
+    rgba(218, 165, 32, 0.9) 50%,
+    rgba(74, 36, 118, 0.7) 60%,
+    transparent
+  );
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1) 200ms;
 }
 
 :root[data-theme="dark"] .rv-intro-rule {
-  background: linear-gradient(90deg, transparent, rgba(216,180,255,0.55), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(216, 180, 255, 0.7) 40%,
+    rgba(232, 184, 90, 0.9) 50%,
+    rgba(216, 180, 255, 0.7) 60%,
+    transparent
+  );
 }
 
-.rv-intro-words {
+.rv-intro[data-phase="words"] .rv-intro-rule,
+.rv-intro[data-phase="exit"] .rv-intro-rule {
+  width: clamp(7rem, 22vw, 14rem);
+}
+
+.rv-intro-line {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: clamp(0.55rem, 1.8vw, 1rem);
+  gap: clamp(0.45rem, 1.6vw, 0.85rem);
   font-family: var(--font-rejuvira-display, var(--font-rejuvira-sans, system-ui));
   color: #4a2476;
-  font-size: clamp(0.95rem, 1.6vw, 1.18rem);
+  font-size: clamp(1rem, 1.8vw, 1.32rem);
   font-weight: 600;
   letter-spacing: -0.005em;
+  line-height: 1.55;
 }
 
-:root[data-theme="dark"] .rv-intro-words {
+:root[data-theme="dark"] .rv-intro-line {
   color: #efe5ff;
 }
 
-.rv-intro-words .rv-intro-dot {
-  opacity: 0.55;
-  font-weight: 400;
+.rv-intro-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rv-word-delay, 0ms);
+}
+
+.rv-intro[data-phase="words"] .rv-intro-word,
+.rv-intro[data-phase="exit"] .rv-intro-word {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv-intro,
+  .rv-intro-curtain,
+  .rv-intro-logo,
+  .rv-intro-rule,
+  .rv-intro-word,
+  .rv-intro-glow {
+    animation: none !important;
+    transition: opacity 200ms ease !important;
+  }
 }
 
 /* ── Login screen (clean, centered) ───────────────────────────────── */
@@ -10317,20 +10387,23 @@ footer .rv-brand-logo-footer {
 }
 
 .rv-login-brand {
-  display: grid;
-  place-items: center;
+  display: block;
   margin-inline: auto;
-  margin-bottom: 0.4rem;
-  width: clamp(11rem, 60%, 14.5rem);
-  height: clamp(5.6rem, 18vw, 7.2rem);
+  margin-bottom: -0.4rem;
+  margin-top: -0.6rem;
+  width: clamp(10rem, 60%, 13.5rem);
   position: relative;
-  overflow: hidden;
+  line-height: 0;
+  text-align: center;
 }
 
 .rv-login-brand img {
+  display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
+  transform: scale(1.55);
+  transform-origin: center center;
 }
 
 .rv-login-brand-light { display: block; }

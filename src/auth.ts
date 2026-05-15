@@ -17,26 +17,36 @@ function resolveUserRole(value: unknown): UserRole {
 }
 
 function readBootstrapCredentials() {
-  const email = process.env.ADMIN_BOOTSTRAP_EMAIL?.trim().toLowerCase()
-    ?? process.env.ADMIN_SEED_EMAIL?.trim().toLowerCase();
-  const password = process.env.ADMIN_BOOTSTRAP_PASSWORD?.trim()
-    ?? process.env.ADMIN_SEED_PASSWORD?.trim();
-  const name = process.env.ADMIN_BOOTSTRAP_NAME?.trim()
-    ?? process.env.ADMIN_SEED_NAME?.trim()
-    ?? "Rejuvira Super Admin";
+  const email = (
+    process.env.ADMIN_BOOTSTRAP_EMAIL ?? process.env.ADMIN_SEED_EMAIL ?? ""
+  )
+    .trim()
+    .toLowerCase();
+  const password = (
+    process.env.ADMIN_BOOTSTRAP_PASSWORD ?? process.env.ADMIN_SEED_PASSWORD ?? ""
+  ).trim();
+  const name = (
+    process.env.ADMIN_BOOTSTRAP_NAME ?? process.env.ADMIN_SEED_NAME ?? "Rejuvira Super Admin"
+  ).trim();
 
   if (!email || !password) return null;
   return { email, password, name };
 }
 
-async function ensureBootstrapUser(email: string, password: string) {
+async function tryBootstrapLogin(email: string, password: string) {
   const bootstrap = readBootstrapCredentials();
-  if (!bootstrap) return null;
+  if (!bootstrap) {
+    console.warn(
+      "[auth] No ADMIN_BOOTSTRAP_EMAIL/ADMIN_BOOTSTRAP_PASSWORD configured.",
+    );
+    return null;
+  }
+
   if (bootstrap.email !== email.trim().toLowerCase()) return null;
   if (bootstrap.password !== password) return null;
 
-  const hashedPassword = await hash(bootstrap.password, 12);
   try {
+    const hashedPassword = await hash(bootstrap.password, 12);
     const user = await prisma.user.upsert({
       where: { email: bootstrap.email },
       update: {
@@ -59,8 +69,16 @@ async function ensureBootstrapUser(email: string, password: string) {
       email: user.email,
       role: user.role,
     };
-  } catch {
-    return null;
+  } catch (error) {
+    console.error("[auth] Bootstrap upsert failed, signing in without DB record", error);
+    // Fall back to an in-memory session so admin can still sign in even when
+    // the database is unreachable.
+    return {
+      id: `bootstrap:${bootstrap.email}`,
+      name: bootstrap.name,
+      email: bootstrap.email,
+      role: UserRole.SUPER_ADMIN,
+    };
   }
 }
 
@@ -128,10 +146,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (user) {
             const isValidPassword = await compare(password, user.hashedPassword);
             if (isValidPassword) {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { lastLoginAt: new Date() },
-              });
+              await prisma.user
+                .update({
+                  where: { id: user.id },
+                  data: { lastLoginAt: new Date() },
+                })
+                .catch((err) => console.warn("[auth] lastLoginAt update failed", err));
 
               return {
                 id: user.id,
@@ -140,12 +160,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 role: user.role,
               };
             }
+            console.warn("[auth] Password mismatch for", email);
+          } else {
+            console.warn("[auth] No DB user for", email, "— attempting bootstrap");
           }
         } catch (error) {
-          console.error("[auth] DB lookup failed", error);
+          console.error("[auth] DB lookup failed, attempting bootstrap", error);
         }
 
-        return ensureBootstrapUser(email, password);
+        return tryBootstrapLogin(email, password);
       },
     }),
   ],

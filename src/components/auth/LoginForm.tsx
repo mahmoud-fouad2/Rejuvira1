@@ -37,18 +37,20 @@ export function LoginForm() {
         <Image
           src="/media/brand/logo-light.png"
           alt="Rejuvira Center"
-          width={220}
-          height={140}
+          width={560}
+          height={560}
           className="rv-login-brand-light"
           priority
+          unoptimized
         />
         <Image
           src="/media/brand/logo-dark.png"
           alt="Rejuvira Center"
-          width={220}
-          height={140}
+          width={560}
+          height={560}
           className="rv-login-brand-dark"
           priority
+          unoptimized
         />
       </Link>
 

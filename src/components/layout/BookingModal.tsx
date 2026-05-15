@@ -8,8 +8,19 @@ import type { ServiceRecord } from "@/lib/content-repository";
 
 function CalendarIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden
+    >
+      <path
+        d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -44,75 +55,152 @@ export function BookingModal({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousBodyPosition = document.body.style.position;
-    const previousBodyWidth = document.body.style.width;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.position = "relative";
-    document.body.style.width = "100%";
+    const html = document.documentElement;
+    const body = document.body;
+    const scrollY = window.scrollY;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+    const previousBodyPosition = body.style.position;
+    const previousBodyTop = body.style.top;
+    const previousBodyWidth = body.style.width;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousBodyOverflow;
-      document.body.style.position = previousBodyPosition;
-      document.body.style.width = previousBodyWidth;
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
+      body.style.position = previousBodyPosition;
+      body.style.top = previousBodyTop;
+      body.style.width = previousBodyWidth;
       window.removeEventListener("keydown", onKeyDown);
+      window.scrollTo(0, scrollY);
     };
   }, [open]);
 
   return (
     <>
-      <button type="button" className={buttonClassName} onClick={() => setOpen(true)}>
-        <span className="lang-ar">{labelAr ?? (compactLabel ? "احجزي" : "احجزي موعدك")}</span>
-        <span className="lang-en">{labelEn ?? (compactLabel ? "Book" : "Book Now")}</span>
+      <button
+        type="button"
+        className={buttonClassName}
+        onClick={() => setOpen(true)}
+      >
+        <span className="lang-ar">
+          {labelAr ?? (compactLabel ? "احجزي" : "احجزي موعدك")}
+        </span>
+        <span className="lang-en">
+          {labelEn ?? (compactLabel ? "Book" : "Book Now")}
+        </span>
         {buttonClassName === "rv-v0-book" ? <CalendarIcon /> : null}
       </button>
-      {open && mounted ? createPortal(
-        <div className="rv-booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-          <button
-            type="button"
-            className="rv-booking-backdrop"
-            aria-label="Close booking form"
-            onClick={() => setOpen(false)}
-          />
-          <div className="rv-booking-card">
-            <div className="rv-booking-head">
-              <span className="rv-v0-pill">
-                <span className="lang-ar">حجز موعد</span>
-                <span className="lang-en">Appointment booking</span>
-              </span>
+      {open && mounted
+        ? createPortal(
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={titleId}
+              className="rv-booking-modal"
+              style={{
+                position: "fixed",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                inset: 0,
+                width: "100vw",
+                height: "100dvh",
+                zIndex: 2147483600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "clamp(0.75rem, 3vw, 1.5rem)",
+                overflow: "auto",
+                overscrollBehavior: "contain",
+              }}
+            >
               <button
                 type="button"
-                className="rv-booking-close"
+                className="rv-booking-backdrop"
+                aria-label="Close booking form"
                 onClick={() => setOpen(false)}
-                aria-label="Close"
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  inset: 0,
+                  width: "100vw",
+                  height: "100dvh",
+                  border: 0,
+                  cursor: "pointer",
+                  background:
+                    "radial-gradient(circle at 50% 20%, rgba(128, 70, 168, 0.32), transparent 36%), rgba(12, 7, 19, 0.7)",
+                  backdropFilter: "blur(18px)",
+                  WebkitBackdropFilter: "blur(18px)",
+                  zIndex: 0,
+                  padding: 0,
+                  margin: 0,
+                }}
+              />
+              <div
+                className="rv-booking-card"
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  width: "min(100%, 44rem)",
+                  maxHeight: "min(88dvh, 46rem)",
+                  margin: "auto",
+                  overflowY: "auto",
+                  overscrollBehavior: "contain",
+                }}
               >
-                ×
-              </button>
-            </div>
-            <h2 id={titleId} className="rv-booking-title">
-              <span className="lang-ar">احجزي موعدك بخطوات بسيطة، وسيتواصل معك فريق ريجوفيرا لتأكيد التفاصيل.</span>
-              <span className="lang-en">Book in a few simple steps and our team will confirm the details.</span>
-            </h2>
-            <p className="rv-booking-lead">
-              <span className="lang-ar">اكتبي الاسم ورقم الجوال واختاري الخدمة الأقرب لاحتياجك.</span>
-              <span className="lang-en">Enter your name, phone number, and the service you are interested in.</span>
-            </p>
-            <ContactForm
-              services={services}
-              recaptchaSiteKey={recaptchaSiteKey}
-              compact
-              source={source}
-              submitLabelAr="إرسال طلب الحجز"
-              submitLabelEn="Send booking request"
-              formClassName="rv-booking-form"
-            />
-          </div>
-        </div>,
-        document.body,
-      ) : null}
+                <div className="rv-booking-head">
+                  <span className="rv-v0-pill">
+                    <span className="lang-ar">حجز موعد</span>
+                    <span className="lang-en">Appointment booking</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="rv-booking-close"
+                    onClick={() => setOpen(false)}
+                    aria-label="Close"
+                  >
+                    ×
+                  </button>
+                </div>
+                <h2 id={titleId} className="rv-booking-title">
+                  <span className="lang-ar">
+                    احجزي موعدك بخطوات بسيطة، وسيتواصل معك فريق ريجوفيرا لتأكيد التفاصيل.
+                  </span>
+                  <span className="lang-en">
+                    Book in a few simple steps and our team will confirm the details.
+                  </span>
+                </h2>
+                <p className="rv-booking-lead">
+                  <span className="lang-ar">
+                    اكتبي الاسم ورقم الجوال واختاري الخدمة الأقرب لاحتياجك.
+                  </span>
+                  <span className="lang-en">
+                    Enter your name, phone number, and the service you are interested in.
+                  </span>
+                </p>
+                <ContactForm
+                  services={services}
+                  recaptchaSiteKey={recaptchaSiteKey}
+                  compact
+                  source={source}
+                  submitLabelAr="إرسال طلب الحجز"
+                  submitLabelEn="Send booking request"
+                  formClassName="rv-booking-form"
+                />
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
