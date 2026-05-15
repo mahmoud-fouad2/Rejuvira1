@@ -149,9 +149,10 @@ export default async function DoctorsPage() {
                 </p>
                 <Link
                   href={`/doctors/${doctor.slug}`}
-                  className="btn-ghost mt-8 inline-flex"
+                  className="btn-secondary mt-8 inline-flex"
                 >
-                  افتحي ملف الطبيب
+                  <span className="lang-ar">افتحي ملف الطبيب</span>
+                  <span className="lang-en">View doctor profile</span>
                 </Link>
               </div>
             </article>

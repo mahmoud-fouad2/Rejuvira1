@@ -373,7 +373,7 @@ export default async function ContactPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
               <Link
                 href={`https://wa.me/${runtimeSettings.contact.whatsapp.replace(/\D/g, "")}`}
-                className="text-ink absolute inset-x-5 bottom-5 rounded-full bg-white px-5 py-3 text-center text-sm font-semibold transition-transform hover:-translate-y-0.5"
+                className="absolute inset-x-5 bottom-5 rounded-full bg-white/90 text-[#2a1744] px-5 py-3 text-center text-sm font-semibold backdrop-blur-sm transition-transform hover:-translate-y-0.5 dark:bg-white/85"
               >
                 <span className="lang-ar">واتساب مباشر</span>
                 <span className="lang-en">Direct WhatsApp</span>

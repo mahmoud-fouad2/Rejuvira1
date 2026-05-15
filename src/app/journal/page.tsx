@@ -62,9 +62,7 @@ export default async function JournalPage() {
               </div>
             </article>
             <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-              <p className="text-ink-faint font-sans text-[10px] tracking-[0.24em] uppercase">
-                {featuredPost.category}
-              </p>
+              <p className="eyebrow">{featuredPost.category}</p>
               <h2 className="balanced-text text-ink-strong mt-5 font-serif text-5xl tracking-[-0.02em]">
                 {featuredPost.title}
               </h2>
@@ -90,7 +88,7 @@ export default async function JournalPage() {
           {restPosts.map((post) => (
             <article
               key={post.id}
-              className="surface-panel overflow-hidden rounded-[2.5rem] shadow-sm"
+              className="surface-panel overflow-hidden rounded-[2.5rem] shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
             >
               <div className="relative h-64">
                 <Image
@@ -103,9 +101,7 @@ export default async function JournalPage() {
                 <div className="from-ink-strong/50 absolute inset-0 z-10 bg-gradient-to-t to-transparent mix-blend-multiply" />
               </div>
               <div className="p-8">
-                <p className="text-ink-faint font-sans text-[10px] tracking-[0.24em] uppercase">
-                  {post.category}
-                </p>
+                <p className="eyebrow">{post.category}</p>
                 <h2 className="text-ink-strong mt-4 font-serif text-3xl tracking-[-0.02em]">
                   {post.title}
                 </h2>

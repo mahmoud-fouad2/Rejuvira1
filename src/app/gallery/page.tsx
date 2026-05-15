@@ -29,7 +29,7 @@ export default async function GalleryPage() {
       <div className="public-page-atmosphere" aria-hidden />
       <SiteHeader />
 
-      <main className="section-shell flex flex-col gap-20 pt-8 pb-24">
+      <main className="section-shell flex flex-col gap-28 pt-8 pb-32">
         {/* ── PAGE HERO ──────────────────────────────────── */}
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
           <article className="surface-panel flex flex-col justify-between rounded-[2.75rem] p-8 lg:p-12">
@@ -48,27 +48,27 @@ export default async function GalleryPage() {
               </p>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
-                <p className="text-ink-soft text-sm">
+              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
+                <p className="eyebrow">
                   <span className="lang-ar">حالات موثقة</span><span className="lang-en">Documented Cases</span>
                 </p>
-                <p className="text-ink mt-2 font-serif text-3xl">
+                <p className="text-ink mt-3 font-serif text-3xl">
                   {items.length}+
                 </p>
               </div>
-              <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
-                <p className="text-ink-soft text-sm">
+              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
+                <p className="eyebrow">
                   <span className="lang-ar">أقسام العناية</span><span className="lang-en">Care Categories</span>
                 </p>
-                <p className="text-ink mt-2 font-serif text-3xl">
+                <p className="text-ink mt-3 font-serif text-3xl">
                   {categories.length}
                 </p>
               </div>
-              <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
-                <p className="text-ink-soft text-sm">
+              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
+                <p className="eyebrow">
                   <span className="lang-ar">نسبة الرضا</span><span className="lang-en">Satisfaction Rate</span>
                 </p>
-                <p className="text-ink mt-2 font-serif text-3xl">97%</p>
+                <p className="text-ink mt-3 font-serif text-3xl">97%</p>
               </div>
             </div>
           </article>
@@ -146,7 +146,7 @@ export default async function GalleryPage() {
             {items.map((item) => (
               <article
                 key={item.id}
-                className="surface-panel overflow-hidden rounded-[2.5rem]"
+                className="surface-panel overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
               >
                 <div className="grid grid-cols-2 gap-3 p-4">
                   <div className="relative overflow-hidden rounded-[1.75rem]">

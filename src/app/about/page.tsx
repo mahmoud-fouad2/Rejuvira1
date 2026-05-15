@@ -102,7 +102,7 @@ export default async function AboutPage() {
             VISION + MISSION
         ════════════════════════════════════════ */}
         <section className="grid gap-6 lg:grid-cols-2">
-          <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm lg:p-12">
+          <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-0.5 lg:p-12">
             <p className="eyebrow text-ink-soft">الرؤية</p>
             <h2 className="balanced-text text-ink-strong mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
               رؤيتنا: تقديم رعاية واضحة تقود إلى قرار علاجي أدق.
@@ -112,7 +112,7 @@ export default async function AboutPage() {
               غير الجراحية، مع محتوى يشرح الخيارات المتاحة دون مبالغة.
             </p>
           </article>
-          <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm lg:p-12">
+          <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-0.5 lg:p-12">
             <p className="eyebrow text-ink-soft">الرسالة</p>
             <h2 className="balanced-text text-ink-strong mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
               مهمتنا: رعاية حقيقية لا تكتفي بالمظهر.
@@ -139,7 +139,7 @@ export default async function AboutPage() {
             {coreValues.map((value) => (
               <article
                 key={value.eyebrow}
-                className="surface-panel rounded-[2rem] p-8 shadow-sm"
+                className="surface-panel rounded-[2rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(74,36,118,0.1)]"
               >
                 <p className="eyebrow">{value.eyebrow}</p>
                 <h3 className="text-ink-strong mt-5 font-serif text-2xl tracking-[-0.02em]">

@@ -20,6 +20,7 @@ const navLinks = [
   { href: "/doctors", labelAr: "أطباؤنا", labelEn: "Doctors" },
   { href: "/devices", labelAr: "أجهزتنا", labelEn: "Devices" },
   { href: "/gallery", labelAr: "معرض الصور", labelEn: "Gallery" },
+  { href: "/journal", labelAr: "المجلة", labelEn: "Journal" },
   { href: "/about", labelAr: "من نحن", labelEn: "About" },
   { href: "/contact", labelAr: "تواصلي معنا", labelEn: "Contact" },
 ] as const;
@@ -119,7 +120,7 @@ export async function SiteHeader() {
               doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
               devices={publishedDevices.length > 0 ? publishedDevices : devices}
             />
-            {(["/doctors", "/devices", "/gallery", "/about", "/contact"] as const).map((href) => {
+            {(["/doctors", "/devices", "/gallery", "/journal", "/about", "/contact"] as const).map((href) => {
               const link = linkByHref[href];
               return (
                 <Link key={href} href={href} className="rv-v0-nav-link">
