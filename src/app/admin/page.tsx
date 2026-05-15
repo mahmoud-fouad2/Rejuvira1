@@ -8,9 +8,9 @@ import { getDashboardSnapshot } from "@/lib/content-repository";
 import { adminModules, heroMetrics } from "@/lib/site-content";
 
 const readinessCards = [
-  { label: "ملفات الأطباء", value: "جاهزة للمراجعة والتحديث داخل اللوحة" },
-  { label: "مكتبة الخدمات", value: "مرتّبة لتسريع التحرير والمراجعة" },
-  { label: "الأصول والميديا", value: "مدعومة محليًا لهوية بصرية متسقة" },
+  { label: "المحتوى", value: "الأطباء، الخدمات، الأجهزة، المجلة" },
+  { label: "الصور", value: "الميديا والمعرض وصور الصفحات" },
+  { label: "التشغيل", value: "CRM، السجلات، الصيانة، المستخدمون" },
 ] as const;
 
 const pipelineStages = ["جديد", "تم التواصل", "متابعة", "محجوز", "مغلق"] as const;
@@ -42,182 +42,167 @@ export default async function AdminPage() {
 
   return (
     <>
-      <section className="surface-panel relative overflow-hidden rounded-[1.75rem] p-8 shadow-sm lg:p-11">
-        <div className="pointer-events-none absolute -left-32 top-0 h-72 w-72 rounded-full bg-accent/12 blur-3xl" />
-        <div className="pointer-events-none absolute -right-20 bottom-0 h-56 w-56 rounded-full bg-purple-mid/10 blur-3xl" />
+      <section className="admin-dashboard-hero surface-panel relative overflow-hidden rounded-[1.5rem] p-5 shadow-sm lg:p-7">
+        <div className="pointer-events-none absolute -start-32 top-0 h-72 w-72 rounded-full bg-accent/12 blur-3xl" />
+        <div className="pointer-events-none absolute -end-24 bottom-0 h-64 w-64 rounded-full bg-purple-mid/10 blur-3xl" />
 
-        <div className="relative flex flex-col gap-10 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-strong px-4 py-1.5 text-[11px] font-medium text-ink-soft shadow-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_12px_oklch(52%_0.11_195/0.55)]" />
-              اتصال مشفّر · جلسة إدارية آمنة
-            </div>
-            <p className="text-ink-faint mt-6 text-[10px] font-medium uppercase tracking-[0.26em]">لوحة التحكم</p>
-            <h1 className="text-ink-strong mt-3 text-4xl font-semibold leading-[1.12] tracking-tight sm:text-5xl">
-              مركز تحكّم واحد للمحتوى الطبي والتجربة الرقمية.
-            </h1>
-            <p className="text-ink-soft mt-5 max-w-2xl text-base leading-8 sm:text-lg">
-              رؤية موحّدة للأطباء والخدمات والطلبات، بهوية بصرية هادئة تعكس جودة الرعاية وتسهّل القرار اليومي.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-2">
-              <span className="border-line bg-surface text-ink-soft inline-flex items-center gap-2 rounded-full border px-5 py-2 text-sm font-medium shadow-sm">
-                <span className="text-ink-strong">{session?.user?.name ?? session?.user?.email ?? "جلسة نشطة"}</span>
+        <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] xl:items-start">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="admin-status-pill">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
+                جلسة نشطة
               </span>
+              <span className="admin-status-pill">
+                {session?.user?.name ?? session?.user?.email ?? "Super Admin"}
+              </span>
+            </div>
+            <h1 className="mt-5 max-w-3xl text-3xl font-semibold leading-[1.12] tracking-tight text-ink-strong sm:text-4xl lg:text-5xl">
+              لوحة تشغيل واضحة للمحتوى والطلبات والصور
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-ink-soft sm:text-base">
+              ابدأ من الطلبات، أو حدّث محتوى الموقع، أو ارفع الصور من الميديا بدون البحث داخل صفحات طويلة.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
               {healthPills.map((pill) => (
                 <span
                   key={pill.key}
                   title={pill.detail ?? ""}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold ${
                     pill.state
-                      ? "bg-emerald/10 text-emerald border border-emerald/25"
-                      : "bg-burgundy/10 text-burgundy border border-burgundy/25"
+                      ? "border-emerald/25 bg-emerald/10 text-emerald"
+                      : "border-burgundy/25 bg-burgundy/10 text-burgundy"
                   }`}
                 >
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      pill.state ? "bg-emerald" : "bg-burgundy"
-                    }`}
-                  />
-                  {pill.key} {pill.state ? "OK" : "ERR"}
+                  <span className={`h-1.5 w-1.5 rounded-full ${pill.state ? "bg-emerald" : "bg-burgundy"}`} />
+                  {pill.key}
                 </span>
               ))}
             </div>
           </div>
-          <div className="grid w-full gap-3 sm:grid-cols-3 xl:max-w-md">
+
+          <div className="grid gap-3">
             {heroMetrics.map((metric) => (
-              <div
-                key={metric.label}
-                className="border-line relative overflow-hidden rounded-2xl border bg-surface/90 px-5 py-5 shadow-sm"
-              >
-                <span className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-l from-accent via-purple-mid/60 to-transparent opacity-80" />
-                <p className="text-ink-strong text-3xl font-semibold tabular-nums tracking-tight sm:text-4xl">{metric.value}</p>
-                <p className="text-ink-soft mt-3 text-[10px] font-medium uppercase tracking-[0.14em]">{metric.label}</p>
+              <div key={metric.label} className="admin-mini-module">
+                <span className="text-lg font-semibold text-ink-strong">{metric.value}</span>
+                <span className="text-xs text-ink-soft">{metric.label}</span>
               </div>
             ))}
           </div>
         </div>
-
-        <div className="relative mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {(
-            [
-              { label: "الأطباء", value: snapshot.doctorCount, hint: "ملفات عامة" },
-              { label: "الخدمات", value: snapshot.serviceCount, hint: "بطاقات الخدمة" },
-              { label: "الطلبات", value: snapshot.leadCount, hint: "CRM" },
-              { label: "الأجهزة", value: snapshot.deviceCount, hint: "المعدات" },
-            ] as const
-          ).map((row) => (
-            <div
-              key={row.label}
-              className="border-line group relative overflow-hidden rounded-2xl border bg-gradient-to-br from-surface to-surface-strong p-6 shadow-sm transition hover:border-accent/25"
-            >
-              <span className="absolute end-3 top-3 h-8 w-8 rounded-full bg-accent-soft/50 opacity-0 transition group-hover:opacity-100" />
-              <p className="text-ink-soft text-sm font-medium">{row.label}</p>
-              <p className="text-ink-strong mt-2 text-4xl font-semibold tabular-nums">{row.value}</p>
-              <p className="text-ink-faint mt-2 text-xs">{row.hint}</p>
-            </div>
-          ))}
-        </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <article className="surface-panel relative rounded-[1.75rem] p-8 shadow-sm lg:p-10">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">حركة الطلبات</p>
-              <h2 className="text-ink-strong mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">مسار المريض الإداري</h2>
-            </div>
-            <span className="rounded-full border border-accent/30 bg-accent-soft/40 px-4 py-1.5 text-[11px] font-semibold text-ink">
-              متابعة مرحلية
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {(
+          [
+            { label: "الأطباء", value: snapshot.doctorCount, href: "/admin/doctors" },
+            { label: "الخدمات", value: snapshot.serviceCount, href: "/admin/services" },
+            { label: "الطلبات", value: snapshot.leadCount, href: "/admin/crm" },
+            { label: "الأجهزة", value: snapshot.deviceCount, href: "/admin/devices" },
+          ] as const
+        ).map((row) => (
+          <Link key={row.label} href={row.href as Route} className="admin-stat-card">
+            <span className="text-sm font-medium text-ink-soft">{row.label}</span>
+            <strong className="mt-2 block text-4xl font-semibold tabular-nums text-ink-strong">
+              {row.value}
+            </strong>
+            <span className="mt-3 inline-flex text-xs font-semibold text-accent">
+              إدارة القسم ←
             </span>
+          </Link>
+        ))}
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.65fr)]">
+        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">CRM Pipeline</p>
+              <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">
+                مسار الطلبات
+              </h2>
+            </div>
+            <Link href={"/admin/crm" as Route} className="admin-link-pill">
+              فتح CRM
+            </Link>
           </div>
 
-          <div className="relative mt-10">
-            <div
-              className="pointer-events-none absolute start-8 end-8 top-7 hidden h-px bg-gradient-to-l from-transparent via-line to-transparent md:block"
-              aria-hidden
-            />
-            <div className="grid gap-4 md:grid-cols-5">
-              {pipelineStages.map((stage, index) => (
-                <div
-                  key={stage}
-                  className="border-line relative rounded-2xl border bg-surface/95 p-5 text-center shadow-sm md:text-start"
-                >
-                  <p className="text-ink-faint font-mono text-[10px] tracking-[0.18em]">0{index + 1}</p>
-                  <p className="text-ink-strong mt-3 text-sm font-semibold">{stage}</p>
-                  <span className="mx-auto mt-4 flex h-2.5 w-2.5 rounded-full border-2 border-line bg-surface md:mx-0" />
-                </div>
-              ))}
-            </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-5">
+            {pipelineStages.map((stage, index) => (
+              <div key={stage} className="admin-pipeline-step">
+                <span className="text-[10px] font-semibold text-ink-faint">0{index + 1}</span>
+                <span className="mt-2 block text-sm font-semibold text-ink-strong">{stage}</span>
+              </div>
+            ))}
           </div>
         </article>
 
-        <article className="surface-panel rounded-[1.75rem] p-8 shadow-sm lg:p-10">
-          <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">جاهزية المحتوى</p>
-          <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">ملخص سريع</h2>
-          <div className="mt-8 grid gap-3">
+        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
+            Work Areas
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">
+            مناطق العمل
+          </h2>
+          <div className="mt-5 grid gap-3">
             {readinessCards.map((card) => (
-              <div key={card.label} className="border-line rounded-2xl border bg-surface/90 px-4 py-4 shadow-sm">
-                <p className="text-ink-soft text-xs font-semibold">{card.label}</p>
-                <p className="text-ink-strong mt-2 text-sm font-medium leading-relaxed">{card.value}</p>
+              <div key={card.label} className="admin-compact-row">
+                <span className="text-sm font-semibold text-ink-strong">{card.label}</span>
+                <span className="text-xs text-ink-soft">{card.value}</span>
               </div>
             ))}
           </div>
         </article>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-2">
-        <article className="surface-panel rounded-[1.75rem] p-8 shadow-sm">
-          <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">Analytics</p>
-          <h2 className="text-ink-strong mt-2 text-2xl font-semibold tracking-tight">الصفحات الأكثر زيارة</h2>
-          <div className="mt-6 grid gap-3">
+      <section className="grid gap-5 xl:grid-cols-2">
+        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">Analytics</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">الصفحات الأكثر زيارة</h2>
+          <div className="mt-5 grid gap-3">
             {(topPages.length > 0 ? topPages : [["لا توجد بيانات بعد", 0] as const]).map(([path, count]) => (
-              <div key={path} className="border-line flex items-center justify-between gap-3 rounded-2xl border bg-surface/90 px-4 py-3">
+              <div key={path} className="admin-compact-row">
                 <span className="truncate text-sm font-semibold text-ink-strong" dir="ltr">{path}</span>
                 <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-ink">{count}</span>
               </div>
             ))}
           </div>
         </article>
-        <article className="surface-panel rounded-[1.75rem] p-8 shadow-sm">
-          <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">Sources</p>
-          <h2 className="text-ink-strong mt-2 text-2xl font-semibold tracking-tight">مصادر الزيارات</h2>
-          <div className="mt-6 grid gap-3">
+        <article className="surface-panel rounded-[1.5rem] p-5 shadow-sm lg:p-6">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">Sources</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong">مصادر الزيارات</h2>
+          <div className="mt-5 grid gap-3">
             {(topReferrers.length > 0 ? topReferrers : [["Direct", 0] as const]).map(([source, count]) => (
-              <div key={source} className="border-line flex items-center justify-between gap-3 rounded-2xl border bg-surface/90 px-4 py-3">
+              <div key={source} className="admin-compact-row">
                 <span className="truncate text-sm font-semibold text-ink-strong" dir="ltr">{source}</span>
                 <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-ink">{count}</span>
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs leading-6 text-ink-soft">
-            يتم تسجيل الزيارات داخلياً عبر AppLog، ويمكن تصدير سجلات CRM من صفحة CRM، وسجلات النظام من صفحة السجلات.
-          </p>
         </article>
       </section>
 
       <section>
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">الوحدات</p>
-            <h2 className="text-ink-strong text-2xl font-semibold tracking-tight">انتقل مباشرة إلى العمل</h2>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">Modules</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-ink-strong">اختصارات الإدارة</h2>
           </div>
-          <p className="max-w-sm text-sm text-ink-soft">كل بطاقة تفتح القسم المرتبط في لوحة التحكم.</p>
         </div>
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {adminModules.map((module) => (
             <Link
               key={module.title}
               href={module.href as Route}
-              className="surface-panel group relative block rounded-[1.75rem] p-8 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]"
+              className="admin-module-card surface-panel group relative block rounded-[1.5rem] p-5 shadow-sm transition duration-200 hover:-translate-y-0.5"
             >
-              <span className="absolute inset-x-8 top-0 h-px bg-gradient-to-l from-transparent via-accent/50 to-transparent opacity-0 transition group-hover:opacity-100" />
               <div className="flex items-start justify-between gap-3">
-                <p className="text-ink-strong text-lg font-semibold tracking-tight">{module.title}</p>
+                <p className="text-lg font-semibold tracking-tight text-ink-strong">{module.title}</p>
                 <span className="shrink-0 rounded-full border border-line bg-surface-strong px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
                   {module.metric}
                 </span>
               </div>
-              <p className="text-ink-soft mt-4 text-sm leading-7">{module.description}</p>
+              <p className="mt-3 text-sm leading-6 text-ink-soft">{module.description}</p>
               <span className="text-accent mt-6 inline-flex items-center gap-1 text-xs font-semibold opacity-90 transition group-hover:gap-2 group-hover:opacity-100">
                 فتح القسم
                 <span aria-hidden>←</span>

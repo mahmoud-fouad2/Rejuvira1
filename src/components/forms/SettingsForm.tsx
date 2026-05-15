@@ -139,17 +139,11 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
   );
 
   return (
-    <form action={formAction} className="grid gap-4">
-      <div className="border-line bg-surface text-ink-soft rounded-[1.45rem] border px-4 py-4 text-sm leading-7">
-        أدخل البيانات الرسمية للتواصل (رقمين وبريدين والنطاق) والصور والمحتوى
-        الذي يجب أن تعتمده جميع صفحات الموقع بصورة موحدة. تظهر هذه القيم
-        مباشرة في الفوتر والهيدر وصفحات التواصل والميتا.
-      </div>
-      <div className="border-line bg-surface rounded-[1.45rem] border p-4">
+    <form action={formAction} className="admin-settings-form grid gap-4">
+      <div className="admin-form-section">
         <p className="text-ink font-semibold">قنوات التواصل الرسمية</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
-          الرقم الأول والبريد الأول هما القناتان الأساسيتان. الرقم الموحد
-          والبريد البديل يظهران بجانبهما كقنوات إضافية.
+          الأرقام والبريد والعنوان المستخدم في الهيدر والفوتر وصفحة التواصل.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -226,11 +220,10 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         />
       </div>
       {/* working hours block - subagent #3 */}
-      <div className="border-line bg-surface rounded-[1.45rem] border p-4">
+      <div className="admin-form-section">
         <p className="text-ink font-semibold">ساعات العمل / Working Hours</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
-          سطر العربية يظهر في الفوتر وصفحة التواصل عند اختيار العربية، وسطر
-          الإنجليزية يظهر تلقائيًا عند تحويل اللغة. الجمعة افتراضيًا مغلق.
+          صياغة عربية وإنجليزية تظهر في الفوتر وصفحة التواصل.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -265,7 +258,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           dir="ltr"
         />
       </div>
-      <div className="border-line bg-surface rounded-[1.45rem] border p-4">
+      <div className="admin-form-section">
         <p className="text-ink font-semibold">الأسئلة الشائعة في صفحة التواصل</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
           تظهر خمسة أسئلة فقط في صفحة التواصل بصياغة مختصرة ومنظمة.
@@ -308,10 +301,10 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         </div>
         );
       })}
-      <div className="border-line bg-surface rounded-[1.45rem] border p-4">
+      <div className="admin-form-section">
         <p className="text-ink font-semibold">العلامة والرسائل</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
-          النصوص التعريفية للعلامة التي تظهر في الميتا وقنوات التواصل.
+          الاسم، الشعار، وصف SEO، وصور الصفحات الرئيسية.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
@@ -470,11 +463,10 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           required
         />
       </div>
-      <div className="border-line bg-surface rounded-[1.45rem] border p-4">
+      <div className="admin-form-section">
         <p className="text-ink font-semibold">الصفحة الرئيسية</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
-          هذه الحقول تتحكم في الهيرو الحديث، سكشن الصورة المتغيرة، وقسم مقولات
-          الأطباء داخل الصفحة الرئيسية.
+          نصوص وصور الهيرو والأقسام الرئيسية في الصفحة الأولى.
         </p>
       </div>
       {homepageFieldGroups.map((row, rowIndex) => (
@@ -519,7 +511,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           })}
         </div>
       ))}
-      <div className="border-line bg-surface rounded-[1.45rem] border p-4">
+      <div className="admin-form-section">
         <p className="text-ink font-semibold">قنوات التواصل الاجتماعي</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
           الروابط التي تظهر في تذييل الصفحة. اتركها فارغة لإخفاء الأيقونة.

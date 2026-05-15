@@ -63,11 +63,11 @@ export function CinematicIntro({ logoSrc, logoAlt }: CinematicIntroProps) {
     if (!visible || !imageReady) return;
 
     const startSequence = () => {
-      const t1 = window.setTimeout(() => setPhase("curtain"), 80);
-      const t2 = window.setTimeout(() => setPhase("logo"), 1050);
-      const t3 = window.setTimeout(() => setPhase("words"), 1900);
-      const t4 = window.setTimeout(() => setPhase("exit"), 4600);
-      const t5 = window.setTimeout(() => setVisible(false), 5600);
+      const t1 = window.setTimeout(() => setPhase("curtain"), 120);
+      const t2 = window.setTimeout(() => setPhase("logo"), 2300);
+      const t3 = window.setTimeout(() => setPhase("words"), 3600);
+      const t4 = window.setTimeout(() => setPhase("exit"), 5900);
+      const t5 = window.setTimeout(() => setVisible(false), 7000);
       timersRef.current.push(t1, t2, t3, t4, t5);
     };
 

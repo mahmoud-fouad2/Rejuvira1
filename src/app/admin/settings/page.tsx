@@ -14,52 +14,58 @@ export default async function AdminSettingsPage() {
 
   return (
     <>
-      <section className="surface-panel rounded-[2rem] p-6 lg:p-8">
-        <p className="eyebrow">الإعدادات التشغيلية</p>
-        <h1 className="text-ink mt-4 font-serif text-5xl tracking-[-0.05em]">
-          إعدادات التشغيل والعلامة
+      <section className="surface-panel rounded-[1.5rem] p-5 lg:p-7">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
+          Settings
+        </p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink-strong">
+          إعدادات الموقع
         </h1>
-        <p className="text-ink-soft mt-4 max-w-3xl text-base leading-8">
-          تُدار من هذه الصفحة بيانات التواصل، الرسائل الرئيسية، المشاهد المعتمدة
-          التي تظهر في الواجهة العامة، خرائط الموقع، قنوات التواصل، تفضيلات
-          العرض، و SEO لكل صفحة.
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-ink-soft">
+          نقطة واحدة لتحديث بيانات التواصل، الهوية، صور الصفحات، SEO، التكاملات، وروابط السوشيال.
         </p>
       </section>
-      <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-        <article className="surface-panel rounded-[2rem] p-6">
-          <h2 className="text-ink font-serif text-3xl tracking-[-0.04em]">
-            تحديث الإعدادات الأساسية
-          </h2>
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+        <article className="surface-panel rounded-[1.5rem] p-5 lg:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-ink-strong">
+                تحرير الإعدادات
+              </h2>
+              <p className="mt-1 text-sm text-ink-soft">
+                الحفظ ينعكس مباشرة على الواجهة العامة.
+              </p>
+            </div>
+          </div>
           <div className="mt-6">
             <SettingsForm groups={groups} />
           </div>
         </article>
-        <div className="grid gap-4">
-          {groups.map((group) => (
-            <article
-              key={group.key}
-              className="surface-panel rounded-[1.85rem] p-5"
+        <aside className="grid content-start gap-4">
+          <article className="surface-panel rounded-[1.5rem] p-5">
+            <h3 className="text-base font-semibold text-ink-strong">أين أعدل الصور؟</h3>
+            <p className="mt-2 text-sm leading-6 text-ink-soft">
+              ارفع صورة من صفحة الميديا، ثم استخدم الرابط في حقول الصور داخل هذا النموذج.
+            </p>
+            <a
+              href="/admin/media"
+              className="mt-4 inline-flex rounded-full border border-line bg-surface px-4 py-2 text-xs font-semibold text-ink transition hover:border-accent/35 hover:text-accent"
             >
-              <p className="text-ink text-lg font-semibold">{group.title}</p>
-              <p className="text-ink-soft mt-2 text-sm leading-7">
-                {group.description}
-              </p>
-              <div className="mt-4 grid gap-3">
-                {group.fields.map((field) => (
-                  <div
-                    key={field.key}
-                    className="border-line bg-surface text-ink-soft rounded-[1.2rem] border px-4 py-3 text-sm"
-                  >
-                    <span className="text-ink-faint block text-xs tracking-[0.2em] uppercase">
-                      {field.label}
-                    </span>
-                    <span className="text-ink mt-2 block">{field.value}</span>
-                  </div>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
+              فتح الميديا
+            </a>
+          </article>
+          <article className="surface-panel rounded-[1.5rem] p-5">
+            <h3 className="text-base font-semibold text-ink-strong">أقسام النموذج</h3>
+            <div className="mt-4 grid gap-2">
+              {groups.map((group) => (
+                <div key={group.key} className="admin-compact-row">
+                  <span className="text-sm font-semibold text-ink-strong">{group.title}</span>
+                  <span className="text-xs text-ink-soft">{group.fields.length} حقل</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </aside>
       </section>
       <section>
         <AdminSettingsExtras

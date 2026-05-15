@@ -137,14 +137,14 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
   }
 
   return (
-    <nav className="grid gap-5" aria-label="التنقل الإداري">
+    <nav className="grid gap-4" aria-label="التنقل الإداري">
       {groupOrder.map((groupKey) => {
         const groupItems = grouped.get(groupKey);
         if (!groupItems || groupItems.length === 0) return null;
         const groupMeta = adminNavGroups[groupKey];
         return (
-          <div key={groupKey} className="grid gap-1.5">
-            <p className="text-ink-faint mb-1 text-[10px] font-semibold uppercase tracking-[0.22em]">
+          <div key={groupKey} className="grid gap-1">
+            <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-faint">
               {groupMeta.label}
             </p>
             {groupItems.map((item) => {
@@ -153,14 +153,14 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                 <Link
                   key={item.href}
                   href={item.href as Route}
-                  className={`group relative flex items-start gap-3 rounded-2xl border px-3 py-3 text-sm transition-[background,border-color,box-shadow,transform] duration-200 ${
+                  className={`admin-nav-item group relative flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm transition-[background,border-color,box-shadow,transform] duration-200 ${
                     active
-                      ? "border-accent/35 bg-gradient-to-l from-accent-soft/90 via-surface/40 to-transparent text-ink-strong shadow-[0_12px_40px_oklch(52%_0.11_195/0.12)]"
-                      : "border-transparent text-ink-soft hover:border-line hover:bg-surface/90 hover:text-ink-strong"
+                      ? "is-active border-accent/35 bg-gradient-to-l from-accent-soft/90 via-surface/50 to-transparent text-ink-strong shadow-[0_10px_28px_oklch(52%_0.11_195/0.1)]"
+                      : "border-transparent text-ink-soft hover:border-line hover:bg-surface/80 hover:text-ink-strong"
                   } `}
                 >
                   <span
-                    className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-colors ${
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-colors ${
                       active
                         ? "border-accent/40 bg-surface text-accent shadow-sm"
                         : "border-line bg-surface-strong text-ink-soft group-hover:border-accent/25 group-hover:text-ink"
@@ -168,7 +168,7 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                   >
                     {iconFor(item.href)}
                   </span>
-                  <span className="min-w-0 pt-1">
+                  <span className="min-w-0">
                     <span
                       className={`block font-semibold tracking-tight ${
                         active
@@ -178,7 +178,7 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                     >
                       {item.label}
                     </span>
-                    <span className="mt-0.5 block text-[11px] leading-snug text-ink-faint group-hover:text-ink-soft">
+                    <span className="mt-0.5 block truncate text-[11px] leading-snug text-ink-faint group-hover:text-ink-soft">
                       {item.description}
                     </span>
                   </span>

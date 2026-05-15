@@ -10230,7 +10230,7 @@ footer .rv-brand-logo-footer {
     linear-gradient(180deg, rgba(74, 36, 118, 0.98) 0%, rgba(48, 22, 86, 0.98) 100%);
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.4);
   transform: translateX(0);
-  transition: transform 1100ms cubic-bezier(0.83, 0, 0.17, 1);
+  transition: transform 1900ms cubic-bezier(0.83, 0, 0.17, 1);
 }
 
 :root[data-theme="dark"] .rv-intro-curtain {
@@ -10296,6 +10296,7 @@ footer .rv-brand-logo-footer {
   filter: drop-shadow(0 30px 70px rgba(123, 69, 165, 0.5)) brightness(1.18);
 }
 
+.rv-intro[data-phase="curtain"] .rv-intro-logo,
 .rv-intro[data-phase="logo"] .rv-intro-logo,
 .rv-intro[data-phase="words"] .rv-intro-logo,
 .rv-intro[data-phase="exit"] .rv-intro-logo {
@@ -10328,6 +10329,7 @@ footer .rv-brand-logo-footer {
   );
 }
 
+.rv-intro[data-phase="curtain"] .rv-intro-rule,
 .rv-intro[data-phase="words"] .rv-intro-rule,
 .rv-intro[data-phase="exit"] .rv-intro-rule {
   width: clamp(7rem, 22vw, 14rem);
@@ -10361,6 +10363,7 @@ footer .rv-brand-logo-footer {
   transition-delay: var(--rv-word-delay, 0ms);
 }
 
+.rv-intro[data-phase="curtain"] .rv-intro-word,
 .rv-intro[data-phase="words"] .rv-intro-word,
 .rv-intro[data-phase="exit"] .rv-intro-word {
   opacity: 1;
@@ -10644,4 +10647,189 @@ footer .rv-brand-logo-footer {
   cursor: not-allowed;
   opacity: 0.7;
   transform: none;
+}
+
+/* ── Admin console refresh ───────────────────────────────────────── */
+.admin-app {
+  --admin-sidebar: rgba(255, 255, 255, 0.82);
+  --admin-surface: rgba(255, 255, 255, 0.9);
+  --admin-line: rgba(74, 36, 118, 0.12);
+  background:
+    radial-gradient(circle at 10% 8%, rgba(123, 69, 165, 0.12), transparent 26rem),
+    radial-gradient(circle at 92% 18%, rgba(201, 162, 106, 0.12), transparent 24rem),
+    linear-gradient(135deg, #f8f3ea, #f2eadc 55%, #f8f3ea) !important;
+}
+
+html[data-theme="dark"] .admin-app {
+  --admin-sidebar: rgba(17, 8, 35, 0.88);
+  --admin-surface: rgba(25, 12, 48, 0.86);
+  --admin-line: rgba(216, 180, 255, 0.16);
+  background:
+    radial-gradient(circle at 10% 8%, rgba(123, 69, 165, 0.24), transparent 26rem),
+    radial-gradient(circle at 92% 18%, rgba(201, 162, 106, 0.12), transparent 24rem),
+    linear-gradient(135deg, #0b0418, #150929 55%, #0b0418) !important;
+}
+
+.admin-app .surface-panel {
+  border-color: var(--admin-line) !important;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.92), rgba(255,255,255,0.72)),
+    var(--admin-surface) !important;
+  box-shadow: 0 18px 46px rgba(30, 13, 78, 0.08) !important;
+  transform: none !important;
+}
+
+html[data-theme="dark"] .admin-app .surface-panel {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)),
+    var(--admin-surface) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34) !important;
+}
+
+.admin-sidebar {
+  border-radius: 1.45rem !important;
+}
+
+.admin-brand-card,
+.admin-session-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.66);
+  padding: 0.75rem;
+}
+
+html[data-theme="dark"] .admin-brand-card,
+html[data-theme="dark"] .admin-session-card {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.admin-brand-card .rv-brand-logo,
+.admin-brand-card .rv-brand-logo-header {
+  width: 4.5rem !important;
+  height: 3.2rem !important;
+}
+
+.admin-brand-card .rv-brand-logo-img {
+  transform: scale(1.75) !important;
+}
+
+.admin-session-card {
+  justify-content: space-between;
+}
+
+.admin-sidebar-action,
+.admin-link-pill,
+.admin-notification-pill,
+.admin-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid var(--admin-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--ink-strong);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.55rem 0.85rem;
+}
+
+html[data-theme="dark"] .admin-sidebar-action,
+html[data-theme="dark"] .admin-link-pill,
+html[data-theme="dark"] .admin-notification-pill,
+html[data-theme="dark"] .admin-status-pill {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(247, 238, 255, 0.92);
+}
+
+.admin-nav-item.is-active {
+  box-shadow: inset 3px 0 0 rgba(123, 69, 165, 0.5), 0 10px 28px rgba(74, 36, 118, 0.08) !important;
+}
+
+html[dir="rtl"] .admin-nav-item.is-active {
+  box-shadow: inset -3px 0 0 rgba(123, 69, 165, 0.5), 0 10px 28px rgba(74, 36, 118, 0.08) !important;
+}
+
+.admin-stat-card,
+.admin-mini-module,
+.admin-pipeline-step,
+.admin-compact-row,
+.admin-form-section {
+  border: 1px solid var(--admin-line);
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.68);
+  padding: 1rem;
+  box-shadow: 0 10px 28px rgba(30, 13, 78, 0.055);
+}
+
+html[data-theme="dark"] .admin-stat-card,
+html[data-theme="dark"] .admin-mini-module,
+html[data-theme="dark"] .admin-pipeline-step,
+html[data-theme="dark"] .admin-compact-row,
+html[data-theme="dark"] .admin-form-section {
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.24);
+}
+
+.admin-stat-card {
+  display: block;
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.admin-stat-card:hover,
+.admin-module-card:hover {
+  border-color: rgba(123, 69, 165, 0.28) !important;
+  box-shadow: 0 18px 42px rgba(30, 13, 78, 0.1) !important;
+}
+
+.admin-mini-module,
+.admin-compact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-pipeline-step {
+  min-height: 5.6rem;
+}
+
+.admin-settings-form input,
+.admin-settings-form textarea,
+.admin-settings-form select {
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+html[data-theme="dark"] .admin-settings-form input,
+html[data-theme="dark"] .admin-settings-form textarea,
+html[data-theme="dark"] .admin-settings-form select {
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(216, 180, 255, 0.18) !important;
+  color: rgba(247, 238, 255, 0.95) !important;
+}
+
+/* Final dark hero override: remove grey cards under the hero copy. */
+html[data-theme="dark"] .rv-v0-hero-copy .rv-v0-stats div {
+  background:
+    linear-gradient(145deg, rgba(111, 63, 162, 0.34), rgba(33, 15, 68, 0.72)) !important;
+  border-color: rgba(240, 201, 118, 0.22) !important;
+  color: #f9f0ff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 18px 42px rgba(0, 0, 0, 0.38) !important;
+}
+
+html[data-theme="dark"] .rv-v0-hero-copy .rv-v0-stats b {
+  background: linear-gradient(135deg, #f4d58a 0%, #dca64d 50%, #f4d58a 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+}
+
+html[data-theme="dark"] .rv-v0-hero-copy .rv-v0-stats span {
+  color: rgba(249, 240, 255, 0.86) !important;
 }

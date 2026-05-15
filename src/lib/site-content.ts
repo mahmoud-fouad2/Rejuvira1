@@ -268,9 +268,9 @@ export const megaMenuEntries: readonly MegaMenuEntry[] = [
 ];
 
 export const heroMetrics = [
-  { value: "جلسات", label: "مبنية على تشخيص واضح وهدف علاجي محدد" },
-  { value: "أطباء", label: "بتخصصات واضحة وملفات مختصرة سهلة المراجعة" },
-  { value: "خطط", label: "تعرض الخدمات والأجهزة بصورة تسهّل المقارنة" },
+  { value: "CRM", label: "طلبات ومتابعة" },
+  { value: "CMS", label: "محتوى الموقع" },
+  { value: "Media", label: "صور وهوية" },
 ] as const;
 
 export const operationsHighlights = [
@@ -332,42 +332,42 @@ export const adminModules = [
     title: "صندوق الطلبات",
     metric: "المراجعين",
     description:
-      "متابعة الطلبات الجديدة والحجوزات والاستفسارات بصورة منظمة وواضحة للفريق.",
+      "طلبات التواصل والحجز مع حالة المتابعة والتصدير.",
     href: "/admin/crm" as const,
   },
   {
     title: "ملفات الأطباء",
     metric: "الملفات",
     description:
-      "عرض وتحديث محتوى الأطباء بصورة مرتبة تحافظ على جودة الظهور وسهولة المراجعة.",
+      "إضافة وتعديل بيانات الأطباء والصور والخدمات المرتبطة.",
     href: "/admin/doctors" as const,
   },
   {
     title: "مكتبة الخدمات",
     metric: "الخدمات",
     description:
-      "تنظيم الخدمات الرئيسية وتحديث تفاصيلها بما يحافظ على وضوح التجربة العامة.",
+      "إدارة الخدمات، النصوص، الصور، وبيانات الظهور.",
     href: "/admin/services" as const,
   },
   {
     title: "الإعدادات",
     metric: "الهوية",
     description:
-      "إدارة بيانات التواصل والعلامة والعناصر الأساسية التي تظهر في الواجهة العامة.",
+      "التواصل، الهوية، SEO، التكاملات، وروابط السوشيال.",
     href: "/admin/settings" as const,
   },
   {
     title: "مكتبة الصور",
     metric: "الأصول",
     description:
-      "مراجعة الصور والأصول المرجعية التي تدعم بناء الهوية البصرية الجديدة للمركز.",
+      "معاينة الأصول ورفع صور جديدة لاستخدامها في الموقع.",
     href: "/admin/media" as const,
   },
   {
     title: "جاهزية التشغيل",
     metric: "المنصة",
     description:
-      "صورة عامة عن الحالة الحالية للمنصة وما تم تجهيزه لتسليم وتشغيل أكثر استقرارًا.",
+      "حالة المنصة والربط الأساسي قبل الإطلاق.",
     href: "/admin" as const,
   },
 ] as const;
@@ -385,7 +385,7 @@ export const adminNavigation = [
   {
     label: "الرئيسية",
     href: "/admin",
-    description: "الرؤية العامة ومؤشرات البدء",
+    description: "نظرة تشغيلية",
     group: "overview" as AdminNavGroupKey,
   },
   {
@@ -409,7 +409,7 @@ export const adminNavigation = [
   {
     label: "المعرض",
     href: "/admin/gallery",
-    description: "إدارة صور المعرض وبيانات SEO",
+    description: "قبل/بعد و SEO",
     group: "content" as AdminNavGroupKey,
   },
   {
@@ -421,7 +421,7 @@ export const adminNavigation = [
   {
     label: "الميديا",
     href: "/admin/media",
-    description: "الأصول المرجعية والصور المحلية",
+    description: "رفع ومعاينة الصور",
     group: "content" as AdminNavGroupKey,
   },
   {
@@ -433,7 +433,7 @@ export const adminNavigation = [
   {
     label: "السجلات",
     href: "/admin/logs",
-    description: "أخطاء النظام وسجل المراقبة",
+    description: "أخطاء وتحليلات",
     group: "ops" as AdminNavGroupKey,
   },
   {
@@ -451,7 +451,7 @@ export const adminNavigation = [
   {
     label: "الإعدادات",
     href: "/admin/settings",
-    description: "إعدادات التشغيل والعلامة",
+    description: "هوية وتكاملات",
     group: "settings" as AdminNavGroupKey,
   },
 ] as const;

@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import { getMediaSelections } from "@/lib/content-repository";
 import { getReferenceAssets } from "@/lib/reference-assets";
 
@@ -62,29 +63,68 @@ export default async function AdminMediaPage() {
 
   return (
     <>
-      <section className="surface-panel rounded-[2rem] p-6 lg:p-8">
-        <p className="eyebrow">المكتبة المرجعية</p>
-        <h1 className="text-ink mt-4 font-serif text-5xl tracking-[-0.05em]">
-          الأصول المرجعية المحلية
-        </h1>
-        <p className="text-ink-soft mt-4 max-w-3xl text-base leading-8">
-          تجمع هذه الصفحة المشاهد المعتمدة للواجهة والملفات المرجعية المستخدمة
-          في العرض والتحرير، مع إظهار الصورة الحالية لكل موضع رئيسي.
+      <section className="surface-panel rounded-[1.5rem] p-5 lg:p-7">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
+          Media Library
         </p>
-        <div className="text-ink-soft mt-6 flex flex-wrap gap-3 text-sm">
-          <span className="border-line bg-surface rounded-full border px-4 py-2">
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ink-strong">
+          الصور والأصول
+        </h1>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-soft">
+          ارفع صورة جديدة، ثم انسخ الرابط لاستخدامه في الإعدادات أو صفحات الأطباء والخدمات والمعرض.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3 text-sm text-ink-soft">
+          <span className="rounded-full border border-line bg-surface px-4 py-2">
             عدد الملفات: {referenceAssets.length}
           </span>
-          <span className="border-line bg-surface rounded-full border px-4 py-2">
+          <span className="rounded-full border border-line bg-surface px-4 py-2">
             التصنيفات: {categories.length}
           </span>
         </div>
       </section>
+
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <article className="surface-panel rounded-[1.5rem] p-5 lg:p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-ink-strong">
+            رفع صورة جديدة
+          </h2>
+          <p className="mt-2 text-sm leading-7 text-ink-soft">
+            بعد الرفع سيظهر الرابط في الحقل. انسخه وضعه في إعدادات الصور أو نموذج الطبيب/الخدمة/المعرض.
+          </p>
+          <div className="mt-5">
+            <ImageUploader
+              name="mediaUploadPreview"
+              namespace="media/uploads"
+              label="Upload"
+              placeholder="سيظهر رابط الصورة هنا بعد الرفع"
+              helper="الرفع يستخدم نفس API الحالي ولا يغيّر أي محتوى حتى تحفظ الرابط في القسم المناسب."
+            />
+          </div>
+        </article>
+        <aside className="surface-panel rounded-[1.5rem] p-5">
+          <h3 className="text-base font-semibold text-ink-strong">تعديل وحذف الصور</h3>
+          <div className="mt-4 grid gap-3">
+            <a href="/admin/settings" className="admin-compact-row">
+              <span className="text-sm font-semibold text-ink-strong">صور الصفحات</span>
+              <span className="text-xs text-ink-soft">الإعدادات ← حقول الصور</span>
+            </a>
+            <a href="/admin/gallery" className="admin-compact-row">
+              <span className="text-sm font-semibold text-ink-strong">المعرض</span>
+              <span className="text-xs text-ink-soft">إضافة / تعديل / حذف</span>
+            </a>
+            <a href="/admin/doctors" className="admin-compact-row">
+              <span className="text-sm font-semibold text-ink-strong">صور الأطباء</span>
+              <span className="text-xs text-ink-soft">داخل نموذج الطبيب</span>
+            </a>
+          </div>
+        </aside>
+      </section>
+
       <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
         {curatedSlots.map((slot) => (
           <article
             key={slot.key}
-            className="surface-panel overflow-hidden rounded-[1.85rem] p-4"
+            className="surface-panel overflow-hidden rounded-[1.5rem] p-4"
           >
             <div className="relative h-52 overflow-hidden rounded-[1.4rem]">
               <Image
@@ -94,14 +134,9 @@ export default async function AdminMediaPage() {
                 className="object-cover"
               />
             </div>
-            <p className="text-ink-faint mt-4 text-xs tracking-[0.18em] uppercase">
-              الموضع الحالي
-            </p>
-            <p className="text-ink mt-3 text-lg font-semibold">{slot.label}</p>
-            <p className="text-ink-soft mt-2 text-sm">{slot.value}</p>
-            <p className="text-ink-faint mt-2 text-xs">
-              يتم تحديث هذا الموضع من الإعدادات ليظهر مباشرة في الواجهة العامة.
-            </p>
+            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-ink-faint">الموضع الحالي</p>
+            <p className="mt-3 text-lg font-semibold text-ink-strong">{slot.label}</p>
+            <p className="mt-2 truncate text-sm text-ink-soft" dir="ltr">{slot.value}</p>
           </article>
         ))}
       </section>
@@ -109,7 +144,7 @@ export default async function AdminMediaPage() {
         {referenceAssets.map((asset) => (
           <article
             key={asset.fileName}
-            className="surface-panel overflow-hidden rounded-[1.85rem] p-4"
+            className="surface-panel overflow-hidden rounded-[1.5rem] p-4"
           >
             <div className="relative h-52 overflow-hidden rounded-[1.4rem]">
               <Image
@@ -119,12 +154,12 @@ export default async function AdminMediaPage() {
                 className="object-cover"
               />
             </div>
-            <p className="text-ink-faint mt-4 text-xs tracking-[0.18em] uppercase">
+            <p className="mt-4 text-xs uppercase tracking-[0.18em] text-ink-faint">
               {asset.category}
             </p>
-            <p className="text-ink mt-4 text-lg font-semibold">{asset.label}</p>
-            <p className="text-ink-soft mt-2 text-sm">{asset.fileName}</p>
-            <p className="text-ink-faint mt-1 text-xs">{asset.path}</p>
+            <p className="mt-4 text-lg font-semibold text-ink-strong">{asset.label}</p>
+            <p className="mt-2 text-sm text-ink-soft">{asset.fileName}</p>
+            <p className="mt-1 truncate text-xs text-ink-faint" dir="ltr">{asset.path}</p>
           </article>
         ))}
       </section>
