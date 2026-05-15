@@ -4,7 +4,6 @@ import type { Route } from "next";
 
 import { BookingModal } from "@/components/layout/BookingModal";
 import { BrandLogo } from "@/components/layout/BrandLogo";
-import { ChatbaseFooterButton } from "@/components/layout/ChatbaseFooterButton";
 import { normalizeSocialUrl } from "@/components/layout/SocialIconCluster";
 import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
@@ -243,9 +242,6 @@ export async function SiteFooter() {
                 ))}
               </div>
             ) : null}
-            <div className="mt-5">
-              <ChatbaseFooterButton enabled={runtimeSettings.integrations.chatbaseEnabled} />
-            </div>
           </div>
 
           {/* Quick links */}

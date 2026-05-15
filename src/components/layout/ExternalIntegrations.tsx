@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
 type ExternalIntegrationsProps = {
   chatbaseEnabled: boolean;
@@ -31,6 +31,8 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
     let nextNode = node.cloneNode(true) as ChildNode;
     if (node.nodeName.toLowerCase() === "script") {
       const sourceScript = node as HTMLScriptElement;
+      const scriptContent = `${sourceScript.src} ${sourceScript.text}`.toLowerCase();
+      if (scriptContent.includes("chatbase")) return;
       const script = document.createElement("script");
       Array.from(sourceScript.attributes).forEach((attr) => {
         script.setAttribute(attr.name, attr.value);
@@ -58,8 +60,6 @@ export function ExternalIntegrations({
   customHeadCode,
   customBodyCode,
 }: ExternalIntegrationsProps) {
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const chatId = useMemo(() => normalizeChatbaseId(chatbaseWidgetId), [chatbaseWidgetId]);
 
   useEffect(() => {
@@ -71,15 +71,7 @@ export function ExternalIntegrations({
   }, [customHeadCode, customBodyCode]);
 
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 768px), (pointer: coarse)");
-    const update = () => setIsMobile(query.matches);
-    update();
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-
-  useEffect(() => {
-    if (!chatbaseEnabled || isMobile) return;
+    if (!chatbaseEnabled) return;
 
     if (!window.chatbase || window.chatbase("getState") !== "initialized") {
       const queue = ((...args: unknown[]) => {
@@ -107,47 +99,7 @@ export function ExternalIntegrations({
     return () => {
       script.remove();
     };
-  }, [chatbaseEnabled, chatId, isMobile]);
+  }, [chatbaseEnabled, chatId]);
 
-  if (!chatbaseEnabled) return null;
-
-  return (
-    <>
-      <button
-        type="button"
-        className="rv-chatbase-floating-button"
-        onClick={() => {
-          if (isMobile) {
-            setMobileChatOpen(true);
-            return;
-          }
-          if (typeof window.chatbase === "function") {
-            window.chatbase("open");
-          }
-        }}
-        aria-label="Open Rejuvira chat"
-      >
-        <span className="lang-ar">تحدثي معنا</span>
-        <span className="lang-en">Chat</span>
-      </button>
-      {isMobile && mobileChatOpen ? (
-        <div className="rv-chatbase-mobile-panel" role="dialog" aria-modal="true" aria-label="Rejuvira chat">
-          <div className="rv-chatbase-mobile-head">
-            <span>
-              <span className="lang-ar">محادثة ريجوفيرا</span>
-              <span className="lang-en">Rejuvira chat</span>
-            </span>
-            <button type="button" onClick={() => setMobileChatOpen(false)} aria-label="Close chat">
-              ×
-            </button>
-          </div>
-          <iframe
-            src={`https://www.chatbase.co/chatbot-iframe/${chatId}`}
-            title="Rejuvira Chatbase"
-            loading="lazy"
-          />
-        </div>
-      ) : null}
-    </>
-  );
+  return null;
 }

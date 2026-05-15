@@ -173,18 +173,11 @@ export function V0InspiredHome({
     settings.homepage.testimonials.length > 0
       ? settings.homepage.testimonials
       : fallbackTestimonialsBi;
-  const heroImage =
-    settings.media.homeHero ||
-    featuredServices[0]?.coverImageUrl ||
-    "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg";
-  const heroImageCandidates = [
-    heroImage,
-    featuredServices[0]?.coverImageUrl,
-    featuredDoctors[0]?.coverImageUrl ?? featuredDoctors[0]?.photoUrl,
-    settings.media.servicesHero,
-    settings.media.doctorsHero,
-  ].filter((src, index, list): src is string => Boolean(src) && list.indexOf(src) === index).slice(0, 3);
-  const heroCards = heroImageCandidates.length > 0 ? heroImageCandidates : [heroImage];
+  const heroCards = [
+    "/media/hero/rejuvira-hero-consultation.svg",
+    "/media/hero/rejuvira-hero-technology.svg",
+    "/media/hero/rejuvira-hero-care.svg",
+  ];
 
   const doctorQuotes = doctorSource.filter(
     (d) => d.status === ContentStatus.PUBLISHED && d.summary.trim().length > 0,

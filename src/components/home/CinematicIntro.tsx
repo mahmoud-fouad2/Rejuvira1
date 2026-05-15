@@ -26,7 +26,7 @@ export function CinematicIntro({
 }: CinematicIntroProps) {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
+  const [phase, setPhase] = useState<"idle" | "exit">("idle");
 
   const closeIntro = () => {
     setPhase("exit");
@@ -45,12 +45,10 @@ export function CinematicIntro({
     }
 
     setVisible(true);
-    const t0 = setTimeout(() => setPhase("idle"), 80);
-    const t1 = setTimeout(() => setPhase("exit"), 5600);
-    const t2 = setTimeout(() => setVisible(false), 6500);
+    const t1 = setTimeout(() => setPhase("exit"), 5200);
+    const t2 = setTimeout(() => setVisible(false), 5900);
 
     return () => {
-      clearTimeout(t0);
       clearTimeout(t1);
       clearTimeout(t2);
     };
@@ -71,9 +69,7 @@ export function CinematicIntro({
     <div
       role="presentation"
       className={`rv-cinematic-intro fixed inset-0 z-[2147483000] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-        phase === "enter"
-          ? "opacity-0 [--scale:0.98] scale-[var(--scale)]"
-          : phase === "exit"
+        phase === "exit"
             ? "opacity-0 [--scale:1.04] scale-[var(--scale)] blur-sm"
             : "opacity-100 scale-100"
       }`}
