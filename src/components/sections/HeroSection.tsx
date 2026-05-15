@@ -16,7 +16,7 @@ interface HeroProps {
  * Layer 2: Content scrolling normal
  * Layer 3: Floating glass elements
  */
-export function HeroSection({ settings, doctorsCount }: HeroProps) {
+export function HeroSection({ settings }: HeroProps) {
   const { homepage, media, brand } = settings;
   const [mounted, setMounted] = useState(false);
 
@@ -146,3 +146,4 @@ export function HeroSection({ settings, doctorsCount }: HeroProps) {
     </section>
   );
 }
+

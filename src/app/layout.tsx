@@ -171,6 +171,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <PageLoader />
           {children}
           <SiteIntro siteName={runtimeSettings.brand.siteName} logoAlt={runtimeSettings.brand.logoAlt} />
+          <Script
+            id="rv-scroll-reveal"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(){var o=new IntersectionObserver(function(e){e.forEach(function(i){if(i.isIntersecting){i.target.classList.add('is-visible');o.unobserve(i.target);}});},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.rv-reveal,.rv-reveal-left,.rv-reveal-scale,.rv-v0-section-title,.rv-v0-services-grid,.rv-v0-devices-grid,.rv-v0-trust-grid,.rv-v0-testimonials,.rv-v0-wide-stats,.rv-v0-partners,.rv-v0-gallery-grid,.rv-doctors-section,.rv-strip-section,.rv-v0-home-contact-section').forEach(function(el){o.observe(el);});})();`,
+            }}
+          />
+          <Script
+            id="rv-header-scroll"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(){var h=document.querySelector('.rv-v0-header');if(!h)return;window.addEventListener('scroll',function(){h.classList.toggle('is-scrolled',window.scrollY>20);},{passive:true});})();`,
+            }}
+          />
         </LanguageProvider>
       </body>
     </html>

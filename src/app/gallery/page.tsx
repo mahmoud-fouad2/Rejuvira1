@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { getGalleryItems, getMediaSelections } from "@/lib/content-repository";
+import { getGalleryItems } from "@/lib/content-repository";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -250,3 +250,4 @@ export default async function GalleryPage() {
     </div>
   );
 }
+

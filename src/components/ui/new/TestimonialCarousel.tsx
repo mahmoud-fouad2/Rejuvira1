@@ -91,7 +91,7 @@ export function TestimonialCarousel() {
             if (end == null) return;
             const diff = end - touchStart;
             if (Math.abs(diff) > 50) {
-              diff > 0 ? goPrev() : goNext();
+              if (diff > 0) { goPrev(); } else { goNext(); }
             }
           }}
         >
@@ -166,3 +166,4 @@ export function TestimonialCarousel() {
     </div>
   );
 }
+

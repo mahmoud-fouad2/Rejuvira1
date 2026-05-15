@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 /**
@@ -13,7 +13,7 @@ export function CinematicIntro({
   logoAlt,
   brandName,
   skinTextureSrc,
-  clientImageSrc,
+  clientImageSrc: _clientImageSrc,
 }: {
   logoSrc: string;
   logoAlt: string;
@@ -23,8 +23,6 @@ export function CinematicIntro({
 }) {
   const [visible, setVisible] = useState(true);
   const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
-  const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     /* Sequence: enter → idle → exit → remove */
     const t1 = setTimeout(() => setPhase("idle"), 2400);
@@ -42,7 +40,6 @@ export function CinematicIntro({
 
   return (
     <div
-      ref={containerRef}
       aria-hidden="true"
       className={`pointer-events-none fixed inset-0 z-50 flex items-center justify-center transition-all duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         phase === "enter"
@@ -106,3 +103,4 @@ export function CinematicIntro({
     </div>
   );
 }
+

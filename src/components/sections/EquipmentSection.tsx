@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 import { SectionIntro } from "@/components/layout/SectionIntro";
 
 /**
@@ -42,3 +40,4 @@ export function EquipmentSection() {
     </section>
   );
 }
+
