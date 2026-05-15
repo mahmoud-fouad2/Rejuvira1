@@ -1272,7 +1272,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "announcement",
         label: "شريط الإعلان",
-        value: "حجز منظم واستجابة سريعة ومتابعة دقيقة عبر جميع قنوات التواصل",
+        value: "حجز منظم واستجابة واضحة ومتابعة دقيقة عبر جميع قنوات التواصل",
       },
       {
         key: "seoDescription",
@@ -1394,18 +1394,18 @@ const seedSettings: SettingsGroup[] = [
       },
       {
         key: "stripEyebrow",
-        label: "عنوان فرعي لشريط الخدمات السريع",
+        label: "عنوان فرعي لشريط تصفح الخدمات",
         value: "مختارات من الخدمات",
       },
       {
         key: "stripTitle",
-        label: "عنوان شريط الخدمات السريع",
+        label: "عنوان شريط تصفح الخدمات",
         value: "استعرضي خدمات مرتبطة بحالتك",
       },
       {
         key: "stripDescription",
-        label: "وصف شريط الخدمات السريع",
-        value: "شريط سريع لتصفح الخدمات وفتح ما يهمك بنقرة واحدة.",
+        label: "وصف شريط تصفح الخدمات",
+        value: "مدخل منظم لتصفح الخدمات وفتح ما يهمك بنقرة واحدة.",
       },
       {
         key: "trustEyebrow",
@@ -2103,7 +2103,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       announcement: getValue(
         "brand",
         "announcement",
-        "حجز منظم واستجابة سريعة ومتابعة دقيقة عبر جميع قنوات التواصل",
+        "حجز منظم واستجابة واضحة ومتابعة دقيقة عبر جميع قنوات التواصل",
       ),
       seoDescription: getValue(
         "brand",
@@ -2257,7 +2257,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       stripDescription: getValue(
         "homepage",
         "stripDescription",
-        "شريط سريع لتصفح الخدمات وفتح ما يهمك بنقرة واحدة.",
+        "مدخل منظم لتصفح الخدمات وفتح ما يهمك بنقرة واحدة.",
       ),
       stripEyebrowEn: getValue(
         "homepage",

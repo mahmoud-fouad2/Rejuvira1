@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
 import { ContactForm } from "@/components/forms/ContactForm";
 import type { RuntimeSettings, ServiceRecord } from "@/lib/content-repository";
@@ -131,7 +129,7 @@ export function HomeContactSection({
                 </span>
                 <div>
                   <span className="rv-v0-home-contact-channel-label">
-                    <span className="lang-ar">راسلنا</span>
+                    <span className="lang-ar">أرسلي لنا</span>
                     <span className="lang-en">Email</span>
                   </span>
                   <span className="rv-v0-home-contact-channel-value" dir="ltr">
@@ -197,20 +195,8 @@ export function HomeContactSection({
             <ContactForm services={services} formClassName="rv-v0-home-contact-form" />
 
             <p className="rv-v0-home-contact-privacy">
-              <span className="lang-ar">
-                بالإرسال، توافقين على معالجة بياناتك للتواصل بخصوص طلبك. يمكنك أيضًا{" "}
-                <Link href="/contact" className="rv-v0-home-contact-privacy-link">
-                  صفحة التواصل الكاملة
-                </Link>
-                .
-              </span>
-              <span className="lang-en">
-                By submitting, you agree we may process your details to respond to this request. See also the full{" "}
-                <Link href="/contact" className="rv-v0-home-contact-privacy-link">
-                  contact page
-                </Link>
-                .
-              </span>
+              <span className="lang-ar">بالإرسال، توافقين على معالجة بياناتك للتواصل بخصوص طلبك.</span>
+              <span className="lang-en">By submitting, you agree we may process your details to respond to this request.</span>
             </p>
           </div>
         </div>

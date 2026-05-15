@@ -146,6 +146,16 @@ export async function SiteHeader() {
             </Link>
           </div>
 
+          <div className="rv-mobile-inline-actions">
+            <BookingModal
+              services={publishedServices.length > 0 ? publishedServices : services}
+              recaptchaSiteKey={getPublicSiteKey()}
+              compactLabel
+            />
+            <ThemeToggle />
+            <LanguageToggle />
+          </div>
+
           <details className="rv-mobile-details group">
             <summary className="rv-v0-menu-button flex h-11 w-11 cursor-pointer list-none items-center justify-center">
               <MenuIcon />
@@ -158,17 +168,6 @@ export async function SiteHeader() {
                     <span className="lang-en">{link.labelEn}</span>
                   </Link>
                 ))}
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-2 border-t border-[color:var(--rv-line)] pt-3">
-                <div className="flex items-center gap-2">
-                  <ThemeToggle />
-                  <LanguageToggle />
-                </div>
-                <BookingModal
-                  services={publishedServices.length > 0 ? publishedServices : services}
-                  recaptchaSiteKey={getPublicSiteKey()}
-                  compactLabel
-                />
               </div>
             </div>
           </details>

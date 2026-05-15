@@ -2,6 +2,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 
+import { BookingModal } from "@/components/layout/BookingModal";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { normalizeSocialUrl } from "@/components/layout/SocialIconCluster";
 import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
@@ -239,7 +240,7 @@ export async function SiteFooter() {
           {/* Quick links */}
           <div>
             <h3 className="rv-v0-footer-title">
-              <span className="lang-ar">روابط سريعة</span>
+              <span className="lang-ar">روابط مهمة</span>
               <span className="lang-en">Quick links</span>
             </h3>
             <ul className="mt-5 space-y-3 text-sm">
@@ -370,6 +371,17 @@ export async function SiteFooter() {
               </li>
             </ul>
           </div>
+        </div>
+
+        <div className="rv-v0-footer-mobile-book">
+          <BookingModal
+            services={services}
+            compactLabel
+            buttonClassName="rv-v0-footer-mobile-book-btn"
+            labelAr="احجزي معنا الآن"
+            labelEn="Book with us now"
+            source="Mobile footer booking"
+          />
         </div>
 
         {/* Trust + payments combined sub-row — sized & aligned cleanly. */}

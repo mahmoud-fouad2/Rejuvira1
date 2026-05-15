@@ -25,19 +25,26 @@ export function CinematicIntro({
 }: CinematicIntroProps) {
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
+
+  const closeIntro = () => {
+    setPhase("exit");
+    window.setTimeout(() => setVisible(false), 520);
+  };
+
   useEffect(() => {
     try {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-      if (sessionStorage.getItem("rejuvira-cinematic-intro")) return;
-      sessionStorage.setItem("rejuvira-cinematic-intro", "1");
+      const win = window as Window & { __rejuviraIntroPlayed?: boolean };
+      if (win.__rejuviraIntroPlayed) return;
+      win.__rejuviraIntroPlayed = true;
     } catch {
       /* continue without persistence */
     }
 
     setVisible(true);
     const t0 = setTimeout(() => setPhase("idle"), 80);
-    const t1 = setTimeout(() => setPhase("exit"), 3200);
-    const t2 = setTimeout(() => setVisible(false), 4050);
+    const t1 = setTimeout(() => setPhase("exit"), 2450);
+    const t2 = setTimeout(() => setVisible(false), 3050);
 
     return () => {
       clearTimeout(t0);
@@ -50,8 +57,8 @@ export function CinematicIntro({
 
   return (
     <div
-      aria-hidden="true"
-      className={`pointer-events-none fixed inset-0 z-[90] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      role="presentation"
+      className={`rv-cinematic-intro fixed inset-0 z-[90] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         phase === "enter"
           ? "opacity-0 [--scale:0.98] scale-[var(--scale)]"
           : phase === "exit"
@@ -63,6 +70,11 @@ export function CinematicIntro({
           "radial-gradient(ellipse at 50% 0%, rgba(126,64,166,0.35), transparent 55%), linear-gradient(145deg, #130a1f 0%, #2b1146 48%, #0d0714 100%)",
       }}
     >
+      <button type="button" className="rv-cinematic-skip" onClick={closeIntro}>
+        <span className="lang-ar">تخطي</span>
+        <span className="lang-en">Skip</span>
+      </button>
+
       {/* Background texture */}
       <div className="absolute inset-0 overflow-hidden">
         <Image
@@ -81,7 +93,7 @@ export function CinematicIntro({
       {/* Main content */}
       <div className="relative flex flex-col items-center gap-8 px-6 text-center">
         {/* Brand logo */}
-        <div className="relative h-28 w-40 overflow-hidden rounded-none shadow-[0_0_80px_rgba(255,255,255,0.18)] sm:h-32 sm:w-52">
+        <div className="relative h-32 w-52 overflow-hidden rounded-none shadow-[0_0_90px_rgba(255,255,255,0.2)] sm:h-36 sm:w-60">
           <Image
             src={logoSrc}
             alt={logoAlt}
@@ -97,8 +109,9 @@ export function CinematicIntro({
           <p className="font-serif text-4xl font-semibold tracking-[-0.04em] text-[#fff8f0] sm:text-5xl lg:text-6xl">
             {brandName}
           </p>
-          <p className="mt-3 text-[11px] tracking-[0.36em] text-white/65 uppercase">
-            Aesthetic Surgery · Dermatology · Skin Care
+          <p className="mt-3 text-[11px] tracking-[0.22em] text-white/68 uppercase">
+            <span className="lang-ar">جراحات تجميلية · جلدية · عناية بالبشرة</span>
+            <span className="lang-en">Aesthetic Surgery · Dermatology · Skin Care</span>
           </p>
         </div>
 

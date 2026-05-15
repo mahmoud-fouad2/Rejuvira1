@@ -62,7 +62,7 @@ export default async function ContactPage() {
       labelAr: "البريد البديل",
       labelEn: "Alternate email",
       value: runtimeSettings.contact.emailSecondary,
-      hintAr: "بديل للوصول السريع",
+      hintAr: "قناة إضافية للتواصل",
       hintEn: "Alternative reach",
       href: `mailto:${runtimeSettings.contact.emailSecondary}`,
       kind: "email" as const,

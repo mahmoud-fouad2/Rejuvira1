@@ -352,15 +352,19 @@ export default async function DoctorDetailPage({
                 سيستقبل فريق المركز طلبك بسرّية مهنية ثم يحدد معك أقرب موعد عملي وفق الأولويات الطبية لحالتك.
               </span>
               <span className="lang-en">
-                Requests are routed through our concierge team so we can prioritize clinical safety and propose times that genuinely fit your scenario.
+                Our team reviews your request and helps schedule a suitable consultation based on your needs.
               </span>
             </p>
           </div>
           <div className="rv-doctor-close-cta">
-            <Link href="/contact" className="rv-doctor-cta-primary">
-              <span className="lang-ar">احجزي الاستشارة</span>
-              <span className="lang-en">Request booking</span>
-            </Link>
+            <BookingModal
+              services={services}
+              recaptchaSiteKey={getPublicSiteKey()}
+              buttonClassName="rv-doctor-cta-primary"
+              labelAr="احجزي الاستشارة"
+              labelEn="Request booking"
+              source={`Doctor profile closing booking: ${doctor.name}`}
+            />
             {waHref ? (
               <a
                 href={waHref}

@@ -90,10 +90,10 @@ const homepageFieldGroups = [
   [["testimonial3QuoteEn", "Testimonial 3 quote in English"]],
   [["testimonial3Avatar", "صورة العميل الثالث"]],
   [
-    ["stripEyebrow", "عنوان فرعي لشريط الخدمات السريع"],
-    ["stripTitle", "عنوان شريط الخدمات السريع"],
+    ["stripEyebrow", "عنوان فرعي لشريط تصفح الخدمات"],
+    ["stripTitle", "عنوان شريط تصفح الخدمات"],
   ],
-  [["stripDescription", "وصف شريط الخدمات السريع"]],
+  [["stripDescription", "وصف شريط تصفح الخدمات"]],
 ] as const;
 
 export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {

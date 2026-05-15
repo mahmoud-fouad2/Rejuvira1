@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 /**
  * Slim progress bar at the top of the viewport that animates on every
@@ -37,20 +38,22 @@ export function PageLoader() {
   if (!visible) return null;
 
   return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[9999] h-[2.5px]"
-      style={{ background: "rgba(30,13,78,0.08)" }}
-    >
+    <div aria-hidden="true" className="rv-page-loader pointer-events-none fixed inset-x-0 top-0 z-[9999]">
       <div
-        className="h-full rounded-full transition-all duration-500 ease-out"
+        className="rv-page-loader-bar transition-all duration-500 ease-out"
         style={{
           width: `${progress}%`,
-          background:
-            "linear-gradient(90deg, #1e0d4e 0%, #3d2272 40%, #c9a26a 100%)",
-          boxShadow: "0 0 8px rgba(61,34,114,0.6)",
         }}
       />
+      <div className="rv-page-loader-mark">
+        <Image
+          src="/media/brand/logo-light.png"
+          alt=""
+          width={88}
+          height={88}
+          priority
+        />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import Script from "next/script";
 import localFont from "next/font/local";
@@ -14,6 +14,11 @@ import { getRuntimeSettings } from "@/lib/content-repository";
 import { buildLocalBusinessJsonLd, getSiteUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const viewport: Viewport = {
+  themeColor: "#4a2476",
+  colorScheme: "light dark",
+};
 
 function detectInitialLang(url: string | null, cookieLang: string | undefined) {
   if (url) {

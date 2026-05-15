@@ -70,8 +70,8 @@ export function BookingModal({
           <div className="rv-booking-card">
             <div className="rv-booking-head">
               <span className="rv-v0-pill">
-                <span className="lang-ar">حجز سريع</span>
-                <span className="lang-en">Quick booking</span>
+                <span className="lang-ar">حجز موعد</span>
+                <span className="lang-en">Appointment booking</span>
               </span>
               <button
                 type="button"

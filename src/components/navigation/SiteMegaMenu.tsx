@@ -142,7 +142,7 @@ export function SiteMegaMenu({
         <div className="rv-mega-panel-head">
           <div>
             <p className="rv-mega-panel-kicker">
-              <span className="lang-ar">تصفح سريع</span>
+              <span className="lang-ar">تصفح المركز</span>
               <span className="lang-en">Quick browse</span>
             </p>
             <p className="rv-mega-panel-title">
