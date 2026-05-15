@@ -19,7 +19,7 @@ export function LanguageToggle() {
     >
       <span
         aria-hidden="true"
-        className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold transition-all motion-safe:duration-300 motion-reduce:duration-150 ${
+        className={`rv-lang-option relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold transition-all motion-safe:duration-300 motion-reduce:duration-150 ${
           isAr ? "motion-safe:-translate-x-px" : ""
         }`}
         style={{
@@ -34,7 +34,7 @@ export function LanguageToggle() {
       {/* EN */}
       <span
         aria-hidden="true"
-        className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold transition-all motion-safe:duration-300 motion-reduce:duration-150 ${
+        className={`rv-lang-option relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-semibold transition-all motion-safe:duration-300 motion-reduce:duration-150 ${
           !isAr ? "motion-safe:translate-x-px" : ""
         }`}
         style={{
@@ -45,6 +45,9 @@ export function LanguageToggle() {
         }}
       >
         EN
+      </span>
+      <span className="rv-lang-mobile-label" aria-hidden="true">
+        {isAr ? "EN" : "AR"}
       </span>
     </button>
   );

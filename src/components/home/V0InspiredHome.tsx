@@ -177,6 +177,14 @@ export function V0InspiredHome({
     settings.media.homeHero ||
     featuredServices[0]?.coverImageUrl ||
     "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg";
+  const heroImageCandidates = [
+    heroImage,
+    featuredServices[0]?.coverImageUrl,
+    featuredDoctors[0]?.coverImageUrl ?? featuredDoctors[0]?.photoUrl,
+    settings.media.servicesHero,
+    settings.media.doctorsHero,
+  ].filter((src, index, list): src is string => Boolean(src) && list.indexOf(src) === index).slice(0, 3);
+  const heroCards = heroImageCandidates.length > 0 ? heroImageCandidates : [heroImage];
 
   const doctorQuotes = doctorSource.filter(
     (d) => d.status === ContentStatus.PUBLISHED && d.summary.trim().length > 0,
@@ -280,15 +288,22 @@ export function V0InspiredHome({
 
           <div className="rv-v0-hero-visual">
             <div className="rv-v0-orbit" />
-            <div className="rv-v0-hero-card">
-              <Image
-                src={heroImage}
-                alt={settings.brand.logoAlt}
-                fill
-                priority
-                sizes="(max-width: 1024px) 90vw, 42vw"
-                className="object-cover"
-              />
+            <div className="rv-v0-hero-card-stack" aria-label="Rejuvira visual highlights">
+              {heroCards.map((src, index) => (
+                <div
+                  key={src}
+                  className={`rv-v0-hero-card rv-v0-hero-card-${index + 1}`}
+                >
+                  <Image
+                    src={src}
+                    alt={settings.brand.logoAlt}
+                    fill
+                    priority={index === 0}
+                    sizes="(max-width: 1024px) 90vw, 42vw"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>

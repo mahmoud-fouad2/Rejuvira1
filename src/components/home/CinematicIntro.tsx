@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 
 /**
@@ -23,6 +24,7 @@ export function CinematicIntro({
   brandName,
   skinTextureSrc,
 }: CinematicIntroProps) {
+  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
 
@@ -32,6 +34,7 @@ export function CinematicIntro({
   };
 
   useEffect(() => {
+    setMounted(true);
     try {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const win = window as Window & { __rejuviraIntroPlayed?: boolean };
@@ -53,12 +56,21 @@ export function CinematicIntro({
     };
   }, []);
 
-  if (!visible) return null;
+  useEffect(() => {
+    if (!visible) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [visible]);
 
-  return (
+  if (!mounted || !visible) return null;
+
+  return createPortal(
     <div
       role="presentation"
-      className={`rv-cinematic-intro fixed inset-0 z-[90] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`rv-cinematic-intro fixed inset-0 z-[2147483000] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         phase === "enter"
           ? "opacity-0 [--scale:0.98] scale-[var(--scale)]"
           : phase === "exit"
@@ -123,7 +135,8 @@ export function CinematicIntro({
           حيث تلتقي الخبرة الطبية مع الجمال الطبيعي
         </p>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

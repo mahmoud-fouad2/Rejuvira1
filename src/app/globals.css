@@ -1506,7 +1506,7 @@ main {
   background: rgba(255, 255, 255, 0.06);
 }
 
-.rv-v0-pill-live > span {
+.rv-v0-pill-live > span:first-child {
   width: 0.52rem;
   height: 0.52rem;
   border-radius: 999px;
@@ -1629,6 +1629,53 @@ main {
   border: 0.42rem solid rgba(255, 255, 255, 0.75);
   border-radius: 1.8rem;
   box-shadow: var(--rv-shadow-hover);
+}
+
+.rv-v0-hero-card-stack {
+  position: absolute;
+  inset: 2.3rem 3.5rem 0.8rem 1.6rem;
+  perspective: 1200px;
+}
+
+.rv-v0-hero-card-stack .rv-v0-hero-card {
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 95%;
+}
+
+.rv-v0-hero-card-1 {
+  z-index: 3;
+  animation: rv-hero-card-front 8s ease-in-out infinite;
+}
+
+.rv-v0-hero-card-2 {
+  z-index: 2;
+  transform: translate(-1.2rem, 1.1rem) rotate(-5deg) scale(0.96);
+  opacity: 0.88;
+  animation: rv-hero-card-back-a 8s ease-in-out infinite;
+}
+
+.rv-v0-hero-card-3 {
+  z-index: 1;
+  transform: translate(1.35rem, 2rem) rotate(5.5deg) scale(0.92);
+  opacity: 0.72;
+  animation: rv-hero-card-back-b 8s ease-in-out infinite;
+}
+
+@keyframes rv-hero-card-front {
+  0%, 42%, 100% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  52%, 62% { transform: translate3d(-1.8rem, -1rem, 0) rotate(-4deg) scale(0.98); }
+}
+
+@keyframes rv-hero-card-back-a {
+  0%, 42%, 100% { transform: translate(-1.2rem, 1.1rem) rotate(-5deg) scale(0.96); }
+  52%, 62% { transform: translate(0.2rem, 0.15rem) rotate(1deg) scale(0.99); opacity: 0.96; }
+}
+
+@keyframes rv-hero-card-back-b {
+  0%, 42%, 100% { transform: translate(1.35rem, 2rem) rotate(5.5deg) scale(0.92); }
+  52%, 62% { transform: translate(-1.1rem, 1.25rem) rotate(-4deg) scale(0.94); opacity: 0.82; }
 }
 
 .rv-v0-float {
@@ -9560,7 +9607,16 @@ html[data-theme="dark"] ::selection {
 }
 
 .rv-cinematic-intro {
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100dvw !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
   pointer-events: auto;
+  overflow: hidden !important;
+  overscroll-behavior: contain;
 }
 
 .rv-cinematic-skip {
@@ -9876,11 +9932,188 @@ html[data-theme="dark"] .rv-footer-chat-button {
   color: #fff;
 }
 
+/* Final responsive polish: larger logo, stable hero pill, fixed chat entry */
+header .rv-brand-logo,
+header .rv-brand-logo-header {
+  width: clamp(10rem, 15vw, 15rem) !important;
+  height: clamp(5.2rem, 8vw, 7.4rem) !important;
+}
+
+footer .rv-brand-logo,
+footer .rv-brand-logo-footer {
+  width: clamp(11rem, 16vw, 16rem) !important;
+  height: clamp(5.8rem, 8.5vw, 7.8rem) !important;
+}
+
+.rv-brand-logo-img {
+  transform: scale(1.9) !important;
+}
+
+.rv-v0-pill-live {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  min-height: 2.75rem !important;
+  max-width: min(100%, 26rem) !important;
+  padding: 0.56rem 1rem !important;
+  overflow: visible !important;
+}
+
+.rv-v0-pill-live > span:not(:first-child) {
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  line-height: 1.25 !important;
+}
+
+.rv-v0-pill-live svg {
+  flex: 0 0 auto;
+}
+
+.rv-chatbase-floating-button {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.78rem 1.1rem;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4a2476, #8f5ec3);
+  color: white;
+  font-weight: 850;
+  box-shadow: 0 20px 50px rgba(74, 36, 118, 0.32);
+}
+
+.rv-lang-mobile-label {
+  display: none;
+}
+
+.rv-chatbase-mobile-panel {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 95;
+  height: min(82dvh, 42rem);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 1.6rem 1.6rem 0 0;
+  background: #140b21;
+  box-shadow: 0 -24px 70px rgba(20, 11, 33, 0.38);
+  overflow: hidden;
+}
+
+.rv-chatbase-mobile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.2rem;
+  padding: 0.7rem 1rem;
+  color: white;
+  font-weight: 850;
+  background: linear-gradient(135deg, #4a2476, #8f5ec3);
+}
+
+.rv-chatbase-mobile-head button {
+  display: grid;
+  width: 2.15rem;
+  height: 2.15rem;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.rv-chatbase-mobile-panel iframe {
+  width: 100%;
+  height: calc(100% - 3.2rem);
+  border: 0;
+  background: white;
+}
+
+.rv-v0-hero-card-stack {
+  position: absolute !important;
+  inset: 2.3rem 3.5rem 0.8rem 1.6rem !important;
+  perspective: 1200px;
+}
+
+.rv-v0-hero-card-stack .rv-v0-hero-card {
+  position: absolute !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
 @media (max-width: 640px) {
+  .rv-v0-hero-card-stack {
+    inset: 1rem 0.55rem 0.5rem !important;
+  }
+
   header .rv-brand-logo,
   header .rv-brand-logo-header {
-    width: clamp(8.7rem, 32vw, 10.4rem) !important;
-    height: 4.6rem !important;
+    width: clamp(9.8rem, 39vw, 12rem) !important;
+    height: 5.25rem !important;
+  }
+
+  footer .rv-brand-logo,
+  footer .rv-brand-logo-footer {
+    width: clamp(10rem, 45vw, 13rem) !important;
+    height: 5.7rem !important;
+  }
+
+  .rv-brand-logo-img {
+    transform: scale(1.95) !important;
+  }
+
+  .rv-v0-pill-live {
+    max-width: 100% !important;
+    font-size: 0.76rem !important;
+    padding: 0.5rem 0.76rem !important;
+  }
+
+  .rv-chatbase-floating-button {
+    right: 0.8rem;
+    bottom: 0.8rem;
+    min-height: 2.65rem;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.78rem;
+  }
+
+  .rv-mobile-inline-actions [aria-label*="language"],
+  .rv-mobile-inline-actions [aria-label*="العربية"],
+  .rv-mobile-inline-actions [aria-label*="English"] {
+    width: 2.35rem !important;
+    min-width: 2.35rem !important;
+    height: 2.35rem !important;
+    min-height: 2.35rem !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    gap: 0 !important;
+  }
+
+  .rv-mobile-inline-actions .rv-lang-option {
+    display: none !important;
+  }
+
+  .rv-mobile-inline-actions .rv-lang-mobile-label {
+    display: grid !important;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--violet), var(--violet-mid));
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    box-shadow: 0 8px 18px rgba(30,13,78,0.22);
   }
 
   .rv-mobile-inline-actions .rv-v0-book {
