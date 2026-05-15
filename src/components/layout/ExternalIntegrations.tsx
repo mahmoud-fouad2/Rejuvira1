@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type ExternalIntegrationsProps = {
   chatbaseEnabled: boolean;
@@ -41,6 +41,7 @@ export function ExternalIntegrations({
   customHeadCode,
   customBodyCode,
 }: ExternalIntegrationsProps) {
+  const [chatOpen, setChatOpen] = useState(false);
   useEffect(() => {
     appendSnippet(document.head, customHeadCode, "head");
     appendSnippet(document.body, customBodyCode, "body");
@@ -49,27 +50,32 @@ export function ExternalIntegrations({
     };
   }, [customHeadCode, customBodyCode]);
 
-  useEffect(() => {
-    document.querySelectorAll('[data-rejuvira-chatbase="true"]').forEach((node) => node.remove());
-    if (!chatbaseEnabled || !chatbaseWidgetId.trim()) return;
+  const chatId = chatbaseWidgetId.trim();
 
-    const config = document.createElement("script");
-    config.dataset.rejuviraChatbase = "true";
-    config.text = `window.embeddedChatbotConfig={chatbotId:${JSON.stringify(chatbaseWidgetId.trim())},domain:"www.chatbase.co"};`;
-    document.body.appendChild(config);
-
-    const script = document.createElement("script");
-    script.dataset.rejuviraChatbase = "true";
-    script.src = "https://www.chatbase.co/embed.min.js";
-    script.defer = true;
-    script.setAttribute("chatbotId", chatbaseWidgetId.trim());
-    script.setAttribute("domain", "www.chatbase.co");
-    document.body.appendChild(script);
-
-    return () => {
-      document.querySelectorAll('[data-rejuvira-chatbase="true"]').forEach((node) => node.remove());
-    };
-  }, [chatbaseEnabled, chatbaseWidgetId]);
-
-  return null;
+  return chatbaseEnabled && chatId ? (
+    <div className="rv-chatbase-widget" dir="rtl">
+      {chatOpen ? (
+        <div className="rv-chatbase-panel">
+          <div className="rv-chatbase-head">
+            <span>
+              <span className="lang-ar">مساعد ريجوفيرا</span>
+              <span className="lang-en">Rejuvira Assistant</span>
+            </span>
+            <button type="button" onClick={() => setChatOpen(false)} aria-label="Close chat">
+              ×
+            </button>
+          </div>
+          <iframe
+            src={`https://www.chatbase.co/chatbot-iframe/${encodeURIComponent(chatId)}`}
+            title="Rejuvira chat assistant"
+            loading="lazy"
+          />
+        </div>
+      ) : null}
+      <button type="button" className="rv-chatbase-button" onClick={() => setChatOpen((value) => !value)}>
+        <span className="lang-ar">تحدثي معنا</span>
+        <span className="lang-en">Chat</span>
+      </button>
+    </div>
+  ) : null;
 }

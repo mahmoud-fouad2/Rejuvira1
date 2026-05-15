@@ -103,6 +103,10 @@ export async function buildPageMetadata(
     },
     other: {
       "format-detection": "telephone=no",
+      "geo.region": "SA-01",
+      "geo.placename": "Riyadh",
+      "geo.position": "24.7225835;46.6527524",
+      ICBM: "24.7225835, 46.6527524",
     },
   };
 }
@@ -164,9 +168,9 @@ export function buildLocalBusinessJsonLd(settings: {
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-        opens: "10:00",
-        closes: "21:00",
+        dayOfWeek: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+        opens: "14:00",
+        closes: "22:00",
       },
     ],
     inLanguage: ["ar", "en"],

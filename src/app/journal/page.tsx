@@ -11,12 +11,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({ page: "journal", path: "/journal" });
 }
 
-export default async function JournalPage() {
+export default async function JournalPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ page?: string }>;
+}) {
   const [posts, runtimeSettings] = await Promise.all([
     getJournalPosts(),
     getRuntimeSettings(),
   ]);
-  const [featuredPost, ...restPosts] = posts;
+  const params = await searchParams;
+  const currentPage = Math.max(1, Number(params?.page ?? "1") || 1);
+  const pageSize = 9;
+  const [featuredPost, ...allRestPosts] = posts;
+  const restPosts = allRestPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const totalPages = Math.max(1, Math.ceil(allRestPosts.length / pageSize));
 
   return (
     <div className="relative z-10 min-h-screen">
@@ -47,7 +56,7 @@ export default async function JournalPage() {
           </article>
         </section>
 
-        {featuredPost ? (
+        {featuredPost && currentPage === 1 ? (
           <section className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
             <article className="surface-panel overflow-hidden rounded-[2.5rem] shadow-sm">
               <div className="relative h-full min-h-[30rem]">
@@ -127,6 +136,26 @@ export default async function JournalPage() {
             </article>
           ))}
         </section>
+        {totalPages > 1 ? (
+          <nav className="flex flex-wrap items-center justify-center gap-2" aria-label="Journal pagination">
+            {Array.from({ length: totalPages }).map((_, index) => {
+              const page = index + 1;
+              return (
+                <Link
+                  key={page}
+                  href={page === 1 ? "/journal" : `/journal?page=${page}`}
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                    page === currentPage
+                      ? "border-purple-mid bg-ink-strong text-canvas"
+                      : "border-line bg-surface text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {page}
+                </Link>
+              );
+            })}
+          </nav>
+        ) : null}
       </main>
       <SiteFooter />
     </div>

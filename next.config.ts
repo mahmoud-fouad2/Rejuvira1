@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.cloudflarestorage.com" },
       { protocol: "https", hostname: "rejuveracenter.sa" },
       { protocol: "https", hostname: "cdn.rejuveracenter.sa" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
   env: {

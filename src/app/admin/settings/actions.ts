@@ -25,9 +25,9 @@ const settingsSchema = z.object({
   whatsapp: z.string().min(5),
   // hours block - subagent #3
   hoursWeekdays: z.string().min(5, "ساعات العمل الأساسية مطلوبة"),
-  hoursWeekend: z.string().min(2, "اليوم المغلق مطلوب"),
+  hoursWeekend: z.string().optional().or(z.literal("")),
   hoursWeekdaysEn: z.string().min(5, "English working hours are required"),
-  hoursWeekendEn: z.string().min(2, "English closed-day text is required"),
+  hoursWeekendEn: z.string().optional().or(z.literal("")),
   siteName: z.string().min(2),
   shortName: z.string().min(2),
   tagline: z.string().min(3),
@@ -193,9 +193,9 @@ export async function saveSettingsAction(
         whatsapp: parsed.data.whatsapp,
         // hours block - subagent #3
         hoursWeekdays: parsed.data.hoursWeekdays,
-        hoursWeekend: parsed.data.hoursWeekend,
+        hoursWeekend: parsed.data.hoursWeekend ?? "",
         hoursWeekdaysEn: parsed.data.hoursWeekdaysEn,
-        hoursWeekendEn: parsed.data.hoursWeekendEn,
+        hoursWeekendEn: parsed.data.hoursWeekendEn ?? "",
       }),
       saveSettingsGroup("brand", {
         siteName: parsed.data.siteName,

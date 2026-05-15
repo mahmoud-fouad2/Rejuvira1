@@ -169,10 +169,10 @@ export default async function ContactPage() {
                     <span className="lang-en">Response Time</span>
                   </p>
                   <p className="text-ink-strong mt-4 font-serif text-4xl tracking-[-0.02em]">
-                    <span className="lang-ar">سريع</span>
-                    <span className="lang-en">Fast</span>
+                    <span className="lang-ar">منظم</span>
+                    <span className="lang-en">Organized</span>
                   </p>
-                  <p className="text-ink-soft mt-2 text-sm"><span className="lang-ar">في نفس اليوم</span><span className="lang-en">Same day</span></p>
+                  <p className="text-ink-soft mt-2 text-sm"><span className="lang-ar">رد واضح من الفريق</span><span className="lang-en">Clear team response</span></p>
                 </div>
                 <div className="surface-panel rounded-[2rem] p-6 shadow-sm">
                   <p className="text-ink-faint font-sans text-[10px] tracking-[0.24em] uppercase">
@@ -180,10 +180,10 @@ export default async function ContactPage() {
                     <span className="lang-en">Consultation</span>
                   </p>
                   <p className="text-ink-strong mt-4 font-serif text-4xl tracking-[-0.02em]">
-                    <span className="lang-ar">أولية</span>
-                    <span className="lang-en">Initial</span>
+                    <span className="lang-ar">مناسبة</span>
+                    <span className="lang-en">Tailored</span>
                   </p>
-                  <p className="text-ink-soft mt-2 text-sm"><span className="lang-ar">تقييم أولي منظم</span><span className="lang-en">Structured first assessment</span></p>
+                  <p className="text-ink-soft mt-2 text-sm"><span className="lang-ar">توجيه حسب الحالة</span><span className="lang-en">Case-based guidance</span></p>
                 </div>
               </div>
             </div>

@@ -191,7 +191,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         <input
           name="hoursWeekend"
           defaultValue={getFieldValue(groups, "contact", "hoursWeekend")}
-          placeholder="الجمعة مغلق"
+          placeholder="اتركه فارغًا إن لم ترغب بعرض يوم مغلق"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />
@@ -208,7 +208,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         <input
           name="hoursWeekendEn"
           defaultValue={getFieldValue(groups, "contact", "hoursWeekendEn")}
-          placeholder="Closed Friday"
+          placeholder="Leave blank to hide closed-day text"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
           dir="ltr"

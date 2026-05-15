@@ -210,7 +210,7 @@ export async function SiteFooter() {
               {[
                 { ar: "مركز طبي مرخص", en: "Licensed medical center" },
                 { ar: "تقنيات مختارة بعناية", en: "Curated medical technology" },
-                { ar: "تنسيق سريع للمواعيد", en: "Fast appointment coordination" },
+                { ar: "تنسيق واضح للمواعيد", en: "Clear appointment coordination" },
               ].map((item) => (
                 <span key={item.ar} className="rv-v0-mini-chip">
                   <span className="lang-ar">{item.ar}</span>
@@ -358,7 +358,6 @@ export async function SiteFooter() {
                       <span>السبت إلى الخميس</span>
                       <time>2:00 م - 10:00 م</time>
                     </span>
-                    <span className="is-closed">الجمعة مغلق</span>
                   </span>
                   <span className="lang-en rv-v0-footer-hours-lines">
                     <strong>Working hours</strong>
@@ -366,21 +365,10 @@ export async function SiteFooter() {
                       <span>Saturday to Thursday</span>
                       <time>2:00 PM - 10:00 PM</time>
                     </span>
-                    <span className="is-closed">Closed Friday</span>
                   </span>
                 </span>
               </li>
             </ul>
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-              <Link href="/#contact" className="rv-v0-footer-cta">
-                <span className="lang-ar">نموذج الحجز</span>
-                <span className="lang-en">Booking form</span>
-              </Link>
-              <Link href="/contact" className="rv-v0-footer-cta is-secondary">
-                <span className="lang-ar">صفحة التواصل</span>
-                <span className="lang-en">Contact page</span>
-              </Link>
-            </div>
           </div>
         </div>
 

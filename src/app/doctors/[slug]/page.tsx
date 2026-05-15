@@ -7,6 +7,8 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { BookingModal } from "@/components/layout/BookingModal";
+import { getPublicSiteKey } from "@/lib/recaptcha";
 import {
   getDevices,
   getDoctorBySlug,
@@ -31,6 +33,15 @@ export async function generateMetadata({
   return {
     title: doctor.name,
     description: doctor.summary,
+    keywords: [
+      doctor.name,
+      doctor.specialty,
+      doctor.title,
+      "ريجوفيرا",
+      "Rejuvira",
+      "طبيب تجميل الرياض",
+      "Aesthetic doctor Riyadh",
+    ],
     openGraph: {
       title: doctor.name,
       description: doctor.summary,
@@ -177,10 +188,14 @@ export default async function DoctorDetailPage({
             </div>
             <p className="rv-doctor-hero-summary">{doctor.summary}</p>
             <div className="rv-doctor-hero-cta">
-              <Link href="/contact" className="rv-doctor-cta-primary">
-                <span className="lang-ar">احجزي استشارة</span>
-                <span className="lang-en">Book a consultation</span>
-              </Link>
+              <BookingModal
+                services={services}
+                recaptchaSiteKey={getPublicSiteKey()}
+                buttonClassName="rv-doctor-cta-primary"
+                labelAr="احجزي استشارة"
+                labelEn="Book a consultation"
+                source={`Doctor profile booking: ${doctor.name}`}
+              />
               {waHref ? (
                 <a
                   href={waHref}

@@ -6,8 +6,8 @@ import type { RuntimeSettings, ServiceRecord } from "@/lib/content-repository";
 
 const benefits = [
   {
-    ar: "استشارة أولية مع طبيب متخصص",
-    en: "Complimentary consultation with a specialist physician",
+    ar: "توجيه مناسب حسب احتياجك",
+    en: "Guidance tailored to your needs",
   },
   {
     ar: "خطة علاجية مخصصة وفق احتياجك",
@@ -225,7 +225,7 @@ export function HomeContactSection({
               <span className="lang-en">Reach Rejuvira easily in Riyadh</span>
             </h3>
             <p>
-              <span className="lang-ar">خريطة تفاعلية تساعدك على معرفة المسار قبل الزيارة، مع عرض واضح لموقع المركز.</span>
+              <span className="lang-ar">موقع واضح داخل الرياض لتخطيط زيارتك بسهولة.</span>
               <span className="lang-en">An interactive map helps you plan your route before visiting the center.</span>
             </p>
           </div>

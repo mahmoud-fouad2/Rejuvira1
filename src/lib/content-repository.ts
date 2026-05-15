@@ -376,6 +376,32 @@ export type UpdateAdminUserRoleInput = {
   role: UserRole;
 };
 
+const realImage = (id: string, options = "auto=format&fit=crop&w=1200&q=82") =>
+  `https://images.unsplash.com/${id}?${options}`;
+
+const doctorPortraits = [
+  realImage("photo-1612349317150-e413f6a5b16d"),
+  realImage("photo-1537368910025-700350fe46c7"),
+  realImage("photo-1559839734-2b71ea197ec2"),
+  realImage("photo-1582750433449-648ed127bb54"),
+  realImage("photo-1594824476967-48c8b964273f"),
+  realImage("photo-1573496359142-b8d87734a5a2"),
+  realImage("photo-1527613426441-4da17471b66d"),
+  realImage("photo-1551601651-2a8555f1a136"),
+  realImage("photo-1622253692010-333f2da6031d"),
+  realImage("photo-1607990281513-2c110a25bd8c"),
+] as const;
+
+const serviceImages = {
+  aestheticSurgery: realImage("photo-1519494026892-80bbd2d6fd0d"),
+  skinCare: realImage("photo-1570172619644-dfd03ed5d881"),
+  laser: realImage("photo-1515377905703-c4788e51af15"),
+  injectables: realImage("photo-1522337360788-8b13dee7a37e"),
+  devices: realImage("photo-1581093458791-9d42e5c8910d"),
+  body: realImage("photo-1600334129128-685c5582fd35"),
+  journal: realImage("photo-1532938911079-1b06ac7ceec7"),
+} as const;
+
 const seedDoctors: DoctorRecord[] = [
   {
     id: "doctor-loai-alsalmi",
@@ -386,8 +412,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "التخطيط الجراحي الدقيق يبدأ من تشخيص واضح وحدود واقعية للنتيجة قبل أي إجراء.",
     bio: "يعمل د. لؤي السالمي على تقييم الحالات الجراحية والتجميلية بمنهج واضح يوازن بين السلامة الطبية ودقة التخطيط وتحديد ما يمكن تحقيقه فعليًا لكل حالة. يركز في الاستشارة على شرح البدائل والخطة المتوقعة قبل اعتماد أي تدخل.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[0],
+    coverImageUrl: doctorPortraits[0],
     yearsExperience: 25,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -414,8 +440,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "نجاح الإجراء التجميلي يعتمد على قراءة الحالة بدقة واختيار ما يخدمها فعلًا دون مبالغة.",
     bio: "يتعامل د. ماهر الأحدب مع الحالات الجراحية والترميمية من منظور علاجي عملي يبدأ من التشخيص، ثم ترتيب الأولويات العلاجية والجراحية وفق ما تحتاجه الحالة. يركز على وضوح القرار قبل التنفيذ وعلى ملاءمة الخطة للمراجع.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[1],
+    coverImageUrl: doctorPortraits[1],
     yearsExperience: 20,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -442,8 +468,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "كل قرار جراحي ناجح يحتاج إلى تشخيص منظم وخطة تراعي الوظيفة والشكل معًا.",
     bio: "تقدم د. سهام العرفج الاستشارات الجراحية والترميمية بمنهج يركز على السلامة ودقة التخطيط وتحديد الإجراء الأنسب وفق معطيات الحالة الفعلية. تهتم بإيضاح الخطوات والمتابعة المتوقعة قبل البدء.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[2],
+    coverImageUrl: doctorPortraits[2],
     yearsExperience: 15,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -470,8 +496,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "وضوح التشخيص هو الأساس في أي قرار جراحي، وكل خطوة يجب أن تبنى على معطيات دقيقة لا على تقدير سريع.",
     bio: "يعتمد د. صباح الراشد على تقييم سريري دقيق في الحالات الجراحية المعقدة، مع اهتمام واضح بسلامة القرار وتفسيره للمراجع بصورة مباشرة. يركز على دراسة الحالة قبل اقتراح أي مسار علاجي أو تدخل جراحي.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[3],
+    coverImageUrl: doctorPortraits[3],
     yearsExperience: 30,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -498,8 +524,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "الاستشارة الجيدة تبدأ بالخصوصية والوضوح، ثم اختيار الخطة التي تناسب الحالة فعليًا.",
     bio: "تقدم د. كريمة جمجوم خدماتها في التجميل النسائي وطب النساء والولادة بمنهج يركز على وضوح الخطة وخصوصية الحالة وشرح الخيارات المناسبة بصورة منظمة ومباشرة قبل أي إجراء.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[4],
+    coverImageUrl: doctorPortraits[4],
     yearsExperience: 15,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -526,8 +552,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "اختيار الإجراء المناسب لا ينفصل عن فهم الحالة وتحديد الأولوية العلاجية بدقة.",
     bio: "تعتمد د. نجوى باطرفي على تقييم واضح ومباشر في خدمات التجميل النسائي، مع شرح منظم للخيارات والإجراءات المتاحة وحدود كل خيار وفق حاجة الحالة الفعلية.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[5],
+    coverImageUrl: doctorPortraits[5],
     yearsExperience: 15,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -554,8 +580,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "النتيجة المتوازنة تأتي من تشخيص أدق، وخطة مدروسة، واختيار الإجراء المناسب للبشرة والملامح.",
     bio: "تعمل د. ناتالي دوملوج على الحالات الجلدية والتجميلية بمنهج يركز على التشخيص الواضح، وضبط الخطة العلاجية وفق طبيعة البشرة، وتحديد ما تحتاجه الحالة من إجراءات جلدية أو تجميلية بصورة متدرجة.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[6],
+    coverImageUrl: doctorPortraits[6],
     yearsExperience: 20,
     languages: ["العربية", "الإنجليزية", "الفرنسية"],
     education: [
@@ -586,8 +612,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "القرار الجراحي السليم يبدأ من فهم الحاجة الفعلية للحالة وترتيب الأولويات العلاجية بوضوح.",
     bio: "تقدم د. فلوة الجنوبي تقييمًا واضحًا في الجراحة العامة، مع تركيز على شرح الخطة العلاجية وتحديد ما إذا كان التدخل الجراحي هو الخيار الأنسب وفق معطيات الحالة.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[7],
+    coverImageUrl: doctorPortraits[7],
     yearsExperience: 5,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -614,8 +640,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "الخطة العلاجية الدقيقة لا تبنى على السرعة، بل على تشخيص واضح وترتيب مدروس للخيارات.",
     bio: "يعتمد البروفيسور بندر الحارثي على منهج سريري دقيق في تقييم الحالات الجراحية، مع اهتمام بترتيب الخيارات العلاجية وشرحها بصورة واضحة تساعد المراجع على اتخاذ القرار المناسب.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[8],
+    coverImageUrl: doctorPortraits[8],
     yearsExperience: 21,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -642,8 +668,8 @@ const seedDoctors: DoctorRecord[] = [
     summary:
       "النتيجة الجيدة تأتي حين تكون الخطة مناسبة للحالة ومبنية على شرح واضح قبل التنفيذ.",
     bio: "يقدم د. أحمد الدسوقي استشارات جراحة التجميل بمنهج عملي يركز على تقييم الحالة وتحديد ما يناسبها من إجراءات وشرح الخطوات المتوقعة بصورة مباشرة ومنظمة قبل البدء.",
-    photoUrl: "/media/curated/doctor-profile.svg",
-    coverImageUrl: "/media/curated/doctor-profile.svg",
+    photoUrl: doctorPortraits[9],
+    coverImageUrl: doctorPortraits[9],
     yearsExperience: 7,
     languages: ["العربية", "الإنجليزية"],
     education: [
@@ -673,7 +699,7 @@ const seedServices: ServiceRecord[] = [
       "خطة متدرجة لتحسين نضارة البشرة، توحيد اللون، واستعادة الإشراق بقراءة دقيقة لاحتياج الحالة.",
     description:
       "تجمع هذه الخدمة بين التشخيص الدقيق واختيار الجلسات أو الوسائل المناسبة بحسب حالة البشرة ودرجة الحساسية والتصبغات وآثار الإرهاق. الهدف هو إعداد خطة تمنح البشرة مظهرًا أكثر صفاءً مع متابعة منظمة بحسب الحاجة.",
-    coverImageUrl: "/media/curated/service-skin-care.svg",
+    coverImageUrl: serviceImages.skinCare,
     benefits: [
       "قراءة أدق لاحتياج البشرة",
       "خطة علاجية متدرجة حسب الحالة",
@@ -693,7 +719,7 @@ const seedServices: ServiceRecord[] = [
       "جلسات مريحة ومدروسة تهدف إلى تقليل الشعر غير المرغوب فيه وفق نوع البشرة وكثافة الشعر والمنطقة المستهدفة.",
     description:
       "تبدأ هذه الخدمة بتحديد طبيعة الشعر ونوع البشرة ثم اختيار الخطة الملائمة لعدد الجلسات والفواصل الزمنية والتعليمات المطلوبة قبل الجلسة وبعدها. ما يميز التجربة هنا هو الوضوح في الشرح، وهدوء التنفيذ، والاهتمام بأن تكون التوقعات واقعية والنتيجة مريحة على المدى الطويل.",
-    coverImageUrl: "/media/curated/service-laser.svg",
+    coverImageUrl: serviceImages.laser,
     benefits: [
       "خطة مناسبة لنوع البشرة والشعر",
       "تعليمات واضحة قبل الجلسة وبعدها",
@@ -713,7 +739,7 @@ const seedServices: ServiceRecord[] = [
       "نهج تجميلي يركز على إبراز التوازن في الملامح والحفاظ على تعبير الوجه الطبيعي دون مبالغة.",
     description:
       "تعتمد هذه الخدمة على تقييم تفاصيل الوجه، ونقاط الحاجة الفعلية، وما إذا كان المطلوب تعزيز الامتلاء أو تخفيف الخطوط أو إعادة التوازن العام للملامح. النتيجة المستهدفة هنا ليست التغيير الجذري، بل تحسين محسوب يجعل المظهر أكثر نضارة واتزانًا وثقة.",
-    coverImageUrl: "/media/curated/service-injectables.svg",
+    coverImageUrl: serviceImages.injectables,
     benefits: [
       "نتائج متزنة تحافظ على الملامح",
       "تخطيط هادئ قبل أي إجراء",
@@ -733,7 +759,7 @@ const seedServices: ServiceRecord[] = [
       "خدمة تهدف إلى تحسين التناسق العام للجسم بطرق غير جراحية وخطة تناسب طبيعة الهدف المطلوب.",
     description:
       "تخدم هذه الجلسات من يبحث عن تحسينات مدروسة في تناسق القوام عبر وسائل غير جراحية وبتوقعات واقعية. تبدأ الخطة بفهم الهدف من العلاج، وتحديد المناطق المناسبة للعمل، ثم اختيار الإجراء الذي يخدم الحالة بصورة عملية.",
-    coverImageUrl: "/media/curated/device-body.svg",
+    coverImageUrl: serviceImages.body,
     benefits: [
       "تحسين التناسق العام للجسم",
       "تقنيات غير جراحية مناسبة للحالات المختارة",
@@ -753,7 +779,7 @@ const seedServices: ServiceRecord[] = [
       "استشارات وإجراءات جراحية تجميلية وترميمية تبدأ من تقييم طبي دقيق وحدود واضحة للتوقعات.",
     description:
       "يركز هذا المسار على الجراحات التجميلية والترميمية التي تحتاج إلى تخطيط دقيق، شرح للمخاطر والبدائل، وتحديد واقعي لما يناسب كل حالة قبل اعتماد أي إجراء.",
-    coverImageUrl: "/media/curated/service-aesthetic-surgery.svg",
+    coverImageUrl: serviceImages.aestheticSurgery,
     benefits: [
       "تقييم جراحي واضح قبل القرار",
       "شرح البدائل والمخاطر والتوقعات",
@@ -773,7 +799,7 @@ const seedServices: ServiceRecord[] = [
       "تقييم طبي لحالة البشرة ووضع خطة علاجية أو تجميلية تناسب نوع الجلد والهدف المطلوب.",
     description:
       "تبدأ الاستشارة بفهم التاريخ الطبي ونوع البشرة والمشكلة الحالية، ثم اختيار مسار مناسب قد يشمل العناية الطبية، الجلسات الجلدية، أو الأجهزة بحسب احتياج الحالة.",
-    coverImageUrl: "/media/curated/service-skin-care.svg",
+    coverImageUrl: serviceImages.skinCare,
     benefits: [
       "تشخيص أوضح قبل اختيار الخدمة",
       "خطة مناسبة لنوع البشرة",
@@ -793,7 +819,7 @@ const seedServices: ServiceRecord[] = [
       "تحسين مدروس لتوازن الملامح عبر خيارات غير جراحية تُختار حسب شكل الوجه واحتياج الحالة.",
     description:
       "يهدف هذا المسار إلى تحسين التناسق العام للوجه دون مبالغة، من خلال تقييم مواضع الحاجة واختيار التقنية أو المادة المناسبة مع شرح الحدود الواقعية للنتيجة.",
-    coverImageUrl: "/media/curated/service-injectables.svg",
+    coverImageUrl: serviceImages.injectables,
     benefits: [
       "توازن أفضل للملامح",
       "خيارات غير جراحية مدروسة",
@@ -815,7 +841,7 @@ const seedDevices: DeviceRecord[] = [
       "تقنية تساعد على تحسين ملمس البشرة وتقليل آثار الندبات والمسام وتفاوت اللون وفق تقييم الحالة.",
     description:
       "تستخدم هذه التقنية في خطط تجديد البشرة التي تحتاج إلى تحفيز أعمق وتحسين تدريجي في الملمس والمظهر العام. اختيارها لا يكون لمجرد الاسم، بل حين تكون مناسبة لنوع البشرة والهدف العلاجي المطلوب.",
-    imageUrl: "/media/curated/device-platform.svg",
+    imageUrl: serviceImages.devices,
     certifications: ["اعتماد طبي معتمد", "ملائم لخطط تجديد البشرة"],
     serviceSlugs: ["skin-rejuvenation"],
     status: ContentStatus.PUBLISHED,
@@ -828,7 +854,7 @@ const seedDevices: DeviceRecord[] = [
       "تقنية شائعة وفعالة لجلسات إزالة الشعر، مع قدرة على العمل وفق احتياج مناطق مختلفة ونوع البشرة.",
     description:
       "يدعم هذا الجهاز جلسات إزالة الشعر التي تحتاج إلى توازن بين الراحة والفعالية والاستمرارية، ويتم اعتماده ضمن خطة يشرح فيها الطبيب عدد الجلسات المتوقع والتعليمات المناسبة لكل حالة.",
-    imageUrl: "/media/curated/service-laser.svg",
+    imageUrl: serviceImages.laser,
     certifications: ["مناسب لجلسات الليزر", "إجراءات مبنية على تقييم مسبق"],
     serviceSlugs: ["laser-hair-removal"],
     status: ContentStatus.PUBLISHED,
@@ -841,7 +867,7 @@ const seedDevices: DeviceRecord[] = [
       "تقنية داعمة لتحسين تناسق القوام في الحالات التي تناسب الحلول غير الجراحية المتدرجة.",
     description:
       "تأتي هذه التقنية ضمن مسارات تهدف إلى دعم مظهر أكثر تناسقًا في بعض المناطق المختارة، مع أهمية التقييم الواقعي للحالة وتحديد ما إذا كانت الخدمة مناسبة بالفعل للهدف المطلوب.",
-    imageUrl: "/media/curated/device-body.svg",
+    imageUrl: serviceImages.body,
     certifications: [
       "اختيار مناسب للحالات المحددة",
       "خطة تعتمد على التقييم الواقعي",
@@ -857,7 +883,7 @@ const seedDevices: DeviceRecord[] = [
       "تقنية داعمة لتحسين تماسك الجلد وملمسه في الحالات المناسبة دون تدخل جراحي.",
     description:
       "تستخدم ضمن خطط شد البشرة وتحسين الملمس عندما يكون الهدف مناسبًا للتقنيات غير الجراحية، مع شرح عدد الجلسات المتوقع وطريقة المتابعة.",
-    imageUrl: "/media/curated/device-platform.svg",
+    imageUrl: serviceImages.devices,
     certifications: ["تقنية غير جراحية", "تقييم طبي قبل الاستخدام"],
     serviceSlugs: ["dermatology-consultation", "skin-rejuvenation"],
     status: ContentStatus.PUBLISHED,
@@ -870,7 +896,7 @@ const seedDevices: DeviceRecord[] = [
       "منصة عناية داعمة لتنظيف البشرة وترطيبها وتحضيرها ضمن مسار علاجي أو تجميلي متدرج.",
     description:
       "تُستخدم هذه الجلسات لتحسين صفاء البشرة ودعم الترطيب، وقد تكون خطوة تمهيدية أو مكملة لخدمات العناية والليزر بحسب تقييم الفريق الطبي.",
-    imageUrl: "/media/curated/service-skin-care.svg",
+    imageUrl: serviceImages.skinCare,
     certifications: ["عناية بالبشرة", "مناسبة للمسارات التحضيرية"],
     serviceSlugs: ["dermatology-consultation", "skin-rejuvenation"],
     status: ContentStatus.PUBLISHED,
@@ -883,7 +909,7 @@ const seedDevices: DeviceRecord[] = [
       "خيار غير جراحي لتحسين مظهر الشد في الحالات التي يناسبها التحفيز الحراري العميق.",
     description:
       "تُختار تقنية الهايفو بعد تقييم سماكة الجلد ودرجة الترهل والهدف المطلوب، وتُعرض ضمن توقعات واضحة حول النتيجة وفترة ظهورها.",
-    imageUrl: "/media/curated/device-body.svg",
+    imageUrl: serviceImages.body,
     certifications: ["شد غير جراحي", "اختيار حسب الحالة"],
     serviceSlugs: ["body-contouring", "dermatology-consultation"],
     status: ContentStatus.PUBLISHED,
@@ -898,8 +924,8 @@ const seedGallery: GalleryRecord[] = [
     category: "العناية بالبشرة",
     description:
       "مقارنة توضح كيف تساعد الخطة المناسبة على تحسين صفاء البشرة وملمسها بصورة تدريجية.",
-    beforeImageUrl: "/media/curated/service-skin-care.svg",
-    afterImageUrl: "/media/curated/service-injectables.svg",
+    beforeImageUrl: serviceImages.skinCare,
+    afterImageUrl: serviceImages.injectables,
     beforeImageAlt: "تحسن ملمس البشرة قبل",
     afterImageAlt: "تحسن ملمس البشرة بعد",
     initialSplitPercent: 50,
@@ -911,8 +937,8 @@ const seedGallery: GalleryRecord[] = [
     category: "جلسات الليزر",
     description:
       "عرض مختصر لنتيجة علاجية مرتبطة بخطة جلسات واضحة، مع متابعة مناسبة لكل حالة.",
-    beforeImageUrl: "/media/curated/service-laser.svg",
-    afterImageUrl: "/media/curated/device-platform.svg",
+    beforeImageUrl: serviceImages.laser,
+    afterImageUrl: serviceImages.devices,
     beforeImageAlt: "جلسات الليزر قبل",
     afterImageAlt: "جلسات الليزر بعد",
     initialSplitPercent: 50,
@@ -924,8 +950,8 @@ const seedGallery: GalleryRecord[] = [
     category: "تجميل القوام",
     description:
       "مثال بصري لخطة تركز على التناسق الطبيعي وتوقعات واضحة قبل البدء.",
-    beforeImageUrl: "/media/curated/device-body.svg",
-    afterImageUrl: "/media/curated/service-aesthetic-surgery.svg",
+    beforeImageUrl: serviceImages.body,
+    afterImageUrl: serviceImages.aestheticSurgery,
     beforeImageAlt: "تنسيق القوام قبل",
     afterImageAlt: "تنسيق القوام بعد",
     initialSplitPercent: 50,
@@ -945,7 +971,7 @@ const seedJournalPosts: JournalPostRecord[] = [
       "المراجعين غالبًا يأتون بطلب عام: أريد نضارة أو أريد تجديدًا. لكن الفريق الطبي يحتاج ترجمة هذا الطلب إلى خطة قابلة للتنفيذ. أحيانًا يكون الحل في جلسات خفيفة متدرجة، وأحيانًا في ربط الخدمة بجهاز أدق أو فترة متابعة أطول. لذلك فالتشخيص الهادئ هو ما يصنع الفرق بين نتيجة جميلة مؤقتة وخطة تعيد للبشرة توازنها بصورة أكثر ثباتًا.",
       "حين تُعرض هذه الفكرة بوضوح، يدرك الزائر أن العناية هنا تبدأ من فهم الحالة لا من الترويج. وهذا ما يجعل القرار أكثر استقرارًا قبل الزيارة الأولى.",
     ],
-    coverImageUrl: "/media/curated/service-skin-care.svg",
+    coverImageUrl: serviceImages.skinCare,
     category: "تثقيف طبي",
     publishedAt: "2026-05-12T09:00:00.000Z",
     readingTime: "4 دقائق",
@@ -963,7 +989,7 @@ const seedJournalPosts: JournalPostRecord[] = [
       "التهيئة الجيدة لا تعني فقط شرح التعليمات، بل أيضًا توضيح التوقعات الواقعية وعدد الجلسات المحتمل وما إذا كانت الحالة تحتاج إلى تعديل في العناية المنزلية أو في توقيت بعض الإجراءات الأخرى. هذه التفاصيل تصنع فرقًا كبيرًا في راحة المراجع وثقته.",
       "وحين يجد الزائر هذا المستوى من الشرح قبل الحجز، يصبح القرار أسهل لأن المحتوى يقدم معلومات طبية مباشرة لا عبارات دعائية.",
     ],
-    coverImageUrl: "/media/curated/service-injectables.svg",
+    coverImageUrl: serviceImages.injectables,
     category: "دليل الليزر",
     publishedAt: "2026-05-10T13:30:00.000Z",
     readingTime: "5 دقائق",
@@ -981,12 +1007,124 @@ const seedJournalPosts: JournalPostRecord[] = [
       "المراجع الذي يفكر في الحقن لا يبحث فقط عن صورة نتيجة، بل عن طبيب يفهم التناسق، وخطة واضحة، وحدودًا آمنة ومقنعة لما يمكن تحسينه. لذلك فإن اللغة التي تُعرض بها الخدمة لا تقل أهمية عن الإجراء ذاته.",
       "كلما كانت الصفحة أكثر اتزانًا في الشرح وأقرب إلى الحس الطبي الدقيق، شعر الزائر أن القرار هنا مبني على خبرة حقيقية لا على انطباع سريع. وهذه هي الثقة التي تصنع الفرق قبل أي جلسة.",
     ],
-    coverImageUrl: "/media/curated/service-laser.svg",
+    coverImageUrl: serviceImages.laser,
     category: "استراتيجيات الحقن",
     publishedAt: "2026-05-08T11:00:00.000Z",
     readingTime: "4 دقائق",
     relatedServiceSlugs: ["injectable-harmony"],
     relatedDoctorSlugs: ["saham-arfaj", "natali-domloj"],
+  },
+  {
+    id: "journal-aesthetic-surgery-planning",
+    slug: "aesthetic-surgery-planning-riyadh",
+    title: "كيف تبدأ استشارة الجراحة التجميلية بخطة واضحة وآمنة؟",
+    excerpt: "دليل مختصر من ريجوفيرا يوضح ما يجب مناقشته قبل أي قرار جراحي تجميلي في الرياض.",
+    body: [
+      "الاستشارة الجراحية الناجحة لا تبدأ من اسم العملية، بل من فهم الهدف، تقييم الحالة، وتوضيح الخيارات الممكنة وحدود كل خيار.",
+      "في ريجوفيرا نركز على أن تكون المراجعة مطمئنة وواضحة، مع شرح مسار التحضير والمتابعة حتى يكون القرار مبنيًا على معرفة لا على توقعات غير دقيقة.",
+    ],
+    coverImageUrl: serviceImages.aestheticSurgery,
+    category: "جراحة تجميلية",
+    publishedAt: "2026-05-06T10:00:00.000Z",
+    readingTime: "5 دقائق",
+    relatedServiceSlugs: ["cosmetic-surgery-consultation"],
+    relatedDoctorSlugs: ["loai-alsalmi", "maher-alahdab"],
+  },
+  {
+    id: "journal-body-contouring-expectations",
+    slug: "body-contouring-realistic-expectations",
+    title: "تنسيق القوام: ماذا يجب أن تعرفي قبل اختيار الإجراء؟",
+    excerpt: "مقال يشرح الفروق بين تحسين التناسق وتغيير الشكل، وكيف تحدد الاستشارة الخيار المناسب.",
+    body: [
+      "تنسيق القوام يحتاج قراءة دقيقة لتوزيع الدهون، جودة الجلد، نمط الحياة، والهدف المطلوب. لذلك تختلف الخطة من حالة لأخرى.",
+      "الأفضل دائمًا هو اختيار إجراء يخدم التناسق الطبيعي ويضع توقعات واقعية حول مدة التعافي ووقت ظهور النتيجة.",
+    ],
+    coverImageUrl: serviceImages.body,
+    category: "تجميل القوام",
+    publishedAt: "2026-05-04T12:00:00.000Z",
+    readingTime: "4 دقائق",
+    relatedServiceSlugs: ["body-contouring"],
+    relatedDoctorSlugs: ["loai-alsalmi"],
+  },
+  {
+    id: "journal-skin-tightening-guide",
+    slug: "skin-tightening-options-guide",
+    title: "شد البشرة غير الجراحي: متى يكون مناسبًا؟",
+    excerpt: "شرح مبسط للحالات التي يناسبها الشد غير الجراحي ومتى تكون الخيارات الأخرى أفضل.",
+    body: [
+      "تقنيات الشد غير الجراحي قد تكون مناسبة عند وجود ترهل خفيف أو متوسط، لكنها ليست بديلًا لكل الحالات الجراحية.",
+      "التقييم الطبي يحدد هل الهدف هو تحفيز الكولاجين، تحسين الملمس، أو الانتقال إلى خطة مختلفة أكثر ملاءمة.",
+    ],
+    coverImageUrl: serviceImages.devices,
+    category: "تقنيات البشرة",
+    publishedAt: "2026-05-02T09:30:00.000Z",
+    readingTime: "4 دقائق",
+    relatedServiceSlugs: ["skin-tightening"],
+    relatedDoctorSlugs: ["natali-domloj"],
+  },
+  {
+    id: "journal-prp-hair-skin",
+    slug: "prp-hair-skin-before-treatment",
+    title: "حقن البلازما للشعر والبشرة: أسئلة مهمة قبل البدء",
+    excerpt: "متى تكون البلازما خيارًا مناسبًا، وما الذي يجب تقييمه قبل تحديد عدد الجلسات؟",
+    body: [
+      "البلازما ليست إجراءً موحدًا لكل الحالات. في الشعر مثلًا نحتاج تقييم درجة التساقط والأسباب المحتملة قبل اعتماد الخطة.",
+      "وفي البشرة، يختلف الهدف بين تحسين النضارة ودعم التعافي ضمن خطة أوسع. لذلك تبدأ النتيجة الجيدة من تشخيص صحيح.",
+    ],
+    coverImageUrl: serviceImages.injectables,
+    category: "البلازما والتجديد",
+    publishedAt: "2026-04-30T14:00:00.000Z",
+    readingTime: "5 دقائق",
+    relatedServiceSlugs: ["prp-hair-skin"],
+    relatedDoctorSlugs: ["natali-domloj"],
+  },
+  {
+    id: "journal-choosing-doctor",
+    slug: "choosing-aesthetic-doctor-riyadh",
+    title: "كيف تختارين الطبيب المناسب للتجميل الطبي؟",
+    excerpt: "معايير تساعدك على قراءة الملف الطبي والخبرة وطريقة شرح الخطة قبل الحجز.",
+    body: [
+      "اختيار الطبيب لا يعتمد على الصورة أو عدد السنوات فقط، بل على وضوح التواصل، التخصص، وطريقة شرح التوقعات والمخاطر.",
+      "ملف الطبيب الجيد يجب أن يوضح مجالات الخبرة والخدمات المرتبطة به، حتى تختاري الاستشارة المناسبة من البداية.",
+    ],
+    coverImageUrl: serviceImages.journal,
+    category: "اختيار الطبيب",
+    publishedAt: "2026-04-28T11:30:00.000Z",
+    readingTime: "4 دقائق",
+    relatedServiceSlugs: ["dermatology-consultation"],
+    relatedDoctorSlugs: ["natali-domloj", "saham-arfaj"],
+  },
+  {
+    id: "journal-before-after-reading",
+    slug: "how-to-read-before-after-photos",
+    title: "كيف تقرئين صور قبل وبعد بطريقة صحيحة؟",
+    excerpt: "دليل لفهم صور النتائج دون مبالغة: الإضاءة، الزاوية، الفترة الزمنية، وطبيعة الحالة.",
+    body: [
+      "صور قبل وبعد تساعد على تكوين تصور، لكنها تحتاج قراءة دقيقة. اختلاف الإضاءة أو الزاوية قد يغير الانطباع بشكل كبير.",
+      "الأهم هو ربط الصورة بالخدمة، نوع الحالة، والمدة بين الصورتين، حتى يصبح القرار مبنيًا على فهم واقعي.",
+    ],
+    coverImageUrl: serviceImages.skinCare,
+    category: "معرض النتائج",
+    publishedAt: "2026-04-25T10:15:00.000Z",
+    readingTime: "3 دقائق",
+    relatedServiceSlugs: ["skin-rejuvenation"],
+    relatedDoctorSlugs: ["natali-domloj"],
+  },
+  {
+    id: "journal-consultation-prep",
+    slug: "prepare-for-aesthetic-consultation",
+    title: "كيف تستعدين لاستشارة التجميل في ريجوفيرا؟",
+    excerpt: "خطوات بسيطة تساعدك على الاستفادة من الاستشارة: الأسئلة، الصور، التاريخ الطبي، والهدف المطلوب.",
+    body: [
+      "قبل الاستشارة، اكتبي الأسئلة الأساسية والنتيجة التي تتمنينها، وأحضري أي معلومات طبية قد تؤثر على الخطة.",
+      "كلما كانت المعلومات أوضح، أصبح بإمكان الفريق الطبي اقتراح مسار أدق وأكثر ملاءمة لحالتك.",
+    ],
+    coverImageUrl: serviceImages.journal,
+    category: "قبل الزيارة",
+    publishedAt: "2026-04-22T13:45:00.000Z",
+    readingTime: "4 دقائق",
+    relatedServiceSlugs: ["dermatology-consultation"],
+    relatedDoctorSlugs: ["loai-alsalmi", "natali-domloj"],
   },
 ];
 
@@ -1058,7 +1196,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "hoursWeekend",
         label: "اليوم المغلق",
-        value: "الجمعة مغلق",
+        value: "",
       },
       {
         key: "mapsEmbedUrl",
@@ -1079,7 +1217,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "hoursWeekendEn",
         label: "Closed day (English)",
-        value: "Closed Friday",
+        value: "",
       },
     ],
   },
@@ -1193,27 +1331,27 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "homeHero",
         label: "صورة الصفحة الرئيسية",
-        value: "/media/curated/service-aesthetic-surgery.svg",
+        value: serviceImages.aestheticSurgery,
       },
       {
         key: "doctorsHero",
         label: "صورة قسم الأطباء",
-        value: "/media/curated/doctor-profile.svg",
+        value: doctorPortraits[0],
       },
       {
         key: "servicesHero",
         label: "صورة قسم الخدمات",
-        value: "/media/curated/service-aesthetic-surgery.svg",
+        value: serviceImages.aestheticSurgery,
       },
       {
         key: "aboutHero",
         label: "صورة صفحة من نحن",
-        value: "/media/curated/device-platform.svg",
+        value: serviceImages.devices,
       },
       {
         key: "journalHero",
         label: "صورة المجلة الطبية",
-        value: "/media/curated/service-injectables.svg",
+        value: serviceImages.journal,
       },
     ],
   },
@@ -1237,12 +1375,12 @@ const seedSettings: SettingsGroup[] = [
         key: "heroDescription",
         label: "وصف الهيرو",
         value:
-          "نقدم لك أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتك.",
+          "نقدم لكِ أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتكِ.",
       },
       {
         key: "heroPillLabel",
         label: "شارة الهيرو العلوية",
-        value: "مركز طبي متكامل للتجميل والعناية بالبشرة",
+        value: "ريجوفيرا | مركز طبي متكامل للتجميل والعناية بالبشرة",
       },
       {
         key: "heroCtaPrimary",
@@ -1304,7 +1442,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "galleryItem1Image",
         label: "صورة العنصر الأول",
-        value: "/media/curated/service-skin-care.svg",
+        value: serviceImages.skinCare,
       },
       {
         key: "galleryItem1Title",
@@ -1320,7 +1458,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "galleryItem2Image",
         label: "صورة العنصر الثاني",
-        value: "/media/curated/service-laser.svg",
+        value: serviceImages.laser,
       },
       {
         key: "galleryItem2Title",
@@ -1336,7 +1474,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "galleryItem3Image",
         label: "صورة العنصر الثالث",
-        value: "/media/curated/device-platform.svg",
+        value: serviceImages.devices,
       },
       {
         key: "galleryItem3Title",
@@ -1377,7 +1515,7 @@ const seedSettings: SettingsGroup[] = [
         label: "Testimonial 1 quote",
         value: "The plan was clear before starting, and follow-up after the visit was organized.",
       },
-      { key: "testimonial1Avatar", label: "صورة العميل الأول", value: "/media/curated/doctor-profile.svg" },
+      { key: "testimonial1Avatar", label: "صورة العميل الأول", value: realImage("photo-1494790108377-be9c29b29330") },
       { key: "testimonial2AuthorAr", label: "اسم رأي العميل الثاني", value: "نورة خالد" },
       { key: "testimonial2AuthorEn", label: "Testimonial 2 author", value: "Noura Khalid" },
       {
@@ -1390,7 +1528,7 @@ const seedSettings: SettingsGroup[] = [
         label: "Testimonial 2 quote",
         value: "The consultation was calm and direct, with no pressure to choose a procedure.",
       },
-      { key: "testimonial2Avatar", label: "صورة العميل الثاني", value: "/media/curated/service-skin-care.svg" },
+      { key: "testimonial2Avatar", label: "صورة العميل الثاني", value: realImage("photo-1534528741775-53994a69daeb") },
       { key: "testimonial3AuthorAr", label: "اسم رأي العميل الثالث", value: "مها محمد" },
       { key: "testimonial3AuthorEn", label: "Testimonial 3 author", value: "Maha Mohammed" },
       {
@@ -1403,7 +1541,7 @@ const seedSettings: SettingsGroup[] = [
         label: "Testimonial 3 quote",
         value: "Booking was clear, reception was organized, and aftercare instructions arrived on time.",
       },
-      { key: "testimonial3Avatar", label: "صورة العميل الثالث", value: "/media/curated/service-injectables.svg" },
+      { key: "testimonial3Avatar", label: "صورة العميل الثالث", value: realImage("photo-1544005313-94ddf0286df2") },
     ],
   },
   {
@@ -1456,28 +1594,28 @@ const defaultMediaSelections: MediaSelections = {
   favicon: "/icon.svg",
   appleIcon: "/media/brand-logo-main.png",
   ogImage: "/media/brand-logo-main.png",
-  homeHero: "/media/curated/service-aesthetic-surgery.svg",
-  doctorsHero: "/media/curated/doctor-profile.svg",
-  servicesHero: "/media/curated/service-aesthetic-surgery.svg",
-  aboutHero: "/media/curated/device-platform.svg",
-  journalHero: "/media/curated/service-injectables.svg",
+  homeHero: serviceImages.aestheticSurgery,
+  doctorsHero: doctorPortraits[0],
+  servicesHero: serviceImages.aestheticSurgery,
+  aboutHero: serviceImages.devices,
+  journalHero: serviceImages.journal,
 };
 
 const defaultHomeGalleryItems: HomeGalleryItem[] = [
   {
-    image: "/media/curated/service-skin-care.svg",
+    image: serviceImages.skinCare,
     title: "تجديد البشرة المتقدم",
     description:
       "مشهد مخصص لخدمات تحسين نضارة البشرة، الملمس، وتوحيد اللون ضمن خطة متدرجة.",
   },
   {
-    image: "/media/curated/service-laser.svg",
+    image: serviceImages.laser,
     title: "جلسات الليزر",
     description:
       "صورة توضيحية لخدمات الليزر المرتبطة بإزالة الشعر وبعض المسارات المعتمدة على الأجهزة.",
   },
   {
-    image: "/media/curated/device-platform.svg",
+    image: serviceImages.devices,
     title: "الأجهزة المعتمدة",
     description:
       "واجهة توضح الأجهزة المستخدمة داخل الخطة العلاجية وربطها بالحالات المناسبة.",
@@ -1541,25 +1679,31 @@ function toStringList(value: unknown): string[] {
 }
 
 const imageFallbackMap: Record<string, string> = {
-  "/media/curated/service-skin-rejuvenation.jpg": "/media/curated/service-skin-care.svg",
+  "/media/curated/service-skin-rejuvenation.jpg": serviceImages.skinCare,
   "/media/curated/brand-logo.jpg": "/media/brand-logo-main.png",
-  "/media/curated/service-laser-hair-removal.jpg": "/media/curated/service-laser.svg",
-  "/media/curated/service-injectables.png": "/media/curated/service-injectables.svg",
-  "/media/curated/service-prp.jpg": "/media/curated/service-injectables.svg",
-  "/media/curated/device-laser-platform.png": "/media/curated/device-platform.svg",
-  "/media/curated/device-emface.jpg": "/media/curated/device-body.svg",
-  "/media/reference/legacy/15.png": "/media/curated/service-skin-care.svg",
-  "/media/reference/legacy/16.png": "/media/curated/service-injectables.svg",
-  "/media/reference/legacy/13.png": "/media/curated/service-laser.svg",
-  "/media/reference/legacy/18.png": "/media/curated/device-platform.svg",
-  "/media/reference/legacy/56549.png": "/media/curated/device-body.svg",
-  "/media/reference/legacy/88985959.png": "/media/curated/service-aesthetic-surgery.svg",
+  "/media/curated/service-laser-hair-removal.jpg": serviceImages.laser,
+  "/media/curated/service-injectables.png": serviceImages.injectables,
+  "/media/curated/service-prp.jpg": serviceImages.injectables,
+  "/media/curated/device-laser-platform.png": serviceImages.devices,
+  "/media/curated/device-emface.jpg": serviceImages.body,
+  "/media/curated/service-skin-care.svg": serviceImages.skinCare,
+  "/media/curated/service-laser.svg": serviceImages.laser,
+  "/media/curated/service-injectables.svg": serviceImages.injectables,
+  "/media/curated/service-aesthetic-surgery.svg": serviceImages.aestheticSurgery,
+  "/media/curated/device-platform.svg": serviceImages.devices,
+  "/media/curated/device-body.svg": serviceImages.body,
+  "/media/reference/legacy/15.png": serviceImages.skinCare,
+  "/media/reference/legacy/16.png": serviceImages.injectables,
+  "/media/reference/legacy/13.png": serviceImages.laser,
+  "/media/reference/legacy/18.png": serviceImages.devices,
+  "/media/reference/legacy/56549.png": serviceImages.body,
+  "/media/reference/legacy/88985959.png": serviceImages.aestheticSurgery,
 };
 
 function toDisplayAsset(value: string | null | undefined, fallback: string): string {
   const source = value?.trim() || fallback;
   if (source.startsWith("/media/doctors/")) {
-    return "/media/curated/doctor-profile.svg";
+    return doctorPortraits[0];
   }
   return imageFallbackMap[source] ?? source;
 }
@@ -1935,7 +2079,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       hoursWeekend: getValue(
         "contact",
         "hoursWeekend",
-        "الجمعة مغلق",
+        "",
       ),
       hoursWeekdaysEn: getValue(
         "contact",
@@ -1945,7 +2089,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       hoursWeekendEn: getValue(
         "contact",
         "hoursWeekendEn",
-        "Closed Friday",
+        "",
       ),
     },
     brand: {
@@ -2053,12 +2197,12 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       heroDescription: getValue(
         "homepage",
         "heroDescription",
-        "نقدم لك أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتك.",
+        "نقدم لكِ أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتكِ.",
       ),
       heroPillLabel: getValue(
         "homepage",
         "heroPillLabel",
-        "مركز طبي متكامل للتجميل والعناية بالبشرة",
+        "ريجوفيرا | مركز طبي متكامل للتجميل والعناية بالبشرة",
       ),
       heroCtaPrimary: getValue(
         "homepage",

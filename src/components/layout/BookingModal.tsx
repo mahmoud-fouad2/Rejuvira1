@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { ContactForm } from "@/components/forms/ContactForm";
 import type { ServiceRecord } from "@/lib/content-repository";
@@ -17,13 +18,26 @@ export function BookingModal({
   services,
   recaptchaSiteKey,
   compactLabel = false,
+  buttonClassName = "rv-v0-book",
+  labelAr,
+  labelEn,
+  source = "Header booking modal",
 }: {
   services: readonly ServiceRecord[];
   recaptchaSiteKey?: string | undefined;
   compactLabel?: boolean;
+  buttonClassName?: string;
+  labelAr?: string;
+  labelEn?: string;
+  source?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const titleId = useId();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -40,12 +54,12 @@ export function BookingModal({
 
   return (
     <>
-      <button type="button" className="rv-v0-book" onClick={() => setOpen(true)}>
-        <span className="lang-ar">{compactLabel ? "احجزي" : "احجزي موعدك"}</span>
-        <span className="lang-en">{compactLabel ? "Book" : "Book Now"}</span>
-        <CalendarIcon />
+      <button type="button" className={buttonClassName} onClick={() => setOpen(true)}>
+        <span className="lang-ar">{labelAr ?? (compactLabel ? "احجزي" : "احجزي موعدك")}</span>
+        <span className="lang-en">{labelEn ?? (compactLabel ? "Book" : "Book Now")}</span>
+        {buttonClassName === "rv-v0-book" ? <CalendarIcon /> : null}
       </button>
-      {open ? (
+      {open && mounted ? createPortal(
         <div className="rv-booking-modal" role="dialog" aria-modal="true" aria-labelledby={titleId}>
           <button
             type="button"
@@ -69,24 +83,25 @@ export function BookingModal({
               </button>
             </div>
             <h2 id={titleId} className="rv-booking-title">
-              <span className="lang-ar">اختاري الخدمة واتركي بياناتك، وسيظهر الطلب فوراً داخل CRM.</span>
-              <span className="lang-en">Choose a service and your request will appear directly in the CRM.</span>
+              <span className="lang-ar">احجزي موعدك بخطوات بسيطة، وسيتواصل معك فريق ريجوفيرا لتأكيد التفاصيل.</span>
+              <span className="lang-en">Book in a few simple steps and our team will confirm the details.</span>
             </h2>
             <p className="rv-booking-lead">
-              <span className="lang-ar">النموذج مختصر للحجز السريع، ويمكن ربطه بالـ Webhook من لوحة التحكم.</span>
-              <span className="lang-en">A short booking form connected to CRM and optional webhook delivery.</span>
+              <span className="lang-ar">اكتبي الاسم ورقم الجوال واختاري الخدمة الأقرب لاحتياجك.</span>
+              <span className="lang-en">Enter your name, phone number, and the service you are interested in.</span>
             </p>
             <ContactForm
               services={services}
               recaptchaSiteKey={recaptchaSiteKey}
               compact
-              source="Header booking modal"
+              source={source}
               submitLabelAr="إرسال طلب الحجز"
               submitLabelEn="Send booking request"
               formClassName="rv-booking-form"
             />
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   );

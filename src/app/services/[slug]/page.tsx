@@ -29,6 +29,16 @@ export async function generateMetadata({
   return {
     title: service.name,
     description: service.excerpt,
+    keywords: [
+      service.name,
+      service.category,
+      "ريجوفيرا",
+      "Rejuvira Medical Center",
+      "مركز تجميل الرياض",
+      "Aesthetic clinic Riyadh",
+      ...service.doctorSlugs,
+      ...service.deviceSlugs,
+    ],
     openGraph: {
       title: service.name,
       description: service.excerpt,
