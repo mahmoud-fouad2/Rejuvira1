@@ -38,26 +38,28 @@ export default async function DoctorsPage() {
         {/* ═══ HERO + FEATURED ═══ */}
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 lg:p-12">
-            <p className="eyebrow">فريقنا الطبي</p>
+            <p className="eyebrow"><span className="lang-ar">فريقنا الطبي</span><span className="lang-en">Medical Team</span></p>
             <h1 className="balanced-text mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] text-ink">
-              ملفات الأطباء والتخصصات المتاحة بصورة مباشرة وواضحة.
+              <span className="lang-ar">ملفات الأطباء والتخصصات المتاحة بصورة مباشرة وواضحة.</span>
+              <span className="lang-en">Doctor profiles and specialties presented clearly.</span>
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-ink-soft">
-              يوضح هذا القسم تخصص كل طبيب، سنوات الخبرة، والخدمات المرتبطة به دون عناصر مشتتة لا تخدم قرار الاختيار.
+              <span className="lang-ar">يوضح هذا القسم تخصص كل طبيب، سنوات الخبرة، والخدمات المرتبطة به دون عناصر مشتتة لا تخدم قرار الاختيار.</span>
+              <span className="lang-en">Review each doctor's specialty, experience, and related services without distracting content.</span>
             </p>
 
             {/* Stats row */}
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {[
-                { label: "أطباء مختارون", value: doctors.length },
-                { label: "تخصصات دقيقة", value: new Set(doctors.map((d) => d.specialty)).size },
-                { label: "لغات الخدمة", value: new Set(doctors.flatMap((d) => d.languages)).size },
+                { label: "أطباء مختارون", labelEn: "Selected doctors", value: doctors.length },
+                { label: "تخصصات دقيقة", labelEn: "Specialties", value: new Set(doctors.map((d) => d.specialty)).size },
+                { label: "لغات الخدمة", labelEn: "Service languages", value: new Set(doctors.flatMap((d) => d.languages)).size },
               ].map((stat) => (
                 <div
                   key={stat.label}
                   className="surface-panel rounded-[1.8rem] p-6 transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  <p className="text-sm font-medium text-ink-soft">{stat.label}</p>
+                  <p className="text-sm font-medium text-ink-soft"><span className="lang-ar">{stat.label}</span><span className="lang-en">{stat.labelEn}</span></p>
                   <p className="mt-2 font-serif text-3xl text-ink">{stat.value}</p>
                 </div>
               ))}
@@ -79,7 +81,7 @@ export default async function DoctorsPage() {
                 </div>
                 <div className="flex flex-col justify-between gap-5 rounded-[2rem] bg-surface p-8">
                   <div>
-                    <p className="eyebrow">الطبيب المميز</p>
+                    <p className="eyebrow"><span className="lang-ar">الطبيب المميز</span><span className="lang-en">Featured Doctor</span></p>
                     <h2 className="mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em] text-ink">
                       {featuredDoctor.name}
                     </h2>
@@ -92,19 +94,20 @@ export default async function DoctorsPage() {
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-[1.5rem] border border-line bg-surface p-5 text-sm">
-                      <span className="eyebrow block">التخصص</span>
+                      <span className="eyebrow block"><span className="lang-ar">التخصص</span><span className="lang-en">Specialty</span></span>
                       <span className="mt-2 block font-medium text-ink">{featuredDoctor.specialty}</span>
                     </div>
                     <div className="rounded-[1.5rem] border border-line bg-surface p-5 text-sm">
-                      <span className="eyebrow block">سنوات الخبرة</span>
-                      <span className="mt-2 block font-medium text-ink">{featuredDoctor.yearsExperience} سنوات خبرة</span>
+                      <span className="eyebrow block"><span className="lang-ar">سنوات الخبرة</span><span className="lang-en">Experience</span></span>
+                      <span className="mt-2 block font-medium text-ink">{featuredDoctor.yearsExperience} <span className="lang-ar">سنوات خبرة</span><span className="lang-en">years</span></span>
                     </div>
                   </div>
                   <Link
                     href={`/doctors/${featuredDoctor.slug}`}
                     className="btn-primary self-start"
                   >
-                    اكتشفي ملف الطبيب
+                    <span className="lang-ar">اكتشفي ملف الطبيب</span>
+                    <span className="lang-en">View doctor profile</span>
                   </Link>
                 </div>
               </div>
@@ -138,7 +141,7 @@ export default async function DoctorsPage() {
               <div className="p-8">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline" size="md">
-                    {doctor.yearsExperience} سنوات خبرة
+                    {doctor.yearsExperience} <span className="lang-ar">سنوات خبرة</span><span className="lang-en">years</span>
                   </Badge>
                   <Badge variant="outline" size="md">
                     {doctor.languages.join(" / ")}

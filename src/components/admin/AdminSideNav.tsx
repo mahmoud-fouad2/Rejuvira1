@@ -8,9 +8,18 @@ import { adminNavGroups, type AdminNavGroupKey } from "@/lib/site-content";
 
 type NavItem = {
   label: string;
+  labelEn?: string;
   href: string;
   description: string;
+  descriptionEn?: string;
   group?: AdminNavGroupKey;
+};
+
+const groupLabels: Record<AdminNavGroupKey, { ar: string; en: string }> = {
+  overview: { ar: "نظرة عامة", en: "Overview" },
+  content: { ar: "المحتوى", en: "Content" },
+  ops: { ar: "العمليات", en: "Operations" },
+  settings: { ar: "الإعدادات", en: "Settings" },
 };
 
 function iconFor(href: string) {
@@ -142,10 +151,12 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
         const groupItems = grouped.get(groupKey);
         if (!groupItems || groupItems.length === 0) return null;
         const groupMeta = adminNavGroups[groupKey];
+        const groupLabel = groupLabels[groupKey];
         return (
           <div key={groupKey} className="grid gap-1">
             <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-faint">
-              {groupMeta.label}
+              <span className="lang-ar">{groupMeta.label}</span>
+              <span className="lang-en">{groupLabel.en}</span>
             </p>
             {groupItems.map((item) => {
               const active = navActive(pathname, item.href);
@@ -176,10 +187,12 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                           : "text-ink group-hover:text-ink-strong"
                       }`}
                     >
-                      {item.label}
+                      <span className="lang-ar">{item.label}</span>
+                      <span className="lang-en">{item.labelEn ?? item.label}</span>
                     </span>
                     <span className="mt-0.5 block truncate text-[11px] leading-snug text-ink-faint group-hover:text-ink-soft">
-                      {item.description}
+                      <span className="lang-ar">{item.description}</span>
+                      <span className="lang-en">{item.descriptionEn ?? item.description}</span>
                     </span>
                   </span>
                   {active ? (

@@ -40,30 +40,34 @@ export default async function ServicesPage() {
         {/* ═══ HERO + FEATURED ═══ */}
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 lg:p-12">
-            <p className="eyebrow">الخدمات</p>
+            <p className="eyebrow"><span className="lang-ar">الخدمات</span><span className="lang-en">Services</span></p>
             <h1 className="balanced-text mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] text-ink">
-              خدمات طبية وتجميلية متكاملة لوجهك وجسمك.
+              <span className="lang-ar">خدمات طبية وتجميلية متكاملة لوجهك وجسمك.</span>
+              <span className="lang-en">Integrated medical aesthetic services for face and body.</span>
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-ink-soft">
-              يضم المركز خدمات طبية وتجميلية متكاملة، تشمل العناية بالبشرة، الليزر، الحقن، وتجميل الجسم — موضحة بتفاصيل واضحة تساعد على الاختيار.
+              <span className="lang-ar">يضم المركز خدمات طبية وتجميلية متكاملة، تشمل العناية بالبشرة، الليزر، الحقن، وتجميل الجسم — موضحة بتفاصيل واضحة تساعد على الاختيار.</span>
+              <span className="lang-en">Explore skin care, laser, injectables, and body aesthetic services with clear details that support confident choices.</span>
             </p>
 
             {/* Stats row */}
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {[
-                { label: "الخدمات المتاحة", value: services.length },
-                { label: "الأقسام", value: categoryCount },
-                { label: "تغطي الوجه والجسم", value: "وجه وجسم" },
+                { label: "الخدمات المتاحة", labelEn: "Available services", value: services.length },
+                { label: "الأقسام", labelEn: "Categories", value: categoryCount },
+                { label: "تغطي الوجه والجسم", labelEn: "Face and body", value: "وجه وجسم", valueEn: "Face & body" },
               ].map((stat) => (
                 <div
                   key={stat.label}
                   className="surface-panel rounded-[1.8rem] p-6 transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <p className="text-sm font-medium text-ink-soft">
-                    {stat.label}
+                    <span className="lang-ar">{stat.label}</span>
+                    <span className="lang-en">{stat.labelEn}</span>
                   </p>
                   <p className="mt-2 font-serif text-3xl text-ink">
-                    {stat.value}
+                    <span className="lang-ar">{stat.value}</span>
+                    <span className="lang-en">{"valueEn" in stat ? stat.valueEn : stat.value}</span>
                   </p>
                 </div>
               ))}
@@ -88,7 +92,7 @@ export default async function ServicesPage() {
                 </div>
                 <div className="flex flex-col justify-between gap-5 rounded-[2rem] bg-surface p-8">
                   <div>
-                    <p className="eyebrow">الخدمة المميزة</p>
+                    <p className="eyebrow"><span className="lang-ar">الخدمة المميزة</span><span className="lang-en">Featured Service</span></p>
                     <h2 className="mt-4 font-serif text-4xl leading-snug tracking-[-0.02em] text-ink">
                       {featuredService.name}
                     </h2>
@@ -110,7 +114,8 @@ export default async function ServicesPage() {
                     href={`/services/${featuredService.slug}`}
                     className="btn-primary self-start"
                   >
-                    تفاصيل الخدمة المميزة
+                    <span className="lang-ar">تفاصيل الخدمة المميزة</span>
+                    <span className="lang-en">View featured service</span>
                   </Link>
                 </div>
               </div>
@@ -166,7 +171,8 @@ export default async function ServicesPage() {
                   href={`/services/${service.slug}`}
                   className="btn-primary mt-8 self-start"
                 >
-                  تفاصيل الخدمة
+                  <span className="lang-ar">تفاصيل الخدمة</span>
+                  <span className="lang-en">Service details</span>
                 </Link>
               </div>
             </article>

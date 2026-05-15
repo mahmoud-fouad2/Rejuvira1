@@ -10451,8 +10451,8 @@ footer .rv-brand-logo-footer {
 
 .rv-login-brand-light { display: block; }
 .rv-login-brand-dark { display: none; }
-:root[data-theme="dark"] .rv-login-brand-light { display: none; }
-:root[data-theme="dark"] .rv-login-brand-dark { display: block; }
+:root[data-theme="dark"] .rv-login-brand-light { display: block; }
+:root[data-theme="dark"] .rv-login-brand-dark { display: none; }
 
 .rv-login-heading {
   text-align: center;
@@ -10832,4 +10832,17 @@ html[data-theme="dark"] .rv-v0-hero-copy .rv-v0-stats b {
 
 html[data-theme="dark"] .rv-v0-hero-copy .rv-v0-stats span {
   color: rgba(249, 240, 255, 0.86) !important;
+}
+
+@media (max-width: 640px) {
+  header .rv-brand-logo-img {
+    height: 4.35rem !important;
+    max-width: 12.2rem !important;
+  }
+
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-logo {
+    min-width: 6.8rem !important;
+  }
 }

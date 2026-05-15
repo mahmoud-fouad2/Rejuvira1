@@ -1,8 +1,10 @@
 import Link from "next/link";
 import type { Route } from "next";
 
+import { AdminLanguageBridge } from "@/components/admin/AdminLanguageBridge";
 import { AdminSideNav } from "@/components/admin/AdminSideNav";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { LanguageToggle } from "@/components/layout/LanguageToggle";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { auth } from "@/auth";
 import { canAccessAdminRoute, getRoleLabel } from "@/lib/admin-permissions";
@@ -17,7 +19,13 @@ export default async function AdminLayout({
   const availableNavigation = adminNavigation.filter((item) =>
     canAccessAdminRoute(item.href, session?.user?.role),
   );
-  const currentDate = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+  const currentDateAr = new Intl.DateTimeFormat("ar-SA-u-ca-gregory", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+  const currentDateEn = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -26,6 +34,7 @@ export default async function AdminLayout({
 
   return (
     <div className="admin-app min-h-screen font-[family-name:var(--font-rejuvira-sans)] text-ink antialiased">
+      <AdminLanguageBridge />
       <div className="mx-auto grid min-h-screen w-full max-w-[112rem] grid-cols-1 gap-5 px-4 py-5 sm:px-5 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-6 lg:px-6 xl:grid-cols-[19.5rem_minmax(0,1fr)]">
         <aside className="admin-sidebar surface-panel relative flex w-full flex-col overflow-hidden rounded-[1.5rem] p-4 shadow-sm lg:sticky lg:top-5 lg:h-[calc(100vh-2.5rem)] lg:self-start">
           <div className="pointer-events-none absolute -start-24 top-0 h-52 w-52 rounded-full bg-accent/15 blur-3xl" />
@@ -42,10 +51,12 @@ export default async function AdminLayout({
             />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold tracking-tight text-ink-strong">
-                Rejuvira Admin
+                <span className="lang-ar">إدارة Rejuvira</span>
+                <span className="lang-en">Rejuvira Admin</span>
               </p>
               <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-faint">
-                Operations
+                <span className="lang-ar">Operations</span>
+                <span className="lang-en">Operations</span>
               </p>
             </div>
           </Link>
@@ -73,13 +84,15 @@ export default async function AdminLayout({
               href={"/" as Route}
               className="admin-sidebar-action"
             >
-              الموقع
+              <span className="lang-ar">الموقع</span>
+              <span className="lang-en">Site</span>
             </Link>
             <Link
               href={"/admin/media" as Route}
               className="admin-sidebar-action"
             >
-              الصور
+              <span className="lang-ar">الصور</span>
+              <span className="lang-en">Media</span>
             </Link>
           </div>
         </aside>
@@ -91,23 +104,28 @@ export default async function AdminLayout({
                 Rejuvira Command Center
               </p>
               <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink-strong sm:text-2xl">
-                لوحة الإدارة
+                <span className="lang-ar">لوحة الإدارة</span>
+                <span className="lang-en">Admin Panel</span>
               </h1>
             </div>
             <div className="flex min-w-0 flex-wrap items-center gap-2 xl:justify-end">
               <span className="admin-notification-pill">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald" />
-                لا توجد تنبيهات حرجة
+                <span className="lang-ar">لا توجد تنبيهات حرجة</span>
+                <span className="lang-en">No critical alerts</span>
               </span>
               <span className="rounded-full border border-line bg-surface-strong px-3 py-2 text-[11px] font-medium text-ink-soft">
-                {currentDate}
+                <span className="lang-ar">{currentDateAr}</span>
+                <span className="lang-en">{currentDateEn}</span>
               </span>
+              <LanguageToggle />
               <ThemeToggle />
               <Link
                 href={"/" as Route}
                 className="rounded-full border border-line bg-ink-strong px-4 py-2 text-xs font-semibold text-canvas transition hover:opacity-90"
               >
-                زيارة الموقع
+                <span className="lang-ar">زيارة الموقع</span>
+                <span className="lang-en">View Site</span>
               </Link>
             </div>
           </header>

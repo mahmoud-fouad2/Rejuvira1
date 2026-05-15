@@ -14,38 +14,55 @@ export async function generateMetadata(): Promise<Metadata> {
 const coreValues = [
   {
     eyebrow: "الوضوح",
+    eyebrowEn: "Clarity",
     title: "وضوح لا غموض",
+    titleEn: "Clarity without confusion",
     description:
       "كل استشارة تبدأ بفهم حقيقي للحالة. لا وعود مبالغ فيها، لا مصطلحات تربك الزائر، فقط معلومة دقيقة ومسار واضح.",
+    descriptionEn:
+      "Every consultation begins with real understanding. No inflated promises, no confusing jargon, only precise information and a clear path.",
   },
   {
     eyebrow: "الثقة",
+    eyebrowEn: "Trust",
     title: "ثقة مكتسبة يوماً بيوم",
+    titleEn: "Trust earned every day",
     description:
       "الثقة هنا مبنية على شرح واضح، توقعات واقعية، ومتابعة مستمرة بعد الإجراء عند الحاجة.",
+    descriptionEn:
+      "Trust is built on clear explanation, realistic expectations, and follow-up when needed.",
   },
   {
     eyebrow: "التنظيم",
+    eyebrowEn: "Organization",
     title: "تنظيم في كل خطوة",
+    titleEn: "Organized at every step",
     description:
       "من طريقة عرض الخدمة إلى التواصل بعد الحجز، كل عنصر مصمم ليكون مباشرًا وسهل الفهم.",
+    descriptionEn:
+      "From service presentation to post-booking contact, every element is designed to be direct and easy to understand.",
   },
   {
     eyebrow: "النتائج",
+    eyebrowEn: "Results",
     title: "نتائج طبيعية ومستدامة",
+    titleEn: "Natural, lasting results",
     description:
       "لا نؤمن بالحلول السريعة التي تطغى على الملامح. غايتنا تحسين خفيف، متزن، يُحافظ على شخصيتك الجمالية.",
+    descriptionEn:
+      "We focus on balanced enhancement that respects your natural features and aesthetic identity.",
   },
 ] as const;
 
 const milestones = [
-  { year: "2018", label: "تأسيس المركز بأول عيادة متخصصة في الرياض" },
-  { year: "2020", label: "توسع الفريق الطبي وإضافة خدمات الليزر المتقدمة" },
+  { year: "2018", label: "تأسيس المركز بأول عيادة متخصصة في الرياض", labelEn: "Center founded with the first specialized clinic in Riyadh" },
+  { year: "2020", label: "توسع الفريق الطبي وإضافة خدمات الليزر المتقدمة", labelEn: "Medical team expanded and advanced laser services added" },
   {
     year: "2022",
     label: "إطلاق قسم الاستشارات الإلكترونية ومتابعة ما بعد الجلسة",
+    labelEn: "Digital consultations and post-session follow-up launched",
   },
-  { year: "2024", label: "إعادة تصميم التجربة الكاملة وإطلاق الهوية الجديدة" },
+  { year: "2024", label: "إعادة تصميم التجربة الكاملة وإطلاق الهوية الجديدة", labelEn: "Full experience redesigned and new identity launched" },
 ] as const;
 
 export default async function AboutPage() {
@@ -72,15 +89,17 @@ export default async function AboutPage() {
             </p>
             <div className="mt-10 grid gap-4 md:grid-cols-2">
               <div className="surface-panel rounded-[1.8rem] p-6 shadow-sm">
-                <p className="text-ink-soft text-sm font-medium">خبرة طبية</p>
+                <p className="text-ink-soft text-sm font-medium"><span className="lang-ar">خبرة طبية</span><span className="lang-en">Medical expertise</span></p>
                 <p className="text-ink-strong mt-2 font-serif text-lg tracking-[-0.01em]">
-                  تشخيص أدق وخطط أكثر ملاءمة لكل حالة
+                  <span className="lang-ar">تشخيص أدق وخطط أكثر ملاءمة لكل حالة</span>
+                  <span className="lang-en">Sharper diagnosis and better-fit plans for each case</span>
                 </p>
               </div>
               <div className="surface-panel rounded-[1.8rem] p-6 shadow-sm">
-                <p className="text-ink-soft text-sm font-medium">عرض منظم</p>
+                <p className="text-ink-soft text-sm font-medium"><span className="lang-ar">عرض منظم</span><span className="lang-en">Organized presentation</span></p>
                 <p className="text-ink-strong mt-2 font-serif text-lg tracking-[-0.01em]">
-                  معلومات أوضح تقلل التردد قبل الاستشارة
+                  <span className="lang-ar">معلومات أوضح تقلل التردد قبل الاستشارة</span>
+                  <span className="lang-en">Clearer information before consultation</span>
                 </p>
               </div>
             </div>
@@ -103,23 +122,25 @@ export default async function AboutPage() {
         ════════════════════════════════════════ */}
         <section className="grid gap-6 lg:grid-cols-2">
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-0.5 lg:p-12">
-            <p className="eyebrow text-ink-soft">الرؤية</p>
+            <p className="eyebrow text-ink-soft"><span className="lang-ar">الرؤية</span><span className="lang-en">Vision</span></p>
             <h2 className="balanced-text text-ink-strong mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
-              رؤيتنا: تقديم رعاية واضحة تقود إلى قرار علاجي أدق.
+              <span className="lang-ar">رؤيتنا: تقديم رعاية واضحة تقود إلى قرار علاجي أدق.</span>
+              <span className="lang-en">Our vision: clear care that leads to better treatment decisions.</span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              نسعى إلى أن يكون المركز وجهة موثوقة لخدمات التجميل الطبي والعناية بالبشرة والجسم، مع محتوى يشرح الخيارات بوضوح دون مبالغة.
+              <span className="lang-ar">نسعى إلى أن يكون المركز وجهة موثوقة لخدمات التجميل الطبي والعناية بالبشرة والجسم، مع محتوى يشرح الخيارات بوضوح دون مبالغة.</span>
+              <span className="lang-en">We aim to be a trusted destination for medical aesthetics, skin care, and body care with clear explanations and no overstatement.</span>
             </p>
           </article>
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-0.5 lg:p-12">
-            <p className="eyebrow text-ink-soft">الرسالة</p>
+            <p className="eyebrow text-ink-soft"><span className="lang-ar">الرسالة</span><span className="lang-en">Mission</span></p>
             <h2 className="balanced-text text-ink-strong mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
-              مهمتنا: رعاية حقيقية لا تكتفي بالمظهر.
+              <span className="lang-ar">مهمتنا: رعاية حقيقية لا تكتفي بالمظهر.</span>
+              <span className="lang-en">Our mission: real care beyond appearance.</span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              تقديم خطط علاجية مدروسة تأخذ بعين الاعتبار طبيعة كل حالة،
-              والاستمرار في المتابعة حتى نكون شركاء حقيقيين في رحلة الاهتمام
-              بالبشرة والمظهر العام.
+              <span className="lang-ar">تقديم خطط علاجية مدروسة تأخذ بعين الاعتبار طبيعة كل حالة، والاستمرار في المتابعة حتى نكون شركاء حقيقيين في رحلة الاهتمام بالبشرة والمظهر العام.</span>
+              <span className="lang-en">We provide thoughtful treatment plans tailored to each case and continue follow-up as a true partner in skin and aesthetic care.</span>
             </p>
           </article>
         </section>
@@ -129,9 +150,10 @@ export default async function AboutPage() {
         ════════════════════════════════════════ */}
         <section>
           <div className="mb-10 max-w-2xl">
-            <p className="eyebrow">القيم الأساسية</p>
+            <p className="eyebrow"><span className="lang-ar">القيم الأساسية</span><span className="lang-en">Core Values</span></p>
             <h2 className="balanced-text text-ink-strong mt-4 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
-              قيم تبني ثقة مستدامة مع كل مراجع.
+              <span className="lang-ar">قيم تبني ثقة مستدامة مع كل مراجع.</span>
+              <span className="lang-en">Values that build lasting trust with every patient.</span>
             </h2>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -140,12 +162,14 @@ export default async function AboutPage() {
                 key={value.eyebrow}
                 className="surface-panel rounded-[2rem] p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(74,36,118,0.1)]"
               >
-                <p className="eyebrow">{value.eyebrow}</p>
+                <p className="eyebrow"><span className="lang-ar">{value.eyebrow}</span><span className="lang-en">{value.eyebrowEn}</span></p>
                 <h3 className="text-ink-strong mt-5 font-serif text-2xl tracking-[-0.02em]">
-                  {value.title}
+                  <span className="lang-ar">{value.title}</span>
+                  <span className="lang-en">{value.titleEn}</span>
                 </h3>
                 <p className="text-ink-soft mt-4 text-sm leading-8">
-                  {value.description}
+                  <span className="lang-ar">{value.description}</span>
+                  <span className="lang-en">{value.descriptionEn}</span>
                 </p>
               </article>
             ))}
@@ -157,13 +181,14 @@ export default async function AboutPage() {
         ════════════════════════════════════════ */}
         <section className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div className="flex flex-col justify-center">
-            <p className="eyebrow">مسيرة المركز</p>
+            <p className="eyebrow"><span className="lang-ar">مسيرة المركز</span><span className="lang-en">Our Journey</span></p>
             <h2 className="balanced-text text-ink-strong mt-4 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
-              محطات أسهمت في تشكيل هوية المركز.
+              <span className="lang-ar">محطات أسهمت في تشكيل هوية المركز.</span>
+              <span className="lang-en">Milestones that shaped the center's identity.</span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              منذ الافتتاح الأول، كان التركيز دائمًا على بناء تجربة لا تنتهي عند
-              الجلسة، بل تمتد إلى ما بعدها في كل اتصال ومتابعة.
+              <span className="lang-ar">منذ الافتتاح الأول، كان التركيز دائمًا على بناء تجربة لا تنتهي عند الجلسة، بل تمتد إلى ما بعدها في كل اتصال ومتابعة.</span>
+              <span className="lang-en">From day one, the focus has been on an experience that continues beyond the session through every follow-up.</span>
             </p>
           </div>
           <div className="space-y-4">
@@ -175,7 +200,7 @@ export default async function AboutPage() {
                 <span className="text-gold font-serif text-3xl tracking-[-0.02em]">
                   {m.year}
                 </span>
-                <p className="text-ink-strong text-base leading-8">{m.label}</p>
+                <p className="text-ink-strong text-base leading-8"><span className="lang-ar">{m.label}</span><span className="lang-en">{m.labelEn}</span></p>
               </div>
             ))}
           </div>
@@ -197,7 +222,7 @@ export default async function AboutPage() {
               <div className="from-ink-strong/60 absolute inset-0 bg-gradient-to-t to-transparent mix-blend-multiply" />
             </div>
             <div className="p-8 lg:p-10">
-              <p className="eyebrow">الفريق الطبي</p>
+              <p className="eyebrow"><span className="lang-ar">الفريق الطبي</span><span className="lang-en">Medical Team</span></p>
               <h2 className="balanced-text text-ink-strong mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
                 <span className="lang-ar">فريق طبي يؤمن بأن النتيجة الجيدة تبدأ بإنصات دقيق وتشخيص متزن.</span>
                 <span className="lang-en">A medical team that believes strong results begin with careful listening and balanced diagnosis.</span>

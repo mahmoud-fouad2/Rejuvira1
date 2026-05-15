@@ -215,15 +215,21 @@ export default async function ContactPage() {
               {[
                 {
                   label: "استشارة مخصصة",
+                  labelEn: "Personalized consultation",
                   desc: "نختار لك الطبيب والخدمة المناسبَين لحالتك تحديدًا",
+                  descEn: "We guide you to the doctor and service that best match your case.",
                 },
                 {
                   label: "وضوح كامل",
+                  labelEn: "Full clarity",
                   desc: "لا أسرار في التسعير أو التوقعات — كل شيء واضح من البداية",
+                  descEn: "No hidden expectations or unclear next steps. Everything is explained from the start.",
                 },
                 {
                   label: "متابعة ما بعد الجلسة",
+                  labelEn: "Post-session follow-up",
                   desc: "لا ننتهي عند انتهاء الجلسة، بل نتابع النتيجة معك",
+                  descEn: "Care continues after the session with clear follow-up when needed.",
                 },
               ].map((item) => (
                 <div
@@ -235,10 +241,12 @@ export default async function ContactPage() {
                   </span>
                   <div>
                     <p className="text-ink-strong text-base font-medium">
-                      {item.label}
+                      <span className="lang-ar">{item.label}</span>
+                      <span className="lang-en">{item.labelEn}</span>
                     </p>
                     <p className="text-ink-soft mt-2 text-sm leading-6">
-                      {item.desc}
+                      <span className="lang-ar">{item.desc}</span>
+                      <span className="lang-en">{item.descEn}</span>
                     </p>
                   </div>
                 </div>

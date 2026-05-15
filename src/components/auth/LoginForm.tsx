@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 
 import { authenticate, type LoginActionState } from "@/app/login/actions";
+import { LanguageToggle } from "@/components/layout/LanguageToggle";
 
 const initialState: LoginActionState = {
   message: "",
@@ -33,6 +34,9 @@ export function LoginForm() {
 
   return (
     <form action={formAction} className="rv-login-form" noValidate>
+      <div className="flex justify-end">
+        <LanguageToggle />
+      </div>
       <Link href="/" className="rv-login-brand" aria-label="Rejuvira Center">
         <Image
           src="/media/brand/logo-light.png"
@@ -43,24 +47,15 @@ export function LoginForm() {
           priority
           unoptimized
         />
-        <Image
-          src="/media/brand/logo-dark.png"
-          alt="Rejuvira Center"
-          width={560}
-          height={560}
-          className="rv-login-brand-dark"
-          priority
-          unoptimized
-        />
       </Link>
 
       <div className="rv-login-heading">
-        <h1>تسجيل الدخول</h1>
-        <p>أدخل بياناتك للوصول إلى لوحة الإدارة.</p>
+        <h1><span className="lang-ar">تسجيل الدخول</span><span className="lang-en">Admin Login</span></h1>
+        <p><span className="lang-ar">أدخل بياناتك للوصول إلى لوحة الإدارة.</span><span className="lang-en">Enter your credentials to access the admin panel.</span></p>
       </div>
 
       <label className="rv-login-field">
-        <span>البريد الإلكتروني</span>
+        <span><span className="lang-ar">البريد الإلكتروني</span><span className="lang-en">Email</span></span>
         <input
           type="email"
           name="email"
@@ -72,7 +67,7 @@ export function LoginForm() {
       </label>
 
       <label className="rv-login-field">
-        <span>كلمة المرور</span>
+        <span><span className="lang-ar">كلمة المرور</span><span className="lang-en">Password</span></span>
         <div className="rv-login-password">
           <input
             type={showPassword ? "text" : "password"}
@@ -85,7 +80,7 @@ export function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((prev) => !prev)}
-            aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+            aria-label={showPassword ? "Hide password" : "Show password"}
           >
             <EyeIcon open={showPassword} />
           </button>
@@ -95,10 +90,10 @@ export function LoginForm() {
       <div className="rv-login-row">
         <label className="rv-login-remember">
           <input type="checkbox" name="rememberMe" defaultChecked />
-          <span>تذكرني</span>
+          <span><span className="lang-ar">تذكرني</span><span className="lang-en">Remember me</span></span>
         </label>
         <Link href="/" className="rv-login-hint">
-          العودة للموقع
+          <span className="lang-ar">العودة للموقع</span><span className="lang-en">Back to site</span>
         </Link>
       </div>
 
@@ -109,7 +104,17 @@ export function LoginForm() {
       ) : null}
 
       <button type="submit" className="rv-login-submit" disabled={isPending}>
-        {isPending ? "جارٍ التحقق…" : "دخول"}
+        {isPending ? (
+          <>
+            <span className="lang-ar">جارٍ التحقق…</span>
+            <span className="lang-en">Checking...</span>
+          </>
+        ) : (
+          <>
+            <span className="lang-ar">دخول</span>
+            <span className="lang-en">Sign in</span>
+          </>
+        )}
       </button>
     </form>
   );
