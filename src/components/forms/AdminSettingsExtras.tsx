@@ -155,7 +155,7 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
             defaultValue={settings.integrations.chatbaseWidgetId}
             dir="ltr"
             className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
-            placeholder="x2waiyc2hrfs58qowbowajxy8sugf9kn"
+            placeholder="wjegZOeOaeYGtbw422le3"
           />
         </label>
         <label className="grid gap-2">

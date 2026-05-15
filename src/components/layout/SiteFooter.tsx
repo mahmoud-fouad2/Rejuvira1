@@ -4,6 +4,7 @@ import type { Route } from "next";
 
 import { BookingModal } from "@/components/layout/BookingModal";
 import { BrandLogo } from "@/components/layout/BrandLogo";
+import { ChatbaseFooterButton } from "@/components/layout/ChatbaseFooterButton";
 import { normalizeSocialUrl } from "@/components/layout/SocialIconCluster";
 import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
@@ -154,6 +155,14 @@ function sanitizeDigits(value: string) {
   return value.replace(/\D/g, "");
 }
 
+function toSaudiWhatsappDigits(value: string) {
+  const digits = sanitizeDigits(value);
+  if (!digits) return "";
+  if (digits.startsWith("966")) return digits;
+  if (digits.startsWith("0")) return `966${digits.slice(1)}`;
+  return `966${digits}`;
+}
+
 export async function SiteFooter() {
   const [runtimeSettings, services] = await Promise.all([
     getRuntimeSettings(),
@@ -163,11 +172,10 @@ export async function SiteFooter() {
   const primaryPhone = runtimeSettings.contact.phone;
   const secondaryPhone = runtimeSettings.contact.phoneSecondary;
   const primaryEmail = runtimeSettings.contact.email;
-  const secondaryEmail = runtimeSettings.contact.emailSecondary;
 
   const telPrimary = `tel:${sanitizeDigits(primaryPhone)}`;
   const telSecondary = secondaryPhone ? `tel:${sanitizeDigits(secondaryPhone)}` : null;
-  const waDigits = sanitizeDigits(runtimeSettings.contact.whatsapp || primaryPhone);
+  const waDigits = toSaudiWhatsappDigits(runtimeSettings.contact.whatsapp || primaryPhone);
   const waHref = waDigits ? `https://wa.me/${waDigits}` : null;
 
   const visibility = runtimeSettings.socialVisibility;
@@ -235,6 +243,9 @@ export async function SiteFooter() {
                 ))}
               </div>
             ) : null}
+            <div className="mt-5">
+              <ChatbaseFooterButton enabled={runtimeSettings.integrations.chatbaseEnabled} />
+            </div>
           </div>
 
           {/* Quick links */}
@@ -314,18 +325,6 @@ export async function SiteFooter() {
                   </span>
                 </a>
               </li>
-              {secondaryEmail && secondaryEmail !== primaryEmail ? (
-                <li>
-                  <a href={`mailto:${secondaryEmail}`} className="rv-v0-footer-contact-row">
-                    <span className="rv-v0-footer-contact-icon">
-                      <MailIcon />
-                    </span>
-                    <span dir="ltr" className="rv-v0-footer-contact-text">
-                      {secondaryEmail}
-                    </span>
-                  </a>
-                </li>
-              ) : null}
               {waHref ? (
                 <li>
                   <a href={waHref} target="_blank" rel="noopener noreferrer" className="rv-v0-footer-contact-row">

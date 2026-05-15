@@ -162,7 +162,7 @@ export default async function ServiceDetailPage({
                   <Image
                     src={
                       relatedDoctors[0]?.photoUrl ??
-                      "/media/curated/doctor-profile.svg"
+                      "/media/curated/doctor-team.jpg"
                     }
                     alt={
                       relatedDoctors[0]?.name ??

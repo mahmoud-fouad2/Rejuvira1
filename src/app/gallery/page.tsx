@@ -12,12 +12,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const localMoodImages = [
-  "/media/curated/service-skin-care.svg",
-  "/media/curated/service-injectables.svg",
-  "/media/curated/service-laser.svg",
-  "/media/curated/device-body.svg",
-  "/media/curated/device-platform.svg",
-  "/media/curated/service-aesthetic-surgery.svg",
+  "/media/reference/legacy/13.png",
+  "/media/reference/legacy/18.png",
+  "/media/reference/legacy/88985959.png",
+  "/media/curated/service-laser-hair-removal.jpg",
+  "/media/curated/device-laser-platform.png",
+  "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
 ];
 
 export default async function GalleryPage() {
@@ -235,7 +235,7 @@ export default async function GalleryPage() {
           <div className="surface-panel overflow-hidden rounded-[2.4rem] p-4">
             <div className="relative h-full min-h-[18rem] overflow-hidden rounded-[2rem]">
               <Image
-                src="/media/curated/device-platform.svg"
+                src="/media/curated/device-laser-platform.png"
                 alt="Rejuvira Center"
                 fill
                 sizes="(max-width: 1024px) 100vw, 54vw"

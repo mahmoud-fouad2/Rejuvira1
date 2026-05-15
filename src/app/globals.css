@@ -9098,10 +9098,15 @@ body {
 
 html[data-theme="dark"] .rv-v0-hero-trust-chip,
 html[data-theme="dark"] .rv-v0-partners-note,
-html[data-theme="dark"] .rv-v0-secondary {
+html[data-theme="dark"] .rv-v0-secondary,
+html[data-theme="dark"] .rv-v0-hero-chips > span {
   background: rgba(255,255,255,0.08) !important;
   color: #f7efff !important;
   border-color: rgba(255,255,255,0.14) !important;
+}
+
+html[data-theme="dark"] .rv-v0-hero-chips > span svg {
+  color: #d9bcff !important;
 }
 
 html[data-theme="dark"] .rv-v0-primary,
@@ -9774,5 +9779,124 @@ html[data-theme="dark"] ::selection {
   .rv-mobile-inline-actions .rv-v0-book {
     padding-inline: 0.58rem !important;
     font-size: 0.74rem !important;
+  }
+}
+
+/* ── Production fixes: one logo per theme, larger mark, top booking modal ── */
+.rv-brand-logo {
+  display: inline-grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+}
+
+.rv-brand-logo-img {
+  grid-area: 1 / 1 !important;
+  transform: scale(1.72) !important;
+  transform-origin: center !important;
+}
+
+.rv-brand-logo-light {
+  display: block !important;
+}
+
+.rv-brand-logo-dark {
+  display: none !important;
+}
+
+html[data-theme="dark"] .rv-brand-logo-light {
+  display: none !important;
+}
+
+html[data-theme="dark"] .rv-brand-logo-dark {
+  display: block !important;
+}
+
+header .rv-brand-logo,
+header .rv-brand-logo-header {
+  width: clamp(8.8rem, 13vw, 13rem) !important;
+  height: clamp(4.6rem, 7vw, 6.4rem) !important;
+}
+
+footer .rv-brand-logo,
+footer .rv-brand-logo-footer {
+  width: clamp(9.5rem, 14vw, 14rem) !important;
+  height: clamp(5rem, 7vw, 6.8rem) !important;
+}
+
+.rv-booking-modal {
+  align-items: flex-start !important;
+  justify-items: center !important;
+  place-items: start center !important;
+  padding-top: clamp(4.8rem, 9vh, 7.5rem) !important;
+}
+
+.rv-booking-card {
+  width: min(100%, 42rem) !important;
+}
+
+.rv-v0-pill-live {
+  max-width: min(100%, 24rem) !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1.45 !important;
+}
+
+.rv-v0-pill-live .lang-ar,
+.rv-v0-pill-live .lang-en {
+  white-space: normal !important;
+}
+
+.rv-v0-footer .rv-v0-footer-contact-row {
+  min-height: auto !important;
+  padding-block: 0.35rem !important;
+}
+
+.rv-v0-footer .rv-v0-footer-contact-icon {
+  width: 2rem !important;
+  height: 2rem !important;
+}
+
+.rv-footer-chat-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(74,36,118,0.16);
+  border-radius: 999px;
+  background: rgba(74,36,118,0.07);
+  color: var(--rv-purple-strong);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+html[data-theme="dark"] .rv-footer-chat-button {
+  border-color: rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+@media (max-width: 640px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header {
+    width: clamp(8.7rem, 32vw, 10.4rem) !important;
+    height: 4.6rem !important;
+  }
+
+  .rv-mobile-inline-actions .rv-v0-book {
+    min-height: 2.35rem !important;
+    padding-inline: 0.55rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .rv-mobile-inline-actions button,
+  .rv-mobile-inline-actions .relative.flex {
+    min-width: 2.28rem !important;
+    min-height: 2.28rem !important;
+  }
+
+  .rv-booking-modal {
+    padding: 1rem !important;
+    padding-top: calc(env(safe-area-inset-top) + 1rem) !important;
   }
 }

@@ -152,6 +152,13 @@ export type HomeTestimonialItem = {
   avatarUrl: string;
 };
 
+export type ContactFaqItem = {
+  questionAr: string;
+  answerAr: string;
+  questionEn: string;
+  answerEn: string;
+};
+
 export type HomePageSettings = {
   heroTitle: string;
   heroTitleAccent: string;
@@ -238,6 +245,7 @@ export type RuntimeSettings = {
     mapsShape: "square" | "rounded";
     addressAr: string;
     addressEn: string;
+    faqs: ContactFaqItem[];
     // hours block - subagent #3
     hoursWeekdays: string;
     hoursWeekend: string;
@@ -376,30 +384,41 @@ export type UpdateAdminUserRoleInput = {
   role: UserRole;
 };
 
-const realImage = (id: string, options = "auto=format&fit=crop&w=1200&q=82") =>
-  `https://images.unsplash.com/${id}?${options}`;
+const doctorPortraitBySlug = {
+  "loai-alsalmi": "/media/doctors/loai-alsalmi.png",
+  "maher-alahdab": "/media/doctors/maher-alahdab.png",
+  "saham-arfaj": "/media/doctors/saham-arfaj.png",
+  "sabah-alrashid": "/media/doctors/sabah-alrashid.png",
+  "karima-jamjoom": "/media/doctors/karima-jamjoom.png",
+  "najwa-batarfi": "/media/doctors/najwa-batarfi.png",
+  "natali-domloj": "/media/doctors/natali-domloj.png",
+  "falwah-aljanoubi": "/media/doctors/falwah-aljanoubi.png",
+  "bandar-alharthi": "/media/doctors/bandar-alharthi.png",
+  "ahmed-eldesouki": "/media/doctors/ahmed-eldesouki.png",
+} as const;
 
 const doctorPortraits = [
-  realImage("photo-1612349317150-e413f6a5b16d"),
-  realImage("photo-1537368910025-700350fe46c7"),
-  realImage("photo-1559839734-2b71ea197ec2"),
-  realImage("photo-1582750433449-648ed127bb54"),
-  realImage("photo-1594824476967-48c8b964273f"),
-  realImage("photo-1573496359142-b8d87734a5a2"),
-  realImage("photo-1527613426441-4da17471b66d"),
-  realImage("photo-1551601651-2a8555f1a136"),
-  realImage("photo-1622253692010-333f2da6031d"),
-  realImage("photo-1607990281513-2c110a25bd8c"),
+  doctorPortraitBySlug["loai-alsalmi"],
+  doctorPortraitBySlug["maher-alahdab"],
+  doctorPortraitBySlug["saham-arfaj"],
+  doctorPortraitBySlug["sabah-alrashid"],
+  doctorPortraitBySlug["karima-jamjoom"],
+  doctorPortraitBySlug["najwa-batarfi"],
+  doctorPortraitBySlug["natali-domloj"],
+  doctorPortraitBySlug["falwah-aljanoubi"],
+  doctorPortraitBySlug["bandar-alharthi"],
+  doctorPortraitBySlug["ahmed-eldesouki"],
 ] as const;
 
 const serviceImages = {
-  aestheticSurgery: realImage("photo-1519494026892-80bbd2d6fd0d"),
-  skinCare: realImage("photo-1570172619644-dfd03ed5d881"),
-  laser: realImage("photo-1515377905703-c4788e51af15"),
-  injectables: realImage("photo-1522337360788-8b13dee7a37e"),
-  devices: realImage("photo-1581093458791-9d42e5c8910d"),
-  body: realImage("photo-1600334129128-685c5582fd35"),
-  journal: realImage("photo-1532938911079-1b06ac7ceec7"),
+  aestheticSurgery: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
+  skinCare: "/media/curated/service-skin-rejuvenation.jpg",
+  laser: "/media/curated/service-laser-hair-removal.jpg",
+  injectables: "/media/curated/service-injectables.png",
+  devices: "/media/curated/device-laser-platform.png",
+  body: "/media/reference/legacy/88985959.png",
+  prp: "/media/curated/service-prp.jpg",
+  journal: "/media/curated/clinic-treatment-room.jpeg",
 } as const;
 
 const seedDoctors: DoctorRecord[] = [
@@ -739,7 +758,7 @@ const seedServices: ServiceRecord[] = [
       "نهج تجميلي يركز على إبراز التوازن في الملامح والحفاظ على تعبير الوجه الطبيعي دون مبالغة.",
     description:
       "تعتمد هذه الخدمة على تقييم تفاصيل الوجه، ونقاط الحاجة الفعلية، وما إذا كان المطلوب تعزيز الامتلاء أو تخفيف الخطوط أو إعادة التوازن العام للملامح. النتيجة المستهدفة هنا ليست التغيير الجذري، بل تحسين محسوب يجعل المظهر أكثر نضارة واتزانًا وثقة.",
-    coverImageUrl: serviceImages.injectables,
+    coverImageUrl: serviceImages.prp,
     benefits: [
       "نتائج متزنة تحافظ على الملامح",
       "تخطيط هادئ قبل أي إجراء",
@@ -924,8 +943,8 @@ const seedGallery: GalleryRecord[] = [
     category: "العناية بالبشرة",
     description:
       "مقارنة توضح كيف تساعد الخطة المناسبة على تحسين صفاء البشرة وملمسها بصورة تدريجية.",
-    beforeImageUrl: serviceImages.skinCare,
-    afterImageUrl: serviceImages.injectables,
+    beforeImageUrl: "/media/reference/legacy/13.png",
+    afterImageUrl: "/media/reference/legacy/18.png",
     beforeImageAlt: "تحسن ملمس البشرة قبل",
     afterImageAlt: "تحسن ملمس البشرة بعد",
     initialSplitPercent: 50,
@@ -937,8 +956,8 @@ const seedGallery: GalleryRecord[] = [
     category: "جلسات الليزر",
     description:
       "عرض مختصر لنتيجة علاجية مرتبطة بخطة جلسات واضحة، مع متابعة مناسبة لكل حالة.",
-    beforeImageUrl: serviceImages.laser,
-    afterImageUrl: serviceImages.devices,
+    beforeImageUrl: "/media/reference/legacy/9.png",
+    afterImageUrl: "/media/curated/service-laser-hair-removal.jpg",
     beforeImageAlt: "جلسات الليزر قبل",
     afterImageAlt: "جلسات الليزر بعد",
     initialSplitPercent: 50,
@@ -950,10 +969,23 @@ const seedGallery: GalleryRecord[] = [
     category: "تجميل القوام",
     description:
       "مثال بصري لخطة تركز على التناسق الطبيعي وتوقعات واضحة قبل البدء.",
-    beforeImageUrl: serviceImages.body,
-    afterImageUrl: serviceImages.aestheticSurgery,
+    beforeImageUrl: "/media/reference/legacy/88985959.png",
+    afterImageUrl: "/media/reference/legacy/56549.png",
     beforeImageAlt: "تنسيق القوام قبل",
     afterImageAlt: "تنسيق القوام بعد",
+    initialSplitPercent: 50,
+  },
+  {
+    id: "gallery-reference-04",
+    slug: "face-neck-lift-result",
+    title: "شد الوجه والرقبة",
+    category: "الجراحة التجميلية",
+    description:
+      "مقارنة مرتبطة بإجراءات شد الوجه والرقبة مع إبراز أهمية التقييم الجراحي والتوقعات الواقعية.",
+    beforeImageUrl: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-2.50.24-PM.jpeg",
+    afterImageUrl: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
+    beforeImageAlt: "شد الوجه والرقبة قبل",
+    afterImageAlt: "شد الوجه والرقبة بعد",
     initialSplitPercent: 50,
   },
 ];
@@ -1162,6 +1194,39 @@ const seedCrmRecords: CrmRecord[] = [
   },
 ];
 
+const defaultContactFaqs: ContactFaqItem[] = [
+  {
+    questionAr: "هل يجب حجز موعد مسبق؟",
+    answerAr: "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
+    questionEn: "Should I book an appointment in advance?",
+    answerEn: "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available.",
+  },
+  {
+    questionAr: "ما هي أوقات العمل؟",
+    answerAr: "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
+    questionEn: "What are the working hours?",
+    answerEn: "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM.",
+  },
+  {
+    questionAr: "هل تتوفر متابعة بعد العلاج؟",
+    answerAr: "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
+    questionEn: "Is follow-up available after treatment?",
+    answerEn: "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation.",
+  },
+  {
+    questionAr: "كيف أصل إلى موقع المركز؟",
+    answerAr: "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
+    questionEn: "How can I reach the center?",
+    answerEn: "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation.",
+  },
+  {
+    questionAr: "ما طرق الدفع المتاحة؟",
+    answerAr: "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
+    questionEn: "What payment methods are available?",
+    answerEn: "Multiple payment methods are available, including bank cards and selected digital payment options.",
+  },
+];
+
 const seedSettings: SettingsGroup[] = [
   {
     key: "contact",
@@ -1187,6 +1252,16 @@ const seedSettings: SettingsGroup[] = [
       },
       { key: "whatsapp", label: "واتساب", value: "0114999959" },
       { key: "domain", label: "النطاق الرسمي", value: "rejuveracenter.sa" },
+      {
+        key: "addressAr",
+        label: "العنوان بالعربية",
+        value: "Al Takhassousi, Ar Rahmaniyyah, التخصصي, طريق الملك عبدالله",
+      },
+      {
+        key: "addressEn",
+        label: "Address in English",
+        value: "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh",
+      },
       // hours block - subagent #3
       {
         key: "hoursWeekdays",
@@ -1219,6 +1294,66 @@ const seedSettings: SettingsGroup[] = [
         label: "Closed day (English)",
         value: "",
       },
+      {
+        key: "faq1QuestionAr",
+        label: "السؤال الشائع الأول",
+        value: "هل يجب حجز موعد مسبق؟",
+      },
+      {
+        key: "faq1AnswerAr",
+        label: "إجابة السؤال الشائع الأول",
+        value: "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
+      },
+      { key: "faq1QuestionEn", label: "FAQ 1 question", value: "Should I book an appointment in advance?" },
+      { key: "faq1AnswerEn", label: "FAQ 1 answer", value: "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available." },
+      {
+        key: "faq2QuestionAr",
+        label: "السؤال الشائع الثاني",
+        value: "ما هي أوقات العمل؟",
+      },
+      {
+        key: "faq2AnswerAr",
+        label: "إجابة السؤال الشائع الثاني",
+        value: "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
+      },
+      { key: "faq2QuestionEn", label: "FAQ 2 question", value: "What are the working hours?" },
+      { key: "faq2AnswerEn", label: "FAQ 2 answer", value: "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM." },
+      {
+        key: "faq3QuestionAr",
+        label: "السؤال الشائع الثالث",
+        value: "هل تتوفر متابعة بعد العلاج؟",
+      },
+      {
+        key: "faq3AnswerAr",
+        label: "إجابة السؤال الشائع الثالث",
+        value: "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
+      },
+      { key: "faq3QuestionEn", label: "FAQ 3 question", value: "Is follow-up available after treatment?" },
+      { key: "faq3AnswerEn", label: "FAQ 3 answer", value: "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation." },
+      {
+        key: "faq4QuestionAr",
+        label: "السؤال الشائع الرابع",
+        value: "كيف أصل إلى موقع المركز؟",
+      },
+      {
+        key: "faq4AnswerAr",
+        label: "إجابة السؤال الشائع الرابع",
+        value: "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
+      },
+      { key: "faq4QuestionEn", label: "FAQ 4 question", value: "How can I reach the center?" },
+      { key: "faq4AnswerEn", label: "FAQ 4 answer", value: "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation." },
+      {
+        key: "faq5QuestionAr",
+        label: "السؤال الشائع الخامس",
+        value: "ما طرق الدفع المتاحة؟",
+      },
+      {
+        key: "faq5AnswerAr",
+        label: "إجابة السؤال الشائع الخامس",
+        value: "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
+      },
+      { key: "faq5QuestionEn", label: "FAQ 5 question", value: "What payment methods are available?" },
+      { key: "faq5AnswerEn", label: "FAQ 5 answer", value: "Multiple payment methods are available, including bank cards and selected digital payment options." },
     ],
   },
   {
@@ -1231,7 +1366,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "chatbaseWidgetId",
         label: "Chatbase Widget ID",
-        value: "x2waiyc2hrfs58qowbowajxy8sugf9kn",
+        value: "wjegZOeOaeYGtbw422le3",
       },
       { key: "customHeadCode", label: "كود مخصص داخل head", value: "" },
       { key: "customBodyCode", label: "كود مخصص قبل نهاية body", value: "" },
@@ -1364,7 +1499,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "heroTitle",
         label: "عنوان الهيرو",
-        value: "اكتشف جمالك",
+        value: "اكتشفي جمالك",
       },
       {
         key: "heroTitleAccent",
@@ -1380,7 +1515,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "heroPillLabel",
         label: "شارة الهيرو العلوية",
-        value: "ريجوفيرا | مركز طبي متكامل للتجميل والعناية بالبشرة",
+        value: "ريجوفيرا للتجميل الطبي",
       },
       {
         key: "heroCtaPrimary",
@@ -1515,7 +1650,7 @@ const seedSettings: SettingsGroup[] = [
         label: "Testimonial 1 quote",
         value: "The plan was clear before starting, and follow-up after the visit was organized.",
       },
-      { key: "testimonial1Avatar", label: "صورة العميل الأول", value: realImage("photo-1494790108377-be9c29b29330") },
+      { key: "testimonial1Avatar", label: "صورة العميل الأول", value: "/media/curated/fallback-portrait.jpg" },
       { key: "testimonial2AuthorAr", label: "اسم رأي العميل الثاني", value: "نورة خالد" },
       { key: "testimonial2AuthorEn", label: "Testimonial 2 author", value: "Noura Khalid" },
       {
@@ -1528,7 +1663,7 @@ const seedSettings: SettingsGroup[] = [
         label: "Testimonial 2 quote",
         value: "The consultation was calm and direct, with no pressure to choose a procedure.",
       },
-      { key: "testimonial2Avatar", label: "صورة العميل الثاني", value: realImage("photo-1534528741775-53994a69daeb") },
+      { key: "testimonial2Avatar", label: "صورة العميل الثاني", value: "/media/curated/doctor-candidate-1.jpg" },
       { key: "testimonial3AuthorAr", label: "اسم رأي العميل الثالث", value: "مها محمد" },
       { key: "testimonial3AuthorEn", label: "Testimonial 3 author", value: "Maha Mohammed" },
       {
@@ -1541,7 +1676,7 @@ const seedSettings: SettingsGroup[] = [
         label: "Testimonial 3 quote",
         value: "Booking was clear, reception was organized, and aftercare instructions arrived on time.",
       },
-      { key: "testimonial3Avatar", label: "صورة العميل الثالث", value: realImage("photo-1544005313-94ddf0286df2") },
+      { key: "testimonial3Avatar", label: "صورة العميل الثالث", value: "/media/curated/doctor-candidate-2.jpg" },
     ],
   },
   {
@@ -1683,7 +1818,7 @@ const imageFallbackMap: Record<string, string> = {
   "/media/curated/brand-logo.jpg": "/media/brand-logo-main.png",
   "/media/curated/service-laser-hair-removal.jpg": serviceImages.laser,
   "/media/curated/service-injectables.png": serviceImages.injectables,
-  "/media/curated/service-prp.jpg": serviceImages.injectables,
+  "/media/curated/service-prp.jpg": serviceImages.prp,
   "/media/curated/device-laser-platform.png": serviceImages.devices,
   "/media/curated/device-emface.jpg": serviceImages.body,
   "/media/curated/service-skin-care.svg": serviceImages.skinCare,
@@ -1692,20 +1827,41 @@ const imageFallbackMap: Record<string, string> = {
   "/media/curated/service-aesthetic-surgery.svg": serviceImages.aestheticSurgery,
   "/media/curated/device-platform.svg": serviceImages.devices,
   "/media/curated/device-body.svg": serviceImages.body,
-  "/media/reference/legacy/15.png": serviceImages.skinCare,
-  "/media/reference/legacy/16.png": serviceImages.injectables,
-  "/media/reference/legacy/13.png": serviceImages.laser,
-  "/media/reference/legacy/18.png": serviceImages.devices,
-  "/media/reference/legacy/56549.png": serviceImages.body,
-  "/media/reference/legacy/88985959.png": serviceImages.aestheticSurgery,
+  "/media/curated/doctor-profile.svg": "/media/curated/fallback-portrait.jpg",
 };
 
 function toDisplayAsset(value: string | null | undefined, fallback: string): string {
   const source = value?.trim() || fallback;
-  if (source.startsWith("/media/doctors/")) {
-    return doctorPortraits[0];
+  if (source.includes("images.unsplash.com")) {
+    return fallback;
   }
   return imageFallbackMap[source] ?? source;
+}
+
+function toDoctorAsset(slug: string, value: string | null | undefined): string {
+  const fallback =
+    (doctorPortraitBySlug as Record<string, string>)[slug] ??
+    "/media/curated/fallback-portrait.jpg";
+  const source = value?.trim();
+  if (!source || source.includes("images.unsplash.com") || source === "/media/curated/doctor-profile.svg") {
+    return fallback;
+  }
+  return source;
+}
+
+function serviceImageForSlug(slug: string): string {
+  if (slug.includes("laser")) return serviceImages.laser;
+  if (slug.includes("inject") || slug.includes("facial")) return serviceImages.injectables;
+  if (slug.includes("body")) return serviceImages.body;
+  if (slug.includes("surgery")) return serviceImages.aestheticSurgery;
+  if (slug.includes("prp")) return serviceImages.prp;
+  return serviceImages.skinCare;
+}
+
+function deviceImageForSlug(slug: string): string {
+  if (slug.includes("body") || slug.includes("emsculpt") || slug.includes("emface")) return serviceImages.body;
+  if (slug.includes("laser")) return serviceImages.devices;
+  return serviceImages.devices;
 }
 
 function toPrimaryAsset(value: unknown, fallback: string): string {
@@ -1742,11 +1898,8 @@ export async function getDoctors() {
         specialty: doctor.specialtyAr,
         summary: toDoctorSummary(doctor.publications, doctor.bioAr),
         bio: doctor.bioAr,
-        photoUrl: toDisplayAsset(doctor.photoUrl, "/media/curated/doctor-profile.svg"),
-        coverImageUrl: toDisplayAsset(
-          doctor.coverImageUrl ?? doctor.photoUrl,
-          "/media/curated/doctor-profile.svg",
-        ),
+        photoUrl: toDoctorAsset(doctor.slug, doctor.photoUrl),
+        coverImageUrl: toDoctorAsset(doctor.slug, doctor.coverImageUrl ?? doctor.photoUrl),
         yearsExperience: doctor.yearsExperience ?? 0,
         languages: doctor.languages,
         education: toStringList(doctor.education),
@@ -1795,7 +1948,7 @@ export async function getServices() {
         description: service.descriptionAr,
         coverImageUrl: toDisplayAsset(
           service.coverImageUrl,
-          "/media/curated/service-skin-care.svg",
+          serviceImageForSlug(service.slug),
         ),
         benefits: [service.excerptAr, service.descriptionAr.slice(0, 120)],
         doctorSlugs: service.doctors.map((doctor) => doctor.slug),
@@ -1837,7 +1990,7 @@ export async function getDevices() {
       description: device.descriptionAr,
       imageUrl: toPrimaryAsset(
         device.gallery,
-        "/media/curated/device-platform.svg",
+        deviceImageForSlug(device.slug),
       ),
       certifications: toStringList(device.certifications),
       serviceSlugs: device.services.map((service) => service.slug),
@@ -1871,8 +2024,8 @@ export async function getGalleryItems() {
       categoryEn: item.categoryKey,
       description: item.descriptionAr ?? "",
       descriptionEn: item.descriptionEn,
-      beforeImageUrl: toDisplayAsset(item.beforeImageUrl, "/media/curated/service-skin-care.svg"),
-      afterImageUrl: toDisplayAsset(item.afterImageUrl, "/media/curated/service-injectables.svg"),
+      beforeImageUrl: toDisplayAsset(item.beforeImageUrl, "/media/reference/legacy/13.png"),
+      afterImageUrl: toDisplayAsset(item.afterImageUrl, "/media/reference/legacy/18.png"),
       beforeImageAlt: item.beforeImageAlt ?? item.titleAr,
       afterImageAlt: item.afterImageAlt ?? item.titleAr,
       initialSplitPercent: item.initialSplitPercent,
@@ -1916,7 +2069,7 @@ export async function getJournalPosts() {
       excerpt: post.excerptAr,
       excerptEn: post.excerptEn,
       body: toStringList(post.bodyAr),
-      coverImageUrl: toDisplayAsset(post.coverImageUrl, "/media/curated/service-skin-care.svg"),
+      coverImageUrl: toDisplayAsset(post.coverImageUrl, serviceImages.journal),
       category: post.categoryKey,
       publishedAt:
         post.publishedAt?.toISOString() ?? post.createdAt.toISOString(),
@@ -2063,13 +2216,22 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       addressAr: getValue(
         "contact",
         "addressAr",
-        "الرياض، المملكة العربية السعودية",
+        "Al Takhassousi, Ar Rahmaniyyah, التخصصي, طريق الملك عبدالله",
       ),
       addressEn: getValue(
         "contact",
         "addressEn",
-        "Riyadh, Saudi Arabia",
+        "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh",
       ),
+      faqs: defaultContactFaqs.map((fallback, offset) => {
+        const index = offset + 1;
+        return {
+          questionAr: getValue("contact", `faq${index}QuestionAr`, fallback.questionAr),
+          answerAr: getValue("contact", `faq${index}AnswerAr`, fallback.answerAr),
+          questionEn: getValue("contact", `faq${index}QuestionEn`, fallback.questionEn),
+          answerEn: getValue("contact", `faq${index}AnswerEn`, fallback.answerEn),
+        };
+      }).filter((item) => item.questionAr && item.answerAr),
       // hours block - subagent #3
       hoursWeekdays: getValue(
         "contact",
@@ -2187,7 +2349,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       heroTitle: getValue(
         "homepage",
         "heroTitle",
-        "اكتشف جمالك",
+        "اكتشفي جمالك",
       ),
       heroTitleAccent: getValue(
         "homepage",
@@ -2202,7 +2364,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       heroPillLabel: getValue(
         "homepage",
         "heroPillLabel",
-        "ريجوفيرا | مركز طبي متكامل للتجميل والعناية بالبشرة",
+        "ريجوفيرا للتجميل الطبي",
       ),
       heroCtaPrimary: getValue(
         "homepage",
@@ -2217,12 +2379,12 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       heroTitleEn: getValue(
         "homepage",
         "heroTitleEn",
-        "Medical-grade dermatology and aesthetics — clear guidance from your first visit.",
+        "Discover refined care",
       ),
       heroTitleAccentEn: getValue(
         "homepage",
         "heroTitleAccentEn",
-        "with a clinician-led treatment plan.",
+        "at Rejuvira",
       ),
       heroDescriptionEn: getValue(
         "homepage",
@@ -2232,7 +2394,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       heroPillLabelEn: getValue(
         "homepage",
         "heroPillLabelEn",
-        "Rejuvira Medical Center",
+        "Rejuvira Aesthetic Medical Center",
       ),
       heroCtaPrimaryEn: getValue(
         "homepage",
@@ -2329,7 +2491,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       galleryItems: [1, 2, 3].map((index) => {
         const fallbackGalleryItem = defaultHomeGalleryItems[index - 1] ??
           defaultHomeGalleryItems[0] ?? {
-            image: "/media/curated/service-skin-care.svg",
+            image: serviceImages.skinCare,
             title: "خدمات البشرة",
             description:
               "صورة مخصصة لمسارات تجديد البشرة والعناية العلاجية المرتبطة بتحسين الملمس والصفاء.",
@@ -2396,9 +2558,9 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
           getValue(
             "homepage",
             `testimonial${index}Avatar`,
-            "/media/curated/doctor-profile.svg",
+            "/media/curated/fallback-portrait.jpg",
           ),
-          "/media/curated/doctor-profile.svg",
+          "/media/curated/fallback-portrait.jpg",
         ),
       })),
     },
@@ -2434,7 +2596,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       chatbaseWidgetId: getValue(
         "integrations",
         "chatbaseWidgetId",
-        "x2waiyc2hrfs58qowbowajxy8sugf9kn",
+        "wjegZOeOaeYGtbw422le3",
       ),
       customHeadCode: getValue("integrations", "customHeadCode", ""),
       customBodyCode: getValue("integrations", "customBodyCode", ""),
@@ -2801,7 +2963,7 @@ export async function createJournalPostDraft(input: CreateJournalPostInput) {
       excerptAr: input.excerpt,
       bodyAr: input.body,
       coverImageUrl:
-        input.coverImageUrl ?? "/media/curated/service-laser.svg",
+        input.coverImageUrl ?? serviceImages.laser,
       categoryKey: input.category,
       readingTimeLabel: input.readingTime,
       relatedServiceSlugs: input.relatedServiceSlugs,

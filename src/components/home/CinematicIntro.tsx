@@ -43,8 +43,8 @@ export function CinematicIntro({
 
     setVisible(true);
     const t0 = setTimeout(() => setPhase("idle"), 80);
-    const t1 = setTimeout(() => setPhase("exit"), 2450);
-    const t2 = setTimeout(() => setVisible(false), 3050);
+    const t1 = setTimeout(() => setPhase("exit"), 5600);
+    const t2 = setTimeout(() => setVisible(false), 6500);
 
     return () => {
       clearTimeout(t0);

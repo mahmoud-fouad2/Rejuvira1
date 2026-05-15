@@ -53,7 +53,6 @@ export function HomeContactSection({
   const secondaryTelHref = settings.contact.phoneSecondary
     ? `tel:${settings.contact.phoneSecondary.replace(/\D/g, "")}`
     : null;
-  const secondaryEmail = settings.contact.emailSecondary;
 
   return (
     <section className="rv-v0-home-contact-section" id="contact" dir="rtl">
@@ -137,22 +136,6 @@ export function HomeContactSection({
                   </span>
                 </div>
               </a>
-              {secondaryEmail && secondaryEmail !== settings.contact.email ? (
-                <a href={`mailto:${secondaryEmail}`} className="rv-v0-home-contact-channel">
-                  <span className="rv-v0-home-contact-channel-icon">
-                    <MailGlyph />
-                  </span>
-                  <div>
-                    <span className="rv-v0-home-contact-channel-label">
-                      <span className="lang-ar">بريد بديل</span>
-                      <span className="lang-en">Alternate email</span>
-                    </span>
-                    <span className="rv-v0-home-contact-channel-value" dir="ltr">
-                      {secondaryEmail}
-                    </span>
-                  </div>
-                </a>
-              ) : null}
             </div>
 
             {/* hours block - subagent #3 */}

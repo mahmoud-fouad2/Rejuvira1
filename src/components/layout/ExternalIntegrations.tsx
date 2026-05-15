@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 type ExternalIntegrationsProps = {
   chatbaseEnabled: boolean;
@@ -8,6 +8,16 @@ type ExternalIntegrationsProps = {
   customHeadCode: string;
   customBodyCode: string;
 };
+
+const DEFAULT_CHATBASE_ID = "wjegZOeOaeYGtbw422le3";
+
+type ChatbaseFunction = ((...args: unknown[]) => unknown) & { q?: unknown[] };
+
+declare global {
+  interface Window {
+    chatbase?: ChatbaseFunction;
+  }
+}
 
 function appendSnippet(target: HTMLElement, html: string, marker: string) {
   const existing = document.querySelectorAll(`[data-rejuvira-snippet="${marker}"]`);
@@ -41,7 +51,6 @@ export function ExternalIntegrations({
   customHeadCode,
   customBodyCode,
 }: ExternalIntegrationsProps) {
-  const [chatOpen, setChatOpen] = useState(false);
   useEffect(() => {
     appendSnippet(document.head, customHeadCode, "head");
     appendSnippet(document.body, customBodyCode, "body");
@@ -50,32 +59,41 @@ export function ExternalIntegrations({
     };
   }, [customHeadCode, customBodyCode]);
 
-  const chatId = chatbaseWidgetId.trim();
+  useEffect(() => {
+    if (!chatbaseEnabled) return;
 
-  return chatbaseEnabled && chatId ? (
-    <div className="rv-chatbase-widget" dir="rtl">
-      {chatOpen ? (
-        <div className="rv-chatbase-panel">
-          <div className="rv-chatbase-head">
-            <span>
-              <span className="lang-ar">مساعد ريجوفيرا</span>
-              <span className="lang-en">Rejuvira Assistant</span>
-            </span>
-            <button type="button" onClick={() => setChatOpen(false)} aria-label="Close chat">
-              ×
-            </button>
-          </div>
-          <iframe
-            src={`https://www.chatbase.co/chatbot-iframe/${encodeURIComponent(chatId)}`}
-            title="Rejuvira chat assistant"
-            loading="lazy"
-          />
-        </div>
-      ) : null}
-      <button type="button" className="rv-chatbase-button" onClick={() => setChatOpen((value) => !value)}>
-        <span className="lang-ar">تحدثي معنا</span>
-        <span className="lang-en">Chat</span>
-      </button>
-    </div>
-  ) : null;
+    const requestedId = chatbaseWidgetId.trim();
+    const chatId = !requestedId || requestedId === "x2waiyc2hrfs58qowbowajxy8sugf9kn"
+      ? DEFAULT_CHATBASE_ID
+      : requestedId;
+
+    if (!window.chatbase || window.chatbase("getState") !== "initialized") {
+      const queue = ((...args: unknown[]) => {
+        queue.q ??= [];
+        queue.q.push(args);
+      }) as ChatbaseFunction;
+
+      window.chatbase = new Proxy(queue, {
+        get(target, prop) {
+          if (prop === "q") return target.q;
+          return (...args: unknown[]) => target(prop, ...args);
+        },
+      }) as ChatbaseFunction;
+    }
+
+    const existing = document.getElementById(chatId);
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.src = "https://www.chatbase.co/embed.min.js";
+    script.id = chatId;
+    script.setAttribute("domain", "www.chatbase.co");
+    document.body.appendChild(script);
+
+    return () => {
+      script.remove();
+    };
+  }, [chatbaseEnabled, chatbaseWidgetId]);
+
+  return null;
 }

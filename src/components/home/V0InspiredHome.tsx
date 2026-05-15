@@ -176,7 +176,7 @@ export function V0InspiredHome({
   const heroImage =
     settings.media.homeHero ||
     featuredServices[0]?.coverImageUrl ||
-    "/media/curated/service-aesthetic-surgery.svg";
+    "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg";
 
   const doctorQuotes = doctorSource.filter(
     (d) => d.status === ContentStatus.PUBLISHED && d.summary.trim().length > 0,
@@ -185,12 +185,19 @@ export function V0InspiredHome({
   const trustItems = fallbackTrustItems;
   const hp = settings.homepage;
   const isLegacyHeroTitle = hp.heroTitle.includes("خدمات جلدية") || hp.heroTitle.includes("خيارات أوضح");
-  const heroTitleAr = isLegacyHeroTitle ? "اكتشف جمالك" : hp.heroTitle;
+  const heroTitleAr = (isLegacyHeroTitle ? "اكتشفي جمالك" : hp.heroTitle).replace("اكتشف جمالك", "اكتشفي جمالك");
   const heroTitleAccentAr = isLegacyHeroTitle ? "مع خبراء التجميل" : hp.heroTitleAccent;
+  const heroTitleEn = hp.heroTitleEn.includes("Medical-grade")
+    ? "Discover refined care"
+    : hp.heroTitleEn;
+  const heroTitleAccentEn = hp.heroTitleAccentEn.includes("clinician-led") || hp.heroTitleAccentEn.includes("clear treatment")
+    ? "at Rejuvira"
+    : hp.heroTitleAccentEn;
   const heroDescriptionAr = hp.heroDescription.includes("يعرض الموقع")
     ? "نقدم لكِ أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتكِ."
     : hp.heroDescription;
-  const heroPillAr = "ريجوفيرا | مركز طبي متكامل للتجميل والعناية بالبشرة";
+  const heroPillAr = "ريجوفيرا للتجميل الطبي";
+  const heroPillEn = "Rejuvira Aesthetic Medical Center";
 
   return (
     <main className="rv-v0-home" dir="rtl">
@@ -201,7 +208,7 @@ export function V0InspiredHome({
             <span className="rv-v0-pill rv-v0-pill-live">
               <span />
               <span className="lang-ar">{heroPillAr}</span>
-              <span className="lang-en">{hp.heroPillLabelEn}</span>
+              <span className="lang-en">{heroPillEn}</span>
               <SparkIcon />
             </span>
             <h1>
@@ -210,8 +217,8 @@ export function V0InspiredHome({
                 <strong>{` ${heroTitleAccentAr}`}</strong>
               </span>
               <span className="lang-en">
-                {hp.heroTitleEn}
-                <strong>{` ${hp.heroTitleAccentEn}`}</strong>
+                {heroTitleEn}
+                <strong>{` ${heroTitleAccentEn}`}</strong>
               </span>
             </h1>
             <p>
@@ -223,9 +230,10 @@ export function V0InspiredHome({
                 [
                   {
                     ar: "أطباء معتمدون دوليًا",
+                    en: "Certified physicians",
                   },
-                  { ar: "أحدث الأجهزة والتقنيات" },
-                  { ar: "نتائج مدروسة وطبيعية" },
+                  { ar: "أحدث الأجهزة والتقنيات", en: "Advanced technology" },
+                  { ar: "نتائج مدروسة وطبيعية", en: "Natural-looking results" },
                 ] as const
               ).map((item) => (
                 <span key={item.ar}>
@@ -233,6 +241,7 @@ export function V0InspiredHome({
                     <path d="m4 12 5 5L20 6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="lang-ar">{item.ar}</span>
+                  <span className="lang-en">{item.en}</span>
                 </span>
               ))}
             </div>
@@ -304,7 +313,7 @@ export function V0InspiredHome({
             </span>
             <span className="rv-v0-hero-trust-chip-text">
               <span className="lang-ar">{`استجابة فريق الاستقبال ${settings.ops.sla}`}</span>
-              <span className="lang-en">{`Reception response target ${settings.ops.sla}`}</span>
+              <span className="lang-en">Reception response target within 2 hours</span>
             </span>
           </div>
         </div>

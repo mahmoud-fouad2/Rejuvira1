@@ -63,7 +63,7 @@ export const megaMenuEntries: readonly MegaMenuEntry[] = [
         en: "Concise medical context for every pathway so expectations stay realistic from day one.",
       },
       href: "/services",
-      image: "/media/curated/service-skin-care.svg",
+      image: "/media/curated/service-skin-rejuvenation.jpg",
     },
     cards: [
       {
@@ -118,7 +118,7 @@ export const megaMenuEntries: readonly MegaMenuEntry[] = [
         en: "Each bio highlights scope of practice, languages, and aligned services.",
       },
       href: "/doctors",
-      image: "/media/curated/doctor-profile.svg",
+      image: "/media/curated/doctor-team.jpg",
     },
     cards: [
       {
@@ -173,7 +173,7 @@ export const megaMenuEntries: readonly MegaMenuEntry[] = [
         en: "Understand how each platform slots into the broader treatment pathway.",
       },
       href: "/devices",
-      image: "/media/curated/device-platform.svg",
+      image: "/media/curated/device-laser-platform.png",
     },
     cards: [
       {
@@ -228,7 +228,7 @@ export const megaMenuEntries: readonly MegaMenuEntry[] = [
         en: "Each article links back to services or physicians for a seamless next step.",
       },
       href: "/journal",
-      image: "/media/curated/service-injectables.svg",
+      image: "/media/curated/service-injectables.png",
     },
     cards: [
       {

@@ -140,9 +140,7 @@ export function buildLocalBusinessJsonLd(settings: {
     telephone: [settings.contact.phone, settings.contact.phoneSecondary].filter(
       Boolean,
     ),
-    email: [settings.contact.email, settings.contact.emailSecondary].filter(
-      Boolean,
-    ),
+    email: settings.contact.email,
     image: settings.media.ogImage?.startsWith("http")
       ? settings.media.ogImage
       : `${baseUrl}${settings.media.ogImage}`,
@@ -198,7 +196,7 @@ export function buildPhysicianJsonLd(doctor: {
     description: doctor.bio?.slice(0, 320),
     image: doctor.photoUrl?.startsWith("http")
       ? doctor.photoUrl
-      : `${baseUrl}${doctor.photoUrl ?? "/media/curated/doctor-profile.svg"}`,
+      : `${baseUrl}${doctor.photoUrl ?? "/media/curated/doctor-team.jpg"}`,
     url: `${baseUrl}/doctors/${doctor.slug}`,
     knowsLanguage: doctor.languages ?? ["ar", "en"],
     worksFor: { "@id": `${baseUrl}#organization` },
@@ -222,7 +220,7 @@ export function buildServiceJsonLd(service: {
     url: `${baseUrl}/services/${service.slug}`,
     image: service.coverImageUrl?.startsWith("http")
       ? service.coverImageUrl
-      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-care.svg"}`,
+      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-rejuvenation.jpg"}`,
     procedureType: "MedicalProcedure",
     provider: { "@id": `${baseUrl}#organization` },
   } as const;

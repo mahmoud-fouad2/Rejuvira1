@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 
 import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -16,39 +15,56 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({ page: "contact", path: "/contact" });
 }
 
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function toSaudiWhatsappHref(value: string) {
+  const digits = digitsOnly(value);
+  const normalized = digits.startsWith("966")
+    ? digits
+    : digits.startsWith("0")
+      ? `966${digits.slice(1)}`
+      : `966${digits}`;
+  return `https://wa.me/${normalized}`;
+}
+
 export default async function ContactPage() {
   const [services, runtimeSettings] = await Promise.all([
     getServices(),
     getRuntimeSettings(),
   ]);
+  const whatsappDigits = digitsOnly(runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone);
+  const primaryDigits = digitsOnly(runtimeSettings.contact.phone);
+  const secondaryDigits = digitsOnly(runtimeSettings.contact.phoneSecondary);
   const contactChannels = [
     {
       labelAr: "واتساب",
       labelEn: "WhatsApp",
-      value: runtimeSettings.contact.whatsapp,
+      value: runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
       hintAr: `زمن الرد المستهدف ${runtimeSettings.ops.sla}`,
       hintEn: `Target response time ${runtimeSettings.ops.sla}`,
-      href: `https://wa.me/${runtimeSettings.contact.whatsapp.replace(/\D/g, "")}`,
+      href: toSaudiWhatsappHref(runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone),
       kind: "whatsapp" as const,
     },
-    {
+    ...(primaryDigits && primaryDigits !== whatsappDigits ? [{
       labelAr: "الهاتف الرئيسي",
       labelEn: "Primary phone",
       value: runtimeSettings.contact.phone,
       hintAr: `خط الاستقبال — ${runtimeSettings.contact.hoursWeekdays}`,
       hintEn: `Reception line — ${runtimeSettings.contact.hoursWeekdaysEn}`,
-      href: `tel:${runtimeSettings.contact.phone.replace(/\D/g, "")}`,
+      href: `tel:${primaryDigits}`,
       kind: "phone" as const,
-    },
-    {
+    }] : []),
+    ...(secondaryDigits && secondaryDigits !== primaryDigits && secondaryDigits !== whatsappDigits ? [{
       labelAr: "الرقم الموحد",
       labelEn: "Unified line",
       value: runtimeSettings.contact.phoneSecondary,
       hintAr: "خط موحد لخدمة العملاء",
       hintEn: "Unified customer line",
-      href: `tel:${runtimeSettings.contact.phoneSecondary.replace(/\D/g, "")}`,
+      href: `tel:${secondaryDigits}`,
       kind: "phone" as const,
-    },
+    }] : []),
     {
       labelAr: "البريد الرسمي",
       labelEn: "Primary email",
@@ -56,15 +72,6 @@ export default async function ContactPage() {
       hintAr: "للتنسيق والاستفسارات العامة",
       hintEn: "For coordination and general inquiries",
       href: `mailto:${runtimeSettings.contact.email}`,
-      kind: "email" as const,
-    },
-    {
-      labelAr: "البريد البديل",
-      labelEn: "Alternate email",
-      value: runtimeSettings.contact.emailSecondary,
-      hintAr: "قناة إضافية للتواصل",
-      hintEn: "Alternative reach",
-      href: `mailto:${runtimeSettings.contact.emailSecondary}`,
       kind: "email" as const,
     },
   ] as const;
@@ -107,9 +114,11 @@ export default async function ContactPage() {
 
             <div className="mt-10 grid gap-4">
               {contactChannels.map((ch) => (
-                <Link
+                <a
                   key={ch.labelAr}
                   href={ch.href}
+                  target={ch.kind === "whatsapp" ? "_blank" : undefined}
+                  rel={ch.kind === "whatsapp" ? "noopener noreferrer" : undefined}
                   className="group border-line bg-surface flex items-center justify-between rounded-[1.8rem] border px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-mid/25 hover:shadow-[0_20px_50px_oklch(22%_0.06_285/0.09)]"
                 >
                   <div className="flex items-center gap-4">
@@ -133,7 +142,7 @@ export default async function ContactPage() {
                     <span className="lang-ar">{ch.labelAr}</span>
                     <span className="lang-en">{ch.labelEn}</span>
                   </span>
-                </Link>
+                </a>
               ))}
             </div>
           </article>
@@ -325,6 +334,54 @@ export default async function ContactPage() {
               </div>
             </div>
           </article>
+        </section>
+
+        <section className="surface-panel rounded-[2.7rem] p-6 shadow-sm lg:p-10">
+          <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-start">
+            <div>
+              <p className="eyebrow">
+                <span className="lang-ar">أسئلة شائعة</span>
+                <span className="lang-en">Frequently Asked Questions</span>
+              </p>
+              <h2 className="text-ink mt-3 font-serif text-4xl leading-tight tracking-[-0.04em]">
+                <span className="lang-ar">إجابات مختصرة تساعدك قبل التواصل.</span>
+                <span className="lang-en">Clear answers before you contact us.</span>
+              </h2>
+              <p className="text-ink-soft mt-4 text-sm leading-7">
+                <span className="lang-ar">
+                  اخترنا الأسئلة الأكثر ارتباطًا بالحجز والوصول والمتابعة حتى تكون الخطوة التالية واضحة.
+                </span>
+                <span className="lang-en">
+                  We grouped the most useful booking, access, and follow-up answers in one focused section.
+                </span>
+              </p>
+            </div>
+            <div className="grid gap-3">
+              {runtimeSettings.contact.faqs.slice(0, 5).map((faq, index) => (
+                <details
+                  key={faq.questionAr}
+                  open={index === 0}
+                  className="group border-line bg-surface/80 rounded-[1.6rem] border px-5 py-4 shadow-sm transition-all duration-300 open:border-purple-mid/35 open:bg-white/80 open:shadow-[0_18px_45px_oklch(24%_0.08_285/0.08)] dark:open:bg-white/8"
+                >
+                  <summary className="text-ink-strong flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold marker:hidden">
+                    <span>
+                      <span className="lang-ar">{faq.questionAr}</span>
+                      <span className="lang-en">{faq.questionEn}</span>
+                    </span>
+                    <span className="bg-purple-soft/70 text-purple-strong grid h-9 w-9 shrink-0 place-items-center rounded-full transition-transform duration-300 group-open:rotate-180">
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="text-ink-soft mt-3 max-w-2xl text-sm leading-7">
+                    <span className="lang-ar">{faq.answerAr}</span>
+                    <span className="lang-en">{faq.answerEn}</span>
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
       <SiteFooter />
