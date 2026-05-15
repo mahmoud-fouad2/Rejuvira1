@@ -146,7 +146,7 @@ export default async function DoctorDetailPage({
               priority
               className="object-cover object-top"
             />
-            {doctor.featured ? (
+            {doctor.featured && doctor.slug === "loai-alsalmi" ? (
               <span className="rv-doctor-hero-badge">
                 <StarGlyph />
                 <span className="lang-ar">طبيب مميز</span>

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 
 import {
   saveContactExtraAction,
+  saveIntegrationsAction,
   saveOperationsAction,
   saveSeoPageAction,
   saveSocialChannelsAction,
@@ -50,6 +51,7 @@ export function AdminSettingsExtras({
   return (
     <div className="grid gap-6">
       <OperationsCard settings={settings} recaptchaSiteKey={recaptchaSiteKey} />
+      <IntegrationsCard settings={settings} />
       <ContactExtraCard settings={settings} />
       <SeoCard settings={settings} />
       <SocialChannelsCard settings={settings} />
@@ -114,6 +116,109 @@ function OperationsCard({
           defaultChecked={Boolean(settings.ops.maintenanceMode)}
         />
         <SubmitMessage pending={pending} state={state} />
+      </form>
+    </article>
+  );
+}
+
+function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
+  const [state, formAction, pending] = useActionState(
+    saveIntegrationsAction,
+    initialState,
+  );
+  return (
+    <article className="surface-panel rounded-[1.85rem] p-6">
+      <p className="text-ink-faint text-[10px] font-semibold uppercase tracking-[0.22em]">
+        التكاملات والأكواد
+      </p>
+      <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
+        Chatbase، أكواد مؤقتة، و Webhook النماذج
+      </h2>
+      <p className="text-ink-soft mt-2 text-sm leading-7">
+        يمكنك إضافة Widget أو Google Tag أو أي كود مؤقت بدون تعديل ملفات المشروع.
+        الأكواد هنا تُحقن في الواجهة العامة فقط، والـ Webhook يستقبل كل طلب
+        حجز أو تواصل بعد تسجيله داخل CRM.
+      </p>
+      <form action={formAction} className="mt-5 grid gap-4 text-sm">
+        <ToggleField
+          name="chatbaseEnabled"
+          label="تفعيل Chatbase widget"
+          defaultChecked={settings.integrations.chatbaseEnabled}
+          helper="يمكن تعطيله مؤقتاً بدون حذف رقم الودجت."
+        />
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
+            Chatbase Widget ID
+          </span>
+          <input
+            name="chatbaseWidgetId"
+            defaultValue={settings.integrations.chatbaseWidgetId}
+            dir="ltr"
+            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
+            placeholder="x2waiyc2hrfs58qowbowajxy8sugf9kn"
+          />
+        </label>
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
+            كود مخصص داخل head
+          </span>
+          <textarea
+            name="customHeadCode"
+            rows={5}
+            defaultValue={settings.integrations.customHeadCode}
+            dir="ltr"
+            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 font-mono text-xs"
+            placeholder="<script>...</script>"
+          />
+        </label>
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
+            كود مخصص قبل نهاية body
+          </span>
+          <textarea
+            name="customBodyCode"
+            rows={5}
+            defaultValue={settings.integrations.customBodyCode}
+            dir="ltr"
+            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 font-mono text-xs"
+            placeholder="<script>...</script>"
+          />
+        </label>
+        <ToggleField
+          name="formWebhookEnabled"
+          label="تفعيل Webhook لكل نماذج الموقع"
+          defaultChecked={settings.integrations.formWebhookEnabled}
+          helper="يُرسل نسخة JSON بعد حفظ الطلب داخل CRM."
+        />
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
+            Form Webhook URL
+          </span>
+          <input
+            name="formWebhookUrl"
+            defaultValue={settings.integrations.formWebhookUrl}
+            dir="ltr"
+            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
+            placeholder="https://hooks.example.com/rejuvira"
+          />
+          <span className="text-ink-faint text-[11px] leading-6">
+            Payload: event, source, submittedAt, submissionId, fullName, phone,
+            serviceSlug, preferredLanguage.
+          </span>
+        </label>
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
+            Webhook Secret Header
+          </span>
+          <input
+            name="formWebhookSecret"
+            defaultValue={settings.integrations.formWebhookSecret}
+            dir="ltr"
+            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
+            placeholder="اختياري: يرسل في x-rejuvira-webhook-secret"
+          />
+        </label>
+        <SubmitMessage pending={pending} state={state} label="حفظ التكاملات" />
       </form>
     </article>
   );

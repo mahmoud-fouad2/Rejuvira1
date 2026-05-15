@@ -12,12 +12,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const localMoodImages = [
-  "/media/curated/service-skin-rejuvenation.jpg",
-  "/media/curated/service-prp.jpg",
-  "/media/curated/service-laser-hair-removal.jpg",
-  "/media/curated/device-emface.jpg",
-  "/media/curated/device-laser-platform.png",
-  "/media/curated/service-injectables.png",
+  "/media/curated/service-skin-care.svg",
+  "/media/curated/service-injectables.svg",
+  "/media/curated/service-laser.svg",
+  "/media/curated/device-body.svg",
+  "/media/curated/device-platform.svg",
+  "/media/curated/service-aesthetic-surgery.svg",
 ];
 
 export default async function GalleryPage() {
@@ -79,7 +79,7 @@ export default async function GalleryPage() {
               <div className="relative m-3 h-48 overflow-hidden rounded-[2rem]">
                 <Image
                   src={localMoodImages[0]!}
-                  alt="مرجع بصري Rejuvira"
+                  alt="معرض نتائج ريجوفيرا"
                   fill
                   sizes="(max-width: 1024px) 100vw, 44vw"
                   className="object-cover"
@@ -88,7 +88,7 @@ export default async function GalleryPage() {
                 <div className="absolute inset-x-5 bottom-5">
                   <p className="eyebrow text-white/70"><span className="lang-ar">الانطباع البصري</span><span className="lang-en">Visual Narrative</span></p>
                   <p className="font-serif text-2xl tracking-[-0.04em] text-white">
-                    <span className="lang-ar">صور حقيقية مرتبطة بالخدمة والنتيجة</span>
+                    <span className="lang-ar">مقارنات منظمة مرتبطة بالخدمة والنتيجة</span>
                     <span className="lang-en">Real imagery tied to the service and the expected outcome</span>
                   </p>
                 </div>
@@ -102,7 +102,7 @@ export default async function GalleryPage() {
                 <div className="relative m-2.5 h-28 overflow-hidden rounded-[1.6rem]">
                   <Image
                     src={src}
-                    alt={`مرجع بصري ${i + 2}`}
+                    alt={`لقطة من معرض ريجوفيرا ${i + 2}`}
                     fill
                     sizes="(max-width: 1024px) 50vw, 22vw"
                     className="object-cover"
@@ -124,7 +124,8 @@ export default async function GalleryPage() {
                 key={cat}
                 className="border-line bg-surface text-ink-soft rounded-full border px-4 py-1.5 text-sm"
               >
-                {cat}
+                <span className="lang-ar">{cat}</span>
+                <span className="lang-en">Gallery category</span>
               </span>
             ))}
           </div>
@@ -182,14 +183,19 @@ export default async function GalleryPage() {
                 </div>
                 <div className="px-5 pb-6">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="eyebrow">{item.category}</span>
+                    <span className="eyebrow">
+                      <span className="lang-ar">{item.category}</span>
+                      <span className="lang-en">{item.categoryEn ?? "Before and after"}</span>
+                    </span>
                     <div className="h-px flex-1 bg-[linear-gradient(to_right,transparent,var(--line-subtle),transparent)]" />
                   </div>
                   <h3 className="text-ink mt-3 font-serif text-3xl tracking-[-0.04em]">
-                    {item.title}
+                    <span className="lang-ar">{item.title}</span>
+                    <span className="lang-en">{item.titleEn ?? "Treatment result preview"}</span>
                   </h3>
                   <p className="text-ink-soft mt-2 text-sm leading-7">
-                    {item.description}
+                    <span className="lang-ar">{item.description}</span>
+                    <span className="lang-en">{item.descriptionEn ?? "A visual comparison connected to a defined service and clear treatment plan."}</span>
                   </p>
                 </div>
               </article>
@@ -200,13 +206,14 @@ export default async function GalleryPage() {
         {/* ── CTA ────────────────────────────────────────── */}
         <section className="grid gap-5 lg:grid-cols-[0.92fr_1.08fr]">
           <article className="surface-panel rounded-[2.4rem] p-8 lg:p-10">
-            <p className="eyebrow">نتيجتك القادمة</p>
+            <p className="eyebrow"><span className="lang-ar">نتيجتك القادمة</span><span className="lang-en">Your Next Result</span></p>
             <h2 className="balanced-text text-ink mt-4 font-serif text-5xl tracking-[-0.055em]">
-              ابدئي بخطة واضحة وشاهدي الفرق بنفسك.
+              <span className="lang-ar">ابدئي بخطة واضحة وشاهدي الفرق بنفسك.</span>
+              <span className="lang-en">Start with a clear plan and see the difference yourself.</span>
             </h2>
             <p className="text-ink-soft mt-4 text-sm leading-8">
-              كل نتيجة في هذا القسم مرتبطة بخدمة وخطة علاجية محددة. ابدئي من
-              الاستشارة لمعرفة ما يناسب حالتك.
+              <span className="lang-ar">كل نتيجة في هذا القسم مرتبطة بخدمة وخطة علاجية محددة. ابدئي من الاستشارة لمعرفة ما يناسب حالتك.</span>
+              <span className="lang-en">Every result in this section is connected to a defined service and treatment plan. Start with a consultation to understand what fits your case.</span>
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
@@ -228,7 +235,7 @@ export default async function GalleryPage() {
           <div className="surface-panel overflow-hidden rounded-[2.4rem] p-4">
             <div className="relative h-full min-h-[18rem] overflow-hidden rounded-[2rem]">
               <Image
-                src="/media/curated/device-emface.jpg"
+                src="/media/curated/device-platform.svg"
                 alt="Rejuvira Center"
                 fill
                 sizes="(max-width: 1024px) 100vw, 54vw"

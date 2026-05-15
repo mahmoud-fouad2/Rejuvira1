@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { auth } from "@/auth";
+import { listAppLogs } from "@/lib/app-log";
 import { runConnectionChecks } from "@/lib/backup";
 import { getDashboardSnapshot } from "@/lib/content-repository";
 import { adminModules, heroMetrics } from "@/lib/site-content";
@@ -20,6 +21,19 @@ export default async function AdminPage() {
     getDashboardSnapshot(),
     runConnectionChecks(),
   ]);
+  const analytics = await listAppLogs({ kind: "analytics.pageview", limit: 200 });
+  const pageCounts = new Map<string, number>();
+  const referrerCounts = new Map<string, number>();
+  analytics.items.forEach((item) => {
+    const path = typeof item.meta?.path === "string" ? item.meta.path : "/";
+    const referrer = typeof item.meta?.referrer === "string" && item.meta.referrer
+      ? item.meta.referrer
+      : "Direct";
+    pageCounts.set(path, (pageCounts.get(path) ?? 0) + 1);
+    referrerCounts.set(referrer, (referrerCounts.get(referrer) ?? 0) + 1);
+  });
+  const topPages = Array.from(pageCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topReferrers = Array.from(referrerCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
   const healthPills = [
     { key: "DB", state: checks.database.ok, detail: checks.database.detail },
     { key: "R2", state: checks.r2.ok, detail: checks.r2.detail },
@@ -148,6 +162,36 @@ export default async function AdminPage() {
               </div>
             ))}
           </div>
+        </article>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <article className="surface-panel rounded-[1.75rem] p-8 shadow-sm">
+          <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">Analytics</p>
+          <h2 className="text-ink-strong mt-2 text-2xl font-semibold tracking-tight">الصفحات الأكثر زيارة</h2>
+          <div className="mt-6 grid gap-3">
+            {(topPages.length > 0 ? topPages : [["لا توجد بيانات بعد", 0] as const]).map(([path, count]) => (
+              <div key={path} className="border-line flex items-center justify-between gap-3 rounded-2xl border bg-surface/90 px-4 py-3">
+                <span className="truncate text-sm font-semibold text-ink-strong" dir="ltr">{path}</span>
+                <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-ink">{count}</span>
+              </div>
+            ))}
+          </div>
+        </article>
+        <article className="surface-panel rounded-[1.75rem] p-8 shadow-sm">
+          <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.24em]">Sources</p>
+          <h2 className="text-ink-strong mt-2 text-2xl font-semibold tracking-tight">مصادر الزيارات</h2>
+          <div className="mt-6 grid gap-3">
+            {(topReferrers.length > 0 ? topReferrers : [["Direct", 0] as const]).map(([source, count]) => (
+              <div key={source} className="border-line flex items-center justify-between gap-3 rounded-2xl border bg-surface/90 px-4 py-3">
+                <span className="truncate text-sm font-semibold text-ink-strong" dir="ltr">{source}</span>
+                <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-ink">{count}</span>
+              </div>
+            ))}
+          </div>
+          <p className="mt-4 text-xs leading-6 text-ink-soft">
+            يتم تسجيل الزيارات داخلياً عبر AppLog، ويمكن تصدير سجلات CRM من صفحة CRM، وسجلات النظام من صفحة السجلات.
+          </p>
         </article>
       </section>
 

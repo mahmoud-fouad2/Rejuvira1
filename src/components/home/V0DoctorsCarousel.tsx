@@ -138,7 +138,7 @@ export function V0DoctorsCarousel({
                       className="object-cover object-top"
                       loading={i < 2 ? "eager" : "lazy"}
                     />
-                    {doctor.featured ? (
+                    {doctor.featured && doctor.slug === "loai-alsalmi" ? (
                       <span className="rv-doctor-card-top-rated">
                         <StarIcon />
                         <span className="lang-ar">مميز</span>

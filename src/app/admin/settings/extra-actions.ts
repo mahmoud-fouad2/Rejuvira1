@@ -41,6 +41,49 @@ export async function saveOperationsAction(
   return { status: "success", message: "تم حفظ تفضيلات التشغيل." };
 }
 
+const integrationsSchema = z.object({
+  chatbaseEnabled: z.string().optional(),
+  chatbaseWidgetId: z.string().optional().or(z.literal("")),
+  customHeadCode: z.string().optional().or(z.literal("")),
+  customBodyCode: z.string().optional().or(z.literal("")),
+  formWebhookEnabled: z.string().optional(),
+  formWebhookUrl: z.string().url().optional().or(z.literal("")),
+  formWebhookSecret: z.string().optional().or(z.literal("")),
+});
+
+export async function saveIntegrationsAction(
+  _prev: ExtraSettingsState,
+  formData: FormData,
+): Promise<ExtraSettingsState> {
+  const parsed = integrationsSchema.safeParse({
+    chatbaseEnabled: formData.get("chatbaseEnabled"),
+    chatbaseWidgetId: formData.get("chatbaseWidgetId") ?? "",
+    customHeadCode: formData.get("customHeadCode") ?? "",
+    customBodyCode: formData.get("customBodyCode") ?? "",
+    formWebhookEnabled: formData.get("formWebhookEnabled"),
+    formWebhookUrl: formData.get("formWebhookUrl") ?? "",
+    formWebhookSecret: formData.get("formWebhookSecret") ?? "",
+  });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "تأكد من صحة رابط الويب هوك وبيانات التكامل.",
+    };
+  }
+  await saveSettingsGroup("integrations", {
+    chatbaseEnabled: parsed.data.chatbaseEnabled === "on" ? "true" : "false",
+    chatbaseWidgetId: parsed.data.chatbaseWidgetId ?? "",
+    customHeadCode: parsed.data.customHeadCode ?? "",
+    customBodyCode: parsed.data.customBodyCode ?? "",
+    formWebhookEnabled: parsed.data.formWebhookEnabled === "on" ? "true" : "false",
+    formWebhookUrl: parsed.data.formWebhookUrl ?? "",
+    formWebhookSecret: parsed.data.formWebhookSecret ?? "",
+  });
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
+  return { status: "success", message: "تم حفظ التكاملات والأكواد المؤقتة." };
+}
+
 const seoSchema = z.object({
   page: z.enum([
     "home",

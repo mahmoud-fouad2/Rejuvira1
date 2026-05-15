@@ -21,7 +21,47 @@ const contactSchema = z.object({
   serviceSlug: z.string().optional().or(z.literal("")),
   preferredLanguage: z.string().optional().or(z.literal("")),
   recaptchaToken: z.string().optional().or(z.literal("")),
+  source: z.string().max(120).optional().or(z.literal("")),
 });
+
+async function dispatchFormWebhook({
+  settings,
+  payload,
+}: {
+  settings: Awaited<ReturnType<typeof getRuntimeSettings>>;
+  payload: Record<string, unknown>;
+}) {
+  if (!settings.integrations.formWebhookEnabled) return;
+  if (!settings.integrations.formWebhookUrl.trim()) return;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3500);
+  try {
+    await fetch(settings.integrations.formWebhookUrl, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        ...(settings.integrations.formWebhookSecret
+          ? { "x-rejuvira-webhook-secret": settings.integrations.formWebhookSecret }
+          : {}),
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    await recordAppLog({
+      level: "warn",
+      kind: "webhook",
+      message: "Form webhook delivery failed",
+      meta: {
+        error: error instanceof Error ? error.message : "unknown",
+        source: payload.source,
+      },
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export async function submitContactAction(
   _previousState: ContactActionState,
@@ -35,6 +75,7 @@ export async function submitContactAction(
     serviceSlug: formData.get("serviceSlug"),
     preferredLanguage: formData.get("preferredLanguage"),
     recaptchaToken: formData.get("recaptchaToken"),
+    source: formData.get("source"),
   });
 
   if (!parsed.success) {
@@ -82,12 +123,29 @@ export async function submitContactAction(
     fullName: parsed.data.fullName,
     phone: parsed.data.phone,
     preferredLanguage: parsed.data.preferredLanguage || "ar",
-    source: "Website contact form",
+    source: parsed.data.source || "Website contact form",
     ...(parsed.data.email ? { email: parsed.data.email } : {}),
     ...(parsed.data.message ? { message: parsed.data.message } : {}),
     ...(parsed.data.serviceSlug
       ? { serviceSlug: parsed.data.serviceSlug }
       : {}),
+  });
+
+  await dispatchFormWebhook({
+    settings,
+    payload: {
+      event: "contact_submission.created",
+      source: parsed.data.source || "Website contact form",
+      submittedAt: new Date().toISOString(),
+      mode: result.mode,
+      submissionId: result.mode === "database" ? result.submission.id : undefined,
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone,
+      email: parsed.data.email || undefined,
+      message: parsed.data.message || undefined,
+      serviceSlug: parsed.data.serviceSlug || undefined,
+      preferredLanguage: parsed.data.preferredLanguage || "ar",
+    },
   });
 
   revalidatePath("/admin/crm");

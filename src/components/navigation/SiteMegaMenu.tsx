@@ -129,7 +129,7 @@ export function SiteMegaMenu({
           }
         }}
       >
-        <span>{lang === "en" ? "Services" : triggerLabel}</span>
+        <span>{lang === "en" ? "Explore Center" : triggerLabel}</span>
         {ChevronIcon}
       </button>
 
@@ -137,8 +137,25 @@ export function SiteMegaMenu({
         className="rv-mega-panel"
         data-open={open || undefined}
         role="menu"
-        aria-label={lang === "en" ? "Services mega menu" : triggerLabel}
+        aria-label={lang === "en" ? "Explore center menu" : triggerLabel}
       >
+        <div className="rv-mega-panel-head">
+          <div>
+            <p className="rv-mega-panel-kicker">
+              <span className="lang-ar">تصفح سريع</span>
+              <span className="lang-en">Quick browse</span>
+            </p>
+            <p className="rv-mega-panel-title">
+              <span className="lang-ar">الخدمات، الأطباء، والأجهزة في مكان واحد</span>
+              <span className="lang-en">Services, doctors, and devices in one place</span>
+            </p>
+          </div>
+          <Link href="/services" className="rv-mega-panel-all" onClick={() => setOpen(false)}>
+            <span className="lang-ar">كل الخدمات</span>
+            <span className="lang-en">All services</span>
+            <span aria-hidden>←</span>
+          </Link>
+        </div>
         <div className="rv-mega-grid">
           {columns.map((column) => (
             <div key={`${column.titleAr}-${column.titleEn}`} className="rv-mega-col">
@@ -190,7 +207,7 @@ export function SiteMegaMenu({
                 <span className="lang-ar">خطة طبية واضحة تبدأ من تقييم دقيق للحالة</span>
                 <span className="lang-en">A clear plan begins with a careful assessment</span>
               </p>
-              <p style={{ marginTop: "0.45rem", fontSize: "0.82rem", opacity: 0.86, lineHeight: 1.55 }}>
+              <p className="rv-mega-feature-copy">
                 <span className="lang-ar">
                   أرسلي طلبك ليصلك تأكيد من فريق الاستقبال خلال ساعات العمل.
                 </span>

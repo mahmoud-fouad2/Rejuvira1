@@ -69,6 +69,27 @@ const homepageFieldGroups = [
   ],
   [["quotesDescription", "وصف قسم مقولات الأطباء"]],
   [
+    ["testimonial1AuthorAr", "اسم العميل الأول"],
+    ["testimonial1AuthorEn", "Testimonial 1 author"],
+  ],
+  [["testimonial1QuoteAr", "تعليق العميل الأول بالعربية"]],
+  [["testimonial1QuoteEn", "Testimonial 1 quote in English"]],
+  [["testimonial1Avatar", "صورة العميل الأول"]],
+  [
+    ["testimonial2AuthorAr", "اسم العميل الثاني"],
+    ["testimonial2AuthorEn", "Testimonial 2 author"],
+  ],
+  [["testimonial2QuoteAr", "تعليق العميل الثاني بالعربية"]],
+  [["testimonial2QuoteEn", "Testimonial 2 quote in English"]],
+  [["testimonial2Avatar", "صورة العميل الثاني"]],
+  [
+    ["testimonial3AuthorAr", "اسم العميل الثالث"],
+    ["testimonial3AuthorEn", "Testimonial 3 author"],
+  ],
+  [["testimonial3QuoteAr", "تعليق العميل الثالث بالعربية"]],
+  [["testimonial3QuoteEn", "Testimonial 3 quote in English"]],
+  [["testimonial3Avatar", "صورة العميل الثالث"]],
+  [
     ["stripEyebrow", "عنوان فرعي لشريط الخدمات السريع"],
     ["stripTitle", "عنوان شريط الخدمات السريع"],
   ],

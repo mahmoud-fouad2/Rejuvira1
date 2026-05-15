@@ -6,7 +6,8 @@ import "./globals.css";
 
 import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
 import { PageLoader } from "@/components/layout/PageLoader";
-import { SiteIntro } from "@/components/layout/SiteIntro";
+import { PageViewTracker } from "@/components/layout/PageViewTracker";
+import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
 import { LanguageProvider } from "@/components/providers/LanguageProvider";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
@@ -57,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(canonical),
     title: {
-      default: `${runtimeSettings.brand.siteName} | خدمات جلدية وتجميلية • مركز طبي متخصص`,
+      default: `${runtimeSettings.brand.siteName} | جراحات تجميلية وطب جلدية وعناية بالبشرة`,
       template: `%s | ${runtimeSettings.brand.siteName}`,
     },
     description: runtimeSettings.brand.seoDescription,
@@ -169,8 +170,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           ) : null}
           <CustomCursor />
           <PageLoader />
+          {!isAdminOrAuth ? <PageViewTracker /> : null}
           {children}
-          <SiteIntro siteName={runtimeSettings.brand.siteName} logoAlt={runtimeSettings.brand.logoAlt} />
+          {!isAdminOrAuth ? (
+            <ExternalIntegrations
+              chatbaseEnabled={runtimeSettings.integrations.chatbaseEnabled}
+              chatbaseWidgetId={runtimeSettings.integrations.chatbaseWidgetId}
+              customHeadCode={runtimeSettings.integrations.customHeadCode}
+              customBodyCode={runtimeSettings.integrations.customBodyCode}
+            />
+          ) : null}
           <Script
             id="rv-scroll-reveal"
             strategy="afterInteractive"

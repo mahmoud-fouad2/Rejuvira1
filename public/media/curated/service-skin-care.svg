@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="'D9F'J) ('D(41)">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fff8ee"/>
+      <stop offset=".5" stop-color="#f0e7fa"/>
+      <stop offset="1" stop-color="#d5bee9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="44" fill="url(#g)"/>
+  <circle cx="280" cy="190" r="95" fill="#fff" opacity=".55"/>
+  <circle cx="930" cy="610" r="160" fill="#4a2476" opacity=".08"/>
+  <path d="M600 170c-138 95-210 218-210 350 0 96 78 174 174 174h72c96 0 174-78 174-174 0-132-72-255-210-350Z" fill="#fff" opacity=".78"/>
+  <path d="M485 482c70 58 160 58 230 0" fill="none" stroke="#4a2476" stroke-width="20" stroke-linecap="round"/>
+  <path d="M505 360h.1M695 360h.1" stroke="#4a2476" stroke-width="34" stroke-linecap="round"/>
+  <text x="600" y="720" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#4a2476">Skin Care</text>
+</svg>

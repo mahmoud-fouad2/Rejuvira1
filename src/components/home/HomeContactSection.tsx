@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
 import { ContactForm } from "@/components/forms/ContactForm";
 import type { RuntimeSettings, ServiceRecord } from "@/lib/content-repository";
 
@@ -212,6 +213,28 @@ export function HomeContactSection({
               </span>
             </p>
           </div>
+        </div>
+        <div className="rv-v0-home-map-card">
+          <div className="rv-v0-home-map-copy">
+            <span className="rv-v0-pill">
+              <span className="lang-ar">موقع المركز</span>
+              <span className="lang-en">Center location</span>
+            </span>
+            <h3>
+              <span className="lang-ar">الوصول إلى ريجوفيرا بسهولة داخل الرياض</span>
+              <span className="lang-en">Reach Rejuvira easily in Riyadh</span>
+            </h3>
+            <p>
+              <span className="lang-ar">خريطة تفاعلية تساعدك على معرفة المسار قبل الزيارة، مع عرض واضح لموقع المركز.</span>
+              <span className="lang-en">An interactive map helps you plan your route before visiting the center.</span>
+            </p>
+          </div>
+          <GoogleMapsEmbed
+            src={settings.contact.mapsEmbedUrl}
+            shape={settings.contact.mapsShape}
+            title="Rejuvira Center location"
+            className="rv-v0-home-map-embed"
+          />
         </div>
       </div>
     </section>

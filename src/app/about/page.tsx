@@ -188,7 +188,7 @@ export default async function AboutPage() {
           <article className="surface-panel overflow-hidden rounded-[2.5rem] shadow-sm">
             <div className="relative h-80">
               <Image
-                src="/media/curated/service-prp.jpg"
+                src="/media/curated/doctor-profile.svg"
                 alt="إجراء مرتبط بالتخصصات الطبية"
                 fill
                 sizes="(max-width: 1024px) 100vw, 48vw"

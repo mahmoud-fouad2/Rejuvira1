@@ -55,10 +55,18 @@ export function ContactForm({
   services,
   formClassName,
   recaptchaSiteKey,
+  source = "Website contact form",
+  compact = false,
+  submitLabelAr = "طلب استشارة",
+  submitLabelEn = "Request a consultation",
 }: {
   services: readonly ServiceRecord[];
   formClassName?: string;
-  recaptchaSiteKey?: string;
+  recaptchaSiteKey?: string | undefined;
+  source?: string;
+  compact?: boolean;
+  submitLabelAr?: string;
+  submitLabelEn?: string;
 }) {
   const { lang } = useLanguage();
   const [state, formAction, isPending] = useActionState(
@@ -173,23 +181,26 @@ export function ContactForm({
           ))}
         </select>
       </label>
-      <label className="grid gap-2">
-        <span className="text-ink-strong text-sm font-semibold tracking-tight">
-          <span className="lang-ar">تفاصيل إضافية</span>
-          <span className="lang-en">Additional details</span>
-        </span>
-        <textarea
-          name="message"
-          rows={5}
-          className="field-public"
-          placeholder={
-            lang === "ar"
-              ? "ما الذي تريد الاستفسار عنه أو حجزه؟"
-              : "What would you like to ask about or book?"
-          }
-        />
-      </label>
+      {compact ? null : (
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-sm font-semibold tracking-tight">
+            <span className="lang-ar">تفاصيل إضافية</span>
+            <span className="lang-en">Additional details</span>
+          </span>
+          <textarea
+            name="message"
+            rows={5}
+            className="field-public"
+            placeholder={
+              lang === "ar"
+                ? "ما الذي تريد الاستفسار عنه أو حجزه؟"
+                : "What would you like to ask about or book?"
+            }
+          />
+        </label>
+      )}
       <input type="hidden" name="preferredLanguage" value={lang} />
+      <input type="hidden" name="source" value={source} />
       <input
         ref={tokenInputRef}
         type="hidden"
@@ -220,8 +231,8 @@ export function ContactForm({
           </>
         ) : (
           <>
-            <span className="lang-ar">طلب استشارة</span>
-            <span className="lang-en">Request a consultation</span>
+            <span className="lang-ar">{submitLabelAr}</span>
+            <span className="lang-en">{submitLabelEn}</span>
           </>
         )}
       </button>

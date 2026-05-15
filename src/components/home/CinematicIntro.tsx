@@ -23,18 +23,26 @@ export function CinematicIntro({
   brandName,
   skinTextureSrc,
 }: CinematicIntroProps) {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [phase, setPhase] = useState<"enter" | "idle" | "exit">("enter");
   useEffect(() => {
-    /* Sequence: enter → idle → exit → remove */
-    const t1 = setTimeout(() => setPhase("idle"), 2400);
-    const t2 = setTimeout(() => setPhase("exit"), 4200);
-    const t3 = setTimeout(() => setVisible(false), 5200);
+    try {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (sessionStorage.getItem("rejuvira-cinematic-intro")) return;
+      sessionStorage.setItem("rejuvira-cinematic-intro", "1");
+    } catch {
+      /* continue without persistence */
+    }
+
+    setVisible(true);
+    const t0 = setTimeout(() => setPhase("idle"), 80);
+    const t1 = setTimeout(() => setPhase("exit"), 3200);
+    const t2 = setTimeout(() => setVisible(false), 4050);
 
     return () => {
+      clearTimeout(t0);
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, []);
 
@@ -43,16 +51,16 @@ export function CinematicIntro({
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed inset-0 z-50 flex items-center justify-center transition-all duration-[1.2s] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+      className={`pointer-events-none fixed inset-0 z-[90] flex items-center justify-center transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
         phase === "enter"
-          ? "opacity-0 [--scale:0.92] scale-[var(--scale)]"
+          ? "opacity-0 [--scale:0.98] scale-[var(--scale)]"
           : phase === "exit"
-            ? "opacity-0 [--scale:1.08] scale-[var(--scale)]"
+            ? "opacity-0 [--scale:1.04] scale-[var(--scale)] blur-sm"
             : "opacity-100 scale-100"
       }`}
       style={{
         background:
-          "radial-gradient(ellipse at 50% 60%, #1a1511 0%, #0f0c0a 100%)",
+          "radial-gradient(ellipse at 50% 0%, rgba(126,64,166,0.35), transparent 55%), linear-gradient(145deg, #130a1f 0%, #2b1146 48%, #0d0714 100%)",
       }}
     >
       {/* Background texture */}
@@ -61,45 +69,45 @@ export function CinematicIntro({
           src={skinTextureSrc}
           alt=""
           fill
-          className="object-cover opacity-[0.08]"
+          className="object-cover opacity-[0.16] mix-blend-screen"
           priority
           sizes="100vw"
         />
       </div>
 
       {/* Subtle light bloom */}
-      <div className="absolute top-1/3 left-1/2 h-[40vh] w-[60vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(179,155,117,0.12),transparent_70%)]" />
+      <div className="absolute top-1/3 left-1/2 h-[44vh] w-[66vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.16),transparent_70%)]" />
 
       {/* Main content */}
-      <div className="relative flex flex-col items-center gap-10 px-6">
+      <div className="relative flex flex-col items-center gap-8 px-6 text-center">
         {/* Brand logo */}
-        <div className="relative h-20 w-20 overflow-hidden rounded-[1.4rem] shadow-[0_0_60px_rgba(179,155,117,0.2)] sm:h-24 sm:w-24">
+        <div className="relative h-28 w-40 overflow-hidden rounded-none shadow-[0_0_80px_rgba(255,255,255,0.18)] sm:h-32 sm:w-52">
           <Image
             src={logoSrc}
             alt={logoAlt}
             fill
-            className="object-cover"
+            className="object-contain"
             priority
-            sizes="96px"
+            sizes="208px"
           />
         </div>
 
         {/* Brand name */}
         <div className="text-center">
-          <p className="font-serif text-4xl font-light tracking-[-0.04em] text-[#f6f1e9] sm:text-5xl lg:text-6xl">
+          <p className="font-serif text-4xl font-semibold tracking-[-0.04em] text-[#fff8f0] sm:text-5xl lg:text-6xl">
             {brandName}
           </p>
-          <p className="mt-3 text-[10px] tracking-[0.42em] text-[#8d7c68] uppercase">
-            Dermatology & Medical Aesthetics
+          <p className="mt-3 text-[11px] tracking-[0.36em] text-white/65 uppercase">
+            Aesthetic Surgery · Dermatology · Skin Care
           </p>
         </div>
 
         {/* Decorative line */}
-        <div className="h-px w-16 bg-gradient-to-r from-transparent via-[#b39b75] to-transparent opacity-50" />
+        <div className="h-px w-24 bg-gradient-to-r from-transparent via-white to-transparent opacity-45" />
 
         {/* Tagline */}
-        <p className="max-w-md text-center text-sm leading-relaxed tracking-wide text-[#aea69b]">
-          حيث تلتقي الدقة الطبية مع الجمال الطبيعي
+        <p className="max-w-md text-center text-sm leading-relaxed tracking-wide text-white/70">
+          حيث تلتقي الخبرة الطبية مع الجمال الطبيعي
         </p>
       </div>
     </div>

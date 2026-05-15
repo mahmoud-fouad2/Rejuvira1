@@ -309,8 +309,8 @@ export default async function ContactPage() {
                   <span className="lang-en">Working days</span>
                 </p>
                 <p className="text-ink mt-2 text-base font-semibold">
-                  <span className="lang-ar">الأحد — الخميس</span>
-                  <span className="lang-en">Sunday — Thursday</span>
+                  <span className="lang-ar">السبت — الخميس</span>
+                  <span className="lang-en">Saturday — Thursday</span>
                 </p>
               </div>
               <div className="border-line bg-surface rounded-[1.6rem] border px-5 py-4">
@@ -319,65 +319,10 @@ export default async function ContactPage() {
                   <span className="lang-en">Working hours</span>
                 </p>
                 <p className="text-ink mt-2 text-base font-semibold">
-                  10:00 — 21:00
+                  <span className="lang-ar">{runtimeSettings.contact.hoursWeekdays}</span>
+                  <span className="lang-en">{runtimeSettings.contact.hoursWeekdaysEn}</span>
                 </p>
               </div>
-            </div>
-          </article>
-        </section>
-
-        {/* ── LOCATION / WORKING HOURS ──────────────────── */}
-        <section className="grid gap-5 lg:grid-cols-3">
-          <article className="surface-panel col-span-1 overflow-hidden rounded-[2.4rem] p-6 lg:col-span-2">
-            <p className="eyebrow"><span className="lang-ar">الموقع وساعات العمل</span><span className="lang-en">Location &amp; Hours</span></p>
-            <h2 className="text-ink mt-4 font-serif text-4xl tracking-[-0.05em]">
-              <span className="lang-ar">نحن في الرياض، ونستقبلك بتنظيم واهتمام.</span>
-              <span className="lang-en">We are in Riyadh, ready to welcome you with care and organization.</span>
-            </h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              {[
-                {
-                  label: "الموقع",
-                  value: runtimeSettings.contact.addressAr || "الرياض، المملكة العربية السعودية",
-                },
-                {
-                  label: "أيام العمل وساعاتها",
-                  value: runtimeSettings.contact.hoursWeekdays,
-                },
-                {
-                  label: "اليوم المغلق",
-                  value: runtimeSettings.contact.hoursWeekend,
-                },
-              ].map((item) => (
-                <div
-                  key={item.label}
-                  className="border-line bg-surface rounded-[1.6rem] border px-5 py-4"
-                >
-                  <p className="text-ink-faint text-sm">{item.label}</p>
-                  <p className="text-ink mt-2 text-base font-semibold">
-                    {item.value}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </article>
-          <article className="surface-panel overflow-hidden rounded-[2.4rem]">
-            <div className="relative h-full min-h-[16rem] overflow-hidden rounded-[2.4rem]">
-              <Image
-                src={runtimeSettings.media.doctorsHero}
-                alt="Rejuvira Center"
-                fill
-                sizes="(max-width: 1024px) 100vw, 34vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-              <Link
-                href={`https://wa.me/${runtimeSettings.contact.whatsapp.replace(/\D/g, "")}`}
-                className="absolute inset-x-5 bottom-5 rounded-full bg-white/90 text-[#2a1744] px-5 py-3 text-center text-sm font-semibold backdrop-blur-sm transition-transform hover:-translate-y-0.5 dark:bg-white/85"
-              >
-                <span className="lang-ar">واتساب مباشر</span>
-                <span className="lang-en">Direct WhatsApp</span>
-              </Link>
             </div>
           </article>
         </section>

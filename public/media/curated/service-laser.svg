@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="*BFJ'* 'DDJ21">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#f7fbff"/>
+      <stop offset=".55" stop-color="#eee4fb"/>
+      <stop offset="1" stop-color="#c7afe4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="44" fill="url(#g)"/>
+  <path d="M285 505h315c80 0 145-65 145-145v-56" fill="none" stroke="#4a2476" stroke-width="28" stroke-linecap="round"/>
+  <rect x="190" y="445" width="250" height="120" rx="60" fill="#fff"/>
+  <path d="M660 240h245v128H660z" fill="#fff" opacity=".9"/>
+  <path d="M905 304h90M995 304l-54-36M995 304l-54 36" stroke="#8b5fb2" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="315" cy="505" r="28" fill="#4a2476" opacity=".86"/>
+  <text x="600" y="700" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#4a2476">Laser Technology</text>
+</svg>

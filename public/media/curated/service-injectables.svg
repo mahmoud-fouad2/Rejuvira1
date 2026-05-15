@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="'D-BF 'D*,EJDJ">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fff7f0"/>
+      <stop offset=".55" stop-color="#f1e5fa"/>
+      <stop offset="1" stop-color="#d0b4e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="44" fill="url(#g)"/>
+  <rect x="360" y="330" width="390" height="95" rx="47" fill="#fff"/>
+  <path d="M750 377h130M885 377l-48-36M885 377l-48 36" stroke="#4a2476" stroke-width="18" stroke-linecap="round"/>
+  <path d="M395 330v95M455 330v95M515 330v95" stroke="#8b5fb2" stroke-width="12" opacity=".65"/>
+  <path d="M300 500c105 72 237 72 342 0" fill="none" stroke="#4a2476" stroke-width="20" stroke-linecap="round" opacity=".7"/>
+  <circle cx="925" cy="180" r="115" fill="#fff" opacity=".35"/>
+  <text x="600" y="700" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#4a2476">Injectables</text>
+</svg>

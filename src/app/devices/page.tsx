@@ -37,19 +37,19 @@ export default async function DevicesPage() {
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
-                <p className="text-ink-soft text-sm">أجهزة معتمدة</p>
+                <p className="text-ink-soft text-sm"><span className="lang-ar">أجهزة معتمدة</span><span className="lang-en">Certified devices</span></p>
                 <p className="text-ink mt-2 font-serif text-3xl">
                   {devices.length}
                 </p>
               </div>
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
-                <p className="text-ink-soft text-sm">تقنيات نشطة</p>
+                <p className="text-ink-soft text-sm"><span className="lang-ar">تقنيات نشطة</span><span className="lang-en">Active technologies</span></p>
                 <p className="text-ink mt-2 font-serif text-3xl">
                   {devices.filter((d) => d.status === "PUBLISHED").length}
                 </p>
               </div>
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
-                <p className="text-ink-soft text-sm">شهادات دولية</p>
+                <p className="text-ink-soft text-sm"><span className="lang-ar">شهادات دولية</span><span className="lang-en">International standards</span></p>
                 <p className="text-ink mt-2 font-serif text-3xl">
                   {devices.reduce((sum, d) => sum + d.certifications.length, 0)}
                 </p>
@@ -119,28 +119,35 @@ export default async function DevicesPage() {
               <span className="lang-en">A device is not the goal itself, but a tool that serves a well-designed treatment plan.</span>
             </h2>
             <p className="text-ink-soft mt-4 text-sm leading-8">
-              نختار أجهزتنا بعناية طبية لا تسويقية: ما الذي يحقق نتائج أفضل،
-              يقلل من وقت التعافي، ويوافق طبيعة بشرة المراجع وحالته الفعلية؟ هذا
-              هو المعيار الذي يحكم كل اختيار داخل المركز.
+              <span className="lang-ar">نختار أجهزتنا بعناية طبية لا تسويقية: ما الذي يحقق نتائج أفضل، يقلل من وقت التعافي، ويوافق طبيعة بشرة المراجع وحالته الفعلية؟ هذا هو المعيار الذي يحكم كل اختيار داخل المركز.</span>
+              <span className="lang-en">We select technology through clinical value rather than promotion: what improves outcomes, reduces recovery time, and fits the patient's skin and real condition.</span>
             </p>
           </article>
           <div className="grid gap-5 sm:grid-cols-2">
             {[
               {
                 label: "دقة سريرية",
+                labelEn: "Clinical precision",
                 desc: "أجهزة معتمدة بنتائج قابلة للقياس والتحقق",
+                descEn: "Certified devices with measurable, reviewable outcomes",
               },
               {
                 label: "أمان المراجع",
+                labelEn: "Patient safety",
                 desc: "تقنيات آمنة لأنواع مختلفة من البشرة والحالات",
+                descEn: "Technology selected for different skin types and needs",
               },
               {
                 label: "سرعة التعافي",
+                labelEn: "Recovery support",
                 desc: "إجراءات أقل وقتًا مع نتائج تدريجية ومستدامة",
+                descEn: "Less invasive plans with progressive, balanced results",
               },
               {
                 label: "شمولية التغطية",
+                labelEn: "Complete coverage",
                 desc: "تقنيات تغطي الوجه والجسم والبشرة معًا",
+                descEn: "Options for face, body, and skin care together",
               },
             ].map((item) => (
               <div
@@ -149,10 +156,12 @@ export default async function DevicesPage() {
               >
                 <span className="text-gold font-serif text-3xl">✦</span>
                 <p className="text-ink mt-3 text-base font-semibold">
-                  {item.label}
+                  <span className="lang-ar">{item.label}</span>
+                  <span className="lang-en">{item.labelEn}</span>
                 </p>
                 <p className="text-ink-soft mt-2 text-sm leading-6">
-                  {item.desc}
+                  <span className="lang-ar">{item.desc}</span>
+                  <span className="lang-en">{item.descEn}</span>
                 </p>
               </div>
             ))}
@@ -164,9 +173,10 @@ export default async function DevicesPage() {
           <section>
             <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
               <div>
-                <p className="eyebrow">جميع الأجهزة</p>
+                <p className="eyebrow"><span className="lang-ar">جميع الأجهزة</span><span className="lang-en">All Devices</span></p>
                 <h2 className="balanced-text text-ink mt-3 font-serif text-5xl tracking-[-0.055em]">
-                  منظومة أجهزة معتمدة لدعم جودة الخطة العلاجية.
+                  <span className="lang-ar">منظومة أجهزة معتمدة لدعم جودة الخطة العلاجية.</span>
+                  <span className="lang-en">A certified technology ecosystem supporting high-quality treatment plans.</span>
                 </h2>
               </div>
             </div>

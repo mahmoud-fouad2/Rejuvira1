@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="*BFJ'* 'D,3E">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fffaf2"/>
+      <stop offset=".55" stop-color="#eee4f7"/>
+      <stop offset="1" stop-color="#cdb2e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="44" fill="url(#g)"/>
+  <path d="M600 150c-115 120-143 285-90 442M600 150c115 120 143 285 90 442" fill="none" stroke="#4a2476" stroke-width="22" stroke-linecap="round"/>
+  <path d="M430 380c92 66 248 66 340 0" fill="none" stroke="#8b5fb2" stroke-width="18" stroke-linecap="round"/>
+  <path d="M415 565c108 66 262 66 370 0" fill="none" stroke="#4a2476" stroke-width="18" stroke-linecap="round" opacity=".6"/>
+  <circle cx="210" cy="175" r="110" fill="#fff" opacity=".35"/>
+  <text x="600" y="700" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#4a2476">Body Care</text>
+</svg>

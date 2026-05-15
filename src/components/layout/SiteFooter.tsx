@@ -38,6 +38,17 @@ const paymentMethods = [
   { src: "/media/payments/tamara.svg", alt: "Tamara — قسّمها" },
 ] as const;
 
+const serviceNameEnBySlug: Record<string, string> = {
+  "dermatology-consultation": "Dermatology consultation",
+  "skin-rejuvenation": "Skin rejuvenation",
+  "laser-hair-removal": "Laser hair removal",
+  "injectables-harmony": "Injectables and facial harmony",
+  "body-contouring": "Body contouring",
+  "cosmetic-surgery-consultation": "Aesthetic surgery consultation",
+  "skin-tightening": "Skin tightening",
+  "prp-hair-skin": "PRP for hair and skin",
+};
+
 function PhoneIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
@@ -190,16 +201,16 @@ export async function SiteFooter() {
               />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-8 text-[color:var(--rv-muted)]">
-              <span className="lang-ar">{runtimeSettings.brand.tagline}</span>
+              <span className="lang-ar">مركز طبي تجميلي متكامل في الرياض، يجمع بين الخبرة الطبية، التقنيات الحديثة، وخطة واضحة تناسب كل حالة.</span>
               <span className="lang-en">
                 Rejuvira Center — a full-service medical aesthetic center in Riyadh, offering advanced dermatology, cosmetic treatments, and body care.
               </span>
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {[
-                { ar: "ترخيص وزارة الصحة", en: "MOH Licensed" },
-                { ar: "أجهزة معتمدة دولياً", en: "Internationally Certified" },
-                { ar: `زمن الرد ${runtimeSettings.ops.sla}`, en: `${runtimeSettings.ops.sla} response target` },
+                { ar: "مركز طبي مرخص", en: "Licensed medical center" },
+                { ar: "تقنيات مختارة بعناية", en: "Curated medical technology" },
+                { ar: "تنسيق سريع للمواعيد", en: "Fast appointment coordination" },
               ].map((item) => (
                 <span key={item.ar} className="rv-v0-mini-chip">
                   <span className="lang-ar">{item.ar}</span>
@@ -255,7 +266,8 @@ export async function SiteFooter() {
                 <li key={service.id}>
                   <Link href={(`/services/${service.slug}`) as Route} className="rv-v0-footer-link rv-v0-footer-link-row">
                     <span className="rv-v0-footer-link-dot" aria-hidden />
-                    {service.name}
+                    <span className="lang-ar">{service.name}</span>
+                    <span className="lang-en">{serviceNameEnBySlug[service.slug] ?? "Service details"}</span>
                   </Link>
                 </li>
               ))}
@@ -341,12 +353,20 @@ export async function SiteFooter() {
                 </span>
                 <span className="rv-v0-footer-contact-text">
                   <span className="lang-ar rv-v0-footer-hours-lines">
-                    <span>{runtimeSettings.contact.hoursWeekdays}</span>
-                    <span>{runtimeSettings.contact.hoursWeekend}</span>
+                    <strong>ساعات العمل</strong>
+                    <span>
+                      <span>السبت إلى الخميس</span>
+                      <time>2:00 م - 10:00 م</time>
+                    </span>
+                    <span className="is-closed">الجمعة مغلق</span>
                   </span>
                   <span className="lang-en rv-v0-footer-hours-lines">
-                    <span>{runtimeSettings.contact.hoursWeekdaysEn}</span>
-                    <span>{runtimeSettings.contact.hoursWeekendEn}</span>
+                    <strong>Working hours</strong>
+                    <span>
+                      <span>Saturday to Thursday</span>
+                      <time>2:00 PM - 10:00 PM</time>
+                    </span>
+                    <span className="is-closed">Closed Friday</span>
                   </span>
                 </span>
               </li>
@@ -428,8 +448,8 @@ export async function SiteFooter() {
             </Link>
           </p>
           <p className="max-w-xl text-pretty text-end sm:text-start">
-            <span className="lang-ar">© جميع الحقوق محفوظة — بياناتك وطلباتك تُعامَل بسرية تامة.</span>
-            <span className="lang-en">All rights reserved. Your information is kept strictly confidential.</span>
+            <span className="lang-ar">ريجوفيرا مركز طبي متخصص. جميع الحقوق محفوظة.</span>
+            <span className="lang-en">Rejuvira Center. All rights reserved.</span>
           </p>
         </div>
       </div>

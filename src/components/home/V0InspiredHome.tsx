@@ -8,6 +8,7 @@ import type {
   DeviceRecord,
   DoctorRecord,
   GalleryRecord,
+  JournalPostRecord,
   RuntimeSettings,
   ServiceRecord,
 } from "@/lib/content-repository";
@@ -24,41 +25,42 @@ type V0InspiredHomeProps = {
   doctors: DoctorRecord[];
   devices: DeviceRecord[];
   galleryItems: GalleryRecord[];
+  journalPosts: JournalPostRecord[];
 };
 
 const fallbackTestimonialsBi: readonly TestimonialItem[] = [
   {
-    quoteAr: "تجربة راقية من أول تواصل، والخطة كانت واضحة والنتيجة طبيعية جدًا.",
+    quoteAr: "شرح الطبيب الخطة بوضوح قبل البدء، وكانت المتابعة بعد الجلسة منظمة.",
     quoteEn: "A refined experience from the start — the plan was clear and the results look natural.",
     authorAr: "نورة",
     authorEn: "Noura",
   },
   {
-    quoteAr: "أكثر ما أعجبني هو هدوء الشرح وعدم الاستعجال في اتخاذ القرار.",
+    quoteAr: "الاستشارة كانت هادئة ومباشرة، ولم أشعر بضغط لاختيار إجراء معين.",
     quoteEn: "They never rushed the process; explanations were calm and thorough even with many questions.",
     authorAr: "سارة",
     authorEn: "Sarah",
   },
   {
-    quoteAr: "المكان منظم، والحجز والمتابعة بعد الجلسة كانا على مستوى عالٍ.",
+    quoteAr: "الحجز واضح، والاستقبال منظم، والتعليمات بعد الزيارة وصلت في وقت مناسب.",
     quoteEn: "Well-organized facility, smooth booking, and consistent follow-up after sessions.",
     authorAr: "ريم",
     authorEn: "Reem",
   },
   {
-    quoteAr: "كل خطوة كانت مفهومة قبل البدء، وهذا منحني ثقة حقيقية.",
+    quoteAr: "أعجبني أن القرار بدأ بتقييم الحالة وليس باسم الجهاز أو العرض.",
     quoteEn: "Every step was explained before starting — that truly gave me confidence.",
     authorAr: "جود",
     authorEn: "Jood",
   },
   {
-    quoteAr: "شرحٌ هادئ بلا ضغط، وتقييم مبني على معطيات الحالة فقط.",
+    quoteAr: "الخطة كانت واقعية، والنتيجة المطلوبة تم شرح حدودها قبل الإجراء.",
     quoteEn: "No pressure at all — decisions were based purely on my actual needs.",
     authorAr: "هند",
     authorEn: "Hind",
   },
   {
-    quoteAr: "قراءة الحالة بدقة قبل أي إجراء، وهذا ما يفرق هنا.",
+    quoteAr: "الفريق أجاب عن الأسئلة الأساسية بوضوح، وهذا جعل الزيارة أسهل.",
     quoteEn: "They assessed my skin thoroughly before recommending any treatment — that's rare.",
     authorAr: "لمى",
     authorEn: "Lama",
@@ -149,6 +151,7 @@ export function V0InspiredHome({
   doctors,
   devices,
   galleryItems,
+  journalPosts,
 }: V0InspiredHomeProps) {
   const publishedServices = services.filter((service) => service.status === ContentStatus.PUBLISHED);
   const publishedDoctors = doctors.filter((doctor) => doctor.status === ContentStatus.PUBLISHED);
@@ -165,10 +168,15 @@ export function V0InspiredHome({
   const featuredGallery = (gallerySource.length > 0 ? gallerySource : galleryItems)
     .filter((item) => item.beforeImageUrl.trim().length > 0 && item.afterImageUrl.trim().length > 0)
     .slice(0, 4);
+  const featuredJournal = journalPosts.slice(0, 3);
+  const testimonialItems =
+    settings.homepage.testimonials.length > 0
+      ? settings.homepage.testimonials
+      : fallbackTestimonialsBi;
   const heroImage =
     settings.media.homeHero ||
     featuredServices[0]?.coverImageUrl ||
-    "/media/curated/service-skin-rejuvenation.jpg";
+    "/media/curated/service-aesthetic-surgery.svg";
 
   const doctorQuotes = doctorSource.filter(
     (d) => d.status === ContentStatus.PUBLISHED && d.summary.trim().length > 0,
@@ -176,6 +184,13 @@ export function V0InspiredHome({
 
   const trustItems = fallbackTrustItems;
   const hp = settings.homepage;
+  const isLegacyHeroTitle = hp.heroTitle.includes("خدمات جلدية") || hp.heroTitle.includes("خيارات أوضح");
+  const heroTitleAr = isLegacyHeroTitle ? "اكتشف جمالك" : hp.heroTitle;
+  const heroTitleAccentAr = isLegacyHeroTitle ? "مع خبراء التجميل" : hp.heroTitleAccent;
+  const heroDescriptionAr = hp.heroDescription.includes("يعرض الموقع")
+    ? "نقدم لك أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتك."
+    : hp.heroDescription;
+  const heroPillAr = hp.heroPillLabel.includes("ريجوفيرا") ? "مركز طبي متكامل للتجميل والعناية بالبشرة" : hp.heroPillLabel;
 
   return (
     <main className="rv-v0-home" dir="rtl">
@@ -185,14 +200,14 @@ export function V0InspiredHome({
           <div className="rv-v0-hero-copy">
             <span className="rv-v0-pill rv-v0-pill-live">
               <span />
-              <span className="lang-ar">{hp.heroPillLabel}</span>
+              <span className="lang-ar">{heroPillAr}</span>
               <span className="lang-en">{hp.heroPillLabelEn}</span>
               <SparkIcon />
             </span>
             <h1>
               <span className="lang-ar">
-                {hp.heroTitle}
-                <strong>{` ${hp.heroTitleAccent}`}</strong>
+                {heroTitleAr}
+                <strong>{` ${heroTitleAccentAr}`}</strong>
               </span>
               <span className="lang-en">
                 {hp.heroTitleEn}
@@ -200,18 +215,17 @@ export function V0InspiredHome({
               </span>
             </h1>
             <p>
-              <span className="lang-ar">{hp.heroDescription}</span>
+              <span className="lang-ar">{heroDescriptionAr}</span>
               <span className="lang-en">{hp.heroDescriptionEn}</span>
             </p>
             <div className="rv-v0-hero-chips">
               {(
                 [
                   {
-                    ar: "أطباء واستشاريون معتمدون",
-                    en: "Board-certified physicians",
+                    ar: "أطباء معتمدون دوليًا",
                   },
-                  { ar: "خطة علاجية مفهومة", en: "Clear treatment plans" },
-                  { ar: "متابعة واضحة عبر الفريق", en: "Dedicated follow-up care" },
+                  { ar: "أحدث الأجهزة والتقنيات" },
+                  { ar: "نتائج مدروسة وطبيعية" },
                 ] as const
               ).map((item) => (
                 <span key={item.ar}>
@@ -219,7 +233,6 @@ export function V0InspiredHome({
                     <path d="m4 12 5 5L20 6" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="lang-ar">{item.ar}</span>
-                  <span className="lang-en">{item.en}</span>
                 </span>
               ))}
             </div>
@@ -442,13 +455,15 @@ export function V0InspiredHome({
           }
           title={
             <>
-              <span className="lang-ar">{hp.galleryTitle}</span>
+              <span className="lang-ar">نتائج وخطوات واضحة بالصورة</span>
               <span className="lang-en">{hp.galleryTitleEn}</span>
             </>
           }
           lead={
             <>
-              <span className="lang-ar">{hp.galleryDescription}</span>
+              <span className="lang-ar">
+                مقارنات قبل وبعد تعرض الخدمة في سياقها الصحيح، مع صورة أكبر وتفاصيل مختصرة تساعدك على فهم طبيعة النتيجة.
+              </span>
               <span className="lang-en">{hp.galleryDescriptionEn}</span>
             </>
           }
@@ -464,29 +479,94 @@ export function V0InspiredHome({
         <SectionTitle
           eyebrow={
             <>
-              <span className="lang-ar">ملاحظات المراجعين</span>
+              <span className="lang-ar">تجارب المراجعين</span>
               <span className="lang-en">Guest feedback</span>
             </>
           }
           title={
             <>
-              <span className="lang-ar">آراء مختصرة</span>
+              <span className="lang-ar">انطباعات موثوقة من الزيارة</span>
               <span className="lang-en">Recent notes</span>
             </>
           }
           lead={
             <>
-              <span className="lang-ar">عبارات مختارة من استبيانات المتابعة داخل نفس السياسة الخصوصية للمركز.</span>
-              <span className="lang-en">Short excerpts from follow-up surveys, handled under the center&apos;s privacy policy.</span>
+              <span className="lang-ar">آراء مختصرة تعكس وضوح الاستشارة، تنظيم الحجز، والاهتمام بالمتابعة بعد الزيارة.</span>
+              <span className="lang-en">Short, clear impressions about consultation quality, booking flow, and follow-up care.</span>
             </>
           }
         />
 
-        <TestimonialsSplitCarousel items={fallbackTestimonialsBi} perRow={6} />
+        <TestimonialsSplitCarousel items={testimonialItems} perRow={6} />
       </section>
 
       {doctorQuotes.length > 0 ? (
         <V0DoctorQuotesSlider homepage={settings.homepage} doctors={doctorQuotes} />
+      ) : null}
+
+      {featuredJournal.length > 0 ? (
+        <section className="rv-v0-section rv-v0-home-journal-section">
+          <SectionTitle
+            eyebrow={
+              <>
+                <span className="lang-ar">من المجلة الطبية</span>
+                <span className="lang-en">From the journal</span>
+              </>
+            }
+            title={
+              <>
+                <span className="lang-ar">قراءات قصيرة قبل قرارك</span>
+                <span className="lang-en">Short reads before you decide</span>
+              </>
+            }
+            lead={
+              <>
+                <span className="lang-ar">
+                  مقالات مختارة من لوحة التحكم تظهر بترتيب متجدد، وتساعدك على فهم الخدمات والتوقعات قبل الحجز.
+                </span>
+                <span className="lang-en">
+                  Selected CMS articles rotate on refresh and help explain services, expectations, and next steps.
+                </span>
+              </>
+            }
+          />
+          <div className="rv-v0-home-journal-grid">
+            {featuredJournal.map((post) => (
+              <Link
+                key={post.id}
+                href={(`/journal/${post.slug}`) as Route}
+                className="rv-v0-home-journal-card"
+              >
+                <span className="rv-v0-home-journal-image">
+                  <Image
+                    src={post.coverImageUrl ?? settings.media.journalHero}
+                    alt={post.titleEn ?? post.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 28vw"
+                    className="object-cover"
+                    loading="lazy"
+                  />
+                </span>
+                <span className="rv-v0-home-journal-body">
+                  <small>{post.category}</small>
+                  <strong>
+                    <span className="lang-ar">{post.title}</span>
+                    <span className="lang-en">{post.titleEn ?? "Medical journal article"}</span>
+                  </strong>
+                  <span>
+                    <span className="lang-ar">{post.excerpt}</span>
+                    <span className="lang-en">{post.excerptEn ?? "A short clinical read from Rejuvira Center."}</span>
+                  </span>
+                  <em>
+                    <span className="lang-ar">قراءة المقال</span>
+                    <span className="lang-en">Read article</span>
+                    <span aria-hidden> ←</span>
+                  </em>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
       ) : null}
 
       <V0ServicesStrip

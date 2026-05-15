@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { AdminSideNav } from "@/components/admin/AdminSideNav";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { auth } from "@/auth";
 import { canAccessAdminRoute, getRoleLabel } from "@/lib/admin-permissions";
@@ -28,9 +29,15 @@ export default async function AdminLayout({
             href="/"
             className="border-line relative flex items-center gap-3 rounded-2xl border bg-surface/80 px-4 py-4 shadow-sm backdrop-blur-sm transition hover:border-accent/30 hover:shadow-md"
           >
-            <div className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl bg-ink-strong text-canvas shadow-inner">
-              <span className="absolute inset-0 bg-gradient-to-br from-accent/40 to-purple-mid/50 opacity-90" />
-              <span className="relative text-xs font-bold tracking-tight">RJ</span>
+            <div className="relative flex h-14 w-20 items-center justify-center overflow-hidden rounded-2xl bg-surface-strong shadow-inner">
+              <BrandLogo
+                alt="Rejuvira Center"
+                width={220}
+                height={160}
+                variant="header"
+                sizes="80px"
+                className="admin-sidebar-logo"
+              />
             </div>
             <div className="min-w-0 text-start">
               <p className="text-lg font-semibold tracking-tight text-ink-strong">Rejuvira</p>

@@ -9,7 +9,9 @@ import {
   getRuntimeSettings,
   getServices,
 } from "@/lib/content-repository";
+import { getPublicSiteKey } from "@/lib/recaptcha";
 
+import { BookingModal } from "./BookingModal";
 import { BrandLogo } from "./BrandLogo";
 import { LanguageToggle } from "./LanguageToggle";
 import { ThemeToggle } from "./ThemeToggle";
@@ -100,11 +102,10 @@ export async function SiteHeader() {
       <div className="rv-v0-nav-shell">
         <div className="rv-v0-nav mx-auto max-w-[var(--max-width)] px-4 py-3 sm:px-6 lg:px-8">
           <div className="rv-nav-actions">
-            <Link href="/contact" className="rv-v0-book">
-              <span className="lang-ar">احجزي موعدك</span>
-              <span className="lang-en">Book Now</span>
-              <Icon path="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" />
-            </Link>
+            <BookingModal
+              services={publishedServices.length > 0 ? publishedServices : services}
+              recaptchaSiteKey={getPublicSiteKey()}
+            />
             <ThemeToggle />
             <LanguageToggle />
           </div>
@@ -115,12 +116,12 @@ export async function SiteHeader() {
               <span className="lang-en">{linkByHref["/"].labelEn}</span>
             </Link>
             <SiteMegaMenu
-              triggerLabel="الخدمات"
+              triggerLabel="استكشاف المركز"
               services={publishedServices.length > 0 ? publishedServices : services}
               doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
               devices={publishedDevices.length > 0 ? publishedDevices : devices}
             />
-            {(["/doctors", "/devices", "/gallery", "/journal", "/about", "/contact"] as const).map((href) => {
+            {(["/gallery", "/journal", "/about", "/contact"] as const).map((href) => {
               const link = linkByHref[href];
               return (
                 <Link key={href} href={href} className="rv-v0-nav-link">
@@ -163,10 +164,11 @@ export async function SiteHeader() {
                   <ThemeToggle />
                   <LanguageToggle />
                 </div>
-                <Link href="/contact" className="rv-v0-book">
-                  <span className="lang-ar">احجزي</span>
-                  <span className="lang-en">Book</span>
-                </Link>
+                <BookingModal
+                  services={publishedServices.length > 0 ? publishedServices : services}
+                  recaptchaSiteKey={getPublicSiteKey()}
+                  compactLabel
+                />
               </div>
             </div>
           </details>

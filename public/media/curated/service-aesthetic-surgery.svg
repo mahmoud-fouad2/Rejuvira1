@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="'D,1'-'* 'D*,EJDJ)">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#fbf6ef"/>
+      <stop offset=".55" stop-color="#efe0f7"/>
+      <stop offset="1" stop-color="#cdb0e5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="44" fill="url(#g)"/>
+  <circle cx="1020" cy="120" r="190" fill="#fff" opacity=".3"/>
+  <path d="M265 575c42-168 160-268 325-268s283 100 325 268" fill="#fff" opacity=".78"/>
+  <path d="M365 575c38-100 114-156 225-156s187 56 225 156" fill="none" stroke="#4a2476" stroke-width="22" stroke-linecap="round" opacity=".82"/>
+  <path d="M455 296c26-76 77-116 135-116s109 40 135 116" fill="none" stroke="#8b5fb2" stroke-width="18" stroke-linecap="round"/>
+  <path d="M380 620h420" stroke="#4a2476" stroke-width="18" stroke-linecap="round" opacity=".22"/>
+  <text x="600" y="700" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#4a2476">Aesthetic Surgery</text>
+</svg>

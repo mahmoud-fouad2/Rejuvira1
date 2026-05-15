@@ -85,6 +85,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     if (overlay && motion) {
       overlay.classList.add("lang-transitioning");
+      html.classList.add("rv-language-switching");
     } else if (motion) {
       html.classList.add("rv-lang-html-shift");
       window.setTimeout(() => html.classList.remove("rv-lang-html-shift"), 420);
@@ -104,6 +105,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     if (overlay && motion) {
       overlay.classList.remove("lang-transitioning");
+      html.classList.remove("rv-language-switching");
     }
 
     await new Promise<void>((r) => setTimeout(r, motion ? TRANSITION_DURATION + 40 : 40));

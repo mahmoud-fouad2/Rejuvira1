@@ -16,6 +16,34 @@ const assetMetadata: Record<
     label: "Local brand logo",
     category: "Brand",
   },
+  "doctor-profile.svg": {
+    label: "Doctor profile fallback",
+    category: "Doctors",
+  },
+  "service-aesthetic-surgery.svg": {
+    label: "Aesthetic surgery visual",
+    category: "Services",
+  },
+  "service-skin-care.svg": {
+    label: "Skin care visual",
+    category: "Services",
+  },
+  "service-laser.svg": {
+    label: "Laser technology visual",
+    category: "Services",
+  },
+  "service-injectables.svg": {
+    label: "Injectables visual",
+    category: "Services",
+  },
+  "device-platform.svg": {
+    label: "Medical device platform visual",
+    category: "Devices",
+  },
+  "device-body.svg": {
+    label: "Body care technology visual",
+    category: "Devices",
+  },
   "service-skin-rejuvenation.jpg": {
     label: "Skin rejuvenation visual",
     category: "Services",
@@ -168,7 +196,7 @@ export async function getReferenceAssets(): Promise<ReferenceAsset[]> {
     directories.map(async (directory) => {
       const files = await readdir(directory.fileSystemPath, {
         withFileTypes: true,
-      });
+      }).catch(() => []);
 
       return files
         .filter((entry) => entry.isFile())

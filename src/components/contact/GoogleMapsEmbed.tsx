@@ -40,7 +40,7 @@ export function GoogleMapsEmbed({
   return (
     <div
       className={[
-        "relative w-full overflow-hidden border border-line bg-surface",
+        "rv-google-map-embed relative w-full overflow-hidden border border-line bg-surface",
         radius,
         className,
       ]
@@ -57,6 +57,9 @@ export function GoogleMapsEmbed({
         className="absolute inset-0 h-full w-full"
         style={{ border: 0, height }}
       />
+      <div className="rv-google-map-pin" aria-hidden>
+        <span />
+      </div>
     </div>
   );
 }

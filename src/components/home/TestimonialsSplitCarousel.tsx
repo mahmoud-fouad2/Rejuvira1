@@ -1,24 +1,26 @@
 "use client";
 
 import { useMemo } from "react";
+import Image from "next/image";
 
 export type TestimonialItem = {
   quoteAr: string;
   quoteEn: string;
   authorAr: string;
   authorEn: string;
+  avatarUrl?: string;
   /** Optional eyebrow line (e.g. service name). */
   meta?: string;
 };
 
 type Props = {
   items: readonly TestimonialItem[];
-  /** Number of items per row before duplication for seamless scroll. */
+  /** Maximum number of visible cards in the static grid. */
   perRow?: number;
 };
 
 /**
- * TestimonialsSplitCarousel — two marquee-style rows drifting opposite directions.
+ * TestimonialsSplitCarousel — kept as the public API, rendered as a calm static grid.
  */
 
 function initialsFromName(name: string) {
@@ -32,25 +34,12 @@ function initialsFromName(name: string) {
 }
 
 export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
-  const { topRow, bottomRow } = useMemo(() => {
+  const visibleItems = useMemo(() => {
     const list = items.length > 0 ? items : [];
-    if (list.length === 0) {
-      return { topRow: [] as TestimonialItem[], bottomRow: [] as TestimonialItem[] };
-    }
-    const half = Math.max(1, Math.ceil(list.length / 2));
-    const top = list.slice(0, half);
-    const bottom = list.slice(half).length > 0 ? list.slice(half) : list.slice().reverse();
-    const pad = (arr: TestimonialItem[]) => {
-      const out: TestimonialItem[] = [];
-      while (out.length < perRow) {
-        out.push(...arr);
-      }
-      return out.slice(0, perRow);
-    };
-    return { topRow: pad(top), bottomRow: pad(bottom) };
+    return list.slice(0, Math.max(1, perRow));
   }, [items, perRow]);
 
-  if (topRow.length === 0) return null;
+  if (visibleItems.length === 0) return null;
 
   return (
     <div
@@ -63,38 +52,25 @@ export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
         <span className="lang-ar">آراء المراجعين</span>
         <span className="lang-en">Patient testimonials</span>
       </p>
-      <ul className="rv-split-rail-row" aria-hidden={false}>
-        {[...topRow, ...topRow].map((t, i) => (
-          <li key={`top-${i}-${t.authorAr}`} className="rv-split-card">
+      <ul className="rv-split-grid" aria-hidden={false}>
+        {visibleItems.map((t) => (
+          <li key={`${t.authorAr}-${t.quoteAr}`} className="rv-split-card">
             <span className="rv-split-card-top">
               <span className="rv-split-card-avatar" aria-hidden>
-                <span className="lang-ar">{initialsFromName(t.authorAr)}</span>
-                <span className="lang-en">{initialsFromName(t.authorEn)}</span>
-              </span>
-              <span className="rv-split-card-quote">”</span>
-            </span>
-            <span className="rv-split-card-stars" aria-hidden>
-              ★★★★★
-            </span>
-            <p className="rv-split-card-body">
-              <span className="lang-ar">{t.quoteAr}</span>
-              <span className="lang-en">{t.quoteEn}</span>
-            </p>
-            <span className="rv-split-card-author">
-              <span className="lang-ar">{t.authorAr}</span>
-              <span className="lang-en">{t.authorEn}</span>
-              {t.meta ? <span aria-hidden> · {t.meta}</span> : null}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <ul className="rv-split-rail-row is-reverse" aria-hidden>
-        {[...bottomRow, ...bottomRow].map((t, i) => (
-          <li key={`bot-${i}-${t.authorAr}`} className="rv-split-card">
-            <span className="rv-split-card-top">
-              <span className="rv-split-card-avatar" aria-hidden>
-                <span className="lang-ar">{initialsFromName(t.authorAr)}</span>
-                <span className="lang-en">{initialsFromName(t.authorEn)}</span>
+                {t.avatarUrl ? (
+                  <Image
+                    src={t.avatarUrl}
+                    alt=""
+                    fill
+                    sizes="44px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <>
+                    <span className="lang-ar">{initialsFromName(t.authorAr)}</span>
+                    <span className="lang-en">{initialsFromName(t.authorEn)}</span>
+                  </>
+                )}
               </span>
               <span className="rv-split-card-quote">”</span>
             </span>

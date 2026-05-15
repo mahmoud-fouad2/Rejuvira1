@@ -21,9 +21,15 @@ export function V0GalleryBeforeAfterCard({ item }: { item: GalleryRecord }) {
         className="rounded-none border-0 shadow-none"
       />
       <footer>
-        <small>{item.category}</small>
+        <small>
+          <span className="lang-ar">{item.category}</span>
+          <span className="lang-en">{item.categoryEn ?? "Before and after"}</span>
+        </small>
         <Link href={("/gallery" as Route)} className="block text-inherit no-underline hover:opacity-90">
-          <h3>{item.title}</h3>
+          <h3>
+            <span className="lang-ar">{item.title}</span>
+            <span className="lang-en">{item.titleEn ?? "Treatment result preview"}</span>
+          </h3>
         </Link>
       </footer>
     </div>

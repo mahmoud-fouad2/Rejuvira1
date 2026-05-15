@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="EF5) *BFJ) 7(J)">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#f8fbff"/>
+      <stop offset=".55" stop-color="#ece2f7"/>
+      <stop offset="1" stop-color="#c5aee2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" rx="44" fill="url(#g)"/>
+  <rect x="360" y="190" width="310" height="360" rx="44" fill="#fff"/>
+  <rect x="405" y="235" width="220" height="135" rx="26" fill="#4a2476" opacity=".88"/>
+  <path d="M410 440h205M410 485h130" stroke="#8b5fb2" stroke-width="18" stroke-linecap="round"/>
+  <path d="M670 370c120 22 190 91 212 208" fill="none" stroke="#4a2476" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="890" cy="605" r="44" fill="#fff"/>
+  <text x="600" y="700" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#4a2476">Medical Devices</text>
+</svg>

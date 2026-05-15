@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 1200" role="img" aria-label="5H1) 7(J(">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8f0fb"/>
+      <stop offset="0.55" stop-color="#efe3f8"/>
+      <stop offset="1" stop-color="#d8c3ea"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f3f0f7"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="1200" fill="url(#bg)"/>
+  <circle cx="770" cy="145" r="210" fill="#ffffff" opacity=".28"/>
+  <circle cx="155" cy="1010" r="260" fill="#4a2476" opacity=".08"/>
+  <path d="M250 1020c25-245 170-380 230-380s205 135 230 380z" fill="url(#coat)"/>
+  <path d="M331 1040c17-188 72-301 149-301s132 113 149 301" fill="none" stroke="#d8d0df" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="480" cy="430" r="165" fill="#c99f82"/>
+  <path d="M315 418c18-150 95-238 198-238 119 0 198 86 202 239-78-68-231-75-400-1z" fill="#3d214f"/>
+  <path d="M380 548c59 64 141 65 200 0" fill="none" stroke="#875c4a" stroke-width="18" stroke-linecap="round"/>
+  <path d="M250 1020h460v180H250z" fill="url(#coat)"/>
+  <path d="M302 735l118 95 60-84 60 84 118-95 44 465H258z" fill="#fff"/>
+  <path d="M420 830l60-84 60 84-60 92z" fill="#4a2476" opacity=".92"/>
+  <path d="M242 1062h476" stroke="#e2dbe8" stroke-width="18" stroke-linecap="round"/>
+  <text x="480" y="1125" text-anchor="middle" font-family="Arial, sans-serif" font-size="44" font-weight="700" fill="#4a2476">Rejuvira Medical Team</text>
+</svg>

@@ -194,7 +194,7 @@ export function buildPhysicianJsonLd(doctor: {
     description: doctor.bio?.slice(0, 320),
     image: doctor.photoUrl?.startsWith("http")
       ? doctor.photoUrl
-      : `${baseUrl}${doctor.photoUrl ?? "/media/curated/service-prp.jpg"}`,
+      : `${baseUrl}${doctor.photoUrl ?? "/media/curated/doctor-profile.svg"}`,
     url: `${baseUrl}/doctors/${doctor.slug}`,
     knowsLanguage: doctor.languages ?? ["ar", "en"],
     worksFor: { "@id": `${baseUrl}#organization` },
@@ -218,7 +218,7 @@ export function buildServiceJsonLd(service: {
     url: `${baseUrl}/services/${service.slug}`,
     image: service.coverImageUrl?.startsWith("http")
       ? service.coverImageUrl
-      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-rejuvenation.jpg"}`,
+      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-care.svg"}`,
     procedureType: "MedicalProcedure",
     provider: { "@id": `${baseUrl}#organization` },
   } as const;

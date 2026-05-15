@@ -26,7 +26,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         type: "image/png",
       },
       {
-        src: settings.media.brandMark || "/media/curated/service-prp.jpg",
+        src: settings.media.brandMark || "/media/brand-logo-main.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any",
