@@ -1,4 +1,4 @@
-import { ContentStatus } from "@prisma/client";
+﻿import { ContentStatus } from "@prisma/client";
 import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -304,8 +304,8 @@ export function V0InspiredHome({
           }
           title={
             <>
-              <span className="lang-ar">خدمات طبية بتجربة أوضح</span>
-              <span className="lang-en">Medical services designed for clarity</span>
+              <span className="lang-ar">خدماتنا المتخصصة</span>
+              <span className="lang-en">Our Specialized Services</span>
             </>
           }
           lead={
@@ -449,13 +449,13 @@ export function V0InspiredHome({
           eyebrow={
             <>
               <span className="lang-ar">أجهزتنا المتطورة</span>
-              <span className="lang-en">Precision hardware</span>
+              <span className="lang-en">Advanced Devices</span>
             </>
           }
           title={
             <>
               <span className="lang-ar">تقنيات حديثة ضمن خطة مناسبة</span>
-              <span className="lang-en">Advanced devices within tailored treatment plans</span>
+              <span className="lang-en">State-of-the-art certified technology</span>
             </>
           }
           lead={
@@ -545,14 +545,14 @@ export function V0InspiredHome({
           }
           title={
             <>
-              <span className="lang-ar">تجارب حقيقية بلغة أوضح</span>
-              <span className="lang-en">Real experiences in their own words</span>
+              <span className="lang-ar">آراء عملائنا</span>
+              <span className="lang-en">What Our Clients Say</span>
             </>
           }
           lead={
             <>
-              <span className="lang-ar">إشارات مختصرة عن التنسيق قبل الجلسة، أثناءها، وبعدها.</span>
-              <span className="lang-en">Brief notes about the experience before, during, and after each visit.</span>
+              <span className="lang-ar">تجارب حقيقية موثقة من عملائنا في الرياض.</span>
+              <span className="lang-en">Verified experiences from our clients in Riyadh.</span>
             </>
           }
         />

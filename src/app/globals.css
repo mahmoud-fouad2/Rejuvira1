@@ -8098,3 +8098,166 @@ html[data-theme="dark"] ::selection {
   .rv-site-intro-overlay { display: none !important; }
   body { background: white !important; color: black !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   REJUVIRA · Final Polish — Logo, Footer, Content fixes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Logo: remove all backgrounds + borders from container ─── */
+.rv-brand-logo,
+.rv-brand-logo-header,
+.rv-brand-logo-footer,
+.rv-v0-brand,
+.rv-v0-logo {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+.rv-brand-logo-header {
+  width: auto !important;
+  height: auto !important;
+  max-height: 3.4rem;
+  max-width: 8rem;
+}
+.rv-brand-logo-footer {
+  width: auto !important;
+  height: auto !important;
+  max-height: 3.8rem;
+  max-width: 9rem;
+}
+.rv-brand-logo-img {
+  width: auto !important;
+  height: 100% !important;
+  max-height: inherit;
+  object-fit: contain !important;
+  display: block;
+}
+
+/* ── Partners strip: clean pill tags ─────────────────────────── */
+.rv-v0-partners {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.rv-v0-partners > span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1.1rem;
+  background: rgba(74, 36, 118, 0.05);
+  border: 1px solid rgba(74, 36, 118, 0.12);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--rv-purple, #4a2476);
+  letter-spacing: 0.03em;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+.rv-v0-partners > span:hover {
+  background: rgba(74, 36, 118, 0.1);
+  border-color: rgba(74, 36, 118, 0.22);
+}
+html[data-theme="dark"] .rv-v0-partners > span {
+  background: rgba(155, 109, 212, 0.08);
+  border-color: rgba(155, 109, 212, 0.15);
+  color: oklch(78% 0.12 285);
+}
+
+/* ── Wide stats: no duplicate, clean ────────────────────────── */
+.rv-v0-review-stats {
+  display: none !important;
+}
+
+/* ── Testimonial cards: with letter-avatar ───────────────────── */
+.rv-v0-testimonial {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 0.6rem;
+}
+.rv-v0-testimonial-avatar {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a2476, #7c3db5);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rv-v0-testimonial footer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(74, 36, 118, 0.08);
+}
+.rv-v0-testimonial footer strong {
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--rv-purple-strong, #2a1744);
+}
+.rv-v0-testimonial footer small {
+  font-size: 0.72rem;
+  color: var(--rv-muted);
+  display: block;
+}
+
+/* ── Trust cards: compact footer-style ────────────────────────── */
+.rv-v0-trust-section {
+  order: 10;
+}
+.rv-v0-trust-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+.rv-v0-trust-card {
+  padding: 1rem 1.25rem !important;
+}
+.rv-v0-trust-card > span:first-child {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.6rem;
+  background: linear-gradient(135deg, rgba(74, 36, 118, 0.12), rgba(74, 36, 118, 0.06));
+  color: #4a2476;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.rv-v0-trust-card h3 {
+  font-size: 0.9rem !important;
+  font-weight: 650;
+  margin-bottom: 0.25rem;
+}
+.rv-v0-trust-card p {
+  font-size: 0.78rem !important;
+  line-height: 1.5;
+  color: var(--rv-muted);
+}
+
+/* ── Footer trust badges: handle broken SVG gracefully ──────── */
+.rv-v0-trust-badge-img {
+  min-width: 1.5rem;
+}
+.rv-v0-trust-badge-img[src=""] ,
+.rv-v0-trust-badge-img:not([src]) {
+  display: none !important;
+}
+
+/* ── Mobile: wide-stats responsive ──────────────────────────── */
+@media (max-width: 480px) {
+  .rv-v0-wide-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}

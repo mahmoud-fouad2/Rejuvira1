@@ -153,41 +153,26 @@ export function ContactForm({
           />
         </label>
       </div>
-      <div className="grid gap-5 md:grid-cols-2">
-        <label className="grid gap-2">
-          <span className="text-ink-strong text-sm font-semibold tracking-tight">
-            <span className="lang-ar">البريد الإلكتروني</span>
-            <span className="lang-en">Email</span>
-          </span>
-          <input
-            name="email"
-            type="email"
-            className="field-public"
-            placeholder="name@example.com"
-            autoComplete="email"
-          />
-        </label>
-        <label className="grid gap-2">
-          <span className="text-ink-strong text-sm font-semibold tracking-tight">
-            <span className="lang-ar">الخدمة المطلوبة</span>
-            <span className="lang-en">Requested service</span>
-          </span>
-          <select
-            name="serviceSlug"
-            className="field-public cursor-pointer"
-            defaultValue=""
-          >
-            <option value="">
-              {lang === "ar" ? "اختر الخدمة" : "Select a service"}
+      <label className="grid gap-2">
+        <span className="text-ink-strong text-sm font-semibold tracking-tight">
+          <span className="lang-ar">الخدمة المطلوبة</span>
+          <span className="lang-en">Requested service</span>
+        </span>
+        <select
+          name="serviceSlug"
+          className="field-public cursor-pointer"
+          defaultValue=""
+        >
+          <option value="">
+            {lang === "ar" ? "اختر الخدمة (اختياري)" : "Select a service (optional)"}
+          </option>
+          {services.map((service) => (
+            <option key={service.id} value={service.slug}>
+              {service.name}
             </option>
-            {services.map((service) => (
-              <option key={service.id} value={service.slug}>
-                {service.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+          ))}
+        </select>
+      </label>
       <label className="grid gap-2">
         <span className="text-ink-strong text-sm font-semibold tracking-tight">
           <span className="lang-ar">تفاصيل إضافية</span>
