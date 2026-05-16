@@ -40,6 +40,11 @@ export const permissionMatrix: readonly PermissionRule[] = [
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
+    prefix: "/admin/content",
+    label: "مركز المحتوى",
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
+  },
+  {
     prefix: "/admin/media",
     label: "الميديا والأصول",
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],

@@ -47,6 +47,7 @@ function iconFor(href: string) {
         </svg>
       );
     case "/admin/services":
+    case "/admin/content":
       return (
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
           <path d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z" strokeLinejoin="round" />

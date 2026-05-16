@@ -35,6 +35,7 @@ const updateServiceSchema = serviceSchema.extend({
   status: z.nativeEnum(ContentStatus),
   featured: z.coerce.boolean().optional().default(false),
   doctorSlugs: z.string().optional().or(z.literal("")),
+  deviceSlugs: z.string().optional().or(z.literal("")),
 });
 
 function parseSlugList(raw: FormDataEntryValue | null): string[] {
@@ -114,6 +115,7 @@ export async function updateServiceAction(
     status: formData.get("status"),
     featured: formData.get("featured"),
     doctorSlugs: formData.get("doctorSlugs"),
+    deviceSlugs: formData.get("deviceSlugs"),
   });
 
   if (!parsed.success) {
@@ -135,6 +137,7 @@ export async function updateServiceAction(
       status: parsed.data.status,
       featured: parsed.data.featured,
       doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
+      deviceSlugs: parseSlugList(formData.get("deviceSlugs")),
       ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
     });
 

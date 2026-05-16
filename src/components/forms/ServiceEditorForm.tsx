@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
 import { ContentStatus } from "@prisma/client";
+import { useActionState } from "react";
 
 import {
   updateServiceAction,
@@ -32,12 +32,19 @@ type Props = {
     status: ContentStatus;
     featured: boolean;
     doctorSlugs?: readonly string[];
+    deviceSlugs?: readonly string[];
   };
   doctorOptions?: ChipOption[];
+  deviceOptions?: ChipOption[];
   categories?: ServiceCategoryOption[];
 };
 
-export function ServiceEditorForm({ service, doctorOptions = [], categories = [] }: Props) {
+export function ServiceEditorForm({
+  service,
+  doctorOptions = [],
+  deviceOptions = [],
+  categories = [],
+}: Props) {
   const [state, action, pending] = useActionState(updateServiceAction, initial);
 
   return (
@@ -45,10 +52,7 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
       <input type="hidden" name="id" value={service.id} />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الاسم (عربي)</span>
-            <span className="lang-en">Name (Arabic)</span>
-          </span>
+          <span className="admin-field-label">الاسم (عربي)</span>
           <input
             name="name"
             defaultValue={service.name}
@@ -58,10 +62,7 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الاسم (إنجليزي)</span>
-            <span className="lang-en">Name (English)</span>
-          </span>
+          <span className="admin-field-label">Name (English)</span>
           <input
             name="nameEn"
             defaultValue={service.nameEn ?? ""}
@@ -70,6 +71,7 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
       </div>
+
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
@@ -82,10 +84,7 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">التصنيف</span>
-            <span className="lang-en">Category</span>
-          </span>
+          <span className="admin-field-label">التصنيف</span>
           {categories.length ? (
             <>
               <select
@@ -93,10 +92,12 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
                 defaultValue={service.categoryId ?? ""}
                 className="admin-input"
               >
-                <option value="">Manual category</option>
+                <option value="">تصنيف يدوي</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.nameEn ? `${category.name} / ${category.nameEn}` : category.name}
+                    {category.nameEn
+                      ? `${category.name} / ${category.nameEn}`
+                      : category.name}
                   </option>
                 ))}
               </select>
@@ -117,19 +118,18 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           )}
         </label>
       </div>
+
       <ImagePicker
         name="coverImageUrl"
         defaultValue={service.coverImageUrl}
         namespace="services"
-        label="صورة الغلاف / Cover image"
+        label="صورة الغلاف"
         aspect={16 / 9}
       />
+
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">ملخص (عربي)</span>
-            <span className="lang-en">Excerpt (Arabic)</span>
-          </span>
+          <span className="admin-field-label">ملخص عربي</span>
           <textarea
             name="excerpt"
             rows={2}
@@ -140,10 +140,7 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">ملخص (إنجليزي)</span>
-            <span className="lang-en">Excerpt (English)</span>
-          </span>
+          <span className="admin-field-label">Excerpt English</span>
           <textarea
             name="excerptEn"
             rows={2}
@@ -153,12 +150,10 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
       </div>
+
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الوصف (عربي)</span>
-            <span className="lang-en">Description (Arabic)</span>
-          </span>
+          <span className="admin-field-label">الوصف العربي</span>
           <textarea
             name="description"
             rows={4}
@@ -169,10 +164,7 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الوصف (إنجليزي)</span>
-            <span className="lang-en">Description (English)</span>
-          </span>
+          <span className="admin-field-label">Description English</span>
           <textarea
             name="descriptionEn"
             rows={4}
@@ -182,19 +174,27 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           />
         </label>
       </div>
-      <MultiSelectChips
-        name="doctorSlugs"
-        label="الأطباء المرتبطون / Linked doctors"
-        options={doctorOptions}
-        defaultSelected={service.doctorSlugs ?? []}
-        helper="ربط الأطباء الذين يقدمون هذه الخدمة — يظهرون في صفحة الخدمة العامة."
-      />
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <MultiSelectChips
+          name="doctorSlugs"
+          label="الأطباء المرتبطون / Linked doctors"
+          options={doctorOptions}
+          defaultSelected={service.doctorSlugs ?? []}
+          helper="ربط الأطباء الذين يقدمون هذه الخدمة."
+        />
+        <MultiSelectChips
+          name="deviceSlugs"
+          label="الأجهزة المرتبطة / Linked devices"
+          options={deviceOptions}
+          defaultSelected={service.deviceSlugs ?? []}
+          helper="ربط الأجهزة المستخدمة أو الداعمة لهذه الخدمة."
+        />
+      </div>
+
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الحالة</span>
-            <span className="lang-en">Status</span>
-          </span>
+          <span className="admin-field-label">الحالة</span>
           <select
             name="status"
             defaultValue={service.status}
@@ -213,12 +213,10 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
             value="true"
             defaultChecked={service.featured}
           />
-          <span className="text-sm">
-            <span className="lang-ar">عرض ضمن الخدمات المميزة</span>
-            <span className="lang-en">Show in featured services</span>
-          </span>
+          <span className="text-sm">عرض ضمن الخدمات المميزة</span>
         </label>
       </div>
+
       {state.message ? (
         <p
           className={`text-xs font-medium ${
@@ -228,23 +226,10 @@ export function ServiceEditorForm({ service, doctorOptions = [], categories = []
           {state.message}
         </p>
       ) : null}
+
       <div className="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          disabled={pending}
-          className="admin-btn-primary"
-        >
-          {pending ? (
-            <>
-              <span className="lang-ar">جاري الحفظ...</span>
-              <span className="lang-en">Saving...</span>
-            </>
-          ) : (
-            <>
-              <span className="lang-ar">حفظ التعديلات</span>
-              <span className="lang-en">Save changes</span>
-            </>
-          )}
+        <button type="submit" disabled={pending} className="admin-btn-primary">
+          {pending ? "جاري الحفظ..." : "حفظ التعديلات"}
         </button>
       </div>
     </form>

@@ -8,7 +8,12 @@ import {
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { ServiceCreateForm } from "@/components/forms/ServiceCreateForm";
 import { ServiceEditorForm } from "@/components/forms/ServiceEditorForm";
-import { getDoctors, getServiceCategories, getServices } from "@/lib/content-repository";
+import {
+  getDevices,
+  getDoctors,
+  getServiceCategories,
+  getServices,
+} from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
   switch (status) {
@@ -24,15 +29,21 @@ function statusMeta(status: ContentStatus) {
 }
 
 export default async function AdminServicesPage() {
-  const [services, doctors, categories] = await Promise.all([
+  const [services, doctors, devices, categories] = await Promise.all([
     getServices(),
     getDoctors(),
+    getDevices(),
     getServiceCategories(),
   ]);
   const doctorOptions = doctors.map((doctor) => ({
     value: doctor.slug,
     label: doctor.name,
     hint: doctor.specialty,
+  }));
+  const deviceOptions = devices.map((device) => ({
+    value: device.slug,
+    label: device.name,
+    hint: device.certifications.join(" · "),
   }));
   const categoryOptions = categories.map((category) => ({
     id: category.id,
@@ -112,8 +123,10 @@ export default async function AdminServicesPage() {
                         status: service.status,
                         featured: service.featured ?? false,
                         doctorSlugs: service.doctorSlugs,
+                        deviceSlugs: service.deviceSlugs,
                       }}
                       doctorOptions={doctorOptions}
+                      deviceOptions={deviceOptions}
                       categories={categoryOptions}
                     />
 

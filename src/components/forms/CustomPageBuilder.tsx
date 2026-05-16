@@ -4,7 +4,20 @@ import { useMemo, useState } from "react";
 
 import { ImagePicker } from "@/components/admin/ImagePicker";
 
-type BlockKind = "hero" | "text" | "image" | "cta" | "services" | "faq";
+type BlockKind =
+  | "hero"
+  | "text"
+  | "image"
+  | "stats"
+  | "services"
+  | "doctors"
+  | "gallery"
+  | "faq"
+  | "contact"
+  | "cta";
+
+type Tone = "light" | "soft" | "dark";
+type Align = "right" | "center" | "left";
 
 type BuilderBlock = {
   id: string;
@@ -16,19 +29,21 @@ type BuilderBlock = {
   buttonLabel?: string;
   buttonHref?: string;
   accent?: string;
+  tone?: Tone;
+  align?: Align;
 };
 
-const blockLibrary: Array<{
-  kind: BlockKind;
-  label: string;
-  hint: string;
-}> = [
-  { kind: "hero", label: "Hero", hint: "عنوان رئيسي وزر حجز" },
-  { kind: "text", label: "Text", hint: "محتوى نصي منظم" },
-  { kind: "image", label: "Image", hint: "صورة بعرض الصفحة" },
-  { kind: "cta", label: "CTA", hint: "دعوة للحجز" },
+const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
+  { kind: "hero", label: "Hero", hint: "واجهة أولى مع صورة وزر" },
+  { kind: "text", label: "Text", hint: "محتوى طبي منظم" },
+  { kind: "image", label: "Image", hint: "صورة أو حالة بصرية" },
+  { kind: "stats", label: "Stats", hint: "أرقام ومؤشرات" },
   { kind: "services", label: "Services", hint: "كروت خدمات" },
+  { kind: "doctors", label: "Doctors", hint: "أطباء أو فريق طبي" },
+  { kind: "gallery", label: "Gallery", hint: "صور متعددة" },
   { kind: "faq", label: "FAQ", hint: "أسئلة شائعة" },
+  { kind: "contact", label: "Contact", hint: "بيانات تواصل" },
+  { kind: "cta", label: "CTA", hint: "دعوة للحجز" },
 ];
 
 const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
@@ -40,17 +55,67 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     buttonLabel: "احجزي موعدك",
     buttonHref: "/contact",
     accent: "#4a2476",
+    tone: "soft",
+    align: "right",
   },
   text: {
     title: "لماذا هذه الصفحة؟",
-    body: "اكتبي هنا شرحًا واضحًا للميزة أو الخدمة. اجعلي الفقرة قصيرة، مباشرة، ومرتبطة بما يحتاجه الزائر قبل التواصل.",
+    body: "اكتبي هنا شرحًا واضحًا للميزة أو الخدمة. اجعلي الفقرة قصيرة ومباشرة ومرتبطة بما يحتاجه الزائر قبل التواصل.",
     accent: "#4a2476",
+    tone: "light",
+    align: "right",
   },
   image: {
     title: "صورة داعمة",
-    imageUrl: "/media/curated/service-skin-rejuvenation.webp",
     body: "وصف قصير للصورة أو الحالة.",
+    imageUrl: "/media/curated/service-skin-rejuvenation.webp",
     accent: "#4a2476",
+    tone: "light",
+    align: "center",
+  },
+  stats: {
+    title: "مؤشرات الثقة",
+    body: "سنوات خبرة|12+\nأطباء متخصصون|10\nخدمات متقدمة|24\nمتابعة منظمة|100%",
+    accent: "#4a2476",
+    tone: "light",
+    align: "center",
+  },
+  services: {
+    title: "خدمات مرتبطة",
+    body: "تجديد البشرة المتقدم|خطة متدرجة لتحسين نضارة البشرة\nإزالة الشعر بالليزر|جلسات منظمة حسب نوع البشرة\nتناغم الوجه بالحقن|تحسين محسوب يحافظ على الملامح",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
+  doctors: {
+    title: "فريق طبي مناسب للخطة",
+    body: "د. لؤي السالمي|استشاري جراحة التجميل والترميم\nد. ناتالي دوملوج|استشارية الجلدية والتجميل\nد. سهام العرفج|استشارية جراحة التجميل والترميم",
+    accent: "#4a2476",
+    tone: "soft",
+    align: "right",
+  },
+  gallery: {
+    title: "لمحة بصرية",
+    body: "/media/reference/legacy/18.png|نتيجة علاجية\n/media/reference/legacy/56549.webp|تنسيق القوام\n/media/curated/service-laser-hair-removal.jpg|جلسات الليزر",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
+  faq: {
+    title: "أسئلة شائعة",
+    body: "هل أحتاج إلى استشارة قبل الإجراء؟|نعم، التقييم يساعد على اختيار الخطة الأنسب.\nمتى تظهر النتيجة؟|يختلف ذلك حسب الإجراء وطبيعة الحالة.\nهل يمكن تعديل الصفحة لاحقًا؟|نعم، يمكن تعديل البلوكات وإعادة ترتيبها من لوحة التحكم.",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
+  contact: {
+    title: "ابدئي بخطوة واضحة",
+    body: "الهاتف|0114999959\nواتساب|9200 17403\nالبريد|info@rejuveracenter.sa",
+    buttonLabel: "افتحي صفحة التواصل",
+    buttonHref: "/contact",
+    accent: "#4a2476",
+    tone: "dark",
+    align: "center",
   },
   cta: {
     title: "اعرفي الخيار الأنسب لحالتك",
@@ -58,24 +123,22 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     buttonLabel: "التواصل والحجز",
     buttonHref: "/contact",
     accent: "#4a2476",
-  },
-  services: {
-    title: "خدمات مرتبطة",
-    body: "تجديد البشرة المتقدم|خطة متدرجة لتحسين نضارة البشرة\nإزالة الشعر بالليزر|جلسات منظمة حسب نوع البشرة\nتناغم الوجه بالحقن|تحسين محسوب يحافظ على الملامح",
-    accent: "#4a2476",
-  },
-  faq: {
-    title: "أسئلة شائعة",
-    body: "هل أحتاج إلى استشارة قبل الإجراء؟|نعم، التقييم يساعد على اختيار الخطة الأنسب.\nمتى تظهر النتيجة؟|يختلف ذلك حسب الإجراء وطبيعة الحالة.\nهل يمكن تعديل الصفحة لاحقًا؟|نعم، يمكن تعديل البلوكات وإعادة ترتيبها من لوحة التحكم.",
-    accent: "#4a2476",
+    tone: "soft",
+    align: "center",
   },
 };
+
+const templates: Array<{ label: string; blocks: BlockKind[] }> = [
+  { label: "صفحة خدمة", blocks: ["hero", "stats", "text", "services", "doctors", "faq", "cta"] },
+  { label: "حملة حجز", blocks: ["hero", "text", "gallery", "contact", "faq"] },
+  { label: "تعريف طبي", blocks: ["hero", "text", "image", "services", "cta"] },
+];
 
 function uid() {
   return `block-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function escapeHtml(value: string) {
+function escapeHtml(value = "") {
   return value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -98,10 +161,14 @@ function parsePairs(value = "") {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
-      const [title, body = ""] = line.split("|");
-      return { title: title?.trim() ?? "", body: body.trim() };
+      const [title = "", body = ""] = line.split("|");
+      return { title: title.trim(), body: body.trim() };
     })
     .filter((item) => item.title);
+}
+
+function classes(block: BuilderBlock, base: string) {
+  return `${base} is-${block.tone ?? "light"} align-${block.align ?? "right"}`;
 }
 
 function renderBlock(block: BuilderBlock) {
@@ -112,35 +179,59 @@ function renderBlock(block: BuilderBlock) {
   const image = escapeHtml(block.imageUrl || "/media/curated/clinic-treatment-room.jpeg");
   const buttonLabel = escapeHtml(block.buttonLabel || "احجزي موعدك");
   const buttonHref = escapeHtml(block.buttonHref || "/contact");
+  const style = `style="--builder-accent:${accent}"`;
 
   if (block.kind === "hero") {
-    return `<section class="rv-builder-section rv-builder-hero" style="--builder-accent:${accent}"><div><small>${subtitle}</small><h1>${title}</h1>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></div><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"></figure></section>`;
+    return `<section class="${classes(block, "rv-builder-section rv-builder-hero")}" ${style}><div><small>${subtitle}</small><h1>${title}</h1>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></div><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"></figure></section>`;
   }
+
   if (block.kind === "text") {
-    return `<section class="rv-builder-section rv-builder-text" style="--builder-accent:${accent}"><h2>${title}</h2><div>${paragraphHtml(body)}</div></section>`;
+    return `<section class="${classes(block, "rv-builder-section rv-builder-text")}" ${style}><h2>${title}</h2><div>${paragraphHtml(body)}</div></section>`;
   }
+
   if (block.kind === "image") {
-    return `<section class="rv-builder-section rv-builder-image" style="--builder-accent:${accent}"><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"><figcaption>${title}${body ? ` - ${escapeHtml(body)}` : ""}</figcaption></figure></section>`;
+    return `<section class="${classes(block, "rv-builder-section rv-builder-image")}" ${style}><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"><figcaption>${title}${body ? ` - ${escapeHtml(body)}` : ""}</figcaption></figure></section>`;
   }
-  if (block.kind === "cta") {
-    return `<section class="rv-builder-section rv-builder-cta" style="--builder-accent:${accent}"><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
+
+  if (block.kind === "stats") {
+    const stats = parsePairs(body)
+      .map((item) => `<article><strong>${escapeHtml(item.body)}</strong><span>${escapeHtml(item.title)}</span></article>`)
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-stats")}" ${style}><h2>${title}</h2><div>${stats}</div></section>`;
   }
-  if (block.kind === "services") {
+
+  if (block.kind === "services" || block.kind === "doctors") {
     const cards = parsePairs(body)
+      .map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`)
+      .join("");
+    return `<section class="${classes(block, `rv-builder-section rv-builder-${block.kind}`)}" ${style}><h2>${title}</h2><div>${cards}</div></section>`;
+  }
+
+  if (block.kind === "gallery") {
+    const images = parsePairs(body)
       .map(
         (item) =>
-          `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`,
+          `<figure><img src="${escapeHtml(item.title)}" alt="${escapeHtml(item.body || title)}" loading="lazy" decoding="async"><figcaption>${escapeHtml(item.body)}</figcaption></figure>`,
       )
       .join("");
-    return `<section class="rv-builder-section rv-builder-services" style="--builder-accent:${accent}"><h2>${title}</h2><div>${cards}</div></section>`;
+    return `<section class="${classes(block, "rv-builder-section rv-builder-gallery")}" ${style}><h2>${title}</h2><div>${images}</div></section>`;
   }
-  const faqs = parsePairs(body)
-    .map(
-      (item) =>
-        `<details><summary>${escapeHtml(item.title)}</summary><p>${escapeHtml(item.body)}</p></details>`,
-    )
-    .join("");
-  return `<section class="rv-builder-section rv-builder-faq" style="--builder-accent:${accent}"><h2>${title}</h2><div>${faqs}</div></section>`;
+
+  if (block.kind === "faq") {
+    const faqs = parsePairs(body)
+      .map((item) => `<details><summary>${escapeHtml(item.title)}</summary><p>${escapeHtml(item.body)}</p></details>`)
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-faq")}" ${style}><h2>${title}</h2><div>${faqs}</div></section>`;
+  }
+
+  if (block.kind === "contact") {
+    const rows = parsePairs(body)
+      .map((item) => `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span></li>`)
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-contact")}" ${style}><h2>${title}</h2><ul>${rows}</ul><a href="${buttonHref}">${buttonLabel}</a></section>`;
+  }
+
+  return `<section class="${classes(block, "rv-builder-section rv-builder-cta")}" ${style}><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
 }
 
 function renderPage(blocks: BuilderBlock[]) {
@@ -152,31 +243,34 @@ function createBlock(kind: BlockKind): BuilderBlock {
   return { id: uid(), kind, ...presets[kind] };
 }
 
+function createTemplate(kinds: BlockKind[]) {
+  return kinds.map(createBlock);
+}
+
 function initialBlocks(html?: string): BuilderBlock[] {
   if (html?.includes("rv-builder-page")) {
     const encoded = html.match(/data-blocks="([^"]+)"/)?.[1];
     if (encoded) {
       try {
         const parsed = JSON.parse(decodeURIComponent(encoded)) as BuilderBlock[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.filter((block) => block.id && block.kind && block.title);
-        }
+        const valid = parsed.filter((block) => block.id && block.kind && block.title);
+        if (valid.length) return valid;
       } catch {
-        return [createBlock("hero"), createBlock("text"), createBlock("cta")];
+        return createTemplate(["hero", "text", "cta"]);
       }
     }
-    return [createBlock("hero"), createBlock("text"), createBlock("cta")];
+    return createTemplate(["hero", "text", "cta"]);
   }
   if (html?.trim()) {
     return [
       {
         ...createBlock("text"),
         title: "محتوى الصفحة الحالي",
-        body: "تم الاحتفاظ بالمحتوى الحالي في حقل HTML. يمكنك بناء نسخة جديدة من البلوكات وحفظها عند الجاهزية.",
+        body: "تم الاحتفاظ بالمحتوى الحالي في قاعدة البيانات. ابنِ نسخة احترافية بالبلوكات واحفظها عند الجاهزية.",
       },
     ];
   }
-  return [createBlock("hero"), createBlock("services"), createBlock("faq"), createBlock("cta")];
+  return createTemplate(["hero", "stats", "services", "faq", "cta"]);
 }
 
 export function CustomPageBuilder({
@@ -186,12 +280,11 @@ export function CustomPageBuilder({
   name: string;
   defaultValue?: string;
 }) {
-  const [blocks, setBlocks] = useState<BuilderBlock[]>(() =>
-    initialBlocks(defaultValue),
-  );
+  const [blocks, setBlocks] = useState<BuilderBlock[]>(() => initialBlocks(defaultValue));
   const [selectedId, setSelectedId] = useState(blocks[0]?.id ?? "");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [showCode, setShowCode] = useState(false);
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
   const html = useMemo(() => renderPage(blocks), [blocks]);
 
@@ -201,10 +294,29 @@ export function CustomPageBuilder({
     setSelectedId(next.id);
   }
 
+  function applyTemplate(kinds: BlockKind[]) {
+    const next = createTemplate(kinds);
+    setBlocks(next);
+    setSelectedId(next[0]?.id ?? "");
+  }
+
   function update(id: string, patch: Partial<BuilderBlock>) {
     setBlocks((current) =>
       current.map((block) => (block.id === id ? { ...block, ...patch } : block)),
     );
+  }
+
+  function duplicate(id: string) {
+    setBlocks((current) => {
+      const index = current.findIndex((block) => block.id === id);
+      const source = current[index];
+      if (!source) return current;
+      const copy = { ...source, id: uid(), title: `${source.title} - نسخة` };
+      const next = [...current];
+      next.splice(index + 1, 0, copy);
+      setSelectedId(copy.id);
+      return next;
+    });
   }
 
   function remove(id: string) {
@@ -247,6 +359,19 @@ export function CustomPageBuilder({
     <div className="pagecraft-admin">
       <input type="hidden" name={name} value={html} />
       <aside className="pagecraft-panel">
+        <div className="pagecraft-panel__header">القوالب</div>
+        <div className="pagecraft-templates">
+          {templates.map((template) => (
+            <button
+              key={template.label}
+              type="button"
+              onClick={() => applyTemplate(template.blocks)}
+            >
+              {template.label}
+            </button>
+          ))}
+        </div>
+
         <div className="pagecraft-panel__header">العناصر</div>
         <div className="pagecraft-elements">
           {blockLibrary.map((item) => (
@@ -256,7 +381,8 @@ export function CustomPageBuilder({
             </button>
           ))}
         </div>
-        <div className="pagecraft-panel__header">المقاس</div>
+
+        <div className="pagecraft-panel__header">المعاينة</div>
         <div className="pagecraft-devices">
           {(["desktop", "tablet", "mobile"] as const).map((item) => (
             <button
@@ -269,39 +395,53 @@ export function CustomPageBuilder({
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          className="pagecraft-code-toggle"
+          onClick={() => setShowCode((value) => !value)}
+        >
+          {showCode ? "إخفاء HTML" : "فحص HTML"}
+        </button>
       </aside>
 
       <main className="pagecraft-canvas-wrap">
-        <div className={`pagecraft-canvas is-${mode}`}>
-          {blocks.map((block, index) => (
-            <section
-              key={block.id}
-              draggable
-              onDragStart={() => setDraggedId(block.id)}
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={() => dropOn(block.id)}
-              onClick={() => setSelectedId(block.id)}
-              className={`pagecraft-block ${selectedId === block.id ? "is-selected" : ""}`}
-            >
-              <div className="pagecraft-block__tools">
-                <button type="button" onClick={() => move(block.id, -1)} disabled={index === 0}>
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  onClick={() => move(block.id, 1)}
-                  disabled={index === blocks.length - 1}
-                >
-                  ↓
-                </button>
-                <button type="button" onClick={() => remove(block.id)}>
-                  حذف
-                </button>
-              </div>
-              <div dangerouslySetInnerHTML={{ __html: renderBlock(block) }} />
-            </section>
-          ))}
-        </div>
+        {showCode ? (
+          <textarea className="pagecraft-code" readOnly value={html} />
+        ) : (
+          <div className={`pagecraft-canvas is-${mode}`}>
+            {blocks.map((block, index) => (
+              <section
+                key={block.id}
+                draggable
+                onDragStart={() => setDraggedId(block.id)}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={() => dropOn(block.id)}
+                onClick={() => setSelectedId(block.id)}
+                className={`pagecraft-block ${selectedId === block.id ? "is-selected" : ""}`}
+              >
+                <div className="pagecraft-block__tools">
+                  <button type="button" onClick={() => move(block.id, -1)} disabled={index === 0}>
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => move(block.id, 1)}
+                    disabled={index === blocks.length - 1}
+                  >
+                    ↓
+                  </button>
+                  <button type="button" onClick={() => duplicate(block.id)}>
+                    نسخ
+                  </button>
+                  <button type="button" onClick={() => remove(block.id)}>
+                    حذف
+                  </button>
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: renderBlock(block) }} />
+              </section>
+            ))}
+          </div>
+        )}
       </main>
 
       <aside className="pagecraft-panel">
@@ -312,30 +452,35 @@ export function CustomPageBuilder({
               <span>العنوان</span>
               <input
                 value={selected.title}
-                onChange={(event) =>
-                  update(selected.id, { title: event.target.value })
-                }
+                onChange={(event) => update(selected.id, { title: event.target.value })}
               />
             </label>
             <label>
               <span>وصف قصير</span>
               <input
                 value={selected.subtitle ?? ""}
-                onChange={(event) =>
-                  update(selected.id, { subtitle: event.target.value })
-                }
+                onChange={(event) => update(selected.id, { subtitle: event.target.value })}
               />
             </label>
             <label>
-              <span>المحتوى</span>
+              <span>
+                المحتوى
+                {selected.kind === "services" ||
+                selected.kind === "doctors" ||
+                selected.kind === "stats" ||
+                selected.kind === "gallery" ||
+                selected.kind === "faq" ||
+                selected.kind === "contact"
+                  ? " (سطر لكل عنصر: عنوان|وصف)"
+                  : ""}
+              </span>
               <textarea
                 value={selected.body ?? ""}
-                rows={selected.kind === "services" || selected.kind === "faq" ? 7 : 5}
-                onChange={(event) =>
-                  update(selected.id, { body: event.target.value })
-                }
+                rows={["services", "doctors", "stats", "gallery", "faq", "contact"].includes(selected.kind) ? 8 : 5}
+                onChange={(event) => update(selected.id, { body: event.target.value })}
               />
             </label>
+
             {selected.kind === "hero" || selected.kind === "image" ? (
               <ImagePicker
                 name={`builder-${selected.id}-image`}
@@ -346,15 +491,16 @@ export function CustomPageBuilder({
                 onChange={(url) => update(selected.id, { imageUrl: url })}
               />
             ) : null}
-            {selected.kind === "hero" || selected.kind === "cta" ? (
+
+            {selected.kind === "hero" ||
+            selected.kind === "cta" ||
+            selected.kind === "contact" ? (
               <div className="grid gap-2">
                 <label>
                   <span>نص الزر</span>
                   <input
                     value={selected.buttonLabel ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, { buttonLabel: event.target.value })
-                    }
+                    onChange={(event) => update(selected.id, { buttonLabel: event.target.value })}
                   />
                 </label>
                 <label>
@@ -362,21 +508,43 @@ export function CustomPageBuilder({
                   <input
                     dir="ltr"
                     value={selected.buttonHref ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, { buttonHref: event.target.value })
-                    }
+                    onChange={(event) => update(selected.id, { buttonHref: event.target.value })}
                   />
                 </label>
               </div>
             ) : null}
+
+            <div className="pagecraft-segment">
+              {(["right", "center", "left"] as const).map((align) => (
+                <button
+                  key={align}
+                  type="button"
+                  className={(selected.align ?? "right") === align ? "is-active" : ""}
+                  onClick={() => update(selected.id, { align })}
+                >
+                  {align}
+                </button>
+              ))}
+            </div>
+            <div className="pagecraft-segment">
+              {(["light", "soft", "dark"] as const).map((tone) => (
+                <button
+                  key={tone}
+                  type="button"
+                  className={(selected.tone ?? "light") === tone ? "is-active" : ""}
+                  onClick={() => update(selected.id, { tone })}
+                >
+                  {tone}
+                </button>
+              ))}
+            </div>
+
             <label>
               <span>لون الهوية</span>
               <input
                 type="color"
                 value={selected.accent ?? "#4a2476"}
-                onChange={(event) =>
-                  update(selected.id, { accent: event.target.value })
-                }
+                onChange={(event) => update(selected.id, { accent: event.target.value })}
               />
             </label>
           </div>

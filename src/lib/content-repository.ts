@@ -553,6 +553,7 @@ export type UpdateServiceInput = {
   featured: boolean;
   coverImageUrl?: string | undefined;
   doctorSlugs?: string[] | undefined;
+  deviceSlugs?: string[] | undefined;
 };
 
 export type UpdateDeviceInput = {
@@ -4377,6 +4378,7 @@ export async function updateService(input: UpdateServiceInput) {
     return { mode: "preview" as const, input };
   }
   const doctorSlugs = input.doctorSlugs;
+  const deviceSlugs = input.deviceSlugs;
   const category = input.categoryId
     ? await prisma.serviceCategory.findUnique({
         where: { id: input.categoryId },
@@ -4403,6 +4405,13 @@ export async function updateService(input: UpdateServiceInput) {
           },
         }
       : {}),
+    ...(Array.isArray(deviceSlugs)
+      ? {
+          devices: {
+            set: deviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+          },
+        }
+      : {}),
   };
   const item = await prisma.service.upsert({
     where: { id: input.id },
@@ -4425,6 +4434,13 @@ export async function updateService(input: UpdateServiceInput) {
         ? {
             doctors: {
               connect: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
+            },
+          }
+        : {}),
+      ...(Array.isArray(deviceSlugs)
+        ? {
+            devices: {
+              connect: deviceSlugs.filter(Boolean).map((slug) => ({ slug })),
             },
           }
         : {}),
