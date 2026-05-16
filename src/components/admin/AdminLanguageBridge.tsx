@@ -2,9 +2,14 @@
 
 import { useEffect } from "react";
 
-// Most admin UI now ships bilingual <span class="lang-ar">/<span class="lang-en">.
-// This bridge only handles a few legacy texts that still come from upstream
-// components or user-generated labels we don't control. Keep it minimal.
+// Most admin UI ships bilingual <span class="lang-ar">/<span class="lang-en">.
+// This bridge only translates a tiny set of legacy strings that come from
+// upstream Arabic-only components / user-generated content. It is intentionally
+// minimal — every text node is fingerprinted in a per-node WeakMap so we never
+// concatenate sibling text nodes (the previous bug caused options like
+// "الكل / All" to render as "الكلالكلالكل" because three text nodes shared a
+// single parent dataset entry).
+
 const textMap: Record<string, string> = {
   "لوحة التحكم": "Admin",
   "إدارة المعرض — Rejuvira Admin": "Gallery management — Rejuvira Admin",
@@ -15,15 +20,6 @@ const textMap: Record<string, string> = {
   "حالة منشورة": "Published",
   حذف: "Delete",
   "هل أنت متأكد من الحذف؟": "Are you sure you want to delete?",
-  "العنوان *": "Title *",
-  "الرابط (slug) *": "Slug (URL key) *",
-  "التصنيف *": "Category *",
-  "الوصف *": "Description *",
-  "صورة قبل": "Before image",
-  "صورة بعد": "After image",
-  "مسار الصورة *": "Image URL *",
-  "النص البديل (alt) — لمحركات البحث *": "Alt text (SEO) *",
-  "موضع المقارنة الافتراضي": "Default comparison position",
   "حفظ التعديلات": "Save changes",
   "إضافة صورة": "Add image",
   إلغاء: "Cancel",
@@ -32,20 +28,14 @@ const textMap: Record<string, string> = {
   "تم الحذف.": "Deleted.",
 };
 
-const placeholderMap: Record<string, string> = {
-  "مثال: علاج تصبغات الوجه": "Example: facial pigmentation treatment",
-  "facial-pigmentation": "facial-pigmentation",
-  "مثال: تجديد البشرة": "Example: skin renewal",
-  "وصف مختصر للحالة والنتيجة...": "Short description of case and outcome...",
-  "/media/gallery/before-1.jpg": "/media/gallery/before-1.jpg",
-  "/media/gallery/after-1.jpg": "/media/gallery/after-1.jpg",
-  "قبل علاج تصبغات الوجه - مريضة": "Before pigmentation treatment - patient",
-  "بعد علاج تصبغات الوجه - نتيجة واضحة": "After pigmentation treatment - clear result",
-};
-
 function normalize(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
+
+// Per-text-node original storage. Solves the multi-text-node-per-parent bug.
+const originalByNode = new WeakMap<Text, string>();
+
+const SKIP_ANCESTOR = "script, style, textarea, select, option";
 
 function translateTextNodes(root: ParentNode, lang: "ar" | "en") {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -55,41 +45,63 @@ function translateTextNodes(root: ParentNode, lang: "ar" | "en") {
   for (const node of nodes) {
     const parent = node.parentElement;
     if (!parent) continue;
-    if (parent.closest("script, style, textarea")) continue;
-    // Skip elements that are already bilingual via lang-ar/lang-en spans.
-    if (parent.classList.contains("lang-ar") || parent.classList.contains("lang-en")) continue;
-    const original = parent.dataset.adminOriginalText ?? node.textContent ?? "";
+    if (parent.closest(SKIP_ANCESTOR)) continue;
+    // Skip pre-bilingual spans entirely; they are managed by CSS.
+    if (parent.classList.contains("lang-ar") || parent.classList.contains("lang-en"))
+      continue;
+
+    const stored = originalByNode.get(node);
+    const current = node.textContent ?? "";
+    const original = stored ?? current;
+    if (!stored) originalByNode.set(node, original);
+
     const trimmed = normalize(original);
     if (!trimmed) continue;
-    if (!parent.dataset.adminOriginalText) parent.dataset.adminOriginalText = original;
 
-    if (lang === "en") {
-      const translated = textMap[trimmed];
-      if (translated) node.textContent = original.replace(trimmed, translated);
-    } else {
-      node.textContent = parent.dataset.adminOriginalText;
+    const target =
+      lang === "en"
+        ? (textMap[trimmed] ? original.replace(trimmed, textMap[trimmed]!) : original)
+        : original;
+
+    if (node.textContent !== target) {
+      node.textContent = target;
     }
   }
 }
+
+const placeholderMap: Record<string, string> = {
+  "مثال: علاج تصبغات الوجه": "Example: facial pigmentation treatment",
+  "مثال: تجديد البشرة": "Example: skin renewal",
+  "وصف مختصر للحالة والنتيجة...": "Short description of case and outcome...",
+  "قبل علاج تصبغات الوجه - مريضة": "Before pigmentation treatment - patient",
+  "بعد علاج تصبغات الوجه - نتيجة واضحة": "After pigmentation treatment - clear result",
+};
+
+const originalAttrByElement = new WeakMap<
+  HTMLElement,
+  Partial<Record<"placeholder" | "aria-label" | "title", string>>
+>();
 
 function translateAttributes(root: ParentNode, lang: "ar" | "en") {
   const elements = Array.from(
     root.querySelectorAll<HTMLElement>("[placeholder], [aria-label], [title]"),
   );
   for (const element of elements) {
+    let bag = originalAttrByElement.get(element);
+    if (!bag) {
+      bag = {};
+      originalAttrByElement.set(element, bag);
+    }
     for (const attr of ["placeholder", "aria-label", "title"] as const) {
       const value = element.getAttribute(attr);
-      if (!value) continue;
-      const dataKey = `adminOriginal${attr.replace(/(^|-)([a-z])/g, (_, __, c: string) => c.toUpperCase())}`;
-      const dataset = element.dataset as Record<string, string | undefined>;
-      const original = dataset[dataKey] ?? value;
-      if (!dataset[dataKey]) dataset[dataKey] = original;
-      element.setAttribute(
-        attr,
+      if (value === null) continue;
+      if (bag[attr] === undefined) bag[attr] = value;
+      const original = bag[attr]!;
+      const desired =
         lang === "en"
           ? (placeholderMap[original] ?? textMap[normalize(original)] ?? original)
-          : original,
-      );
+          : original;
+      if (value !== desired) element.setAttribute(attr, desired);
     }
   }
 }
@@ -99,17 +111,34 @@ export function AdminLanguageBridge() {
     const root = document.querySelector(".admin-shell");
     if (!root) return;
 
+    let scheduled = false;
+    let muted = false;
+
     const apply = () => {
       const lang = document.documentElement.dataset.lang === "en" ? "en" : "ar";
+      muted = true;
       translateTextNodes(root, lang);
       translateAttributes(root, lang);
+      // Allow other mutations to settle before listening again.
+      queueMicrotask(() => {
+        muted = false;
+      });
+    };
+
+    const schedule = () => {
+      if (scheduled || muted) return;
+      scheduled = true;
+      requestAnimationFrame(() => {
+        scheduled = false;
+        apply();
+      });
     };
 
     apply();
-    const observer = new MutationObserver(apply);
-    observer.observe(root, { childList: true, subtree: true });
+    const observer = new MutationObserver(schedule);
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
 
-    const htmlObserver = new MutationObserver(apply);
+    const htmlObserver = new MutationObserver(schedule);
     htmlObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["data-lang", "lang"],

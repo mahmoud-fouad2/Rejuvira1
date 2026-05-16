@@ -113,25 +113,39 @@ export function ImageUploader({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={status.kind === "uploading"}
-          className="border-line bg-surface text-ink hover:border-accent/30 disabled:opacity-60 rounded-full border px-4 py-2 text-xs font-semibold transition"
+          className="admin-btn-secondary"
         >
-          {status.kind === "uploading" ? "جارٍ الرفع..." : "رفع ملف إلى R2"}
+          {status.kind === "uploading" ? (
+            <>
+              <span className="lang-ar">جارٍ الرفع...</span>
+              <span className="lang-en">Uploading...</span>
+            </>
+          ) : (
+            <>
+              <span className="lang-ar">رفع ملف</span>
+              <span className="lang-en">Upload file</span>
+            </>
+          )}
         </button>
         {value ? (
           <a
             href={value}
             target="_blank"
             rel="noreferrer"
-            className="text-ink-soft hover:text-ink-strong text-xs underline"
+            className="text-xs text-[color:var(--admin-text-soft)] underline hover:text-[color:var(--admin-text)]"
           >
-            معاينة
+            <span className="lang-ar">معاينة</span>
+            <span className="lang-en">Preview</span>
           </a>
         ) : null}
         {status.kind === "success" ? (
-          <span className="text-emerald text-xs">تم الرفع: {status.key}</span>
+          <span className="text-xs text-emerald-600">
+            <span className="lang-ar">تم الرفع</span>
+            <span className="lang-en">Uploaded</span>
+          </span>
         ) : null}
         {status.kind === "error" ? (
-          <span className="text-burgundy text-xs">{status.message}</span>
+          <span className="text-xs text-[color:#b3334b]">{status.message}</span>
         ) : null}
       </div>
       {helper ? (

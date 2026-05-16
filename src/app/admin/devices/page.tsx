@@ -5,6 +5,7 @@ import {
   deleteDeviceAction,
   setDeviceStatusAction,
 } from "@/app/admin/devices/actions";
+import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { DeviceCreateForm } from "@/components/forms/DeviceCreateForm";
 import { DeviceEditorForm } from "@/components/forms/DeviceEditorForm";
 import { getDevices } from "@/lib/content-repository";
@@ -38,24 +39,19 @@ export default async function AdminDevicesPage() {
             <span className="lang-en">{devices.length} devices</span>
           </p>
         </div>
+        <div className="admin-page-header__actions">
+          <AdminAddModal
+            triggerArabic="إضافة جهاز"
+            triggerEnglish="Add device"
+            titleArabic="إضافة جهاز جديد"
+            titleEnglish="New device"
+          >
+            <DeviceCreateForm />
+          </AdminAddModal>
+        </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">New</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">إضافة جهاز</span>
-                <span className="lang-en">Add device</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-card__body">
-            <DeviceCreateForm />
-          </div>
-        </article>
-
+      <div className="grid gap-4">
         <article className="admin-card">
           <div className="admin-card__header">
             <div>

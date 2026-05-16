@@ -5,6 +5,7 @@ import {
   deleteDoctorAction,
   setDoctorStatusAction,
 } from "@/app/admin/doctors/actions";
+import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { DoctorCreateForm } from "@/components/forms/DoctorCreateForm";
 import { DoctorEditorForm } from "@/components/forms/DoctorEditorForm";
 import { getDoctors } from "@/lib/content-repository";
@@ -38,24 +39,19 @@ export default async function AdminDoctorsPage() {
             <span className="lang-en">{doctors.length} doctors</span>
           </p>
         </div>
+        <div className="admin-page-header__actions">
+          <AdminAddModal
+            triggerArabic="إضافة طبيب"
+            triggerEnglish="Add doctor"
+            titleArabic="إضافة طبيب جديد"
+            titleEnglish="New doctor"
+          >
+            <DoctorCreateForm />
+          </AdminAddModal>
+        </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">New</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">إضافة طبيب</span>
-                <span className="lang-en">Add doctor</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-card__body">
-            <DoctorCreateForm />
-          </div>
-        </article>
-
+      <div className="grid gap-4">
         <article className="admin-card">
           <div className="admin-card__header">
             <div>

@@ -140,9 +140,8 @@ export function CinematicIntro({ logoSrc, logoAlt }: CinematicIntroProps) {
             src={logoSrc}
             alt={logoAlt}
             fill
-            sizes="(max-width: 768px) 280px, 380px"
+            sizes="(max-width: 768px) 320px, 480px"
             priority
-            unoptimized
             className="object-contain"
             onLoadingComplete={() => setImageReady(true)}
             onError={() => setImageReady(true)}

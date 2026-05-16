@@ -5,6 +5,7 @@ import {
   deleteServiceAction,
   setServiceStatusAction,
 } from "@/app/admin/services/actions";
+import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { ServiceCreateForm } from "@/components/forms/ServiceCreateForm";
 import { ServiceEditorForm } from "@/components/forms/ServiceEditorForm";
 import { getServices } from "@/lib/content-repository";
@@ -38,24 +39,19 @@ export default async function AdminServicesPage() {
             <span className="lang-en">{services.length} services</span>
           </p>
         </div>
+        <div className="admin-page-header__actions">
+          <AdminAddModal
+            triggerArabic="إضافة خدمة"
+            triggerEnglish="Add service"
+            titleArabic="إضافة خدمة جديدة"
+            titleEnglish="New service"
+          >
+            <ServiceCreateForm />
+          </AdminAddModal>
+        </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">New</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">إضافة خدمة</span>
-                <span className="lang-en">Add service</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-card__body">
-            <ServiceCreateForm />
-          </div>
-        </article>
-
+      <div className="grid gap-4">
         <article className="admin-card">
           <div className="admin-card__header">
             <div>

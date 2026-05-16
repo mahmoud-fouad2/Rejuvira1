@@ -2,6 +2,7 @@ import { UserRole } from "@prisma/client";
 
 import { deleteAdminUserAction } from "@/app/admin/users/actions";
 import { auth } from "@/auth";
+import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { AdminUserCreateForm } from "@/components/forms/AdminUserCreateForm";
 import { AdminUserRoleForm } from "@/components/forms/AdminUserRoleForm";
 import {
@@ -40,54 +41,42 @@ export default async function AdminUsersPage() {
             <span className="lang-en">{users.length} accounts</span>
           </p>
         </div>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[1fr_1.5fr]">
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">New</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">إضافة حساب</span>
-                <span className="lang-en">Add user</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-card__body">
-            {canManage ? (
+        {canManage ? (
+          <div className="admin-page-header__actions">
+            <AdminAddModal
+              triggerArabic="إضافة حساب"
+              triggerEnglish="Add user"
+              titleArabic="إضافة حساب جديد"
+              titleEnglish="New user"
+            >
               <AdminUserCreateForm />
-            ) : (
-              <p className="text-sm text-[color:var(--admin-text-faint)]">
-                <span className="lang-ar">إضافة الحسابات متاحة للمسؤول الأعلى فقط.</span>
-                <span className="lang-en">Only Super Admins can add accounts.</span>
-              </p>
-            )}
+            </AdminAddModal>
           </div>
-        </article>
+        ) : null}
+      </div>
 
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">By role</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">توزيع الحسابات</span>
-                <span className="lang-en">Accounts by role</span>
-              </div>
+      <article className="admin-card">
+        <div className="admin-card__header">
+          <div>
+            <div className="admin-card__subtitle">By role</div>
+            <div className="admin-card__title">
+              <span className="lang-ar">توزيع الحسابات</span>
+              <span className="lang-en">Accounts by role</span>
             </div>
           </div>
-          <div className="admin-data-list">
-            {groupedUsers.map((group) => (
-              <div key={group.role} className="admin-data-row">
-                <div>
-                  <p className="admin-data-row__title">{roleLabels[group.role]}</p>
-                  <p className="admin-data-row__meta" dir="ltr">{group.role}</p>
-                </div>
-                <span className="admin-data-row__value">{group.users.length}</span>
+        </div>
+        <div className="admin-data-list">
+          {groupedUsers.map((group) => (
+            <div key={group.role} className="admin-data-row">
+              <div>
+                <p className="admin-data-row__title">{roleLabels[group.role]}</p>
+                <p className="admin-data-row__meta" dir="ltr">{group.role}</p>
               </div>
-            ))}
-          </div>
-        </article>
-      </div>
+              <span className="admin-data-row__value">{group.users.length}</span>
+            </div>
+          ))}
+        </div>
+      </article>
 
       <article className="admin-card">
         <div className="admin-card__header">

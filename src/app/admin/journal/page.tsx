@@ -5,6 +5,7 @@ import {
   deleteJournalPostAction,
   updateJournalPostStatusAction,
 } from "@/app/admin/journal/actions";
+import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { JournalCreateForm } from "@/components/forms/JournalCreateForm";
 import { getJournalPosts } from "@/lib/content-repository";
 
@@ -62,24 +63,19 @@ export default async function AdminJournalPage() {
             </span>
           </p>
         </div>
+        <div className="admin-page-header__actions">
+          <AdminAddModal
+            triggerArabic="إضافة مقال"
+            triggerEnglish="Add article"
+            titleArabic="إضافة مقال جديد"
+            titleEnglish="New article"
+          >
+            <JournalCreateForm />
+          </AdminAddModal>
+        </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">New</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">إضافة مقال</span>
-                <span className="lang-en">Add article</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-card__body">
-            <JournalCreateForm />
-          </div>
-        </article>
-
+      <div className="grid gap-4">
         <article className="admin-card">
           <div className="admin-card__header">
             <div>

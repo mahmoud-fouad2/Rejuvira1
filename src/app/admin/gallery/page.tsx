@@ -2,6 +2,7 @@ import { ContentStatus } from "@prisma/client";
 import Image from "next/image";
 
 import { setGalleryItemStatusAction } from "@/app/admin/gallery/actions";
+import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { getGalleryItems } from "@/lib/content-repository";
 import { DeleteGalleryItemButton, GalleryItemForm } from "./GalleryAdminForms";
 
@@ -60,22 +61,17 @@ export default async function AdminGalleryPage() {
             </span>
           </p>
         </div>
+        <div className="admin-page-header__actions">
+          <AdminAddModal
+            triggerArabic="إضافة حالة"
+            triggerEnglish="Add case"
+            titleArabic="إضافة حالة جديدة"
+            titleEnglish="New gallery case"
+          >
+            <GalleryItemForm />
+          </AdminAddModal>
+        </div>
       </div>
-
-      <article className="admin-card">
-        <div className="admin-card__header">
-          <div>
-            <div className="admin-card__subtitle">New</div>
-            <div className="admin-card__title">
-              <span className="lang-ar">إضافة حالة</span>
-              <span className="lang-en">Add case</span>
-            </div>
-          </div>
-        </div>
-        <div className="admin-card__body">
-          <GalleryItemForm />
-        </div>
-      </article>
 
       {items.length === 0 ? (
         <article className="admin-card">
