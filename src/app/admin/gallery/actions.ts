@@ -6,18 +6,21 @@ import { z } from "zod";
 
 import {
   createGalleryItem,
+  deleteGalleryItem,
   updateGalleryItem,
   updateGalleryItemStatus,
-  deleteGalleryItem,
 } from "@/lib/content-repository";
+import { adminActionErrorMessage } from "@/lib/admin-action-errors";
 
-/* ── Input validation ────────────────────────────────────── */
 const galleryItemSchema = z.object({
   id: z.string().optional(),
-  slug: z.string().min(3, "الرابط قصير جدًا").regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطة فقط"),
-  title: z.string().min(3, "العنوان قصير جدًا"),
+  slug: z
+    .string()
+    .min(3, "الرابط قصير جدا")
+    .regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطة فقط"),
+  title: z.string().min(3, "العنوان قصير جدا"),
   category: z.string().min(2, "التصنيف مطلوب"),
-  description: z.string().min(10, "الوصف قصير جدًا"),
+  description: z.string().min(10, "الوصف قصير جدا"),
   beforeImageUrl: z.string().min(5, "مسار صورة قبل مطلوب"),
   afterImageUrl: z.string().min(5, "مسار صورة بعد مطلوب"),
   beforeImageAlt: z.string().min(3, "النص البديل لصورة قبل مطلوب"),
@@ -39,7 +42,11 @@ const galleryItemSchema = z.object({
 
 type State = { success: boolean; message: string };
 
-/* ── Save (create or update) ─────────────────────────────── */
+function revalidate() {
+  revalidatePath("/gallery");
+  revalidatePath("/admin/gallery");
+}
+
 export async function saveGalleryItemAction(
   _prev: State,
   formData: FormData,
@@ -48,7 +55,7 @@ export async function saveGalleryItemAction(
   const parsed = galleryItemSchema.safeParse(raw);
 
   if (!parsed.success) {
-    const msgs = parsed.error.issues.map((i) => i.message).join(" | ");
+    const msgs = parsed.error.issues.map((issue) => issue.message).join(" | ");
     return { success: false, message: msgs };
   }
 
@@ -60,44 +67,42 @@ export async function saveGalleryItemAction(
     } else {
       await createGalleryItem(data);
     }
-    revalidatePath("/gallery");
-    revalidatePath("/admin/gallery");
+    revalidate();
     return { success: true, message: "تم الحفظ بنجاح." };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "حدث خطأ غير متوقع.";
-    return { success: false, message: msg };
+  } catch (error) {
+    return { success: false, message: adminActionErrorMessage(error) };
   }
 }
 
-/* ── Set status only ─────────────────────────────────────── */
 export async function setGalleryItemStatusAction(formData: FormData) {
   const id = formData.get("id");
   const status = formData.get("status");
   if (typeof id !== "string" || !id) return;
   const parsed = z.nativeEnum(ContentStatus).safeParse(status);
   if (!parsed.success) return;
-  await updateGalleryItemStatus(id, parsed.data);
-  revalidatePath("/gallery");
-  revalidatePath("/admin/gallery");
+
+  try {
+    await updateGalleryItemStatus(id, parsed.data);
+    revalidate();
+  } catch {
+    return;
+  }
 }
 
-/* ── Delete ──────────────────────────────────────────────── */
 export async function deleteGalleryItemAction(
   _prev: State,
   formData: FormData,
 ): Promise<State> {
   const id = formData.get("id");
   if (typeof id !== "string" || !id) {
-    return { success: false, message: "معرّف العنصر غير صالح." };
+    return { success: false, message: "معرف العنصر غير صالح." };
   }
 
   try {
     await deleteGalleryItem(id);
-    revalidatePath("/gallery");
-    revalidatePath("/admin/gallery");
+    revalidate();
     return { success: true, message: "تم الحذف." };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "حدث خطأ أثناء الحذف.";
-    return { success: false, message: msg };
+  } catch (error) {
+    return { success: false, message: adminActionErrorMessage(error, "حدث خطأ أثناء الحذف.") };
   }
 }

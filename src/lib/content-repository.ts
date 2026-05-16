@@ -3164,9 +3164,36 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
   }
 
   const serviceSlugs = input.serviceSlugs;
-  const doctor = await prisma.doctor.update({
+  const data = {
+    slug: input.slug,
+    nameAr: input.name,
+    nameEn: input.nameEn || null,
+    titleAr: input.title,
+    titleEn: input.titleEn || null,
+    specialtyAr: input.specialty,
+    specialtyEn: input.specialtyEn || null,
+    bioAr: input.bio,
+    bioEn: input.bioEn || null,
+    languages: input.languages,
+    yearsExperience: input.yearsExperience,
+    publications: input.summary ? [input.summary] : [],
+    status: input.status,
+    isFeatured: input.featured,
+    photoUrl: input.photoUrl || null,
+    coverImageUrl: input.coverImageUrl || input.photoUrl || null,
+    ...(Array.isArray(serviceSlugs)
+      ? {
+          services: {
+            set: serviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+          },
+        }
+      : {}),
+  };
+  const doctor = await prisma.doctor.upsert({
     where: { id: input.id },
-    data: {
+    update: data,
+    create: {
+      id: input.id,
       slug: input.slug,
       nameAr: input.name,
       nameEn: input.nameEn || null,
@@ -3186,7 +3213,7 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
       ...(Array.isArray(serviceSlugs)
         ? {
             services: {
-              set: serviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+              connect: serviceSlugs.filter(Boolean).map((slug) => ({ slug })),
             },
           }
         : {}),
@@ -3439,9 +3466,26 @@ export async function updateGalleryItem(input: UpdateGalleryItemInput) {
     return { mode: "preview" as const, input };
   }
 
-  const item = await prisma.galleryItem.update({
+  const data = {
+    slug: input.slug,
+    titleAr: input.title,
+    titleEn: input.titleEn || null,
+    categoryKey: input.category,
+    descriptionAr: input.description,
+    descriptionEn: input.descriptionEn || null,
+    beforeImageUrl: input.beforeImageUrl,
+    afterImageUrl: input.afterImageUrl,
+    beforeImageAlt: input.beforeImageAlt,
+    afterImageAlt: input.afterImageAlt,
+    initialSplitPercent: input.initialSplitPercent ?? 50,
+    ...(input.status ? { status: input.status } : {}),
+  };
+
+  const item = await prisma.galleryItem.upsert({
     where: { id: input.id },
-    data: {
+    update: data,
+    create: {
+      id: input.id,
       slug: input.slug,
       titleAr: input.title,
       titleEn: input.titleEn || null,
@@ -3453,7 +3497,7 @@ export async function updateGalleryItem(input: UpdateGalleryItemInput) {
       beforeImageAlt: input.beforeImageAlt,
       afterImageAlt: input.afterImageAlt,
       initialSplitPercent: input.initialSplitPercent ?? 50,
-      ...(input.status ? { status: input.status } : {}),
+      status: input.status ?? ContentStatus.PUBLISHED,
     },
   });
 
@@ -4033,9 +4077,32 @@ export async function updateService(input: UpdateServiceInput) {
         select: { id: true, nameAr: true },
       })
     : null;
-  const item = await prisma.service.update({
+  const data = {
+    slug: input.slug,
+    nameAr: input.name,
+    nameEn: input.nameEn || null,
+    categoryKey: category?.nameAr ?? input.category,
+    categoryId: category?.id ?? null,
+    excerptAr: input.excerpt,
+    excerptEn: input.excerptEn || null,
+    descriptionAr: input.description,
+    descriptionEn: input.descriptionEn || null,
+    status: input.status,
+    isFeatured: input.featured,
+    ...(input.coverImageUrl ? { coverImageUrl: input.coverImageUrl } : {}),
+    ...(Array.isArray(doctorSlugs)
+      ? {
+          doctors: {
+            set: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
+          },
+        }
+      : {}),
+  };
+  const item = await prisma.service.upsert({
     where: { id: input.id },
-    data: {
+    update: data,
+    create: {
+      id: input.id,
       slug: input.slug,
       nameAr: input.name,
       nameEn: input.nameEn || null,
@@ -4051,7 +4118,7 @@ export async function updateService(input: UpdateServiceInput) {
       ...(Array.isArray(doctorSlugs)
         ? {
             doctors: {
-              set: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
+              connect: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
             },
           }
         : {}),
@@ -4091,22 +4158,30 @@ export async function updateDevice(input: UpdateDeviceInput) {
         select: { id: true },
       })
     : [];
-  const item = await prisma.device.update({
+  const data = {
+    slug: input.slug,
+    nameAr: input.name,
+    nameEn: input.nameEn || null,
+    excerptAr: input.excerpt,
+    excerptEn: input.excerptEn || null,
+    descriptionAr: input.description,
+    descriptionEn: input.descriptionEn || null,
+    certifications: input.certifications,
+    status: input.status,
+    isFeatured: input.featured,
+    ...(input.imageUrl ? { gallery: [input.imageUrl] } : {}),
+    services: {
+      set: relatedServices.map((service) => ({ id: service.id })),
+    },
+  };
+  const item = await prisma.device.upsert({
     where: { id: input.id },
-    data: {
-      slug: input.slug,
-      nameAr: input.name,
-      nameEn: input.nameEn || null,
-      excerptAr: input.excerpt,
-      excerptEn: input.excerptEn || null,
-      descriptionAr: input.description,
-      descriptionEn: input.descriptionEn || null,
-      certifications: input.certifications,
-      status: input.status,
-      isFeatured: input.featured,
-      ...(input.imageUrl ? { gallery: [input.imageUrl] } : {}),
+    update: data,
+    create: {
+      id: input.id,
+      ...data,
       services: {
-        set: relatedServices.map((service) => ({ id: service.id })),
+        connect: relatedServices.map((service) => ({ id: service.id })),
       },
     },
   });
