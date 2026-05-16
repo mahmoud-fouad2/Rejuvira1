@@ -3387,16 +3387,44 @@ export async function updateJournalPostStatus(
     return { mode: "preview" as const, slug, status };
   }
 
-  const post = await prisma.journalPost.update({
+  const publishedAt =
+    status === ContentStatus.PUBLISHED ? new Date() : undefined;
+  const seed = seedJournalPosts.find((post) => post.slug === slug);
+  const post = await prisma.journalPost.upsert({
     where: { slug },
-    data: {
+    update: {
       status,
-      ...(status === ContentStatus.PUBLISHED
-        ? {
-            publishedAt: new Date(),
-          }
-        : {}),
+      ...(publishedAt ? { publishedAt } : {}),
     },
+    create: seed
+      ? {
+          id: seed.id,
+          slug: seed.slug,
+          titleAr: seed.title,
+          titleEn: seed.titleEn || null,
+          excerptAr: seed.excerpt,
+          excerptEn: seed.excerptEn || null,
+          bodyAr: [...seed.body],
+          coverImageUrl: seed.coverImageUrl,
+          categoryKey: seed.category,
+          readingTimeLabel: seed.readingTime,
+          relatedServiceSlugs: [...seed.relatedServiceSlugs],
+          relatedDoctorSlugs: [...seed.relatedDoctorSlugs],
+          status,
+          publishedAt: publishedAt ?? new Date(seed.publishedAt),
+        }
+      : {
+          slug,
+          titleAr: slug,
+          excerptAr: "",
+          bodyAr: [],
+          coverImageUrl: serviceImages.journal,
+          categoryKey: "عام",
+          relatedServiceSlugs: [],
+          relatedDoctorSlugs: [],
+          status,
+          ...(publishedAt ? { publishedAt } : {}),
+        },
   });
 
   return { mode: "database" as const, item: post };
@@ -3511,9 +3539,35 @@ export async function updateGalleryItemStatus(
   if (!canUseDatabase()) {
     return { mode: "preview" as const, id, status };
   }
-  const item = await prisma.galleryItem.update({
+  const seed = seedGallery.find((item) => item.id === id);
+  const item = await prisma.galleryItem.upsert({
     where: { id },
-    data: { status },
+    update: { status },
+    create: seed
+      ? {
+          id: seed.id,
+          slug: seed.slug,
+          titleAr: seed.title,
+          titleEn: seed.titleEn || null,
+          categoryKey: seed.category,
+          descriptionAr: seed.description,
+          descriptionEn: seed.descriptionEn || null,
+          beforeImageUrl: seed.beforeImageUrl,
+          afterImageUrl: seed.afterImageUrl,
+          beforeImageAlt: seed.beforeImageAlt,
+          afterImageAlt: seed.afterImageAlt,
+          initialSplitPercent: seed.initialSplitPercent,
+          status,
+        }
+      : {
+          id,
+          slug: id,
+          titleAr: id,
+          categoryKey: "عام",
+          beforeImageUrl: "/media/brand/logo-light.png",
+          afterImageUrl: "/media/brand/logo-light.png",
+          status,
+        },
   });
   return { mode: "database" as const, item };
 }
@@ -4131,9 +4185,34 @@ export async function updateServiceStatus(id: string, status: ContentStatus) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, id, status };
   }
-  const item = await prisma.service.update({
+  const seed = seedServices.find((service) => service.id === id);
+  const item = await prisma.service.upsert({
     where: { id },
-    data: { status },
+    update: { status },
+    create: seed
+      ? {
+          id: seed.id,
+          slug: seed.slug,
+          nameAr: seed.name,
+          nameEn: seed.nameEn || null,
+          categoryKey: seed.category,
+          excerptAr: seed.excerpt,
+          excerptEn: seed.excerptEn || null,
+          descriptionAr: seed.description,
+          descriptionEn: seed.descriptionEn || null,
+          coverImageUrl: seed.coverImageUrl,
+          status,
+          isFeatured: seed.featured,
+        }
+      : {
+          id,
+          slug: id,
+          nameAr: id,
+          categoryKey: "عام",
+          excerptAr: "",
+          descriptionAr: "",
+          status,
+        },
   });
   return { mode: "database" as const, item };
 }
@@ -4192,7 +4271,32 @@ export async function updateDeviceStatus(id: string, status: ContentStatus) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, id, status };
   }
-  const item = await prisma.device.update({ where: { id }, data: { status } });
+  const seed = seedDevices.find((device) => device.id === id);
+  const item = await prisma.device.upsert({
+    where: { id },
+    update: { status },
+    create: seed
+      ? {
+          id: seed.id,
+          slug: seed.slug,
+          nameAr: seed.name,
+          nameEn: seed.nameEn || null,
+          excerptAr: seed.excerpt,
+          excerptEn: seed.excerptEn || null,
+          descriptionAr: seed.description,
+          descriptionEn: seed.descriptionEn || null,
+          gallery: [seed.imageUrl],
+          certifications: [...seed.certifications],
+          status,
+        }
+      : {
+          id,
+          slug: id,
+          nameAr: id,
+          descriptionAr: "",
+          status,
+        },
+  });
   return { mode: "database" as const, item };
 }
 
@@ -4210,7 +4314,43 @@ export async function updateDoctorStatus(id: string, status: ContentStatus) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, id, status };
   }
-  const item = await prisma.doctor.update({ where: { id }, data: { status } });
+  const seed = seedDoctors.find((doctor) => doctor.id === id);
+  const item = await prisma.doctor.upsert({
+    where: { id },
+    update: { status },
+    create: seed
+      ? {
+          id: seed.id,
+          slug: seed.slug,
+          nameAr: seed.name,
+          nameEn: seed.nameEn || null,
+          titleAr: seed.title,
+          titleEn: seed.titleEn || null,
+          specialtyAr: seed.specialty,
+          specialtyEn: seed.specialtyEn || null,
+          bioAr: seed.bio,
+          bioEn: seed.bioEn || null,
+          photoUrl: seed.photoUrl,
+          coverImageUrl: seed.coverImageUrl,
+          education: [...seed.education],
+          publications: [...seed.publications],
+          achievements: [...seed.achievements],
+          languages: [...seed.languages],
+          yearsExperience: seed.yearsExperience,
+          status,
+          isFeatured: seed.featured,
+        }
+      : {
+          id,
+          slug: id,
+          nameAr: id,
+          titleAr: "",
+          specialtyAr: "",
+          bioAr: "",
+          languages: [],
+          status,
+        },
+  });
   return { mode: "database" as const, item };
 }
 
