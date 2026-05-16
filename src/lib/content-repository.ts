@@ -79,6 +79,7 @@ export type GalleryRecord = {
    * the slider clamps the value into [5, 95] on mount.
    */
   initialSplitPercent: number;
+  status?: ContentStatus;
 };
 
 export type JournalPostRecord = {
@@ -95,6 +96,7 @@ export type JournalPostRecord = {
   readingTime: string;
   relatedServiceSlugs: readonly string[];
   relatedDoctorSlugs: readonly string[];
+  status?: ContentStatus;
 };
 
 export type CrmRecord = {
@@ -103,10 +105,62 @@ export type CrmRecord = {
   phone: string;
   email?: string | undefined;
   serviceLabel?: string | undefined;
+  serviceId?: string | undefined;
   status: SubmissionStatus;
   source: string;
   createdAt: string;
   notes?: string | undefined;
+  tags: readonly string[];
+  assignedToId?: string | undefined;
+  assignedToName?: string | undefined;
+  webhookId?: string | undefined;
+  webhookName?: string | undefined;
+  utmSource?: string | undefined;
+  utmMedium?: string | undefined;
+  utmCampaign?: string | undefined;
+  message?: string | undefined;
+  comments: ReadonlyArray<{
+    id: string;
+    body: string;
+    authorId?: string | undefined;
+    authorName?: string | undefined;
+    createdAt: string;
+  }>;
+};
+
+export type CustomPageRecord = {
+  id: string;
+  slug: string;
+  titleAr: string;
+  titleEn?: string | null;
+  htmlContent: string;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  status: ContentStatus;
+  noindex: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WebhookRecord = {
+  id: string;
+  name: string;
+  token: string;
+  isActive: boolean;
+  defaultStatus: SubmissionStatus;
+  defaultTags: readonly string[];
+  defaultSource?: string | null;
+  serviceId?: string | null;
+  serviceLabel?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  recentEvents: ReadonlyArray<{
+    id: string;
+    statusCode: number;
+    errorMessage?: string | null;
+    createdAt: string;
+  }>;
+  totalEvents: number;
 };
 
 export type SettingsGroup = {
@@ -400,6 +454,43 @@ export type UpdateCrmSubmissionInput = {
   id: string;
   status: SubmissionStatus;
   notes?: string | undefined;
+  fullName?: string | undefined;
+  phone?: string | undefined;
+  email?: string | null | undefined;
+  serviceSlug?: string | null | undefined;
+  tags?: readonly string[] | undefined;
+  assignedToId?: string | null | undefined;
+};
+
+export type CreateCustomPageInput = {
+  slug: string;
+  titleAr: string;
+  titleEn?: string | undefined;
+  htmlContent: string;
+  seoTitle?: string | undefined;
+  seoDescription?: string | undefined;
+  status?: ContentStatus | undefined;
+  noindex?: boolean | undefined;
+};
+
+export type UpdateCustomPageInput = CreateCustomPageInput & { id: string };
+
+export type CreateWebhookInput = {
+  name: string;
+  defaultStatus?: SubmissionStatus | undefined;
+  defaultTags?: readonly string[] | undefined;
+  defaultSource?: string | undefined;
+  serviceSlug?: string | undefined;
+};
+
+export type UpdateWebhookInput = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  defaultStatus: SubmissionStatus;
+  defaultTags: readonly string[];
+  defaultSource?: string | undefined;
+  serviceSlug?: string | undefined;
 };
 
 export type CreateAdminUserInput = {
@@ -1232,6 +1323,8 @@ const seedCrmRecords: CrmRecord[] = [
     source: "Home contact form",
     createdAt: "2026-05-10T10:30:00.000Z",
     notes: "تحتاج متابعة خلال 12 ساعة.",
+    tags: ["VIP", "Skin"],
+    comments: [],
   },
   {
     id: "crm-02",
@@ -1242,6 +1335,8 @@ const seedCrmRecords: CrmRecord[] = [
     source: "WhatsApp CTA",
     createdAt: "2026-05-09T13:15:00.000Z",
     notes: "تم الرد وإرسال مواعيد مبدئية.",
+    tags: ["Laser"],
+    comments: [],
   },
   {
     id: "crm-03",
@@ -1252,6 +1347,8 @@ const seedCrmRecords: CrmRecord[] = [
     source: "Doctor page",
     createdAt: "2026-05-08T08:45:00.000Z",
     notes: "تم تأكيد الموعد الأول.",
+    tags: ["Booked"],
+    comments: [],
   },
 ];
 
@@ -2119,6 +2216,7 @@ export async function getGalleryItems() {
       beforeImageAlt: item.beforeImageAlt ?? item.titleAr,
       afterImageAlt: item.afterImageAlt ?? item.titleAr,
       initialSplitPercent: item.initialSplitPercent,
+      status: item.status,
     }));
   } catch {
     return [...seedGallery];
@@ -2166,6 +2264,7 @@ export async function getJournalPosts() {
       readingTime: post.readingTimeLabel ?? "4 دقائق",
       relatedServiceSlugs: post.relatedServiceSlugs,
       relatedDoctorSlugs: post.relatedDoctorSlugs,
+      status: post.status,
     }));
   } catch {
     return [...seedJournalPosts].sort(
@@ -2181,14 +2280,26 @@ export async function getJournalPostBySlug(slug: string) {
   return posts.find((post) => post.slug === slug) ?? null;
 }
 
-export async function getCrmSubmissions() {
+export async function getCrmSubmissions(): Promise<CrmRecord[]> {
   if (!canUseDatabase()) {
-    return [...seedCrmRecords];
+    return seedCrmRecords.map((entry) => ({
+      ...entry,
+      tags: entry.tags ?? [],
+      comments: entry.comments ?? [],
+    }));
   }
 
   try {
     const submissions = await prisma.contactSubmission.findMany({
-      include: { service: { select: { nameAr: true } } },
+      include: {
+        service: { select: { nameAr: true, id: true } },
+        assignedTo: { select: { id: true, name: true } },
+        webhook: { select: { id: true, name: true } },
+        comments: {
+          include: { author: { select: { id: true, name: true } } },
+          orderBy: [{ createdAt: "desc" }],
+        },
+      },
       orderBy: [{ createdAt: "desc" }],
     });
 
@@ -2198,13 +2309,34 @@ export async function getCrmSubmissions() {
       phone: submission.phone,
       email: submission.email ?? undefined,
       serviceLabel: submission.service?.nameAr ?? undefined,
+      serviceId: submission.service?.id ?? undefined,
       status: submission.status,
       source: submission.source ?? "الموقع الإلكتروني",
       createdAt: submission.createdAt.toISOString(),
       notes: submission.internalNotes ?? undefined,
+      tags: submission.tags ?? [],
+      assignedToId: submission.assignedTo?.id,
+      assignedToName: submission.assignedTo?.name,
+      webhookId: submission.webhook?.id,
+      webhookName: submission.webhook?.name,
+      utmSource: submission.utmSource ?? undefined,
+      utmMedium: submission.utmMedium ?? undefined,
+      utmCampaign: submission.utmCampaign ?? undefined,
+      message: submission.message ?? undefined,
+      comments: submission.comments.map((c) => ({
+        id: c.id,
+        body: c.body,
+        authorId: c.author?.id,
+        authorName: c.author?.name ?? c.authorName ?? undefined,
+        createdAt: c.createdAt.toISOString(),
+      })),
     }));
   } catch {
-    return [...seedCrmRecords];
+    return seedCrmRecords.map((entry) => ({
+      ...entry,
+      tags: entry.tags ?? [],
+      comments: entry.comments ?? [],
+    }));
   }
 }
 
@@ -3155,6 +3287,7 @@ export type CreateGalleryItemInput = {
   afterImageAlt: string;
   /** 0–100, default 50. Backwards compatible. */
   initialSplitPercent?: number;
+  status?: ContentStatus | undefined;
 };
 
 export type UpdateGalleryItemInput = CreateGalleryItemInput & {
@@ -3178,7 +3311,7 @@ export async function createGalleryItem(input: CreateGalleryItemInput) {
       afterImageUrl: input.afterImageUrl,
       beforeImageAlt: input.beforeImageAlt,
       afterImageAlt: input.afterImageAlt,
-      status: ContentStatus.PUBLISHED,
+      status: input.status ?? ContentStatus.PUBLISHED,
       initialSplitPercent: input.initialSplitPercent ?? 50,
     },
   });
@@ -3205,9 +3338,24 @@ export async function updateGalleryItem(input: UpdateGalleryItemInput) {
       beforeImageAlt: input.beforeImageAlt,
       afterImageAlt: input.afterImageAlt,
       initialSplitPercent: input.initialSplitPercent ?? 50,
+      ...(input.status ? { status: input.status } : {}),
     },
   });
 
+  return { mode: "database" as const, item };
+}
+
+export async function updateGalleryItemStatus(
+  id: string,
+  status: ContentStatus,
+) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id, status };
+  }
+  const item = await prisma.galleryItem.update({
+    where: { id },
+    data: { status },
+  });
   return { mode: "database" as const, item };
 }
 
@@ -3220,7 +3368,13 @@ export async function deleteGalleryItem(id: string) {
   return { mode: "database" as const, item };
 }
 
-export async function createContactLead(input: CreateContactInput) {
+export async function createContactLead(
+  input: CreateContactInput & {
+    webhookId?: string | undefined;
+    tags?: readonly string[] | undefined;
+    status?: SubmissionStatus | undefined;
+  },
+) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, input };
   }
@@ -3238,7 +3392,9 @@ export async function createContactLead(input: CreateContactInput) {
       phone: input.phone,
       preferredLanguage: input.preferredLanguage ?? "ar",
       source: input.source ?? "Website form",
-      status: SubmissionStatus.NEW,
+      status: input.status ?? SubmissionStatus.NEW,
+      ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
+      ...(input.webhookId ? { webhookId: input.webhookId } : {}),
       ...(input.email
         ? {
             email: input.email,
@@ -3276,9 +3432,119 @@ export async function updateErrorLogResolution(
   return { mode: "database" as const, item: log };
 }
 
+export async function deleteErrorLog(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  await prisma.errorLog.delete({ where: { id } });
+  return { mode: "database" as const, id };
+}
+
+export async function clearErrorLogs(options: { onlyResolved?: boolean } = {}) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, deleted: 0 };
+  }
+  const where = options.onlyResolved ? { isResolved: true } : {};
+  const result = await prisma.errorLog.deleteMany({ where });
+  return { mode: "database" as const, deleted: result.count };
+}
+
+export async function deleteAppLog(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  try {
+    const client = prisma as unknown as {
+      appLog?: { delete: (args: { where: { id: string } }) => Promise<unknown> };
+    };
+    if (!client.appLog) return { mode: "noop" as const, id };
+    await client.appLog.delete({ where: { id } });
+    return { mode: "database" as const, id };
+  } catch {
+    return { mode: "noop" as const, id };
+  }
+}
+
+export async function clearAppLogs(options: { level?: string } = {}) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, deleted: 0 };
+  }
+  try {
+    const client = prisma as unknown as {
+      appLog?: {
+        deleteMany: (args: {
+          where: Record<string, unknown>;
+        }) => Promise<{ count: number }>;
+      };
+    };
+    if (!client.appLog) return { mode: "noop" as const, deleted: 0 };
+    const where: Record<string, unknown> = {};
+    if (options.level && options.level !== "all") where.level = options.level;
+    const result = await client.appLog.deleteMany({ where });
+    return { mode: "database" as const, deleted: result.count };
+  } catch {
+    return { mode: "noop" as const, deleted: 0 };
+  }
+}
+
+export type AuditLogRecord = {
+  id: string;
+  actorUserId: string;
+  actorName: string | null;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+};
+
+export async function getAuditLogs(
+  options: { limit?: number } = {},
+): Promise<AuditLogRecord[]> {
+  if (!canUseDatabase()) {
+    return [];
+  }
+  const limit = Math.min(Math.max(options.limit ?? 100, 1), 500);
+  try {
+    const rows = await prisma.auditLog.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      include: { actor: { select: { name: true, email: true } } },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      actorUserId: row.actorUserId,
+      actorName: row.actor?.name ?? row.actor?.email ?? null,
+      action: row.action,
+      entityType: row.entityType,
+      entityId: row.entityId ?? null,
+      metadata:
+        row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
+          ? (row.metadata as Record<string, unknown>)
+          : null,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, input };
+  }
+
+  let serviceUpdate: { serviceId: string | null } | undefined;
+  if (input.serviceSlug !== undefined) {
+    if (!input.serviceSlug) {
+      serviceUpdate = { serviceId: null };
+    } else {
+      const service = await prisma.service.findUnique({
+        where: { slug: input.serviceSlug },
+        select: { id: true },
+      });
+      serviceUpdate = { serviceId: service?.id ?? null };
+    }
   }
 
   const submission = await prisma.contactSubmission.update({
@@ -3286,10 +3552,296 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
     data: {
       status: input.status,
       internalNotes: input.notes ?? null,
+      ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
+      ...(input.phone !== undefined ? { phone: input.phone } : {}),
+      ...(input.email !== undefined ? { email: input.email || null } : {}),
+      ...(input.tags !== undefined ? { tags: [...input.tags] } : {}),
+      ...(input.assignedToId !== undefined
+        ? { assignedToId: input.assignedToId || null }
+        : {}),
+      ...(serviceUpdate ?? {}),
     },
   });
 
   return { mode: "database" as const, item: submission };
+}
+
+export async function deleteCrmSubmission(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  const item = await prisma.contactSubmission.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+export async function addCrmComment(input: {
+  submissionId: string;
+  body: string;
+  authorId?: string | undefined;
+  authorName?: string | undefined;
+}) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, input };
+  }
+  const item = await prisma.crmComment.create({
+    data: {
+      submissionId: input.submissionId,
+      body: input.body,
+      authorId: input.authorId ?? null,
+      authorName: input.authorName ?? null,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function deleteCrmComment(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+  const item = await prisma.crmComment.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+/* ── Custom Pages ────────────────────────────────────────── */
+
+export async function getCustomPages(): Promise<CustomPageRecord[]> {
+  if (!canUseDatabase()) return [];
+  try {
+    const items = await prisma.customPage.findMany({
+      orderBy: [{ updatedAt: "desc" }],
+    });
+    return items.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      titleAr: p.titleAr,
+      titleEn: p.titleEn,
+      htmlContent: p.htmlContent,
+      seoTitle: p.seoTitle,
+      seoDescription: p.seoDescription,
+      status: p.status,
+      noindex: p.noindex,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getCustomPageBySlug(
+  slug: string,
+): Promise<CustomPageRecord | null> {
+  if (!canUseDatabase()) return null;
+  try {
+    const p = await prisma.customPage.findUnique({ where: { slug } });
+    if (!p) return null;
+    return {
+      id: p.id,
+      slug: p.slug,
+      titleAr: p.titleAr,
+      titleEn: p.titleEn,
+      htmlContent: p.htmlContent,
+      seoTitle: p.seoTitle,
+      seoDescription: p.seoDescription,
+      status: p.status,
+      noindex: p.noindex,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function createCustomPage(input: CreateCustomPageInput) {
+  if (!canUseDatabase()) return { mode: "preview" as const, input };
+  const item = await prisma.customPage.create({
+    data: {
+      slug: input.slug,
+      titleAr: input.titleAr,
+      titleEn: input.titleEn || null,
+      htmlContent: input.htmlContent,
+      seoTitle: input.seoTitle || null,
+      seoDescription: input.seoDescription || null,
+      status: input.status ?? ContentStatus.DRAFT,
+      noindex: input.noindex ?? false,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function updateCustomPage(input: UpdateCustomPageInput) {
+  if (!canUseDatabase()) return { mode: "preview" as const, input };
+  const item = await prisma.customPage.update({
+    where: { id: input.id },
+    data: {
+      slug: input.slug,
+      titleAr: input.titleAr,
+      titleEn: input.titleEn || null,
+      htmlContent: input.htmlContent,
+      seoTitle: input.seoTitle || null,
+      seoDescription: input.seoDescription || null,
+      status: input.status ?? ContentStatus.DRAFT,
+      noindex: input.noindex ?? false,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function deleteCustomPage(id: string) {
+  if (!canUseDatabase()) return { mode: "preview" as const, id };
+  const item = await prisma.customPage.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+/* ── Webhooks ─────────────────────────────────────────────── */
+
+function generateWebhookToken(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID().replace(/-/g, "");
+  }
+  // Fallback: 32-char hex from random
+  let out = "";
+  while (out.length < 32) {
+    out += Math.floor(Math.random() * 0xffff)
+      .toString(16)
+      .padStart(4, "0");
+  }
+  return out.slice(0, 32);
+}
+
+export async function getWebhooks(): Promise<WebhookRecord[]> {
+  if (!canUseDatabase()) return [];
+  try {
+    const items = await prisma.webhook.findMany({
+      include: {
+        service: { select: { nameAr: true } },
+        events: {
+          orderBy: [{ createdAt: "desc" }],
+          take: 5,
+        },
+        _count: { select: { events: true } },
+      },
+      orderBy: [{ updatedAt: "desc" }],
+    });
+    return items.map((w) => ({
+      id: w.id,
+      name: w.name,
+      token: w.token,
+      isActive: w.isActive,
+      defaultStatus: w.defaultStatus,
+      defaultTags: w.defaultTags,
+      defaultSource: w.defaultSource,
+      serviceId: w.serviceId,
+      serviceLabel: w.service?.nameAr ?? null,
+      createdAt: w.createdAt.toISOString(),
+      updatedAt: w.updatedAt.toISOString(),
+      recentEvents: w.events.map((e) => ({
+        id: e.id,
+        statusCode: e.statusCode,
+        errorMessage: e.errorMessage,
+        createdAt: e.createdAt.toISOString(),
+      })),
+      totalEvents: w._count.events,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export async function getWebhookByToken(token: string) {
+  if (!canUseDatabase()) return null;
+  try {
+    return await prisma.webhook.findUnique({
+      where: { token },
+      include: { service: { select: { id: true, nameAr: true } } },
+    });
+  } catch {
+    return null;
+  }
+}
+
+export async function createWebhook(input: CreateWebhookInput) {
+  if (!canUseDatabase()) return { mode: "preview" as const, input };
+  const service = input.serviceSlug
+    ? await prisma.service.findUnique({
+        where: { slug: input.serviceSlug },
+        select: { id: true },
+      })
+    : null;
+  const item = await prisma.webhook.create({
+    data: {
+      name: input.name,
+      token: generateWebhookToken(),
+      defaultStatus: input.defaultStatus ?? SubmissionStatus.NEW,
+      defaultTags: input.defaultTags ? [...input.defaultTags] : [],
+      defaultSource: input.defaultSource || null,
+      serviceId: service?.id ?? null,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function updateWebhook(input: UpdateWebhookInput) {
+  if (!canUseDatabase()) return { mode: "preview" as const, input };
+  const service = input.serviceSlug
+    ? await prisma.service.findUnique({
+        where: { slug: input.serviceSlug },
+        select: { id: true },
+      })
+    : null;
+  const item = await prisma.webhook.update({
+    where: { id: input.id },
+    data: {
+      name: input.name,
+      isActive: input.isActive,
+      defaultStatus: input.defaultStatus,
+      defaultTags: [...input.defaultTags],
+      defaultSource: input.defaultSource || null,
+      serviceId: input.serviceSlug ? service?.id ?? null : null,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function deleteWebhook(id: string) {
+  if (!canUseDatabase()) return { mode: "preview" as const, id };
+  const item = await prisma.webhook.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
+export async function rotateWebhookToken(id: string) {
+  if (!canUseDatabase()) return { mode: "preview" as const, id };
+  const item = await prisma.webhook.update({
+    where: { id },
+    data: { token: generateWebhookToken() },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function recordWebhookEvent(input: {
+  webhookId: string;
+  payload: unknown;
+  statusCode: number;
+  errorMessage?: string | null;
+  ip?: string | null;
+  userAgent?: string | null;
+}) {
+  if (!canUseDatabase()) return null;
+  try {
+    return await prisma.webhookEvent.create({
+      data: {
+        webhookId: input.webhookId,
+        payload: input.payload as object,
+        statusCode: input.statusCode,
+        errorMessage: input.errorMessage ?? null,
+        ip: input.ip ?? null,
+        userAgent: input.userAgent ?? null,
+      },
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function getMediaSelections(): Promise<MediaSelections> {

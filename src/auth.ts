@@ -1,9 +1,12 @@
 import { UserRole } from "@prisma/client";
+import { headers } from "next/headers";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare, hash } from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
+import { recordAppLog } from "@/lib/app-log";
+import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 
 const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
 const validRoles = new Set(Object.values(UserRole));
@@ -136,6 +139,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!email || !password) {
           return null;
+        }
+
+        // Throttle: at most 8 attempts / 5 minutes per IP, and 8 per email.
+        try {
+          const headerStore = await headers();
+          const clientIp = extractClientIp(headerStore);
+          const ipLimit = rateLimit({
+            key: `login:ip:${clientIp}`,
+            limit: 8,
+            windowSeconds: 300,
+          });
+          const emailLimit = rateLimit({
+            key: `login:email:${email}`,
+            limit: 8,
+            windowSeconds: 300,
+          });
+          if (!ipLimit.ok || !emailLimit.ok) {
+            await recordAppLog({
+              level: "warn",
+              kind: "auth.rate-limit",
+              message: "Login rate limit hit",
+              meta: {
+                ip: clientIp,
+                email,
+                retryAfter: Math.max(ipLimit.retryAfter, emailLimit.retryAfter),
+              },
+            });
+            return null;
+          }
+        } catch {
+          // headers() can fail outside request scope; ignore.
         }
 
         try {

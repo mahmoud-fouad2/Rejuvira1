@@ -4,27 +4,66 @@ import { SubmissionStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { updateCrmSubmission } from "@/lib/content-repository";
+import { auth } from "@/auth";
+import {
+  addCrmComment,
+  deleteCrmComment,
+  deleteCrmSubmission,
+  updateCrmSubmission,
+} from "@/lib/content-repository";
 
 export type CrmActionState = {
   status: "idle" | "success" | "error";
   message: string;
 };
 
-const crmSchema = z.object({
+const tagsSchema = z
+  .union([z.string(), z.array(z.string())])
+  .optional()
+  .transform((val) => {
+    if (!val) return undefined;
+    if (Array.isArray(val)) {
+      return val.filter((v) => typeof v === "string" && v.trim().length > 0);
+    }
+    return val
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  });
+
+const updateSchema = z.object({
   id: z.string().min(3),
   status: z.nativeEnum(SubmissionStatus),
   notes: z.string().optional().or(z.literal("")),
+  fullName: z.string().min(2).max(160).optional(),
+  phone: z.string().min(4).max(40).optional(),
+  email: z.string().email().max(160).optional().or(z.literal("")),
+  serviceSlug: z.string().max(120).optional().or(z.literal("")),
+  assignedToId: z.string().optional().or(z.literal("")),
+  tags: tagsSchema,
 });
+
+function revalidate() {
+  revalidatePath("/admin/crm");
+  revalidatePath("/admin");
+}
 
 export async function updateCrmSubmissionAction(
   _previousState: CrmActionState,
   formData: FormData,
 ): Promise<CrmActionState> {
-  const parsed = crmSchema.safeParse({
+  const parsed = updateSchema.safeParse({
     id: formData.get("id"),
     status: formData.get("status"),
     notes: formData.get("notes"),
+    fullName: formData.get("fullName") || undefined,
+    phone: formData.get("phone") || undefined,
+    email: formData.get("email"),
+    serviceSlug: formData.get("serviceSlug"),
+    assignedToId: formData.get("assignedToId"),
+    tags: formData.getAll("tags").length
+      ? (formData.getAll("tags") as string[]).join(",")
+      : (formData.get("tagsCsv") as string | null) ?? undefined,
   });
 
   if (!parsed.success) {
@@ -37,20 +76,79 @@ export async function updateCrmSubmissionAction(
   const result = await updateCrmSubmission({
     id: parsed.data.id,
     status: parsed.data.status,
-    ...(parsed.data.notes
-      ? {
-          notes: parsed.data.notes,
-        }
+    ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
+    ...(parsed.data.fullName ? { fullName: parsed.data.fullName } : {}),
+    ...(parsed.data.phone ? { phone: parsed.data.phone } : {}),
+    ...(parsed.data.email !== undefined
+      ? { email: parsed.data.email || null }
       : {}),
+    ...(parsed.data.serviceSlug !== undefined
+      ? { serviceSlug: parsed.data.serviceSlug || null }
+      : {}),
+    ...(parsed.data.assignedToId !== undefined
+      ? { assignedToId: parsed.data.assignedToId || null }
+      : {}),
+    ...(parsed.data.tags !== undefined ? { tags: parsed.data.tags } : {}),
   });
 
-  revalidatePath("/admin/crm");
+  revalidate();
 
   return {
     status: "success",
     message:
       result.mode === "database"
         ? "تم تحديث الطلب بنجاح."
-        : "تم اعتماد التحديث داخل بيئة العمل الحالية بنجاح.",
+        : "تم اعتماد التحديث في بيئة العمل الحالية.",
   };
+}
+
+const commentSchema = z.object({
+  submissionId: z.string().min(3),
+  body: z.string().min(2).max(2000),
+});
+
+export async function addCrmCommentAction(
+  _previousState: CrmActionState,
+  formData: FormData,
+): Promise<CrmActionState> {
+  const parsed = commentSchema.safeParse({
+    submissionId: formData.get("submissionId"),
+    body: formData.get("body"),
+  });
+  if (!parsed.success) {
+    return { status: "error", message: "النص قصير جدًا." };
+  }
+  const session = await auth();
+  await addCrmComment({
+    submissionId: parsed.data.submissionId,
+    body: parsed.data.body,
+    ...(session?.user?.id ? { authorId: session.user.id } : {}),
+    ...(session?.user?.name ? { authorName: session.user.name } : {}),
+  });
+  revalidate();
+  return { status: "success", message: "تم إضافة الملاحظة." };
+}
+
+export async function deleteCrmCommentAction(formData: FormData) {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  await deleteCrmComment(id);
+  revalidate();
+}
+
+export async function deleteCrmSubmissionAction(formData: FormData) {
+  const id = formData.get("id");
+  if (typeof id !== "string" || !id) return;
+  await deleteCrmSubmission(id);
+  revalidate();
+}
+
+export async function setCrmStatusAction(formData: FormData) {
+  const id = formData.get("id");
+  const status = formData.get("status");
+  if (typeof id !== "string" || !id) return;
+  const parsed = z.nativeEnum(SubmissionStatus).safeParse(status);
+  if (!parsed.success) return;
+  await updateCrmSubmission({ id, status: parsed.data });
+  revalidate();
 }

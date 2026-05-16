@@ -33,7 +33,7 @@ export default async function HomePage() {
   return (
     <div className="relative min-h-screen min-w-0 max-w-full overflow-x-clip bg-background text-foreground">
       <CinematicIntro
-        logoSrc="/media/brand/logo-light.png"
+        logoSrc="/media/brand/logo-dark.png"
         logoAlt={settings.brand.logoAlt}
       />
       <SiteHeader />

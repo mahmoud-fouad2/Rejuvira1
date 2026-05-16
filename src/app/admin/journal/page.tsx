@@ -11,6 +11,7 @@ import { getJournalPosts } from "@/lib/content-repository";
 const publishableStatuses = [
   ContentStatus.DRAFT,
   ContentStatus.REVIEW,
+  ContentStatus.APPROVED,
   ContentStatus.PUBLISHED,
   ContentStatus.ARCHIVED,
 ] as const;
@@ -32,6 +33,7 @@ const statusLabelsEn: Record<ContentStatus, string> = {
 
 function statusClass(status: ContentStatus) {
   if (status === ContentStatus.PUBLISHED) return "is-published";
+  if (status === ContentStatus.APPROVED) return "is-published";
   if (status === ContentStatus.REVIEW) return "is-review";
   if (status === ContentStatus.ARCHIVED) return "is-archived";
   return "is-draft";
@@ -39,6 +41,9 @@ function statusClass(status: ContentStatus) {
 
 export default async function AdminJournalPage() {
   const posts = await getJournalPosts();
+  const publishedCount = posts.filter(
+    (post) => post.status === ContentStatus.PUBLISHED,
+  ).length;
 
   return (
     <>
@@ -49,8 +54,12 @@ export default async function AdminJournalPage() {
             <span className="lang-en">Journal</span>
           </h1>
           <p>
-            <span className="lang-ar">{posts.length} مقال</span>
-            <span className="lang-en">{posts.length} articles</span>
+            <span className="lang-ar">
+              {posts.length} مقال · {publishedCount} منشور
+            </span>
+            <span className="lang-en">
+              {posts.length} articles · {publishedCount} published
+            </span>
           </p>
         </div>
       </div>
@@ -82,45 +91,66 @@ export default async function AdminJournalPage() {
             </div>
           </div>
           <div className="admin-data-list">
-            {posts.map((post) => (
-              <div key={post.id} className="admin-data-row !block">
-                <div className="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3">
-                  <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
-                    <Image src={post.coverImageUrl} alt={post.title} fill className="object-cover" sizes="56px" />
+            {posts.map((post) => {
+              const currentStatus = post.status ?? ContentStatus.PUBLISHED;
+              return (
+                <div key={post.id} className="admin-data-row !block">
+                  <div className="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3">
+                    <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
+                      <Image src={post.coverImageUrl} alt={post.title} fill className="object-cover" sizes="56px" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="admin-data-row__title truncate">{post.title}</p>
+                      <p className="admin-data-row__meta truncate">
+                        {post.category} · {post.readingTime}
+                      </p>
+                    </div>
+                    <span className={`admin-status-badge ${statusClass(currentStatus)}`}>
+                      <span className="lang-ar">{statusLabelsAr[currentStatus]}</span>
+                      <span className="lang-en">{statusLabelsEn[currentStatus]}</span>
+                    </span>
                   </div>
-                  <div className="min-w-0">
-                    <p className="admin-data-row__title truncate">{post.title}</p>
-                    <p className="admin-data-row__meta truncate">
-                      {post.category} · {post.readingTime}
-                    </p>
-                  </div>
-                  <span className={`admin-status-badge ${statusClass(ContentStatus.PUBLISHED)}`}>
-                    <span className="lang-ar">{statusLabelsAr.PUBLISHED}</span>
-                    <span className="lang-en">{statusLabelsEn.PUBLISHED}</span>
-                  </span>
-                </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {publishableStatuses.map((status) => (
-                    <form key={`${post.slug}-${status}`} action={updateJournalPostStatusAction}>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {publishableStatuses.map((status) => {
+                      const isCurrent = currentStatus === status;
+                      return (
+                        <form
+                          key={`${post.slug}-${status}`}
+                          action={updateJournalPostStatusAction}
+                        >
+                          <input type="hidden" name="slug" value={post.slug} />
+                          <input type="hidden" name="status" value={status} />
+                          <button
+                            type="submit"
+                            className="admin-btn-secondary"
+                            disabled={isCurrent}
+                            style={
+                              isCurrent
+                                ? {
+                                    borderColor: "var(--admin-accent)",
+                                    color: "var(--admin-accent)",
+                                  }
+                                : undefined
+                            }
+                          >
+                            <span className="lang-ar">{statusLabelsAr[status]}</span>
+                            <span className="lang-en">{statusLabelsEn[status]}</span>
+                          </button>
+                        </form>
+                      );
+                    })}
+                    <form action={deleteJournalPostAction}>
                       <input type="hidden" name="slug" value={post.slug} />
-                      <input type="hidden" name="status" value={status} />
-                      <button type="submit" className="admin-btn-secondary">
-                        <span className="lang-ar">{statusLabelsAr[status]}</span>
-                        <span className="lang-en">{statusLabelsEn[status]}</span>
+                      <button type="submit" className="admin-btn-danger">
+                        <span className="lang-ar">حذف</span>
+                        <span className="lang-en">Delete</span>
                       </button>
                     </form>
-                  ))}
-                  <form action={deleteJournalPostAction}>
-                    <input type="hidden" name="slug" value={post.slug} />
-                    <button type="submit" className="admin-btn-danger">
-                      <span className="lang-ar">حذف</span>
-                      <span className="lang-en">Delete</span>
-                    </button>
-                  </form>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </article>
       </div>

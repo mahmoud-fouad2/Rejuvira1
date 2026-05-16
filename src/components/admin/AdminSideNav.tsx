@@ -84,6 +84,23 @@ function iconFor(href: string) {
           <path d="m17 8-5-5-5 5M12 3v12" />
         </svg>
       );
+    case "/admin/pages":
+      return (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
+          <path d="M14 2v6h6" />
+          <path d="M8 13h8M8 17h6" />
+        </svg>
+      );
+    case "/admin/webhooks":
+      return (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+          <path d="M14.5 17.5a3.5 3.5 0 1 1-7 0c0-2 1.5-2.7 1.5-4.5" />
+          <path d="M9.5 6.5a3.5 3.5 0 1 1 7 0c0 2-1.5 2.7-1.5 4.5" />
+          <path d="M19 13a3 3 0 1 1-3-3" />
+          <path d="m12 13 4-2" />
+        </svg>
+      );
     case "/admin/users":
       return (
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>

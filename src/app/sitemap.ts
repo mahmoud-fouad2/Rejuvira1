@@ -1,6 +1,8 @@
 ﻿import type { MetadataRoute } from "next";
+import { ContentStatus } from "@prisma/client";
 
 import {
+  getCustomPages,
   getDevices,
   getDoctors,
   getGalleryItems,
@@ -11,15 +13,20 @@ import { getSiteUrl } from "@/lib/seo";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
+export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl();
-  const [doctors, services, journalPosts, devices, gallery] = await Promise.all([
-    getDoctors(),
-    getServices(),
-    getJournalPosts(),
-    getDevices(),
-    getGalleryItems(),
-  ]);
+  const [doctors, services, journalPosts, devices, gallery, customPages] =
+    await Promise.all([
+      getDoctors(),
+      getServices(),
+      getJournalPosts(),
+      getDevices(),
+      getGalleryItems(),
+      getCustomPages(),
+    ]);
 
   const staticPaths = [
     { path: "", priority: 1, changeFrequency: "weekly" as const },
@@ -60,6 +67,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
       changeFrequency: "monthly" as const,
     })),
+    ...customPages
+      .filter((page) => page.status === ContentStatus.PUBLISHED && !page.noindex)
+      .map((page) => ({
+        path: `/p/${page.slug}`,
+        priority: 0.5,
+        changeFrequency: "monthly" as const,
+      })),
   ];
 
   return [...staticPaths, ...dynamicPaths].map<SitemapEntry>((entry) => {

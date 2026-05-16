@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
 import { createContactLead, getRuntimeSettings } from "@/lib/content-repository";
+import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
 
 export type ContactActionState = {
@@ -86,19 +87,37 @@ export async function submitContactAction(
     };
   }
 
+  const headerStore = await headers();
+  const clientIp = extractClientIp(headerStore);
+  const limit = rateLimit({
+    key: `contact:${clientIp}`,
+    limit: 5,
+    windowSeconds: 60 * 10,
+  });
+  if (!limit.ok) {
+    await recordAppLog({
+      level: "warn",
+      kind: "rate-limit",
+      message: "Contact form rate limit hit",
+      meta: { ip: clientIp, retryAfter: limit.retryAfter },
+    });
+    return {
+      status: "error",
+      message:
+        "تم تجاوز عدد المحاولات المسموح بها. الرجاء المحاولة بعد دقائق. / Too many attempts. Please try again in a few minutes.",
+    };
+  }
+
   const settings = await getRuntimeSettings();
   const requireRecaptcha =
     settings.ops.recaptchaEnabled !== false &&
     Boolean(process.env.RECAPTCHA_SECRET_KEY);
 
   if (requireRecaptcha) {
-    const headerStore = await headers();
-    const forwardedFor = headerStore.get("x-forwarded-for") ?? "";
-    const remoteIp = forwardedFor.split(",")[0]?.trim() || undefined;
     const verification = await verifyRecaptchaToken(
       parsed.data.recaptchaToken,
       "contact",
-      { remoteIp },
+      clientIp !== "unknown" ? { remoteIp: clientIp } : {},
     );
     if (!verification.success || verification.score < 0.4) {
       await recordAppLog({

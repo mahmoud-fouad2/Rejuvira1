@@ -13,6 +13,7 @@ import {
   getServices,
   getAdminUsers,
 } from "@/lib/content-repository";
+import { BarChart, ChartCard, LineChart } from "@/components/admin/AdminCharts";
 
 const pipelineOrder: SubmissionStatus[] = [
   SubmissionStatus.NEW,
@@ -207,7 +208,7 @@ export default async function AdminPage() {
               <span className="lang-en">Open</span>
             </Link>
           </div>
-          <div className="admin-card__body">
+          <div className="admin-card__body grid gap-4">
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
               {pipelineCounts.map(({ status, count }) => (
                 <div
@@ -229,6 +230,18 @@ export default async function AdminPage() {
                 </div>
               ))}
             </div>
+            <div style={{ height: 96 }}>
+              <LineChart
+                isoDates={submissions.map((s) => s.createdAt)}
+                windowDays={14}
+                height={96}
+                ariaLabel="Daily lead volume"
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              <span className="lang-ar">حركة الطلبات خلال آخر 14 يوم</span>
+              <span className="lang-en">Lead volume over the last 14 days</span>
+            </p>
           </div>
         </article>
 
@@ -255,19 +268,77 @@ export default async function AdminPage() {
                 </span>
               </div>
             ) : (
-              recentLeads.map((lead) => (
-                <div key={lead.id} className="admin-data-row">
-                  <div className="min-w-0">
-                    <p className="admin-data-row__title truncate">{lead.fullName}</p>
-                    <p className="admin-data-row__meta truncate" dir="ltr">{lead.phone}</p>
+              recentLeads.map((lead) => {
+                const cls =
+                  lead.status === SubmissionStatus.BOOKED
+                    ? "is-published"
+                    : lead.status === SubmissionStatus.CLOSED
+                      ? "is-archived"
+                      : lead.status === SubmissionStatus.NEW
+                        ? "is-draft"
+                        : "is-review";
+                return (
+                  <div key={lead.id} className="admin-data-row">
+                    <div className="min-w-0">
+                      <p className="admin-data-row__title truncate">{lead.fullName}</p>
+                      <p className="admin-data-row__meta truncate" dir="ltr">{lead.phone}</p>
+                    </div>
+                    <span className={`admin-status-badge ${cls}`}>
+                      <span className="lang-ar">{pipelineLabelsAr[lead.status]}</span>
+                      <span className="lang-en">{pipelineLabelsEn[lead.status]}</span>
+                    </span>
                   </div>
-                  <span className="admin-status-badge is-review">
-                    <span className="lang-ar">{pipelineLabelsAr[lead.status]}</span>
-                    <span className="lang-en">{pipelineLabelsEn[lead.status]}</span>
-                  </span>
-                </div>
-              ))
+                );
+              })
             )}
+          </div>
+        </article>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-3">
+        <ChartCard title="آخر 14 يوم — Page views" subtitle="Analytics">
+          <div style={{ height: 110 }}>
+            <LineChart
+              isoDates={analytics.items.map((item) => item.createdAt)}
+              windowDays={14}
+              height={110}
+              ariaLabel="Daily page views"
+            />
+          </div>
+        </ChartCard>
+        <ChartCard
+          title="توزيع الطلبات حسب المرحلة"
+          subtitle="Pipeline"
+        >
+          <BarChart
+            data={pipelineCounts.map(({ status, count }) => ({
+              label: pipelineLabelsEn[status],
+              value: count,
+            }))}
+            height={120}
+            ariaLabel="Pipeline distribution"
+          />
+        </ChartCard>
+        <article className="admin-card">
+          <div className="admin-card__header">
+            <div>
+              <div className="admin-card__subtitle">Sources</div>
+              <div className="admin-card__title">
+                <span className="lang-ar">مصادر الزيارات</span>
+                <span className="lang-en">Traffic sources</span>
+              </div>
+            </div>
+          </div>
+          <div className="admin-data-list">
+            {(topReferrers.length > 0
+              ? topReferrers
+              : ([["Direct", 0]] as Array<[string, number]>)
+            ).map(([source, count]) => (
+              <div key={source} className="admin-data-row">
+                <span className="admin-data-row__title truncate" dir="ltr">{source}</span>
+                <span className="admin-data-row__value">{count}</span>
+              </div>
+            ))}
           </div>
         </article>
       </section>
@@ -300,28 +371,37 @@ export default async function AdminPage() {
           </div>
         </article>
 
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">Sources</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">مصادر الزيارات</span>
-                <span className="lang-en">Traffic sources</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-data-list">
-            {(topReferrers.length > 0
-              ? topReferrers
-              : ([["Direct", 0]] as Array<[string, number]>)
-            ).map(([source, count]) => (
-              <div key={source} className="admin-data-row">
-                <span className="admin-data-row__title truncate" dir="ltr">{source}</span>
-                <span className="admin-data-row__value">{count}</span>
-              </div>
-            ))}
-          </div>
-        </article>
+        <ChartCard
+          title="حالة المحتوى"
+          subtitle="Content"
+        >
+          <BarChart
+            data={[
+              {
+                label: "Doctors PUB",
+                value: doctors.filter((d) => d.status === ContentStatus.PUBLISHED).length,
+              },
+              {
+                label: "Services PUB",
+                value: services.filter((s) => s.status === ContentStatus.PUBLISHED).length,
+              },
+              {
+                label: "Devices PUB",
+                value: devices.filter((d) => d.status === ContentStatus.PUBLISHED).length,
+              },
+              {
+                label: "Journal",
+                value: journal.length,
+              },
+              {
+                label: "Gallery",
+                value: gallery.length,
+              },
+            ]}
+            height={120}
+            ariaLabel="Published content"
+          />
+        </ChartCard>
       </section>
 
       <section className="admin-grid-3">

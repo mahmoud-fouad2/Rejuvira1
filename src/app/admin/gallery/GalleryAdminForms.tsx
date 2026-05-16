@@ -99,6 +99,25 @@ export function GalleryItemForm({
             style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
           />
         </label>
+
+        {/* Status */}
+        <label className="flex flex-col gap-1.5">
+          <span className="text-ink-soft text-xs font-medium">
+            <span className="lang-ar">الحالة *</span>
+            <span className="lang-en">Status *</span>
+          </span>
+          <select
+            name="status"
+            defaultValue={item?.status ?? "PUBLISHED"}
+            className="admin-input"
+          >
+            <option value="DRAFT">DRAFT — مسودة</option>
+            <option value="REVIEW">REVIEW — مراجعة</option>
+            <option value="APPROVED">APPROVED — معتمد</option>
+            <option value="PUBLISHED">PUBLISHED — منشور</option>
+            <option value="ARCHIVED">ARCHIVED — مؤرشف</option>
+          </select>
+        </label>
       </div>
 
       {/* Images section */}

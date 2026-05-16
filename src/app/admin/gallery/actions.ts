@@ -1,11 +1,13 @@
 "use server";
 
+import { ContentStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
   createGalleryItem,
   updateGalleryItem,
+  updateGalleryItemStatus,
   deleteGalleryItem,
 } from "@/lib/content-repository";
 
@@ -20,6 +22,7 @@ const galleryItemSchema = z.object({
   afterImageUrl: z.string().min(5, "مسار صورة بعد مطلوب"),
   beforeImageAlt: z.string().min(3, "النص البديل لصورة قبل مطلوب"),
   afterImageAlt: z.string().min(3, "النص البديل لصورة بعد مطلوب"),
+  status: z.nativeEnum(ContentStatus).optional(),
   initialSplitPercent: z
     .preprocess(
       (value) => {
@@ -64,6 +67,18 @@ export async function saveGalleryItemAction(
     const msg = err instanceof Error ? err.message : "حدث خطأ غير متوقع.";
     return { success: false, message: msg };
   }
+}
+
+/* ── Set status only ─────────────────────────────────────── */
+export async function setGalleryItemStatusAction(formData: FormData) {
+  const id = formData.get("id");
+  const status = formData.get("status");
+  if (typeof id !== "string" || !id) return;
+  const parsed = z.nativeEnum(ContentStatus).safeParse(status);
+  if (!parsed.success) return;
+  await updateGalleryItemStatus(id, parsed.data);
+  revalidatePath("/gallery");
+  revalidatePath("/admin/gallery");
 }
 
 /* ── Delete ──────────────────────────────────────────────── */

@@ -439,11 +439,27 @@ export const adminNavigation = [
     group: "content" as AdminNavGroupKey,
   },
   {
+    label: "صفحات مخصصة",
+    labelEn: "Custom Pages",
+    href: "/admin/pages",
+    description: "صفحات خارجية بـ HTML",
+    descriptionEn: "Standalone HTML pages",
+    group: "content" as AdminNavGroupKey,
+  },
+  {
     label: "الطلبات",
     labelEn: "CRM",
     href: "/admin/crm",
     description: "طلبات التواصل والمتابعة",
     descriptionEn: "Leads and follow-up",
+    group: "ops" as AdminNavGroupKey,
+  },
+  {
+    label: "ويب هوكس",
+    labelEn: "Webhooks",
+    href: "/admin/webhooks",
+    description: "استقبال leads من فورمات خارجية",
+    descriptionEn: "Receive leads from external forms",
     group: "ops" as AdminNavGroupKey,
   },
   {
