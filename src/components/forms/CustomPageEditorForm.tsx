@@ -1,5 +1,6 @@
 "use client";
 
+import { ContentStatus } from "@prisma/client";
 import { useActionState } from "react";
 
 import {
@@ -7,7 +8,7 @@ import {
   updateCustomPageAction,
   type CustomPageActionState,
 } from "@/app/admin/pages/actions";
-import { ContentStatus } from "@prisma/client";
+import { CustomPageBuilder } from "@/components/forms/CustomPageBuilder";
 
 const initialState: CustomPageActionState = { status: "idle", message: "" };
 
@@ -49,12 +50,10 @@ export function CustomPageEditorForm({
       {mode === "edit" && initial ? (
         <input type="hidden" name="id" value={initial.id} />
       ) : null}
+
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">المسار (Slug)</span>
-            <span className="lang-en">Slug</span>
-          </span>
+          <span className="admin-field-label">المسار (Slug)</span>
           <input
             name="slug"
             required
@@ -65,15 +64,11 @@ export function CustomPageEditorForm({
             title="slug must be lowercase letters/numbers/hyphens"
           />
           <span className="text-[11px] text-muted-foreground">
-            <span className="lang-ar">سيظهر على /p/&lt;slug&gt;</span>
-            <span className="lang-en">Will appear at /p/&lt;slug&gt;</span>
+            سيظهر على /p/&lt;slug&gt;
           </span>
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الحالة</span>
-            <span className="lang-en">Status</span>
-          </span>
+          <span className="admin-field-label">الحالة</span>
           <select
             name="status"
             defaultValue={initial?.status ?? ContentStatus.DRAFT}
@@ -90,10 +85,7 @@ export function CustomPageEditorForm({
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">العنوان (عربي)</span>
-            <span className="lang-en">Title (Arabic)</span>
-          </span>
+          <span className="admin-field-label">العنوان (عربي)</span>
           <input
             name="titleAr"
             required
@@ -102,10 +94,7 @@ export function CustomPageEditorForm({
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">العنوان (إنجليزي)</span>
-            <span className="lang-en">Title (English)</span>
-          </span>
+          <span className="admin-field-label">العنوان (إنجليزي)</span>
           <input
             name="titleEn"
             defaultValue={initial?.titleEn ?? ""}
@@ -116,10 +105,7 @@ export function CustomPageEditorForm({
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">SEO Title</span>
-            <span className="lang-en">SEO Title</span>
-          </span>
+          <span className="admin-field-label">SEO Title</span>
           <input
             name="seoTitle"
             defaultValue={initial?.seoTitle ?? ""}
@@ -127,10 +113,7 @@ export function CustomPageEditorForm({
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">SEO Description</span>
-            <span className="lang-en">SEO Description</span>
-          </span>
+          <span className="admin-field-label">SEO Description</span>
           <input
             name="seoDescription"
             defaultValue={initial?.seoDescription ?? ""}
@@ -139,28 +122,16 @@ export function CustomPageEditorForm({
         </label>
       </div>
 
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">محتوى HTML</span>
-          <span className="lang-en">HTML content</span>
-        </span>
-        <textarea
+      <section className="grid gap-1">
+        <span className="admin-field-label">منشئ الصفحة</span>
+        <CustomPageBuilder
           name="htmlContent"
-          required
           defaultValue={initial?.htmlContent ?? ""}
-          rows={14}
-          className="admin-input font-mono text-[12.5px] leading-relaxed"
-          placeholder="<section><h1>Hello</h1><p>...</p></section>"
         />
         <span className="text-[11px] text-muted-foreground">
-          <span className="lang-ar">
-            يُسمح بوسوم HTML الآمنة فقط — يتم تنقية المحتوى قبل العرض.
-          </span>
-          <span className="lang-en">
-            Only safe HTML is allowed; content is sanitized before render.
-          </span>
+          يتم حفظ الصفحة كـ HTML آمن بعد ترتيب البلوكات وتعديل خصائصها.
         </span>
-      </label>
+      </section>
 
       <label className="flex items-center gap-2 text-sm">
         <input
@@ -170,24 +141,18 @@ export function CustomPageEditorForm({
           defaultChecked={initial?.noindex ?? false}
           className="h-4 w-4"
         />
-        <span>
-          <span className="lang-ar">منع الفهرسة (noindex)</span>
-          <span className="lang-en">No-index</span>
-        </span>
+        <span>منع الفهرسة (noindex)</span>
       </label>
 
       <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
         <button type="submit" className="admin-btn-primary" disabled={pending}>
-          <span className="lang-ar">
-            {mode === "create" ? "إنشاء صفحة" : "حفظ التغييرات"}
-          </span>
-          <span className="lang-en">
-            {mode === "create" ? "Create page" : "Save changes"}
-          </span>
+          {mode === "create" ? "إنشاء صفحة" : "حفظ التغييرات"}
         </button>
         {state.message ? (
           <span
-            className={`text-sm ${state.status === "error" ? "text-red-500" : "text-emerald-500"}`}
+            className={`text-sm ${
+              state.status === "error" ? "text-red-500" : "text-emerald-500"
+            }`}
           >
             {state.message}
           </span>

@@ -46,6 +46,7 @@ const STORAGE_NAMESPACES = [
   "brand",
   "trust",
   "payments",
+  "pages",
   "media/uploads",
   "backups",
 ] as const;

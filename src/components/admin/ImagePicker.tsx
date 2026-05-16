@@ -13,6 +13,7 @@ type Namespace =
   | "brand"
   | "trust"
   | "payments"
+  | "pages"
   | "media/uploads";
 
 type ImagePickerProps = {
@@ -30,6 +31,7 @@ type ImagePickerProps = {
   enableAspectChoice?: boolean;
   /** Show free-form aspect option. Default true. */
   allowFreeAspect?: boolean;
+  onChange?: (value: string) => void;
 };
 
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
@@ -120,6 +122,7 @@ export function ImagePicker({
   aspect: aspectProp = 1,
   enableAspectChoice = true,
   allowFreeAspect = true,
+  onChange,
 }: ImagePickerProps) {
   const inputId = useId();
   const [value, setValue] = useState(defaultValue);
@@ -132,6 +135,14 @@ export function ImagePicker({
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const updateValue = useCallback(
+    (next: string) => {
+      setValue(next);
+      onChange?.(next);
+    },
+    [onChange],
+  );
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const sourceObjectUrlRef = useRef<string | null>(null);
 
@@ -208,7 +219,7 @@ export function ImagePicker({
         ? await renderCroppedBlob(editorSource, area, rotation)
         : await fetch(editorSource).then((r) => r.blob());
       const url = await uploadBlob(blob, `image-${Date.now()}.webp`);
-      setValue(url);
+      updateValue(url);
       setEditorOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -309,7 +320,7 @@ export function ImagePicker({
             <button
               type="button"
               className="admin-btn-danger"
-              onClick={() => setValue("")}
+              onClick={() => updateValue("")}
               disabled={busy}
             >
               <span className="lang-ar">إزالة</span>
@@ -322,7 +333,7 @@ export function ImagePicker({
       <input
         type="text"
         value={value}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(event) => updateValue(event.target.value)}
         dir="ltr"
         placeholder="https://... or /media/..."
         className="admin-input mt-2 text-[11px]"

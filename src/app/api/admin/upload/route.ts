@@ -22,6 +22,7 @@ const ALLOWED_NAMESPACES: readonly StorageNamespace[] = [
   "brand",
   "trust",
   "payments",
+  "pages",
   "media/uploads",
 ];
 
