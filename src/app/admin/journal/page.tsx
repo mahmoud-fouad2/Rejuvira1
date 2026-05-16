@@ -6,6 +6,7 @@ import {
   updateJournalPostStatusAction,
 } from "@/app/admin/journal/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { JournalCreateForm } from "@/components/forms/JournalCreateForm";
 import { JournalEditorForm } from "@/components/forms/JournalEditorForm";
 import {
@@ -57,6 +58,33 @@ export default async function AdminJournalPage() {
   const publishedCount = posts.filter(
     (post) => post.status === ContentStatus.PUBLISHED,
   ).length;
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: posts.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: posts.filter((post) => post.status === ContentStatus.PUBLISHED).length,
+    },
+    {
+      value: ContentStatus.APPROVED,
+      labelAr: "معتمد",
+      labelEn: "Approved",
+      count: posts.filter((post) => post.status === ContentStatus.APPROVED).length,
+    },
+    {
+      value: ContentStatus.REVIEW,
+      labelAr: "مراجعة",
+      labelEn: "Review",
+      count: posts.filter((post) => post.status === ContentStatus.REVIEW).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: posts.filter((post) => post.status === ContentStatus.DRAFT).length,
+    },
+  ];
   const serviceOptions = services.map((service) => ({
     value: service.slug,
     label: service.name,
@@ -108,7 +136,8 @@ export default async function AdminJournalPage() {
         </div>
       </div>
 
-      <section className="admin-editor-grid">
+      <AdminListControls targetId="admin-journal-list" tabs={tabs} />
+      <section className="admin-editor-grid" data-admin-list="admin-journal-list">
         {posts.map((post) => {
           const currentStatus = post.status ?? ContentStatus.PUBLISHED;
           const relatedServiceNames = services
@@ -116,7 +145,22 @@ export default async function AdminJournalPage() {
             .map((service) => service.name);
 
           return (
-            <details key={post.id} className="admin-editor-card">
+            <details
+              key={post.id}
+              className="admin-editor-card"
+              data-admin-row
+              data-admin-status={currentStatus}
+              data-admin-search={[
+                post.title,
+                post.slug,
+                post.category,
+                post.excerpt,
+                post.relatedServiceSlugs.join(" "),
+                relatedServiceNames.join(" "),
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
               <summary className="admin-editor-card__summary">
                 <span className="admin-editor-card__media">
                   <Image

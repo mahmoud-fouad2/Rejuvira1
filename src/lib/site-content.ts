@@ -393,7 +393,7 @@ export const adminNavigation = [
     group: "overview" as AdminNavGroupKey,
   },
   {
-    label: "الخدمات",
+    label: "مركز المحتوى",
     labelEn: "Content Hub",
     href: "/admin/content",
     description: "ربط الأقسام والخدمات والأطباء والأجهزة",
@@ -401,7 +401,7 @@ export const adminNavigation = [
     group: "content" as AdminNavGroupKey,
   },
   {
-    label: "مركز المحتوى",
+    label: "الخدمات",
     labelEn: "Services",
     href: "/admin/services",
     description: "إدارة مكتبة الخدمات",

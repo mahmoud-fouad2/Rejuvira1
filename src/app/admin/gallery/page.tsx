@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { setGalleryItemStatusAction } from "@/app/admin/gallery/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { getGalleryItems } from "@/lib/content-repository";
 import { DeleteGalleryItemButton, GalleryItemForm } from "./GalleryAdminForms";
 
@@ -43,6 +44,33 @@ export default async function AdminGalleryPage() {
   const publishedCount = items.filter(
     (item) => item.status === ContentStatus.PUBLISHED,
   ).length;
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: items.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: publishedCount,
+    },
+    {
+      value: ContentStatus.APPROVED,
+      labelAr: "معتمد",
+      labelEn: "Approved",
+      count: items.filter((item) => item.status === ContentStatus.APPROVED).length,
+    },
+    {
+      value: ContentStatus.REVIEW,
+      labelAr: "مراجعة",
+      labelEn: "Review",
+      count: items.filter((item) => item.status === ContentStatus.REVIEW).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: items.filter((item) => item.status === ContentStatus.DRAFT).length,
+    },
+  ];
 
   return (
     <>
@@ -81,11 +109,31 @@ export default async function AdminGalleryPage() {
           </div>
         </article>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => {
-            const currentStatus = item.status ?? ContentStatus.PUBLISHED;
-            return (
-              <article key={item.id} className="admin-card overflow-hidden">
+        <>
+          <AdminListControls targetId="admin-gallery-list" tabs={tabs} />
+          <div
+            className="grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+            data-admin-list="admin-gallery-list"
+          >
+            {items.map((item) => {
+              const currentStatus = item.status ?? ContentStatus.PUBLISHED;
+              return (
+              <article
+                key={item.id}
+                className="admin-card overflow-hidden"
+                data-admin-row
+                data-admin-status={currentStatus}
+                data-admin-search={[
+                  item.title,
+                  item.slug,
+                  item.category,
+                  item.description,
+                  item.beforeImageAlt,
+                  item.afterImageAlt,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
                 <div className="grid grid-cols-2">
                   <div className="relative aspect-[3/2]">
                     <Image
@@ -170,9 +218,10 @@ export default async function AdminGalleryPage() {
                   </details>
                 </div>
               </article>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </>
   );

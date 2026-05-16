@@ -2,6 +2,7 @@ import { ContentStatus } from "@prisma/client";
 
 import { deleteCustomPageAction } from "@/app/admin/pages/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { CustomPageEditorForm } from "@/components/forms/CustomPageEditorForm";
 import { getCustomPages } from "@/lib/content-repository";
 
@@ -25,6 +26,33 @@ export default async function AdminCustomPagesPage() {
   const published = pages.filter(
     (page) => page.status === ContentStatus.PUBLISHED,
   ).length;
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: pages.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: published,
+    },
+    {
+      value: ContentStatus.APPROVED,
+      labelAr: "معتمد",
+      labelEn: "Approved",
+      count: pages.filter((page) => page.status === ContentStatus.APPROVED).length,
+    },
+    {
+      value: ContentStatus.REVIEW,
+      labelAr: "مراجعة",
+      labelEn: "Review",
+      count: pages.filter((page) => page.status === ContentStatus.REVIEW).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: pages.filter((page) => page.status === ContentStatus.DRAFT).length,
+    },
+  ];
 
   return (
     <>
@@ -55,7 +83,8 @@ export default async function AdminCustomPagesPage() {
         </div>
       </div>
 
-      <section className="admin-editor-grid">
+      <AdminListControls targetId="admin-pages-list" tabs={tabs} />
+      <section className="admin-editor-grid" data-admin-list="admin-pages-list">
         {pages.length === 0 ? (
           <article className="admin-card">
             <div className="admin-card__body text-sm text-[color:var(--admin-text-faint)]">
@@ -70,7 +99,21 @@ export default async function AdminCustomPagesPage() {
             .length;
 
           return (
-            <details key={page.id} className="admin-editor-card">
+            <details
+              key={page.id}
+              className="admin-editor-card"
+              data-admin-row
+              data-admin-status={page.status}
+              data-admin-search={[
+                page.titleAr,
+                page.titleEn,
+                page.slug,
+                page.seoTitle,
+                page.seoDescription,
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
               <summary className="admin-editor-card__summary">
                 <span className="admin-page-preview">
                   <span>{blockCount || "HTML"}</span>

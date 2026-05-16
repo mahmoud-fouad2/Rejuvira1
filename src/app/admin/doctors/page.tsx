@@ -6,6 +6,7 @@ import {
   setDoctorStatusAction,
 } from "@/app/admin/doctors/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { DoctorCreateForm } from "@/components/forms/DoctorCreateForm";
 import { DoctorEditorForm } from "@/components/forms/DoctorEditorForm";
 import { getDoctors, getServices } from "@/lib/content-repository";
@@ -30,6 +31,27 @@ export default async function AdminDoctorsPage() {
     label: service.name,
     hint: service.category,
   }));
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: doctors.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: doctors.filter((doctor) => doctor.status === ContentStatus.PUBLISHED).length,
+    },
+    {
+      value: ContentStatus.REVIEW,
+      labelAr: "مراجعة",
+      labelEn: "Review",
+      count: doctors.filter((doctor) => doctor.status === ContentStatus.REVIEW).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: doctors.filter((doctor) => doctor.status === ContentStatus.DRAFT).length,
+    },
+  ];
 
   return (
     <>
@@ -67,11 +89,25 @@ export default async function AdminDoctorsPage() {
               </div>
             </div>
           </div>
-          <div className="admin-data-list">
+          <AdminListControls targetId="admin-doctors-list" tabs={tabs} />
+          <div className="admin-data-list" data-admin-list="admin-doctors-list">
             {doctors.map((doctor) => {
               const meta = statusMeta(doctor.status);
               return (
-                <details key={doctor.id} className="admin-data-row !block">
+                <details
+                  key={doctor.id}
+                  className="admin-data-row !block"
+                  data-admin-row
+                  data-admin-status={doctor.status}
+                  data-admin-search={[
+                    doctor.name,
+                    doctor.slug,
+                    doctor.specialty,
+                    doctor.serviceSlugs.join(" "),
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
                   <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
                     <div className="relative h-12 w-12 overflow-hidden rounded-full" style={{ background: "var(--admin-panel-soft)" }}>
                       <Image src={doctor.photoUrl} alt={doctor.name} fill className="object-cover" sizes="48px" />

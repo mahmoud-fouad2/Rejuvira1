@@ -187,9 +187,17 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                   <span className="admin-shell__nav-icon">
                     {iconFor(item.href)}
                   </span>
-                  <span className="min-w-0">
-                    <span className="lang-ar">{item.label}</span>
-                    <span className="lang-en">{item.labelEn ?? item.label}</span>
+                  <span className="admin-shell__nav-copy">
+                    <span className="admin-shell__nav-title">
+                      <span className="lang-ar">{item.label}</span>
+                      <span className="lang-en">{item.labelEn ?? item.label}</span>
+                    </span>
+                    <span className="admin-shell__nav-description">
+                      <span className="lang-ar">{item.description}</span>
+                      <span className="lang-en">
+                        {item.descriptionEn ?? item.description}
+                      </span>
+                    </span>
                   </span>
                 </Link>
               );

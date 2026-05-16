@@ -6,6 +6,7 @@ import {
   setDeviceStatusAction,
 } from "@/app/admin/devices/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { DeviceCreateForm } from "@/components/forms/DeviceCreateForm";
 import { DeviceEditorForm } from "@/components/forms/DeviceEditorForm";
 import { getDevices, getServices } from "@/lib/content-repository";
@@ -30,6 +31,27 @@ export default async function AdminDevicesPage() {
     label: service.name,
     hint: service.category,
   }));
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: devices.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: devices.filter((device) => device.status === ContentStatus.PUBLISHED).length,
+    },
+    {
+      value: ContentStatus.REVIEW,
+      labelAr: "مراجعة",
+      labelEn: "Review",
+      count: devices.filter((device) => device.status === ContentStatus.REVIEW).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: devices.filter((device) => device.status === ContentStatus.DRAFT).length,
+    },
+  ];
 
   return (
     <>
@@ -67,11 +89,26 @@ export default async function AdminDevicesPage() {
               </div>
             </div>
           </div>
-          <div className="admin-data-list">
+          <AdminListControls targetId="admin-devices-list" tabs={tabs} />
+          <div className="admin-data-list" data-admin-list="admin-devices-list">
             {devices.map((device) => {
               const meta = statusMeta(device.status);
               return (
-                <details key={device.id} className="admin-data-row !block">
+                <details
+                  key={device.id}
+                  className="admin-data-row !block"
+                  data-admin-row
+                  data-admin-status={device.status}
+                  data-admin-search={[
+                    device.name,
+                    device.slug,
+                    device.excerpt,
+                    device.certifications.join(" "),
+                    device.serviceSlugs.join(" "),
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
                   <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
                     <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
                       <Image src={device.imageUrl} alt={device.name} fill className="object-cover" sizes="56px" />

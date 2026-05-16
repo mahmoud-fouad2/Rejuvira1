@@ -6,6 +6,7 @@ import {
   setServiceStatusAction,
 } from "@/app/admin/services/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { ServiceCreateForm } from "@/components/forms/ServiceCreateForm";
 import { ServiceEditorForm } from "@/components/forms/ServiceEditorForm";
 import {
@@ -50,6 +51,27 @@ export default async function AdminServicesPage() {
     name: category.name,
     nameEn: category.nameEn ?? null,
   }));
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: services.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: services.filter((service) => service.status === ContentStatus.PUBLISHED).length,
+    },
+    {
+      value: ContentStatus.REVIEW,
+      labelAr: "مراجعة",
+      labelEn: "Review",
+      count: services.filter((service) => service.status === ContentStatus.REVIEW).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: services.filter((service) => service.status === ContentStatus.DRAFT).length,
+    },
+  ];
 
   return (
     <>
@@ -87,11 +109,28 @@ export default async function AdminServicesPage() {
               </div>
             </div>
           </div>
-          <div className="admin-data-list">
+          <AdminListControls targetId="admin-services-list" tabs={tabs} />
+          <div className="admin-data-list" data-admin-list="admin-services-list">
             {services.map((service) => {
               const meta = statusMeta(service.status);
               return (
-                <details key={service.id} className="admin-data-row !block">
+                <details
+                  key={service.id}
+                  className="admin-data-row !block"
+                  data-admin-row
+                  data-admin-status={service.status}
+                  data-admin-search={[
+                    service.name,
+                    service.nameEn,
+                    service.slug,
+                    service.category,
+                    service.excerpt,
+                    service.doctorSlugs.join(" "),
+                    service.deviceSlugs.join(" "),
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
                   <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
                     <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
                       <Image src={service.coverImageUrl} alt={service.name} fill className="object-cover" sizes="56px" />
