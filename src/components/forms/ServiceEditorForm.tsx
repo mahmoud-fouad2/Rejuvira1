@@ -12,6 +12,7 @@ import {
   MultiSelectChips,
   type ChipOption,
 } from "@/components/admin/MultiSelectChips";
+import type { ServiceCategoryOption } from "@/components/forms/ServiceCreateForm";
 
 const initial: ServiceActionState = { status: "idle", message: "" };
 
@@ -21,6 +22,7 @@ type Props = {
     slug: string;
     name: string;
     nameEn?: string | null;
+    categoryId?: string | null;
     category: string;
     excerpt: string;
     excerptEn?: string | null;
@@ -32,9 +34,10 @@ type Props = {
     doctorSlugs?: readonly string[];
   };
   doctorOptions?: ChipOption[];
+  categories?: ServiceCategoryOption[];
 };
 
-export function ServiceEditorForm({ service, doctorOptions = [] }: Props) {
+export function ServiceEditorForm({ service, doctorOptions = [], categories = [] }: Props) {
   const [state, action, pending] = useActionState(updateServiceAction, initial);
 
   return (
@@ -83,12 +86,35 @@ export function ServiceEditorForm({ service, doctorOptions = [] }: Props) {
             <span className="lang-ar">التصنيف</span>
             <span className="lang-en">Category</span>
           </span>
-          <input
-            name="category"
-            defaultValue={service.category}
-            required
-            className="admin-input"
-          />
+          {categories.length ? (
+            <>
+              <select
+                name="categoryId"
+                defaultValue={service.categoryId ?? ""}
+                className="admin-input"
+              >
+                <option value="">Manual category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.nameEn ? `${category.name} / ${category.nameEn}` : category.name}
+                  </option>
+                ))}
+              </select>
+              <input
+                name="category"
+                defaultValue={service.category}
+                required
+                className="admin-input"
+              />
+            </>
+          ) : (
+            <input
+              name="category"
+              defaultValue={service.category}
+              required
+              className="admin-input"
+            />
+          )}
         </label>
       </div>
       <ImagePicker

@@ -13,6 +13,8 @@ type Props = {
   labelAr: string;
   labelEn: string;
   value: string;
+  namespace?: "brand" | "media/uploads" | undefined;
+  accept?: string | undefined;
 };
 
 /**
@@ -21,7 +23,14 @@ type Props = {
  * Lets the admin upload a new image directly to R2 (then store the resulting
  * URL), or paste/edit a URL by hand, or clear the slot back to the default.
  */
-export function MediaSlotEditor({ slot, labelAr, labelEn, value }: Props) {
+export function MediaSlotEditor({
+  slot,
+  labelAr,
+  labelEn,
+  value,
+  namespace = "media/uploads",
+  accept = "image/png,image/jpeg,image/webp,image/avif,image/svg+xml,image/x-icon,.ico",
+}: Props) {
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
   const [uploading, setUploading] = useState(false);
@@ -39,7 +48,7 @@ export function MediaSlotEditor({ slot, labelAr, labelEn, value }: Props) {
     try {
       const form = new FormData();
       form.append("file", file);
-      form.append("namespace", "media/uploads");
+      form.append("namespace", namespace);
       const res = await fetch("/api/admin/upload", { method: "POST", body: form });
       const data = (await res.json()) as
         | { ok: true; url: string; key: string }
@@ -68,6 +77,7 @@ export function MediaSlotEditor({ slot, labelAr, labelEn, value }: Props) {
             fill
             className="object-cover"
             sizes="240px"
+            unoptimized
           />
         ) : (
           <div className="grid h-full place-items-center text-xs text-[color:var(--admin-text-faint)]">
@@ -93,7 +103,7 @@ export function MediaSlotEditor({ slot, labelAr, labelEn, value }: Props) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
+        accept={accept}
         className="hidden"
         onChange={(event) => {
           const file = event.target.files?.[0];

@@ -8,7 +8,7 @@ import {
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { ServiceCreateForm } from "@/components/forms/ServiceCreateForm";
 import { ServiceEditorForm } from "@/components/forms/ServiceEditorForm";
-import { getDoctors, getServices } from "@/lib/content-repository";
+import { getDoctors, getServiceCategories, getServices } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
   switch (status) {
@@ -24,11 +24,20 @@ function statusMeta(status: ContentStatus) {
 }
 
 export default async function AdminServicesPage() {
-  const [services, doctors] = await Promise.all([getServices(), getDoctors()]);
+  const [services, doctors, categories] = await Promise.all([
+    getServices(),
+    getDoctors(),
+    getServiceCategories(),
+  ]);
   const doctorOptions = doctors.map((doctor) => ({
     value: doctor.slug,
     label: doctor.name,
     hint: doctor.specialty,
+  }));
+  const categoryOptions = categories.map((category) => ({
+    id: category.id,
+    name: category.name,
+    nameEn: category.nameEn ?? null,
   }));
 
   return (
@@ -51,7 +60,7 @@ export default async function AdminServicesPage() {
             titleArabic="إضافة خدمة جديدة"
             titleEnglish="New service"
           >
-            <ServiceCreateForm />
+            <ServiceCreateForm categories={categoryOptions} />
           </AdminAddModal>
         </div>
       </div>
@@ -92,15 +101,20 @@ export default async function AdminServicesPage() {
                         id: service.id,
                         slug: service.slug,
                         name: service.name,
+                        nameEn: service.nameEn ?? null,
+                        categoryId: service.categoryId ?? null,
                         category: service.category,
                         excerpt: service.excerpt,
+                        excerptEn: service.excerptEn ?? null,
                         description: service.description,
+                        descriptionEn: service.descriptionEn ?? null,
                         coverImageUrl: service.coverImageUrl,
                         status: service.status,
                         featured: service.featured ?? false,
                         doctorSlugs: service.doctorSlugs,
                       }}
                       doctorOptions={doctorOptions}
+                      categories={categoryOptions}
                     />
 
                     <div className="flex flex-wrap gap-2">

@@ -33,7 +33,10 @@ export type ServiceRecord = {
   slug: string;
   name: string;
   nameEn?: string | null;
+  categoryId?: string | null;
+  categorySlug?: string | null;
   category: string;
+  categoryEn?: string | null;
   excerpt: string;
   excerptEn?: string | null;
   description: string;
@@ -44,6 +47,18 @@ export type ServiceRecord = {
   deviceSlugs: readonly string[];
   status: ContentStatus;
   featured: boolean;
+};
+
+export type ServiceCategoryRecord = {
+  id: string;
+  slug: string;
+  name: string;
+  nameEn?: string | null;
+  description?: string | null;
+  descriptionEn?: string | null;
+  status: ContentStatus;
+  sortOrder: number;
+  serviceCount: number;
 };
 
 export type DeviceRecord = {
@@ -409,11 +424,26 @@ export type CreateServiceInput = {
   name: string;
   nameEn?: string | undefined;
   category: string;
+  categoryId?: string | undefined;
   excerpt: string;
   excerptEn?: string | undefined;
   description: string;
   descriptionEn?: string | undefined;
   coverImageUrl?: string | undefined;
+};
+
+export type CreateServiceCategoryInput = {
+  slug: string;
+  name: string;
+  nameEn?: string | undefined;
+  description?: string | undefined;
+  descriptionEn?: string | undefined;
+  status?: ContentStatus | undefined;
+  sortOrder?: number | undefined;
+};
+
+export type UpdateServiceCategoryInput = CreateServiceCategoryInput & {
+  id: string;
 };
 
 export type CreateDeviceInput = {
@@ -514,6 +544,7 @@ export type UpdateServiceInput = {
   name: string;
   nameEn?: string | undefined;
   category: string;
+  categoryId?: string | undefined;
   excerpt: string;
   excerptEn?: string | undefined;
   description: string;
@@ -2105,6 +2136,52 @@ export async function getDoctorBySlug(slug: string) {
   return doctors.find((doctor) => doctor.slug === slug) ?? null;
 }
 
+function seedServiceCategories(): ServiceCategoryRecord[] {
+  const names = Array.from(new Set(seedServices.map((service) => service.category)));
+  return names.map((name, index) => ({
+    id: `seed-${index + 1}`,
+    slug: `category-${index + 1}`,
+    name,
+    nameEn: null,
+    description: null,
+    descriptionEn: null,
+    status: ContentStatus.PUBLISHED,
+    sortOrder: index + 1,
+    serviceCount: seedServices.filter((service) => service.category === name).length,
+  }));
+}
+
+export const getServiceCategories = cache(async (): Promise<ServiceCategoryRecord[]> => {
+  if (!canUseDatabase()) {
+    return seedServiceCategories();
+  }
+
+  try {
+    const categories = await prisma.serviceCategory.findMany({
+      include: { _count: { select: { services: true } } },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    if (categories.length === 0) {
+      return seedServiceCategories();
+    }
+
+    return categories.map((category) => ({
+      id: category.id,
+      slug: category.slug,
+      name: category.nameAr,
+      nameEn: category.nameEn,
+      description: category.descriptionAr,
+      descriptionEn: category.descriptionEn,
+      status: category.status,
+      sortOrder: category.sortOrder,
+      serviceCount: category._count.services,
+    }));
+  } catch {
+    return seedServiceCategories();
+  }
+});
+
 export const getServices = cache(async () => {
   if (!canUseDatabase()) {
     return sortFeaturedFirst([...seedServices]);
@@ -2115,6 +2192,7 @@ export const getServices = cache(async () => {
       include: {
         doctors: { select: { slug: true } },
         devices: { select: { slug: true } },
+        category: true,
       },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
     });
@@ -2129,7 +2207,10 @@ export const getServices = cache(async () => {
         slug: service.slug,
         name: service.nameAr,
         nameEn: service.nameEn,
-        category: service.categoryKey,
+        categoryId: service.categoryId,
+        categorySlug: service.category?.slug ?? null,
+        category: service.category?.nameAr ?? service.categoryKey,
+        categoryEn: service.category?.nameEn ?? null,
         excerpt: service.excerptAr,
         excerptEn: service.excerptEn,
         description: service.descriptionAr,
@@ -3153,12 +3234,20 @@ export async function createServiceDraft(input: CreateServiceInput) {
     return { mode: "preview" as const, item: input };
   }
 
+  const category = input.categoryId
+    ? await prisma.serviceCategory.findUnique({
+        where: { id: input.categoryId },
+        select: { id: true, nameAr: true },
+      })
+    : null;
+
   const service = await prisma.service.create({
     data: {
       slug: input.slug,
       nameAr: input.name,
       nameEn: input.nameEn || null,
-      categoryKey: input.category,
+      categoryKey: category?.nameAr ?? input.category,
+      categoryId: category?.id ?? null,
       excerptAr: input.excerpt,
       excerptEn: input.excerptEn || null,
       descriptionAr: input.description,
@@ -3875,6 +3964,62 @@ export async function getMediaSelections(): Promise<MediaSelections> {
   return runtimeSettings.media;
 }
 
+/* ── Service category CRUD ───────────────────────────────── */
+
+export async function createServiceCategory(input: CreateServiceCategoryInput) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, item: input };
+  }
+
+  const item = await prisma.serviceCategory.create({
+    data: {
+      slug: input.slug,
+      nameAr: input.name,
+      nameEn: input.nameEn || null,
+      descriptionAr: input.description || null,
+      descriptionEn: input.descriptionEn || null,
+      status: input.status ?? ContentStatus.PUBLISHED,
+      sortOrder: input.sortOrder ?? 0,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
+export async function updateServiceCategory(input: UpdateServiceCategoryInput) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, item: input };
+  }
+
+  const item = await prisma.serviceCategory.update({
+    where: { id: input.id },
+    data: {
+      slug: input.slug,
+      nameAr: input.name,
+      nameEn: input.nameEn || null,
+      descriptionAr: input.description || null,
+      descriptionEn: input.descriptionEn || null,
+      status: input.status ?? ContentStatus.PUBLISHED,
+      sortOrder: input.sortOrder ?? 0,
+    },
+  });
+
+  await prisma.service.updateMany({
+    where: { categoryId: item.id },
+    data: { categoryKey: item.nameAr },
+  });
+
+  return { mode: "database" as const, item };
+}
+
+export async function deleteServiceCategory(id: string) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, id };
+  }
+
+  const item = await prisma.serviceCategory.delete({ where: { id } });
+  return { mode: "database" as const, item };
+}
+
 /* ── Service CRUD (extra) ────────────────────────────────── */
 
 export async function updateService(input: UpdateServiceInput) {
@@ -3882,13 +4027,20 @@ export async function updateService(input: UpdateServiceInput) {
     return { mode: "preview" as const, input };
   }
   const doctorSlugs = input.doctorSlugs;
+  const category = input.categoryId
+    ? await prisma.serviceCategory.findUnique({
+        where: { id: input.categoryId },
+        select: { id: true, nameAr: true },
+      })
+    : null;
   const item = await prisma.service.update({
     where: { id: input.id },
     data: {
       slug: input.slug,
       nameAr: input.name,
       nameEn: input.nameEn || null,
-      categoryKey: input.category,
+      categoryKey: category?.nameAr ?? input.category,
+      categoryId: category?.id ?? null,
       excerptAr: input.excerpt,
       excerptEn: input.excerptEn || null,
       descriptionAr: input.description,

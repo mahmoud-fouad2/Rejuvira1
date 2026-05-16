@@ -12,7 +12,7 @@ import path from "node:path";
 
 const cwd = path.join(process.cwd(), ".next", "standalone");
 
-const defaultHeap = process.env.MAX_OLD_SPACE_SIZE || "460";
+const defaultHeap = process.env.MAX_OLD_SPACE_SIZE || "384";
 const nodeOptions = process.env.NODE_OPTIONS ?? "";
 const heapFlag = nodeOptions.includes("--max-old-space-size")
   ? []

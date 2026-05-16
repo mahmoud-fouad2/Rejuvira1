@@ -14,10 +14,10 @@ export default async function AdminMediaPage() {
   );
 
   const curatedSlots = [
-    { key: "brandLogo", labelAr: "الشعار الرئيسي", labelEn: "Main logo", value: mediaSelections.brandLogo },
-    { key: "brandMark", labelAr: "أيقونة الهوية", labelEn: "Brand mark", value: mediaSelections.brandMark },
-    { key: "favicon", labelAr: "Favicon", labelEn: "Favicon", value: mediaSelections.favicon },
-    { key: "appleIcon", labelAr: "Apple Touch Icon", labelEn: "Apple Touch Icon", value: mediaSelections.appleIcon },
+    { key: "brandLogo", labelAr: "الشعار الرئيسي", labelEn: "Main logo", value: mediaSelections.brandLogo, namespace: "brand" },
+    { key: "brandMark", labelAr: "أيقونة الهوية", labelEn: "Brand mark", value: mediaSelections.brandMark, namespace: "brand" },
+    { key: "favicon", labelAr: "Favicon", labelEn: "Favicon", value: mediaSelections.favicon, namespace: "brand", accept: "image/png,image/svg+xml,image/x-icon,.ico" },
+    { key: "appleIcon", labelAr: "Apple Touch Icon", labelEn: "Apple Touch Icon", value: mediaSelections.appleIcon, namespace: "brand" },
     { key: "ogImage", labelAr: "صورة المشاركة", labelEn: "Social sharing image", value: mediaSelections.ogImage },
     { key: "homeHero", labelAr: "الصفحة الرئيسية", labelEn: "Homepage", value: mediaSelections.homeHero },
     { key: "heroCard1", labelAr: "بطاقة 1", labelEn: "Card 1", value: mediaSelections.heroCard1 },
@@ -66,6 +66,8 @@ export default async function AdminMediaPage() {
               labelAr={slot.labelAr}
               labelEn={slot.labelEn}
               value={slot.value}
+              namespace={"namespace" in slot ? slot.namespace : undefined}
+              accept={"accept" in slot ? slot.accept : undefined}
             />
           ))}
         </div>
@@ -93,7 +95,7 @@ export default async function AdminMediaPage() {
               style={{ borderColor: "var(--admin-border)", background: "var(--admin-panel-soft)" }}
             >
               <div className="relative aspect-square overflow-hidden rounded-lg">
-                <Image src={asset.path} alt={asset.label} fill className="object-cover" sizes="200px" />
+                <Image src={asset.path} alt={asset.label} fill className="object-cover" sizes="200px" unoptimized />
               </div>
               <p className="mt-2 truncate text-xs font-semibold text-[color:var(--admin-text)]">
                 {asset.label}

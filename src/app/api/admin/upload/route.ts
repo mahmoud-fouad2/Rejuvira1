@@ -32,10 +32,13 @@ const ALLOWED_CONTENT_TYPES = new Set([
   "image/avif",
   "image/svg+xml",
   "image/gif",
+  "image/x-icon",
+  "image/vnd.microsoft.icon",
   "application/pdf",
 ]);
 
-const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
 
 function badRequest(message: string, status = 400) {
   return NextResponse.json({ ok: false, error: message }, { status });
@@ -78,21 +81,26 @@ export async function POST(request: Request) {
     ? (namespaceRaw as StorageNamespace)
     : "media/uploads";
 
-  const contentType = file.type || "application/octet-stream";
+  const fileName = file.name || "upload.bin";
+  const lowerName = fileName.toLowerCase();
+  const contentType =
+    file.type ||
+    (lowerName.endsWith(".ico") ? "image/x-icon" : "application/octet-stream");
   if (!ALLOWED_CONTENT_TYPES.has(contentType)) {
     return badRequest(
       `Unsupported content type: ${contentType}. Allowed: ${Array.from(ALLOWED_CONTENT_TYPES).join(", ")}`,
     );
   }
-  if (file.size > MAX_BYTES) {
+  const maxBytes = contentType === "application/pdf" ? MAX_DOCUMENT_BYTES : MAX_IMAGE_BYTES;
+  if (file.size > maxBytes) {
     return badRequest(
-      `File too large (${file.size} bytes). Limit is ${MAX_BYTES} bytes.`,
+      `File too large (${file.size} bytes). Limit is ${maxBytes} bytes.`,
       413,
     );
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const key = storageKey(namespace, file.name || "upload.bin");
+  const key = storageKey(namespace, fileName);
 
   try {
     const uploaded = await uploadObject(key, buffer, contentType);

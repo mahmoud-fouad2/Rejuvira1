@@ -13,11 +13,22 @@ const initialState: ServiceActionState = {
   message: "",
 };
 
-export function ServiceCreateForm() {
+export type ServiceCategoryOption = {
+  id: string;
+  name: string;
+  nameEn?: string | null;
+};
+
+type Props = {
+  categories?: ServiceCategoryOption[];
+};
+
+export function ServiceCreateForm({ categories = [] }: Props) {
   const [state, formAction, isPending] = useActionState(
     createServiceAction,
     initialState,
   );
+  const defaultCategory = categories[0];
 
   return (
     <form action={formAction} className="grid gap-3">
@@ -47,7 +58,25 @@ export function ServiceCreateForm() {
             <span className="lang-ar">التصنيف</span>
             <span className="lang-en">Category</span>
           </span>
-          <input name="category" required className="admin-input" />
+          {categories.length ? (
+            <>
+              <select
+                name="categoryId"
+                required
+                className="admin-input"
+                defaultValue={defaultCategory?.id}
+              >
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.nameEn ? `${category.name} / ${category.nameEn}` : category.name}
+                  </option>
+                ))}
+              </select>
+              <input type="hidden" name="category" value={defaultCategory?.name ?? "Services"} />
+            </>
+          ) : (
+            <input name="category" required className="admin-input" />
+          )}
         </label>
       </div>
       <ImagePicker

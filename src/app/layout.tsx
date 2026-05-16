@@ -78,9 +78,9 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     },
     icons: {
-      icon: "/icon.svg",
+      icon: runtimeSettings.media.favicon || "/icon.svg",
       apple: runtimeSettings.media.appleIcon,
-      shortcut: "/icon.svg",
+      shortcut: runtimeSettings.media.favicon || "/icon.svg",
     },
     openGraph: {
       title: runtimeSettings.brand.siteName,

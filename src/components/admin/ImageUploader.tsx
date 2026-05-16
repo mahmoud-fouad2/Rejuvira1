@@ -25,6 +25,7 @@ type ImageUploaderProps = {
 };
 
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif,image/svg+xml";
+const MAX_DIRECT_UPLOAD_BYTES = 6 * 1024 * 1024;
 
 export function ImageUploader({
   name,
@@ -48,6 +49,13 @@ export function ImageUploader({
 
   const handleSelect = useCallback(
     async (file: File) => {
+      if (file.size > MAX_DIRECT_UPLOAD_BYTES) {
+        setStatus({
+          kind: "error",
+          message: "Image is too large. Use the image picker/cropper or upload a file under 6 MB.",
+        });
+        return;
+      }
       setStatus({ kind: "uploading" });
       try {
         const form = new FormData();

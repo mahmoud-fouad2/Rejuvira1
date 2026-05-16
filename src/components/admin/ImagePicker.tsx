@@ -33,6 +33,8 @@ type ImagePickerProps = {
 };
 
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
+const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
+const MAX_OUTPUT_SIDE = 1920;
 
 const ASPECT_PRESETS: Array<{ id: string; label: string; value: number | null }> = [
   { id: "free", label: "Free", value: null },
@@ -68,8 +70,9 @@ async function renderCroppedBlob(
   stageCtx.drawImage(image, -image.width / 2, -image.height / 2);
 
   const out = document.createElement("canvas");
-  out.width = Math.max(1, Math.round(area.width));
-  out.height = Math.max(1, Math.round(area.height));
+  const scale = Math.min(1, MAX_OUTPUT_SIDE / Math.max(area.width, area.height));
+  out.width = Math.max(1, Math.round(area.width * scale));
+  out.height = Math.max(1, Math.round(area.height * scale));
   const outCtx = out.getContext("2d");
   if (!outCtx) throw new Error("Canvas 2D context unavailable.");
 
@@ -91,8 +94,8 @@ async function renderCroppedBlob(
   return await new Promise<Blob>((resolve, reject) => {
     out.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("Empty crop output"))),
-      "image/jpeg",
-      0.92,
+      "image/webp",
+      0.84,
     );
   });
 }
@@ -130,10 +133,19 @@ export function ImagePicker({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const sourceObjectUrlRef = useRef<string | null>(null);
 
   useEffect(() => {
     setValue(defaultValue);
   }, [defaultValue]);
+
+  useEffect(() => {
+    return () => {
+      if (sourceObjectUrlRef.current) {
+        URL.revokeObjectURL(sourceObjectUrlRef.current);
+      }
+    };
+  }, []);
 
   const onCropComplete = useCallback((_area: Area, areaPixels: Area) => {
     setCroppedArea(areaPixels);
@@ -143,24 +155,23 @@ export function ImagePicker({
     fileInputRef.current?.click();
   }
 
-  function readFileAsDataURL(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result ?? ""));
-      reader.onerror = () => reject(new Error("Could not read file"));
-      reader.readAsDataURL(file);
-    });
-  }
-
   async function handleFile(file: File) {
     setError(null);
     if (!file.type.startsWith("image/")) {
       setError("الملف ليس صورة / Not an image file.");
       return;
     }
+    if (file.size > MAX_SOURCE_BYTES) {
+      setError("Image is too large. Please choose an image under 12 MB.");
+      return;
+    }
     try {
-      const dataUrl = await readFileAsDataURL(file);
-      setEditorSource(dataUrl);
+      if (sourceObjectUrlRef.current) {
+        URL.revokeObjectURL(sourceObjectUrlRef.current);
+      }
+      const objectUrl = URL.createObjectURL(file);
+      sourceObjectUrlRef.current = objectUrl;
+      setEditorSource(objectUrl);
       setRotation(0);
       setZoom(1);
       setCrop({ x: 0, y: 0 });
@@ -196,7 +207,7 @@ export function ImagePicker({
       const blob = area.width > 0 && area.height > 0
         ? await renderCroppedBlob(editorSource, area, rotation)
         : await fetch(editorSource).then((r) => r.blob());
-      const url = await uploadBlob(blob, `image-${Date.now()}.jpg`);
+      const url = await uploadBlob(blob, `image-${Date.now()}.webp`);
       setValue(url);
       setEditorOpen(false);
     } catch (err) {

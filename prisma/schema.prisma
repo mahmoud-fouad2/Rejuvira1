@@ -83,6 +83,7 @@ model Service {
   descriptionEn      String?             @db.Text
   coverImageUrl      String?
   categoryKey        String
+  categoryId         String?
   seoTitleAr         String?
   seoTitleEn         String?
   seoDescriptionAr   String?             @db.Text
@@ -94,8 +95,29 @@ model Service {
   updatedAt          DateTime            @updatedAt
   doctors            Doctor[]            @relation("DoctorServices")
   devices            Device[]            @relation("ServiceDevices")
+  category           ServiceCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   contactSubmissions ContactSubmission[]
   webhooks           Webhook[]
+
+  @@index([categoryId])
+  @@index([categoryKey])
+}
+
+model ServiceCategory {
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  nameAr         String
+  nameEn         String?
+  descriptionAr  String?       @db.Text
+  descriptionEn  String?       @db.Text
+  status         ContentStatus @default(PUBLISHED)
+  sortOrder      Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  services       Service[]
+
+  @@index([status])
+  @@index([sortOrder])
 }
 
 model Device {

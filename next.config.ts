@@ -7,7 +7,7 @@ import type { NextConfig } from "next";
  * in environments where the platform doesn't ship `sharp` reliably (e.g. some
  * minimal containers). Default is to optimize, which gives a large LCP/FCP win.
  */
-const imageUnoptimized = process.env.IMAGE_UNOPTIMIZED === "1";
+const imageUnoptimized = process.env.NEXT_IMAGE_OPTIMIZATION !== "1";
 
 const isProd = process.env.NODE_ENV === "production";
 

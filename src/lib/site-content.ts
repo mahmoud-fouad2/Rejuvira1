@@ -11,6 +11,7 @@ export type StaticRoute =
   | "/admin/doctors"
   | "/admin/devices"
   | "/admin/services"
+  | "/admin/service-categories"
   | "/admin/journal"
   | "/admin/gallery"
   | "/admin/crm"
@@ -396,6 +397,14 @@ export const adminNavigation = [
     href: "/admin/services",
     description: "إدارة مكتبة الخدمات",
     descriptionEn: "Manage service library",
+    group: "content" as AdminNavGroupKey,
+  },
+  {
+    label: "أقسام الخدمات",
+    labelEn: "Service Categories",
+    href: "/admin/service-categories",
+    description: "تنظيم الخدمات داخل أقسام",
+    descriptionEn: "Organize services into sections",
     group: "content" as AdminNavGroupKey,
   },
   {

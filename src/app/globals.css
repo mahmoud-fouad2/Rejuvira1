@@ -11912,7 +11912,7 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   z-index: 80;
   padding: 1rem;
 }
-.admin-modal {
+.admin-legacy-modal {
   width: min(100%, 36rem);
   background: var(--admin-panel, #fff);
   color: var(--foreground);
@@ -11923,13 +11923,13 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   max-height: 85vh;
   overflow: auto;
 }
-.admin-modal__header {
+.admin-legacy-modal__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.75rem;
 }
-.admin-modal__title { font-weight: 600; font-size: 1.05rem; }
+.admin-legacy-modal__title { font-weight: 600; font-size: 1.05rem; }
 
 .admin-segmented {
   display: inline-flex;
