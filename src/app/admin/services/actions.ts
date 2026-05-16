@@ -10,6 +10,7 @@ import {
   updateService,
   updateServiceStatus,
 } from "@/lib/content-repository";
+import { adminActionErrorMessage } from "@/lib/admin-action-errors";
 
 export type ServiceActionState = {
   status: "idle" | "success" | "error";
@@ -73,21 +74,25 @@ export async function createServiceAction(
     return { status: "error", message: "بيانات الخدمة غير مكتملة." };
   }
 
-  await createServiceDraft({
-    slug: parsed.data.slug,
-    name: parsed.data.name,
-    ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
-    category: parsed.data.category,
-    ...(parsed.data.categoryId ? { categoryId: parsed.data.categoryId } : {}),
-    excerpt: parsed.data.excerpt,
-    ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
-    description: parsed.data.description,
-    ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
-    ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
-  });
+  try {
+    await createServiceDraft({
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
+      category: parsed.data.category,
+      ...(parsed.data.categoryId ? { categoryId: parsed.data.categoryId } : {}),
+      excerpt: parsed.data.excerpt,
+      ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
+      description: parsed.data.description,
+      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
+    });
 
-  revalidate();
-  return { status: "success", message: "تم حفظ الخدمة." };
+    revalidate();
+    return { status: "success", message: "تم حفظ الخدمة." };
+  } catch (error) {
+    return { status: "error", message: adminActionErrorMessage(error) };
+  }
 }
 
 export async function updateServiceAction(
@@ -115,27 +120,29 @@ export async function updateServiceAction(
     return { status: "error", message: "بيانات الخدمة غير صالحة للتحديث." };
   }
 
-  const doctorSlugs = parseSlugList(formData.get("doctorSlugs"));
+  try {
+    await updateService({
+      id: parsed.data.id,
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
+      category: parsed.data.category,
+      ...(parsed.data.categoryId ? { categoryId: parsed.data.categoryId } : {}),
+      excerpt: parsed.data.excerpt,
+      ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
+      description: parsed.data.description,
+      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      status: parsed.data.status,
+      featured: parsed.data.featured,
+      doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
+      ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
+    });
 
-  await updateService({
-    id: parsed.data.id,
-    slug: parsed.data.slug,
-    name: parsed.data.name,
-    ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
-    category: parsed.data.category,
-    ...(parsed.data.categoryId ? { categoryId: parsed.data.categoryId } : {}),
-    excerpt: parsed.data.excerpt,
-    ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
-    description: parsed.data.description,
-    ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
-    status: parsed.data.status,
-    featured: parsed.data.featured,
-    doctorSlugs,
-    ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
-  });
-
-  revalidate();
-  return { status: "success", message: "تم تحديث الخدمة." };
+    revalidate();
+    return { status: "success", message: "تم تحديث الخدمة." };
+  } catch (error) {
+    return { status: "error", message: adminActionErrorMessage(error) };
+  }
 }
 
 export async function setServiceStatusAction(formData: FormData) {
@@ -144,13 +151,23 @@ export async function setServiceStatusAction(formData: FormData) {
   if (typeof id !== "string" || !id) return;
   const parsed = z.nativeEnum(ContentStatus).safeParse(status);
   if (!parsed.success) return;
-  await updateServiceStatus(id, parsed.data);
-  revalidate();
+
+  try {
+    await updateServiceStatus(id, parsed.data);
+    revalidate();
+  } catch {
+    return;
+  }
 }
 
 export async function deleteServiceAction(formData: FormData) {
   const id = formData.get("id");
   if (typeof id !== "string" || !id) return;
-  await deleteService(id);
-  revalidate();
+
+  try {
+    await deleteService(id);
+    revalidate();
+  } catch {
+    return;
+  }
 }

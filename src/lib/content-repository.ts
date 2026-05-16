@@ -572,16 +572,16 @@ export type UpdateDeviceInput = {
 };
 
 const doctorPortraitBySlug = {
-  "loai-alsalmi": "/media/doctors/loai-alsalmi.png",
-  "maher-alahdab": "/media/doctors/maher-alahdab.png",
-  "saham-arfaj": "/media/doctors/saham-arfaj.png",
-  "sabah-alrashid": "/media/doctors/sabah-alrashid.png",
-  "karima-jamjoom": "/media/doctors/karima-jamjoom.png",
-  "najwa-batarfi": "/media/doctors/najwa-batarfi.png",
-  "natali-domloj": "/media/doctors/natali-domloj.png",
-  "falwah-aljanoubi": "/media/doctors/falwah-aljanoubi.png",
-  "bandar-alharthi": "/media/doctors/bandar-alharthi.png",
-  "ahmed-eldesouki": "/media/doctors/ahmed-eldesouki.png",
+  "loai-alsalmi": "/media/doctors/loai-alsalmi.webp",
+  "maher-alahdab": "/media/doctors/maher-alahdab.webp",
+  "saham-arfaj": "/media/doctors/saham-arfaj.webp",
+  "sabah-alrashid": "/media/doctors/sabah-alrashid.webp",
+  "karima-jamjoom": "/media/doctors/karima-jamjoom.webp",
+  "najwa-batarfi": "/media/doctors/najwa-batarfi.webp",
+  "natali-domloj": "/media/doctors/natali-domloj.webp",
+  "falwah-aljanoubi": "/media/doctors/falwah-aljanoubi.webp",
+  "bandar-alharthi": "/media/doctors/bandar-alharthi.webp",
+  "ahmed-eldesouki": "/media/doctors/ahmed-eldesouki.webp",
 } as const;
 
 const doctorPortraits = [
@@ -599,11 +599,11 @@ const doctorPortraits = [
 
 const serviceImages = {
   aestheticSurgery: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
-  skinCare: "/media/curated/service-skin-rejuvenation.jpg",
+  skinCare: "/media/curated/service-skin-rejuvenation.webp",
   laser: "/media/curated/service-laser-hair-removal.jpg",
-  injectables: "/media/curated/service-injectables.png",
-  devices: "/media/curated/device-laser-platform.png",
-  body: "/media/reference/legacy/88985959.png",
+  injectables: "/media/curated/service-injectables.webp",
+  devices: "/media/curated/device-laser-platform.webp",
+  body: "/media/reference/legacy/88985959.webp",
   prp: "/media/curated/service-prp.jpg",
   journal: "/media/curated/clinic-treatment-room.jpeg",
 } as const;
@@ -1156,8 +1156,8 @@ const seedGallery: GalleryRecord[] = [
     category: "تجميل القوام",
     description:
       "مثال بصري لخطة تركز على التناسق الطبيعي وتوقعات واضحة قبل البدء.",
-    beforeImageUrl: "/media/reference/legacy/88985959.png",
-    afterImageUrl: "/media/reference/legacy/56549.png",
+    beforeImageUrl: "/media/reference/legacy/88985959.webp",
+    afterImageUrl: "/media/reference/legacy/56549.webp",
     beforeImageAlt: "تنسيق القوام قبل",
     afterImageAlt: "تنسيق القوام بعد",
     initialSplitPercent: 50,

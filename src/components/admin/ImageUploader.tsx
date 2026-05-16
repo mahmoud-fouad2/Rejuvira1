@@ -2,6 +2,8 @@
 
 import { useCallback, useId, useRef, useState } from "react";
 
+import { prepareImageUpload } from "@/lib/client-image-upload";
+
 type Namespace =
   | "doctors"
   | "services"
@@ -25,8 +27,6 @@ type ImageUploaderProps = {
 };
 
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif,image/svg+xml";
-const MAX_DIRECT_UPLOAD_BYTES = 6 * 1024 * 1024;
-
 export function ImageUploader({
   name,
   defaultValue = "",
@@ -49,17 +49,11 @@ export function ImageUploader({
 
   const handleSelect = useCallback(
     async (file: File) => {
-      if (file.size > MAX_DIRECT_UPLOAD_BYTES) {
-        setStatus({
-          kind: "error",
-          message: "Image is too large. Use the image picker/cropper or upload a file under 6 MB.",
-        });
-        return;
-      }
       setStatus({ kind: "uploading" });
       try {
+        const preparedFile = await prepareImageUpload(file);
         const form = new FormData();
-        form.append("file", file);
+        form.append("file", preparedFile);
         form.append("namespace", namespace);
         const response = await fetch("/api/admin/upload", {
           method: "POST",

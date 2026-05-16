@@ -7,6 +7,7 @@ import {
   clearMediaSlotAction,
   setMediaSlotAction,
 } from "@/app/admin/media/actions";
+import { prepareImageUpload } from "@/lib/client-image-upload";
 
 type Props = {
   slot: string;
@@ -46,8 +47,9 @@ export function MediaSlotEditor({
     setUploading(true);
     setError(null);
     try {
+      const preparedFile = await prepareImageUpload(file);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", preparedFile);
       form.append("namespace", namespace);
       const res = await fetch("/api/admin/upload", { method: "POST", body: form });
       const data = (await res.json()) as

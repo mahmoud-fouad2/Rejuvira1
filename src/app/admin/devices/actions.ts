@@ -10,6 +10,7 @@ import {
   updateDevice,
   updateDeviceStatus,
 } from "@/lib/content-repository";
+import { adminActionErrorMessage } from "@/lib/admin-action-errors";
 
 export type DeviceActionState = {
   status: "idle" | "success" | "error";
@@ -70,21 +71,25 @@ export async function createDeviceAction(
     return { status: "error", message: "بيانات الجهاز غير مكتملة." };
   }
 
-  await createDeviceDraft({
-    slug: parsed.data.slug,
-    name: parsed.data.name,
-    ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
-    excerpt: parsed.data.excerpt,
-    ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
-    description: parsed.data.description,
-    ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
-    certifications: splitList(parsed.data.certifications),
-    serviceSlugs: splitList(parsed.data.serviceSlugs),
-    ...(parsed.data.imageUrl ? { imageUrl: parsed.data.imageUrl } : {}),
-  });
+  try {
+    await createDeviceDraft({
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
+      excerpt: parsed.data.excerpt,
+      ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
+      description: parsed.data.description,
+      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      certifications: splitList(parsed.data.certifications),
+      serviceSlugs: splitList(parsed.data.serviceSlugs),
+      ...(parsed.data.imageUrl ? { imageUrl: parsed.data.imageUrl } : {}),
+    });
 
-  revalidate();
-  return { status: "success", message: "تم حفظ الجهاز." };
+    revalidate();
+    return { status: "success", message: "تم حفظ الجهاز." };
+  } catch (error) {
+    return { status: "error", message: adminActionErrorMessage(error) };
+  }
 }
 
 export async function updateDeviceAction(
@@ -111,24 +116,28 @@ export async function updateDeviceAction(
     return { status: "error", message: "بيانات الجهاز غير صالحة للتحديث." };
   }
 
-  await updateDevice({
-    id: parsed.data.id,
-    slug: parsed.data.slug,
-    name: parsed.data.name,
-    ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
-    excerpt: parsed.data.excerpt,
-    ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
-    description: parsed.data.description,
-    ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
-    certifications: splitList(parsed.data.certifications),
-    serviceSlugs: splitList(parsed.data.serviceSlugs),
-    status: parsed.data.status,
-    featured: parsed.data.featured,
-    ...(parsed.data.imageUrl ? { imageUrl: parsed.data.imageUrl } : {}),
-  });
+  try {
+    await updateDevice({
+      id: parsed.data.id,
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
+      excerpt: parsed.data.excerpt,
+      ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
+      description: parsed.data.description,
+      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      certifications: splitList(parsed.data.certifications),
+      serviceSlugs: splitList(parsed.data.serviceSlugs),
+      status: parsed.data.status,
+      featured: parsed.data.featured,
+      ...(parsed.data.imageUrl ? { imageUrl: parsed.data.imageUrl } : {}),
+    });
 
-  revalidate();
-  return { status: "success", message: "تم تحديث الجهاز." };
+    revalidate();
+    return { status: "success", message: "تم تحديث الجهاز." };
+  } catch (error) {
+    return { status: "error", message: adminActionErrorMessage(error) };
+  }
 }
 
 export async function setDeviceStatusAction(formData: FormData) {
@@ -137,13 +146,23 @@ export async function setDeviceStatusAction(formData: FormData) {
   if (typeof id !== "string" || !id) return;
   const parsed = z.nativeEnum(ContentStatus).safeParse(status);
   if (!parsed.success) return;
-  await updateDeviceStatus(id, parsed.data);
-  revalidate();
+
+  try {
+    await updateDeviceStatus(id, parsed.data);
+    revalidate();
+  } catch {
+    return;
+  }
 }
 
 export async function deleteDeviceAction(formData: FormData) {
   const id = formData.get("id");
   if (typeof id !== "string" || !id) return;
-  await deleteDevice(id);
-  revalidate();
+
+  try {
+    await deleteDevice(id);
+    revalidate();
+  } catch {
+    return;
+  }
 }

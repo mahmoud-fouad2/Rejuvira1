@@ -9,6 +9,7 @@ import {
   deleteJournalPost,
   updateJournalPostStatus,
 } from "@/lib/content-repository";
+import { adminActionErrorMessage } from "@/lib/admin-action-errors";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export type JournalActionState = {
@@ -38,26 +39,19 @@ const deleteJournalSchema = z.object({
 });
 
 function parseCommaSeparated(value: string | undefined) {
-  if (!value) {
-    return [];
-  }
-
+  if (!value) return [];
   return value
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
 }
 
-/**
- * Split a body field into block-level entries. Accepts either rich-text HTML
- * authored by the editor (containing block tags) or legacy plain text where
- * each newline starts a new paragraph.
- */
 function parseBodyBlocks(body: string): string[] {
   const trimmed = body.trim();
   if (!trimmed) return [];
 
-  const looksLikeHtml = /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div)\b/i.test(trimmed);
+  const looksLikeHtml =
+    /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div)\b/i.test(trimmed);
   if (!looksLikeHtml) {
     return trimmed
       .split(/\r?\n/)
@@ -66,12 +60,12 @@ function parseBodyBlocks(body: string): string[] {
   }
 
   const safe = sanitizeHtml(trimmed);
-  // Split on closing block tags so each entry is one self-contained block.
-  const matches = safe.match(/<(?:p|h2|h3|h4|blockquote|ul|ol|figure|hr|div)\b[\s\S]*?<\/(?:p|h2|h3|h4|blockquote|ul|ol|figure|div)>|<hr\b[^>]*\/?>/gi);
+  const matches = safe.match(
+    /<(?:p|h2|h3|h4|blockquote|ul|ol|figure|hr|div)\b[\s\S]*?<\/(?:p|h2|h3|h4|blockquote|ul|ol|figure|div)>|<hr\b[^>]*\/?>/gi,
+  );
   if (matches && matches.length > 0) {
     return matches.map((block) => block.trim()).filter(Boolean);
   }
-  // Fall back to wrapping the whole sanitized body in a single block.
   return [safe];
 }
 
@@ -98,32 +92,36 @@ export async function createJournalPostAction(
     };
   }
 
-  const result = await createJournalPostDraft({
-    slug: parsed.data.slug,
-    title: parsed.data.title,
-    excerpt: parsed.data.excerpt,
-    body: parseBodyBlocks(parsed.data.body),
-    category: parsed.data.category,
-    readingTime: parsed.data.readingTime,
-    relatedServiceSlugs: parseCommaSeparated(parsed.data.relatedServiceSlugs),
-    relatedDoctorSlugs: parseCommaSeparated(parsed.data.relatedDoctorSlugs),
-    ...(parsed.data.coverImageUrl
-      ? {
-          coverImageUrl: parsed.data.coverImageUrl,
-        }
-      : {}),
-  });
+  try {
+    const result = await createJournalPostDraft({
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      excerpt: parsed.data.excerpt,
+      body: parseBodyBlocks(parsed.data.body),
+      category: parsed.data.category,
+      readingTime: parsed.data.readingTime,
+      relatedServiceSlugs: parseCommaSeparated(parsed.data.relatedServiceSlugs),
+      relatedDoctorSlugs: parseCommaSeparated(parsed.data.relatedDoctorSlugs),
+      ...(parsed.data.coverImageUrl
+        ? {
+            coverImageUrl: parsed.data.coverImageUrl,
+          }
+        : {}),
+    });
 
-  revalidatePath("/admin/journal");
-  revalidatePath("/journal");
+    revalidatePath("/admin/journal");
+    revalidatePath("/journal");
 
-  return {
-    status: "success",
-    message:
-      result.mode === "database"
-        ? "تم حفظ المقال بنجاح."
-        : "تم اعتماد المقال داخل بيئة العمل الحالية بنجاح.",
-  };
+    return {
+      status: "success",
+      message:
+        result.mode === "database"
+          ? "تم حفظ المقال بنجاح."
+          : "تم اعتماد المقال داخل بيئة العمل الحالية بنجاح.",
+    };
+  } catch (error) {
+    return { status: "error", message: adminActionErrorMessage(error) };
+  }
 }
 
 export async function updateJournalPostStatusAction(formData: FormData) {
@@ -132,14 +130,15 @@ export async function updateJournalPostStatusAction(formData: FormData) {
     status: formData.get("status"),
   });
 
-  if (!parsed.success) {
+  if (!parsed.success) return;
+
+  try {
+    await updateJournalPostStatus(parsed.data.slug, parsed.data.status);
+    revalidatePath("/admin/journal");
+    revalidatePath("/journal");
+  } catch {
     return;
   }
-
-  await updateJournalPostStatus(parsed.data.slug, parsed.data.status);
-
-  revalidatePath("/admin/journal");
-  revalidatePath("/journal");
 }
 
 export async function deleteJournalPostAction(formData: FormData) {
@@ -147,12 +146,13 @@ export async function deleteJournalPostAction(formData: FormData) {
     slug: formData.get("slug"),
   });
 
-  if (!parsed.success) {
+  if (!parsed.success) return;
+
+  try {
+    await deleteJournalPost(parsed.data.slug);
+    revalidatePath("/admin/journal");
+    revalidatePath("/journal");
+  } catch {
     return;
   }
-
-  await deleteJournalPost(parsed.data.slug);
-
-  revalidatePath("/admin/journal");
-  revalidatePath("/journal");
 }

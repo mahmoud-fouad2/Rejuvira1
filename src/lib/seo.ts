@@ -220,7 +220,7 @@ export function buildServiceJsonLd(service: {
     url: `${baseUrl}/services/${service.slug}`,
     image: service.coverImageUrl?.startsWith("http")
       ? service.coverImageUrl
-      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-rejuvenation.jpg"}`,
+      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-rejuvenation.webp"}`,
     procedureType: "MedicalProcedure",
     provider: { "@id": `${baseUrl}#organization` },
   } as const;

@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
+import { prepareImageUpload } from "@/lib/client-image-upload";
+
 type RichTextEditorProps = {
   /** Form field name; the editor writes the HTML to a hidden input. */
   name: string;
@@ -95,8 +97,9 @@ export function RichTextEditor({
     setBusy(true);
     setError(null);
     try {
+      const preparedFile = await prepareImageUpload(file);
       const form = new FormData();
-      form.append("file", file);
+      form.append("file", preparedFile);
       form.append("namespace", imageNamespace);
       const res = await fetch("/api/admin/upload", {
         method: "POST",
