@@ -8,7 +8,7 @@ import {
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { DoctorCreateForm } from "@/components/forms/DoctorCreateForm";
 import { DoctorEditorForm } from "@/components/forms/DoctorEditorForm";
-import { getDoctors } from "@/lib/content-repository";
+import { getDoctors, getServices } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
   switch (status) {
@@ -24,7 +24,12 @@ function statusMeta(status: ContentStatus) {
 }
 
 export default async function AdminDoctorsPage() {
-  const doctors = await getDoctors();
+  const [doctors, services] = await Promise.all([getDoctors(), getServices()]);
+  const serviceOptions = services.map((service) => ({
+    value: service.slug,
+    label: service.name,
+    hint: service.category,
+  }));
 
   return (
     <>
@@ -46,7 +51,7 @@ export default async function AdminDoctorsPage() {
             titleArabic="إضافة طبيب جديد"
             titleEnglish="New doctor"
           >
-            <DoctorCreateForm />
+            <DoctorCreateForm serviceOptions={serviceOptions} />
           </AdminAddModal>
         </div>
       </div>
@@ -82,7 +87,7 @@ export default async function AdminDoctorsPage() {
                   </summary>
 
                   <div className="mt-4 grid gap-4 border-t pt-4" style={{ borderColor: "var(--admin-border)" }}>
-                    <DoctorEditorForm doctor={doctor} />
+                    <DoctorEditorForm doctor={doctor} serviceOptions={serviceOptions} />
 
                     <div className="flex flex-wrap gap-2">
                       {[

@@ -32,7 +32,16 @@ const updateServiceSchema = serviceSchema.extend({
   id: z.string().min(3),
   status: z.nativeEnum(ContentStatus),
   featured: z.coerce.boolean().optional().default(false),
+  doctorSlugs: z.string().optional().or(z.literal("")),
 });
+
+function parseSlugList(raw: FormDataEntryValue | null): string[] {
+  if (typeof raw !== "string" || !raw.trim()) return [];
+  return raw
+    .split(",")
+    .map((slug) => slug.trim())
+    .filter(Boolean);
+}
 
 function revalidate() {
   revalidatePath("/admin/services");
@@ -95,11 +104,14 @@ export async function updateServiceAction(
     coverImageUrl: formData.get("coverImageUrl"),
     status: formData.get("status"),
     featured: formData.get("featured"),
+    doctorSlugs: formData.get("doctorSlugs"),
   });
 
   if (!parsed.success) {
     return { status: "error", message: "بيانات الخدمة غير صالحة للتحديث." };
   }
+
+  const doctorSlugs = parseSlugList(formData.get("doctorSlugs"));
 
   await updateService({
     id: parsed.data.id,
@@ -113,6 +125,7 @@ export async function updateServiceAction(
     ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
     status: parsed.data.status,
     featured: parsed.data.featured,
+    doctorSlugs,
     ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
   });
 

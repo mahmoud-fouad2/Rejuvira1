@@ -7,6 +7,11 @@ import {
   updateServiceAction,
   type ServiceActionState,
 } from "@/app/admin/services/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 const initial: ServiceActionState = { status: "idle", message: "" };
 
@@ -24,10 +29,12 @@ type Props = {
     coverImageUrl: string;
     status: ContentStatus;
     featured: boolean;
+    doctorSlugs?: readonly string[];
   };
+  doctorOptions?: ChipOption[];
 };
 
-export function ServiceEditorForm({ service }: Props) {
+export function ServiceEditorForm({ service, doctorOptions = [] }: Props) {
   const [state, action, pending] = useActionState(updateServiceAction, initial);
 
   return (
@@ -84,18 +91,13 @@ export function ServiceEditorForm({ service }: Props) {
           />
         </label>
       </div>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">رابط صورة الغلاف</span>
-          <span className="lang-en">Cover image URL</span>
-        </span>
-        <input
-          name="coverImageUrl"
-          defaultValue={service.coverImageUrl}
-          dir="ltr"
-          className="admin-input"
-        />
-      </label>
+      <ImagePicker
+        name="coverImageUrl"
+        defaultValue={service.coverImageUrl}
+        namespace="services"
+        label="صورة الغلاف / Cover image"
+        aspect={16 / 9}
+      />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -154,6 +156,13 @@ export function ServiceEditorForm({ service }: Props) {
           />
         </label>
       </div>
+      <MultiSelectChips
+        name="doctorSlugs"
+        label="الأطباء المرتبطون / Linked doctors"
+        options={doctorOptions}
+        defaultSelected={service.doctorSlugs ?? []}
+        helper="ربط الأطباء الذين يقدمون هذه الخدمة — يظهرون في صفحة الخدمة العامة."
+      />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">

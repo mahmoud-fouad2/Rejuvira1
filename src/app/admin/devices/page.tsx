@@ -8,7 +8,7 @@ import {
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { DeviceCreateForm } from "@/components/forms/DeviceCreateForm";
 import { DeviceEditorForm } from "@/components/forms/DeviceEditorForm";
-import { getDevices } from "@/lib/content-repository";
+import { getDevices, getServices } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
   switch (status) {
@@ -24,7 +24,12 @@ function statusMeta(status: ContentStatus) {
 }
 
 export default async function AdminDevicesPage() {
-  const devices = await getDevices();
+  const [devices, services] = await Promise.all([getDevices(), getServices()]);
+  const serviceOptions = services.map((service) => ({
+    value: service.slug,
+    label: service.name,
+    hint: service.category,
+  }));
 
   return (
     <>
@@ -46,7 +51,7 @@ export default async function AdminDevicesPage() {
             titleArabic="إضافة جهاز جديد"
             titleEnglish="New device"
           >
-            <DeviceCreateForm />
+            <DeviceCreateForm serviceOptions={serviceOptions} />
           </AdminAddModal>
         </div>
       </div>
@@ -96,6 +101,7 @@ export default async function AdminDevicesPage() {
                         imageUrl: device.imageUrl,
                         status: device.status,
                       }}
+                      serviceOptions={serviceOptions}
                     />
 
                     <div className="flex flex-wrap gap-2">

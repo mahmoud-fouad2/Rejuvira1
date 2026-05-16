@@ -6,13 +6,22 @@ import {
   createDeviceAction,
   type DeviceActionState,
 } from "@/app/admin/devices/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 const initialState: DeviceActionState = {
   status: "idle",
   message: "",
 };
 
-export function DeviceCreateForm() {
+export function DeviceCreateForm({
+  serviceOptions = [],
+}: {
+  serviceOptions?: ChipOption[];
+}) {
   const [state, formAction, isPending] = useActionState(
     createDeviceAction,
     initialState,
@@ -41,13 +50,12 @@ export function DeviceCreateForm() {
           <span className="admin-field-label">Slug</span>
           <input name="slug" required dir="ltr" className="admin-input font-mono" />
         </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">رابط صورة الجهاز</span>
-            <span className="lang-en">Image URL</span>
-          </span>
-          <input name="imageUrl" dir="ltr" className="admin-input" />
-        </label>
+        <ImagePicker
+          name="imageUrl"
+          namespace="devices"
+          label="صورة الجهاز / Device image"
+          aspect={4 / 3}
+        />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
@@ -89,13 +97,11 @@ export function DeviceCreateForm() {
           </span>
           <input name="certifications" required className="admin-input" />
         </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الخدمات المرتبطة (slugs)</span>
-            <span className="lang-en">Related services (slugs)</span>
-          </span>
-          <input name="serviceSlugs" dir="ltr" className="admin-input" />
-        </label>
+        <MultiSelectChips
+          name="serviceSlugs"
+          label="الخدمات المرتبطة / Linked services"
+          options={serviceOptions}
+        />
       </div>
       {state.message ? (
         <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>

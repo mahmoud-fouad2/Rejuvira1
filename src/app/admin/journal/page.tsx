@@ -7,7 +7,11 @@ import {
 } from "@/app/admin/journal/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { JournalCreateForm } from "@/components/forms/JournalCreateForm";
-import { getJournalPosts } from "@/lib/content-repository";
+import {
+  getDoctors,
+  getJournalPosts,
+  getServices,
+} from "@/lib/content-repository";
 
 const publishableStatuses = [
   ContentStatus.DRAFT,
@@ -41,10 +45,24 @@ function statusClass(status: ContentStatus) {
 }
 
 export default async function AdminJournalPage() {
-  const posts = await getJournalPosts();
+  const [posts, services, doctors] = await Promise.all([
+    getJournalPosts(),
+    getServices(),
+    getDoctors(),
+  ]);
   const publishedCount = posts.filter(
     (post) => post.status === ContentStatus.PUBLISHED,
   ).length;
+  const serviceOptions = services.map((service) => ({
+    value: service.slug,
+    label: service.name,
+    hint: service.category,
+  }));
+  const doctorOptions = doctors.map((doctor) => ({
+    value: doctor.slug,
+    label: doctor.name,
+    hint: doctor.specialty,
+  }));
 
   return (
     <>
@@ -70,7 +88,10 @@ export default async function AdminJournalPage() {
             titleArabic="إضافة مقال جديد"
             titleEnglish="New article"
           >
-            <JournalCreateForm />
+            <JournalCreateForm
+              serviceOptions={serviceOptions}
+              doctorOptions={doctorOptions}
+            />
           </AdminAddModal>
         </div>
       </div>

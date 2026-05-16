@@ -6,13 +6,22 @@ import {
   createDoctorAction,
   type DoctorActionState,
 } from "@/app/admin/doctors/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 const initialState: DoctorActionState = {
   status: "idle",
   message: "",
 };
 
-export function DoctorCreateForm() {
+export function DoctorCreateForm({
+  serviceOptions = [],
+}: {
+  serviceOptions?: ChipOption[];
+}) {
   const [state, formAction, isPending] = useActionState(
     createDoctorAction,
     initialState,
@@ -83,21 +92,25 @@ export function DoctorCreateForm() {
         </label>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">رابط صورة الطبيب</span>
-            <span className="lang-en">Photo URL</span>
-          </span>
-          <input name="photoUrl" dir="ltr" className="admin-input" />
-        </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">رابط صورة الغلاف</span>
-            <span className="lang-en">Cover URL</span>
-          </span>
-          <input name="coverImageUrl" dir="ltr" className="admin-input" />
-        </label>
+        <ImagePicker
+          name="photoUrl"
+          namespace="doctors"
+          label="صورة الطبيب / Doctor photo"
+          aspect={3 / 4}
+        />
+        <ImagePicker
+          name="coverImageUrl"
+          namespace="doctors"
+          label="صورة الغلاف / Cover image"
+          aspect={16 / 9}
+        />
       </div>
+      <MultiSelectChips
+        name="serviceSlugs"
+        label="الخدمات المرتبطة / Linked services"
+        options={serviceOptions}
+        helper="اختر الخدمات التي يقدمها هذا الطبيب — تظهر في صفحته العامة وصفحات الخدمات."
+      />
       <label className="grid gap-1">
         <span className="admin-field-label">
           <span className="lang-ar">ملخص (عربي)</span>

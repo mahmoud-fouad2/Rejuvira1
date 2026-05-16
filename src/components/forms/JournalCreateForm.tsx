@@ -6,13 +6,25 @@ import {
   createJournalPostAction,
   type JournalActionState,
 } from "@/app/admin/journal/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 const initialState: JournalActionState = {
   status: "idle",
   message: "",
 };
 
-export function JournalCreateForm() {
+export function JournalCreateForm({
+  serviceOptions = [],
+  doctorOptions = [],
+}: {
+  serviceOptions?: ChipOption[];
+  doctorOptions?: ChipOption[];
+}) {
   const [state, formAction, isPending] = useActionState(
     createJournalPostAction,
     initialState,
@@ -47,13 +59,12 @@ export function JournalCreateForm() {
           <input name="readingTime" defaultValue="4 دقائق" required className="admin-input" />
         </label>
       </div>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">رابط صورة الغلاف</span>
-          <span className="lang-en">Cover URL</span>
-        </span>
-        <input name="coverImageUrl" dir="ltr" className="admin-input" />
-      </label>
+      <ImagePicker
+        name="coverImageUrl"
+        namespace="journal"
+        label="صورة الغلاف / Cover image"
+        aspect={16 / 9}
+      />
       <label className="grid gap-1">
         <span className="admin-field-label">
           <span className="lang-ar">المقدمة</span>
@@ -61,28 +72,24 @@ export function JournalCreateForm() {
         </span>
         <textarea name="excerpt" rows={2} required className="admin-input" />
       </label>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">المتن (فقرة في كل سطر)</span>
-          <span className="lang-en">Body (paragraph per line)</span>
-        </span>
-        <textarea name="body" rows={7} required className="admin-input" />
-      </label>
+      <RichTextEditor
+        name="body"
+        label="المتن / Body"
+        helper="استخدم العناوين والقوائم والاقتباسات لتنظيم المقال. يمكنك إدراج صور مباشرة من الجهاز."
+        required
+        imageNamespace="journal"
+      />
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">خدمات مرتبطة (slugs)</span>
-            <span className="lang-en">Related services</span>
-          </span>
-          <input name="relatedServiceSlugs" dir="ltr" className="admin-input" />
-        </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">أطباء مرتبطون (slugs)</span>
-            <span className="lang-en">Related doctors</span>
-          </span>
-          <input name="relatedDoctorSlugs" dir="ltr" className="admin-input" />
-        </label>
+        <MultiSelectChips
+          name="relatedServiceSlugs"
+          label="خدمات مرتبطة / Related services"
+          options={serviceOptions}
+        />
+        <MultiSelectChips
+          name="relatedDoctorSlugs"
+          label="أطباء مرتبطون / Related doctors"
+          options={doctorOptions}
+        />
       </div>
       {state.message ? (
         <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>

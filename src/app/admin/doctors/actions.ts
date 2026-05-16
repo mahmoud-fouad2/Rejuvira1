@@ -29,7 +29,16 @@ const doctorSchema = z.object({
   coverImageUrl: z.string().optional().or(z.literal("")),
   featured: z.coerce.boolean().optional().default(false),
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
+  serviceSlugs: z.string().optional().or(z.literal("")),
 });
+
+function parseSlugList(raw: FormDataEntryValue | null): string[] {
+  if (typeof raw !== "string" || !raw.trim()) return [];
+  return raw
+    .split(",")
+    .map((slug) => slug.trim())
+    .filter(Boolean);
+}
 
 const updateDoctorSchema = doctorSchema.extend({
   id: z.string().min(3),
@@ -52,6 +61,7 @@ export async function createDoctorAction(
     coverImageUrl: formData.get("coverImageUrl"),
     featured: formData.get("featured"),
     status: formData.get("status"),
+    serviceSlugs: formData.get("serviceSlugs"),
   });
 
   if (!parsed.success) {
@@ -60,6 +70,8 @@ export async function createDoctorAction(
       message: "يرجى مراجعة بيانات الطبيب قبل حفظ المسودة.",
     };
   }
+
+  const serviceSlugs = parseSlugList(formData.get("serviceSlugs"));
 
   const result = await createDoctorDraft({
     slug: parsed.data.slug,
@@ -75,6 +87,7 @@ export async function createDoctorAction(
       .filter(Boolean),
     featured: parsed.data.featured,
     status: parsed.data.status,
+    serviceSlugs,
     ...(parsed.data.photoUrl
       ? {
           photoUrl: parsed.data.photoUrl,
@@ -119,6 +132,7 @@ export async function updateDoctorAction(
     coverImageUrl: formData.get("coverImageUrl"),
     featured: formData.get("featured"),
     status: formData.get("status"),
+    serviceSlugs: formData.get("serviceSlugs"),
   });
 
   if (!parsed.success) {
@@ -127,6 +141,8 @@ export async function updateDoctorAction(
       message: "بيانات الطبيب غير مكتملة أو غير صالحة للتحديث.",
     };
   }
+
+  const serviceSlugs = parseSlugList(formData.get("serviceSlugs"));
 
   const result = await updateDoctorProfile({
     id: parsed.data.id,
@@ -143,6 +159,7 @@ export async function updateDoctorAction(
       .filter(Boolean),
     featured: parsed.data.featured,
     status: parsed.data.status,
+    serviceSlugs,
     ...(parsed.data.photoUrl
       ? {
           photoUrl: parsed.data.photoUrl,

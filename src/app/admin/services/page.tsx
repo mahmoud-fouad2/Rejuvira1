@@ -8,7 +8,7 @@ import {
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { ServiceCreateForm } from "@/components/forms/ServiceCreateForm";
 import { ServiceEditorForm } from "@/components/forms/ServiceEditorForm";
-import { getServices } from "@/lib/content-repository";
+import { getDoctors, getServices } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
   switch (status) {
@@ -24,7 +24,12 @@ function statusMeta(status: ContentStatus) {
 }
 
 export default async function AdminServicesPage() {
-  const services = await getServices();
+  const [services, doctors] = await Promise.all([getServices(), getDoctors()]);
+  const doctorOptions = doctors.map((doctor) => ({
+    value: doctor.slug,
+    label: doctor.name,
+    hint: doctor.specialty,
+  }));
 
   return (
     <>
@@ -93,7 +98,9 @@ export default async function AdminServicesPage() {
                         coverImageUrl: service.coverImageUrl,
                         status: service.status,
                         featured: service.featured ?? false,
+                        doctorSlugs: service.doctorSlugs,
                       }}
+                      doctorOptions={doctorOptions}
                     />
 
                     <div className="flex flex-wrap gap-2">

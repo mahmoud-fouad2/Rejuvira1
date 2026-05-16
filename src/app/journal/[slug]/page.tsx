@@ -106,14 +106,27 @@ export default async function JournalDetailPage({
         <section className="mt-6 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
           <article className="surface-panel rounded-[2.5rem] p-7 lg:p-10">
             <div className="grid gap-6">
-              {post.body.map((paragraph) => (
-                <p
-                  key={paragraph}
-                  className="text-ink-soft text-base leading-9"
-                >
-                  {paragraph}
-                </p>
-              ))}
+              {post.body.map((paragraph) => {
+                const looksLikeHtml = /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div|strong|em|a)\b/i.test(paragraph);
+                if (looksLikeHtml) {
+                  return (
+                    <div
+                      key={paragraph}
+                      className="rv-journal-prose text-ink-soft text-base leading-9"
+                      // sanitized server-side in admin actions before persistence.
+                      dangerouslySetInnerHTML={{ __html: paragraph }}
+                    />
+                  );
+                }
+                return (
+                  <p
+                    key={paragraph}
+                    className="text-ink-soft text-base leading-9"
+                  >
+                    {paragraph}
+                  </p>
+                );
+              })}
             </div>
           </article>
           <div className="grid gap-5">

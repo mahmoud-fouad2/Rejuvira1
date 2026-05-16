@@ -7,6 +7,11 @@ import {
   updateDeviceAction,
   type DeviceActionState,
 } from "@/app/admin/devices/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 const initial: DeviceActionState = { status: "idle", message: "" };
 
@@ -27,7 +32,10 @@ type Props = {
   };
 };
 
-export function DeviceEditorForm({ device }: Props) {
+export function DeviceEditorForm({
+  device,
+  serviceOptions = [],
+}: Props & { serviceOptions?: ChipOption[] }) {
   const [state, action, pending] = useActionState(updateDeviceAction, initial);
 
   return (
@@ -71,18 +79,13 @@ export function DeviceEditorForm({ device }: Props) {
             className="admin-input font-mono"
           />
         </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">رابط صورة الجهاز</span>
-            <span className="lang-en">Image URL</span>
-          </span>
-          <input
-            name="imageUrl"
-            defaultValue={device.imageUrl}
-            dir="ltr"
-            className="admin-input"
-          />
-        </label>
+        <ImagePicker
+          name="imageUrl"
+          defaultValue={device.imageUrl}
+          namespace="devices"
+          label="صورة الجهاز / Device image"
+          aspect={4 / 3}
+        />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
@@ -155,18 +158,12 @@ export function DeviceEditorForm({ device }: Props) {
             className="admin-input"
           />
         </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">الخدمات المرتبطة (slugs)</span>
-            <span className="lang-en">Related services (slugs)</span>
-          </span>
-          <input
-            name="serviceSlugs"
-            defaultValue={device.serviceSlugs.join(", ")}
-            dir="ltr"
-            className="admin-input"
-          />
-        </label>
+        <MultiSelectChips
+          name="serviceSlugs"
+          label="الخدمات المرتبطة / Linked services"
+          options={serviceOptions}
+          defaultSelected={device.serviceSlugs}
+        />
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">

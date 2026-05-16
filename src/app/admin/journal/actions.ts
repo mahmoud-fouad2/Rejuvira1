@@ -9,6 +9,7 @@ import {
   deleteJournalPost,
   updateJournalPostStatus,
 } from "@/lib/content-repository";
+import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export type JournalActionState = {
   status: "idle" | "success" | "error";
@@ -47,6 +48,33 @@ function parseCommaSeparated(value: string | undefined) {
     .filter(Boolean);
 }
 
+/**
+ * Split a body field into block-level entries. Accepts either rich-text HTML
+ * authored by the editor (containing block tags) or legacy plain text where
+ * each newline starts a new paragraph.
+ */
+function parseBodyBlocks(body: string): string[] {
+  const trimmed = body.trim();
+  if (!trimmed) return [];
+
+  const looksLikeHtml = /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div)\b/i.test(trimmed);
+  if (!looksLikeHtml) {
+    return trimmed
+      .split(/\r?\n/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+  }
+
+  const safe = sanitizeHtml(trimmed);
+  // Split on closing block tags so each entry is one self-contained block.
+  const matches = safe.match(/<(?:p|h2|h3|h4|blockquote|ul|ol|figure|hr|div)\b[\s\S]*?<\/(?:p|h2|h3|h4|blockquote|ul|ol|figure|div)>|<hr\b[^>]*\/?>/gi);
+  if (matches && matches.length > 0) {
+    return matches.map((block) => block.trim()).filter(Boolean);
+  }
+  // Fall back to wrapping the whole sanitized body in a single block.
+  return [safe];
+}
+
 export async function createJournalPostAction(
   _previousState: JournalActionState,
   formData: FormData,
@@ -74,10 +102,7 @@ export async function createJournalPostAction(
     slug: parsed.data.slug,
     title: parsed.data.title,
     excerpt: parsed.data.excerpt,
-    body: parsed.data.body
-      .split(/\r?\n/)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean),
+    body: parseBodyBlocks(parsed.data.body),
     category: parsed.data.category,
     readingTime: parsed.data.readingTime,
     relatedServiceSlugs: parseCommaSeparated(parsed.data.relatedServiceSlugs),

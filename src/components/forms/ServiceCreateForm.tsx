@@ -6,6 +6,7 @@ import {
   createServiceAction,
   type ServiceActionState,
 } from "@/app/admin/services/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
 
 const initialState: ServiceActionState = {
   status: "idle",
@@ -49,13 +50,12 @@ export function ServiceCreateForm() {
           <input name="category" required className="admin-input" />
         </label>
       </div>
-      <label className="grid gap-1">
-        <span className="admin-field-label">
-          <span className="lang-ar">رابط صورة الغلاف</span>
-          <span className="lang-en">Cover image URL</span>
-        </span>
-        <input name="coverImageUrl" dir="ltr" className="admin-input" />
-      </label>
+      <ImagePicker
+        name="coverImageUrl"
+        namespace="services"
+        label="صورة الغلاف / Cover image"
+        aspect={16 / 9}
+      />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">

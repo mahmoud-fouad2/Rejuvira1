@@ -7,13 +7,24 @@ import {
   type DoctorActionState,
 } from "@/app/admin/doctors/actions";
 import type { DoctorRecord } from "@/lib/content-repository";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 const initialState: DoctorActionState = {
   status: "idle",
   message: "",
 };
 
-export function DoctorEditorForm({ doctor }: { doctor: DoctorRecord }) {
+export function DoctorEditorForm({
+  doctor,
+  serviceOptions = [],
+}: {
+  doctor: DoctorRecord;
+  serviceOptions?: ChipOption[];
+}) {
   const [state, formAction, isPending] = useActionState(
     updateDoctorAction,
     initialState,
@@ -69,21 +80,28 @@ export function DoctorEditorForm({ doctor }: { doctor: DoctorRecord }) {
           </span>
           <input name="languages" defaultValue={doctor.languages.join(", ")} required className="admin-input" />
         </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">صورة الطبيب</span>
-            <span className="lang-en">Photo URL</span>
-          </span>
-          <input name="photoUrl" defaultValue={doctor.photoUrl} dir="ltr" className="admin-input" />
-        </label>
-        <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">صورة الغلاف</span>
-            <span className="lang-en">Cover URL</span>
-          </span>
-          <input name="coverImageUrl" defaultValue={doctor.coverImageUrl} dir="ltr" className="admin-input" />
-        </label>
+        <ImagePicker
+          name="photoUrl"
+          defaultValue={doctor.photoUrl}
+          namespace="doctors"
+          label="صورة الطبيب / Doctor photo"
+          aspect={3 / 4}
+        />
+        <ImagePicker
+          name="coverImageUrl"
+          defaultValue={doctor.coverImageUrl}
+          namespace="doctors"
+          label="صورة الغلاف / Cover image"
+          aspect={16 / 9}
+        />
       </div>
+      <MultiSelectChips
+        name="serviceSlugs"
+        label="الخدمات المرتبطة / Linked services"
+        options={serviceOptions}
+        defaultSelected={doctor.serviceSlugs}
+        helper="إضافة/إزالة هذا الطبيب من قائمة مقدمي كل خدمة."
+      />
       <label className="grid gap-1">
         <span className="admin-field-label">
           <span className="lang-ar">ملخص</span>

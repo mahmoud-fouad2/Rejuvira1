@@ -1,4 +1,5 @@
 ﻿import { ContentStatus, SubmissionStatus, UserRole } from "@prisma/client";
+import { cache } from "react";
 
 import { prisma } from "@/lib/prisma";
 
@@ -379,6 +380,7 @@ export type CreateDoctorInput = {
   coverImageUrl?: string | undefined;
   featured?: boolean | undefined;
   status?: ContentStatus | undefined;
+  serviceSlugs?: string[] | undefined;
 };
 
 export type UpdateDoctorInput = {
@@ -399,6 +401,7 @@ export type UpdateDoctorInput = {
   coverImageUrl?: string | undefined;
   featured: boolean;
   status: ContentStatus;
+  serviceSlugs?: string[] | undefined;
 };
 
 export type CreateServiceInput = {
@@ -518,6 +521,7 @@ export type UpdateServiceInput = {
   status: ContentStatus;
   featured: boolean;
   coverImageUrl?: string | undefined;
+  doctorSlugs?: string[] | undefined;
 };
 
 export type UpdateDeviceInput = {
@@ -2050,7 +2054,7 @@ function toDoctorSummary(publications: unknown, bio: string) {
   return toStringList(publications)[0] ?? bio.slice(0, 180);
 }
 
-export async function getDoctors() {
+export const getDoctors = cache(async () => {
   if (!canUseDatabase()) {
     return sortFeaturedFirst([...seedDoctors]);
   }
@@ -2094,14 +2098,14 @@ export async function getDoctors() {
   } catch {
     return sortFeaturedFirst([...seedDoctors]);
   }
-}
+});
 
 export async function getDoctorBySlug(slug: string) {
   const doctors = await getDoctors();
   return doctors.find((doctor) => doctor.slug === slug) ?? null;
 }
 
-export async function getServices() {
+export const getServices = cache(async () => {
   if (!canUseDatabase()) {
     return sortFeaturedFirst([...seedServices]);
   }
@@ -2144,14 +2148,14 @@ export async function getServices() {
   } catch {
     return sortFeaturedFirst([...seedServices]);
   }
-}
+});
 
 export async function getServiceBySlug(slug: string) {
   const services = await getServices();
   return services.find((service) => service.slug === slug) ?? null;
 }
 
-export async function getDevices() {
+export const getDevices = cache(async () => {
   if (!canUseDatabase()) {
     return [...seedDevices];
   }
@@ -2186,9 +2190,9 @@ export async function getDevices() {
   } catch {
     return [...seedDevices];
   }
-}
+});
 
-export async function getGalleryItems() {
+export const getGalleryItems = cache(async () => {
   if (!canUseDatabase()) {
     return [...seedGallery];
   }
@@ -2221,9 +2225,9 @@ export async function getGalleryItems() {
   } catch {
     return [...seedGallery];
   }
-}
+});
 
-export async function getJournalPosts() {
+export const getJournalPosts = cache(async () => {
   if (!canUseDatabase()) {
     return [...seedJournalPosts].sort(
       (left, right) =>
@@ -2273,7 +2277,7 @@ export async function getJournalPosts() {
         new Date(left.publishedAt).getTime(),
     );
   }
-}
+});
 
 export async function getJournalPostBySlug(slug: string) {
   const posts = await getJournalPosts();
@@ -2394,7 +2398,12 @@ export async function getSettingsGroups() {
   }
 }
 
-export async function getRuntimeSettings(): Promise<RuntimeSettings> {
+/**
+ * Per-request memoized runtime settings. Called from layouts, metadata, and
+ * downstream components — caching dedupes repeated DB roundtrips during a
+ * single render and significantly reduces TTFB on cold pages.
+ */
+export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
   const groups = await getSettingsGroups();
   const getValue = (groupKey: string, fieldKey: string, fallback: string) =>
     groups
@@ -2831,7 +2840,7 @@ export async function getRuntimeSettings(): Promise<RuntimeSettings> {
       formWebhookSecret: getValue("integrations", "formWebhookSecret", ""),
     },
   };
-}
+});
 
 function buildSeoSettings(
   getValue: (groupKey: string, fieldKey: string, fallback: string) => string,
@@ -3033,6 +3042,8 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
     return { mode: "preview" as const, item: input };
   }
 
+  const serviceConnect = (input.serviceSlugs ?? []).filter(Boolean);
+
   const doctor = await prisma.doctor.create({
     data: {
       slug: input.slug,
@@ -3053,6 +3064,13 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
       isFeatured: input.featured ?? false,
       photoUrl: input.photoUrl ?? null,
       coverImageUrl: input.coverImageUrl ?? input.photoUrl ?? null,
+      ...(serviceConnect.length
+        ? {
+            services: {
+              connect: serviceConnect.map((slug) => ({ slug })),
+            },
+          }
+        : {}),
     },
   });
 
@@ -3064,6 +3082,7 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
     return { mode: "preview" as const, item: input };
   }
 
+  const serviceSlugs = input.serviceSlugs;
   const doctor = await prisma.doctor.update({
     where: { id: input.id },
     data: {
@@ -3083,6 +3102,13 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
       isFeatured: input.featured,
       photoUrl: input.photoUrl || null,
       coverImageUrl: input.coverImageUrl || input.photoUrl || null,
+      ...(Array.isArray(serviceSlugs)
+        ? {
+            services: {
+              set: serviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+            },
+          }
+        : {}),
     },
   });
 
@@ -3855,6 +3881,7 @@ export async function updateService(input: UpdateServiceInput) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, input };
   }
+  const doctorSlugs = input.doctorSlugs;
   const item = await prisma.service.update({
     where: { id: input.id },
     data: {
@@ -3869,6 +3896,13 @@ export async function updateService(input: UpdateServiceInput) {
       status: input.status,
       isFeatured: input.featured,
       ...(input.coverImageUrl ? { coverImageUrl: input.coverImageUrl } : {}),
+      ...(Array.isArray(doctorSlugs)
+        ? {
+            doctors: {
+              set: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
+            },
+          }
+        : {}),
     },
   });
   return { mode: "database" as const, item };

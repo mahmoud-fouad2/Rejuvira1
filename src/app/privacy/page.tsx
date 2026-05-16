@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getRuntimeSettings } from "@/lib/content-repository";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 600;
 
 const LAST_UPDATED_AR = "آخر تحديث: 14 مايو 2026";
 const LAST_UPDATED_EN = "Last updated: May 14, 2026";

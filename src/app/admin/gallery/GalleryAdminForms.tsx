@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { saveGalleryItemAction, deleteGalleryItemAction } from "./actions";
 import type { GalleryRecord } from "@/lib/content-repository";
+import { ImagePicker } from "@/components/admin/ImagePicker";
 
 type State = { success: boolean; message: string };
 const initial: State = { success: false, message: "" };
@@ -129,23 +130,23 @@ export function GalleryItemForm({
         }}
       >
         <p className="text-ink-soft mb-3 text-xs font-semibold uppercase tracking-widest">
-          صورة قبل
+          <span className="lang-ar">صورة قبل</span>
+          <span className="lang-en">Before image</span>
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
+          <ImagePicker
+            name="beforeImageUrl"
+            defaultValue={item?.beforeImageUrl ?? ""}
+            namespace="gallery"
+            label="الصورة (قبل) / Image (before) *"
+            required
+            aspect={1}
+          />
           <label className="flex flex-col gap-1.5">
-            <span className="text-ink-faint text-xs">مسار الصورة *</span>
-            <input
-              name="beforeImageUrl"
-              defaultValue={item?.beforeImageUrl ?? ""}
-              placeholder="/media/gallery/before-1.jpg"
-              required
-              dir="ltr"
-              className="border-line bg-canvas text-ink rounded-[1rem] border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2"
-              style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-ink-faint text-xs">النص البديل (alt) — لمحركات البحث *</span>
+            <span className="text-ink-faint text-xs">
+              <span className="lang-ar">النص البديل (alt) — لمحركات البحث *</span>
+              <span className="lang-en">Alt text (SEO) *</span>
+            </span>
             <input
               name="beforeImageAlt"
               defaultValue={item?.beforeImageAlt ?? ""}
@@ -166,23 +167,23 @@ export function GalleryItemForm({
         }}
       >
         <p className="text-ink-soft mb-3 text-xs font-semibold uppercase tracking-widest">
-          صورة بعد
+          <span className="lang-ar">صورة بعد</span>
+          <span className="lang-en">After image</span>
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
+          <ImagePicker
+            name="afterImageUrl"
+            defaultValue={item?.afterImageUrl ?? ""}
+            namespace="gallery"
+            label="الصورة (بعد) / Image (after) *"
+            required
+            aspect={1}
+          />
           <label className="flex flex-col gap-1.5">
-            <span className="text-ink-faint text-xs">مسار الصورة *</span>
-            <input
-              name="afterImageUrl"
-              defaultValue={item?.afterImageUrl ?? ""}
-              placeholder="/media/gallery/after-1.jpg"
-              required
-              dir="ltr"
-              className="border-line bg-canvas text-ink rounded-[1rem] border px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2"
-              style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
-            />
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-ink-faint text-xs">النص البديل (alt) — لمحركات البحث *</span>
+            <span className="text-ink-faint text-xs">
+              <span className="lang-ar">النص البديل (alt) — لمحركات البحث *</span>
+              <span className="lang-en">Alt text (SEO) *</span>
+            </span>
             <input
               name="afterImageAlt"
               defaultValue={item?.afterImageAlt ?? ""}
