@@ -7,6 +7,7 @@ import { z } from "zod";
 import {
   createJournalPostDraft,
   deleteJournalPost,
+  updateJournalPost,
   updateJournalPostStatus,
 } from "@/lib/content-repository";
 import { adminActionErrorMessage } from "@/lib/admin-action-errors";
@@ -30,6 +31,20 @@ const createJournalSchema = z.object({
 });
 
 const updateJournalSchema = z.object({
+  id: z.string().min(3),
+  slug: z.string().min(3),
+  title: z.string().min(6),
+  excerpt: z.string().min(12),
+  body: z.string().min(40),
+  coverImageUrl: z.string().optional().or(z.literal("")),
+  category: z.string().min(2),
+  readingTime: z.string().min(2),
+  relatedServiceSlugs: z.string().optional().or(z.literal("")),
+  relatedDoctorSlugs: z.string().optional().or(z.literal("")),
+  status: z.nativeEnum(ContentStatus),
+});
+
+const updateJournalStatusSchema = z.object({
   slug: z.string().min(3),
   status: z.nativeEnum(ContentStatus),
 });
@@ -124,8 +139,68 @@ export async function createJournalPostAction(
   }
 }
 
-export async function updateJournalPostStatusAction(formData: FormData) {
+export async function updateJournalPostAction(
+  _previousState: JournalActionState,
+  formData: FormData,
+): Promise<JournalActionState> {
   const parsed = updateJournalSchema.safeParse({
+    id: formData.get("id"),
+    slug: formData.get("slug"),
+    title: formData.get("title"),
+    excerpt: formData.get("excerpt"),
+    body: formData.get("body"),
+    coverImageUrl: formData.get("coverImageUrl"),
+    category: formData.get("category"),
+    readingTime: formData.get("readingTime"),
+    relatedServiceSlugs: formData.get("relatedServiceSlugs"),
+    relatedDoctorSlugs: formData.get("relatedDoctorSlugs"),
+    status: formData.get("status"),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "يرجى استكمال بيانات المقال بشكل صحيح قبل الحفظ.",
+    };
+  }
+
+  try {
+    const result = await updateJournalPost({
+      id: parsed.data.id,
+      slug: parsed.data.slug,
+      title: parsed.data.title,
+      excerpt: parsed.data.excerpt,
+      body: parseBodyBlocks(parsed.data.body),
+      category: parsed.data.category,
+      readingTime: parsed.data.readingTime,
+      relatedServiceSlugs: parseCommaSeparated(parsed.data.relatedServiceSlugs),
+      relatedDoctorSlugs: parseCommaSeparated(parsed.data.relatedDoctorSlugs),
+      status: parsed.data.status,
+      ...(parsed.data.coverImageUrl
+        ? {
+            coverImageUrl: parsed.data.coverImageUrl,
+          }
+        : {}),
+    });
+
+    revalidatePath("/admin/journal");
+    revalidatePath("/journal");
+    revalidatePath(`/journal/${parsed.data.slug}`);
+
+    return {
+      status: "success",
+      message:
+        result.mode === "database"
+          ? "تم تحديث المقال بنجاح."
+          : "تم تحديث المقال داخل بيئة العمل الحالية بنجاح.",
+    };
+  } catch (error) {
+    return { status: "error", message: adminActionErrorMessage(error) };
+  }
+}
+
+export async function updateJournalPostStatusAction(formData: FormData) {
+  const parsed = updateJournalStatusSchema.safeParse({
     slug: formData.get("slug"),
     status: formData.get("status"),
   });

@@ -19,9 +19,11 @@ const initialState: JournalActionState = {
 };
 
 export function JournalCreateForm({
+  categoryOptions = [],
   serviceOptions = [],
   doctorOptions = [],
 }: {
+  categoryOptions?: string[];
   serviceOptions?: ChipOption[];
   doctorOptions?: ChipOption[];
 }) {
@@ -49,7 +51,17 @@ export function JournalCreateForm({
             <span className="lang-ar">التصنيف</span>
             <span className="lang-en">Category</span>
           </span>
-          <input name="category" required className="admin-input" />
+          <input
+            name="category"
+            required
+            className="admin-input"
+            list="journal-create-categories"
+          />
+          <datalist id="journal-create-categories">
+            {categoryOptions.map((category) => (
+              <option key={category} value={category} />
+            ))}
+          </datalist>
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">

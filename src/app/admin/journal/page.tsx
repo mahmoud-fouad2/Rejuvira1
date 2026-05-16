@@ -7,9 +7,11 @@ import {
 } from "@/app/admin/journal/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { JournalCreateForm } from "@/components/forms/JournalCreateForm";
+import { JournalEditorForm } from "@/components/forms/JournalEditorForm";
 import {
   getDoctors,
   getJournalPosts,
+  getServiceCategories,
   getServices,
 } from "@/lib/content-repository";
 
@@ -28,6 +30,7 @@ const statusLabelsAr: Record<ContentStatus, string> = {
   PUBLISHED: "منشور",
   ARCHIVED: "مؤرشف",
 };
+
 const statusLabelsEn: Record<ContentStatus, string> = {
   DRAFT: "Draft",
   REVIEW: "Review",
@@ -45,10 +48,11 @@ function statusClass(status: ContentStatus) {
 }
 
 export default async function AdminJournalPage() {
-  const [posts, services, doctors] = await Promise.all([
+  const [posts, services, doctors, categories] = await Promise.all([
     getJournalPosts(),
     getServices(),
     getDoctors(),
+    getServiceCategories(),
   ]);
   const publishedCount = posts.filter(
     (post) => post.status === ContentStatus.PUBLISHED,
@@ -63,6 +67,13 @@ export default async function AdminJournalPage() {
     label: doctor.name,
     hint: doctor.specialty,
   }));
+  const categoryOptions = Array.from(
+    new Set([
+      ...categories.map((category) => category.name),
+      ...services.map((service) => service.category),
+      ...posts.map((post) => post.category),
+    ]),
+  ).filter(Boolean);
 
   return (
     <>
@@ -89,6 +100,7 @@ export default async function AdminJournalPage() {
             titleEnglish="New article"
           >
             <JournalCreateForm
+              categoryOptions={categoryOptions}
               serviceOptions={serviceOptions}
               doctorOptions={doctorOptions}
             />
@@ -96,81 +108,103 @@ export default async function AdminJournalPage() {
         </div>
       </div>
 
-      <div className="grid gap-4">
-        <article className="admin-card">
-          <div className="admin-card__header">
-            <div>
-              <div className="admin-card__subtitle">Articles</div>
-              <div className="admin-card__title">
-                <span className="lang-ar">المقالات</span>
-                <span className="lang-en">Articles</span>
-              </div>
-            </div>
-          </div>
-          <div className="admin-data-list">
-            {posts.map((post) => {
-              const currentStatus = post.status ?? ContentStatus.PUBLISHED;
-              return (
-                <div key={post.id} className="admin-data-row !block">
-                  <div className="grid grid-cols-[3.4rem_1fr_auto] items-center gap-3">
-                    <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
-                      <Image src={post.coverImageUrl} alt={post.title} fill className="object-cover" sizes="56px" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="admin-data-row__title truncate">{post.title}</p>
-                      <p className="admin-data-row__meta truncate">
-                        {post.category} · {post.readingTime}
-                      </p>
-                    </div>
-                    <span className={`admin-status-badge ${statusClass(currentStatus)}`}>
-                      <span className="lang-ar">{statusLabelsAr[currentStatus]}</span>
-                      <span className="lang-en">{statusLabelsEn[currentStatus]}</span>
-                    </span>
-                  </div>
+      <section className="admin-editor-grid">
+        {posts.map((post) => {
+          const currentStatus = post.status ?? ContentStatus.PUBLISHED;
+          const relatedServiceNames = services
+            .filter((service) => post.relatedServiceSlugs.includes(service.slug))
+            .map((service) => service.name);
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {publishableStatuses.map((status) => {
-                      const isCurrent = currentStatus === status;
-                      return (
-                        <form
-                          key={`${post.slug}-${status}`}
-                          action={updateJournalPostStatusAction}
+          return (
+            <details key={post.id} className="admin-editor-card">
+              <summary className="admin-editor-card__summary">
+                <span className="admin-editor-card__media">
+                  <Image
+                    src={post.coverImageUrl}
+                    alt={post.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 260px"
+                  />
+                </span>
+                <span className="admin-editor-card__content">
+                  <span className="admin-editor-card__kicker">
+                    {post.category} · {post.readingTime}
+                  </span>
+                  <span className="admin-editor-card__title">
+                    {post.title}
+                  </span>
+                  <span className="admin-editor-card__excerpt">
+                    {post.excerpt}
+                  </span>
+                  <span className="admin-editor-card__chips">
+                    {(relatedServiceNames.length
+                      ? relatedServiceNames
+                      : ["بدون خدمة مرتبطة"]
+                    ).map((label) => (
+                      <span key={label} className="admin-chip">
+                        {label}
+                      </span>
+                    ))}
+                  </span>
+                </span>
+                <span
+                  className={`admin-status-badge ${statusClass(currentStatus)}`}
+                >
+                  <span className="lang-ar">
+                    {statusLabelsAr[currentStatus]}
+                  </span>
+                  <span className="lang-en">
+                    {statusLabelsEn[currentStatus]}
+                  </span>
+                </span>
+              </summary>
+
+              <div className="admin-editor-card__body">
+                <div className="admin-editor-card__statusbar">
+                  {publishableStatuses.map((status) => {
+                    const isCurrent = currentStatus === status;
+                    return (
+                      <form
+                        key={`${post.slug}-${status}`}
+                        action={updateJournalPostStatusAction}
+                      >
+                        <input type="hidden" name="slug" value={post.slug} />
+                        <input type="hidden" name="status" value={status} />
+                        <button
+                          type="submit"
+                          className="admin-btn-secondary"
+                          disabled={isCurrent}
                         >
-                          <input type="hidden" name="slug" value={post.slug} />
-                          <input type="hidden" name="status" value={status} />
-                          <button
-                            type="submit"
-                            className="admin-btn-secondary"
-                            disabled={isCurrent}
-                            style={
-                              isCurrent
-                                ? {
-                                    borderColor: "var(--admin-accent)",
-                                    color: "var(--admin-accent)",
-                                  }
-                                : undefined
-                            }
-                          >
-                            <span className="lang-ar">{statusLabelsAr[status]}</span>
-                            <span className="lang-en">{statusLabelsEn[status]}</span>
-                          </button>
-                        </form>
-                      );
-                    })}
-                    <form action={deleteJournalPostAction}>
-                      <input type="hidden" name="slug" value={post.slug} />
-                      <button type="submit" className="admin-btn-danger">
-                        <span className="lang-ar">حذف</span>
-                        <span className="lang-en">Delete</span>
-                      </button>
-                    </form>
-                  </div>
+                          <span className="lang-ar">
+                            {statusLabelsAr[status]}
+                          </span>
+                          <span className="lang-en">
+                            {statusLabelsEn[status]}
+                          </span>
+                        </button>
+                      </form>
+                    );
+                  })}
+                  <form action={deleteJournalPostAction}>
+                    <input type="hidden" name="slug" value={post.slug} />
+                    <button type="submit" className="admin-btn-danger">
+                      حذف
+                    </button>
+                  </form>
                 </div>
-              );
-            })}
-          </div>
-        </article>
-      </div>
+
+                <JournalEditorForm
+                  post={post}
+                  categoryOptions={categoryOptions}
+                  serviceOptions={serviceOptions}
+                  doctorOptions={doctorOptions}
+                />
+              </div>
+            </details>
+          );
+        })}
+      </section>
     </>
   );
 }

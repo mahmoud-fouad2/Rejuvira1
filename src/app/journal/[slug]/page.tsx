@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContentStatus } from "@prisma/client";
 import Link from "next/link";
 import Script from "next/script";
 import { notFound } from "next/navigation";
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getJournalPostBySlug(slug);
 
-  if (!post) {
+  if (!post || (post.status ?? ContentStatus.PUBLISHED) !== ContentStatus.PUBLISHED) {
     return {
       title: "المقال غير موجود",
     };
@@ -45,7 +46,7 @@ export default async function JournalDetailPage({
   const { slug } = await params;
   const post = await getJournalPostBySlug(slug);
 
-  if (!post) {
+  if (!post || (post.status ?? ContentStatus.PUBLISHED) !== ContentStatus.PUBLISHED) {
     notFound();
   }
 

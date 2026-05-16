@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContentStatus } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -21,9 +22,12 @@ export default async function JournalPage({
     getRuntimeSettings(),
   ]);
   const params = await searchParams;
+  const publishedPosts = posts.filter(
+    (post) => (post.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED,
+  );
   const currentPage = Math.max(1, Number(params?.page ?? "1") || 1);
   const pageSize = 9;
-  const [featuredPost, ...allRestPosts] = posts;
+  const [featuredPost, ...allRestPosts] = publishedPosts;
   const restPosts = allRestPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const totalPages = Math.max(1, Math.ceil(allRestPosts.length / pageSize));
 

@@ -11059,9 +11059,11 @@ html[data-theme="dark"] .admin-shell {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  height: 100dvh;
   position: sticky;
   top: 0;
   z-index: 30;
+  overflow: hidden;
 }
 
 /* Mobile: convert sidebar into a slide-in drawer. */
@@ -11515,6 +11517,8 @@ html[data-theme="dark"] .admin-modal__panel {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: min(100%, 1500px);
+  margin-inline: auto;
 }
 @media (min-width: 768px) {
   .admin-shell__content { padding: 1.4rem; gap: 1.2rem; }
@@ -11558,8 +11562,9 @@ html[data-theme="dark"] .admin-modal__panel {
 .admin-card {
   background: var(--admin-panel);
   border: 1px solid var(--admin-border);
-  border-radius: 0.95rem;
+  border-radius: 0.5rem;
   box-shadow: var(--admin-shadow-soft);
+  overflow: hidden;
 }
 .admin-card__header {
   display: flex;
@@ -11653,8 +11658,9 @@ html[data-theme="dark"] .admin-modal__panel {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.7rem 1.1rem;
+  padding: 0.85rem 1.1rem;
   border-top: 1px solid var(--admin-border);
+  transition: background 160ms ease, box-shadow 160ms ease;
 }
 .admin-data-row:first-child { border-top: 0; }
 .admin-data-row:hover { background: var(--admin-row-hover); }
@@ -11667,6 +11673,30 @@ html[data-theme="dark"] .admin-modal__panel {
   font-size: 0.72rem;
   color: var(--admin-text-faint);
   margin-top: 0.15rem;
+}
+.admin-data-row summary {
+  list-style: none;
+}
+.admin-data-row summary::-webkit-details-marker {
+  display: none;
+}
+.admin-data-row summary::after {
+  content: "▾";
+  color: var(--admin-text-faint);
+  font-size: 0.75rem;
+  transition: transform 160ms ease;
+}
+.admin-data-row[open] summary::after {
+  transform: rotate(180deg);
+}
+.admin-data-row .relative img,
+.admin-editor-card__media img,
+.admin-media-frame img {
+  object-fit: cover;
+  object-position: center;
+}
+.admin-shell .relative:has(> img) {
+  background: var(--admin-panel-soft);
 }
 .admin-data-row__value {
   font-weight: 700;
@@ -11801,6 +11831,98 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 @media (min-width: 1180px) { .admin-grid-3 { grid-template-columns: repeat(3, 1fr); } }
 .admin-grid-4 { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }
 @media (min-width: 1024px) { .admin-grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+/* ── Professional editor cards ────────────────────────── */
+.admin-editor-grid {
+  display: grid;
+  gap: 1rem;
+}
+.admin-editor-card {
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  border-radius: 0.55rem;
+  box-shadow: var(--admin-shadow-soft);
+  overflow: hidden;
+}
+.admin-editor-card__summary {
+  display: grid;
+  grid-template-columns: minmax(6.5rem, 11rem) minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: stretch;
+  padding: 0.85rem;
+  cursor: pointer;
+  list-style: none;
+}
+.admin-editor-card__summary::-webkit-details-marker {
+  display: none;
+}
+.admin-editor-card__media {
+  position: relative;
+  display: block;
+  min-height: 7.5rem;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 0.45rem;
+  background: var(--admin-panel-soft);
+  border: 1px solid var(--admin-border);
+}
+.admin-editor-card__content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.admin-editor-card__kicker {
+  color: var(--admin-text-faint);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.admin-editor-card__title {
+  color: var(--admin-text);
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  font-weight: 800;
+  line-height: 1.45;
+}
+.admin-editor-card__excerpt {
+  color: var(--admin-text-soft);
+  display: -webkit-box;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.admin-editor-card__chips,
+.admin-editor-card__statusbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.admin-editor-card__body {
+  border-top: 1px solid var(--admin-border);
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+  background: color-mix(in srgb, var(--admin-panel-soft) 55%, transparent);
+}
+.admin-editor-form {
+  display: grid;
+  gap: 1rem;
+}
+@media (max-width: 767px) {
+  .admin-editor-card__summary {
+    grid-template-columns: 1fr;
+  }
+  .admin-editor-card__media {
+    min-height: 12rem;
+  }
+}
+@media (min-width: 1180px) {
+  .admin-editor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
 /* When shell v2 is used, deactivate old admin-app gradient background */
 .admin-shell .surface-panel {
