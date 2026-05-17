@@ -6236,6 +6236,62 @@ html[data-theme="dark"] .rv-brand-logo-img {
   gap: clamp(0.9rem, 1.7vw, 1.25rem);
 }
 
+.rv-journal-carousel-shell {
+  position: relative;
+  margin-inline: auto;
+  max-width: var(--rv26-content-max);
+}
+
+.rv-journal-carousel-viewport {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0.4rem 0.4rem 1rem;
+  scroll-padding-inline: 0.4rem;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 2.5rem,
+    black calc(100% - 2.5rem),
+    transparent 100%
+  );
+}
+
+.rv-journal-carousel-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.rv-journal-carousel-viewport:focus-visible {
+  outline: 2px solid var(--rv26-accent);
+  outline-offset: 4px;
+  border-radius: var(--rv26-radius-md);
+}
+
+.rv-journal-carousel-track {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.9rem, 1.7vw, 1.25rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rv-journal-carousel-slide {
+  flex: 0 0 auto;
+  width: min(86vw, 23rem);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.rv-journal-carousel-slide .rv-v0-home-journal-card {
+  height: 100%;
+}
+
 .rv-v0-home-journal-card {
   position: relative;
   display: grid;
@@ -6295,6 +6351,84 @@ html[data-theme="dark"] .rv-brand-logo-img {
   font-size: 0.82rem;
   font-style: normal;
   font-weight: 900;
+}
+
+.rv-journal-carousel-nav {
+  position: absolute;
+  top: 48%;
+  z-index: 3;
+  translate: 0 -50%;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--rv26-line);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--rv26-accent);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: var(--rv26-shadow-sm);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.rv-journal-carousel-nav:hover {
+  transform: translateY(-50%) scale(1.06);
+  box-shadow: var(--rv26-shadow-md);
+}
+
+.rv-journal-carousel-nav:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rv-journal-carousel-nav-prev {
+  inset-inline-start: -0.4rem;
+}
+
+.rv-journal-carousel-nav-next {
+  inset-inline-end: -0.4rem;
+}
+
+.rv-journal-carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.rv-journal-carousel-dots button {
+  width: 0.45rem;
+  height: 0.45rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0;
+  background: rgba(74, 36, 118, 0.22);
+  cursor: pointer;
+  transition: width 180ms ease, background 180ms ease;
+}
+
+.rv-journal-carousel-dots button.is-active {
+  width: 1.4rem;
+  background: var(--rv26-accent);
+}
+
+html[data-theme="dark"] .rv-journal-carousel-nav {
+  background: rgba(30, 20, 42, 0.92);
+  color: var(--rv26-accent-strong);
+}
+
+html[data-theme="dark"] .rv-journal-carousel-dots button {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+html[data-theme="dark"] .rv-journal-carousel-dots button.is-active {
+  background: var(--rv26-accent-strong);
+}
+
+@media (max-width: 760px) {
+  .rv-journal-carousel-nav {
+    display: none;
+  }
 }
 
 .rv-v0-home-map-card {
@@ -7064,7 +7198,8 @@ html[data-theme="dark"] .rv-mega-panel {
 
 /* ── Snap carousel arrow contrast (dark mode) ───────────────────── */
 html[data-theme="dark"] .rv-strip-nav,
-html[data-theme="dark"] .rv-doctors-nav {
+html[data-theme="dark"] .rv-doctors-nav,
+html[data-theme="dark"] .rv-journal-carousel-nav {
   background: rgba(20, 14, 28, 0.95) !important;
   color: #f3e9ff !important;
   border: 1px solid rgba(255,255,255,0.14) !important;
@@ -8201,7 +8336,7 @@ main {
 
 /* ── 38. RTL consistency: flip arrows and directional spacing ─ */
 [dir="rtl"] .rv-v0-hero-actions svg,
-[dir="rtl"] .rv-strip-nav-prev svg {
+[dir="rtl"] .rv-v0-hero-actions svg {
   transform: scaleX(-1);
 }
 

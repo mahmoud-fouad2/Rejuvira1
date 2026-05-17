@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
-import { useMemo } from "react";
 import type { ReactNode } from "react";
 
 import type { DoctorRecord } from "@/lib/content-repository";
@@ -72,7 +71,7 @@ export function V0DoctorsCarousel({
   description = defaultDescription,
 }: V0DoctorsCarouselProps) {
   const { lang } = useLanguage();
-  const slides = useMemo(() => doctors.slice(0, 8), [doctors]);
+  const slides = doctors;
   const {
     ref,
     index,
@@ -113,7 +112,7 @@ export function V0DoctorsCarousel({
           onClick={prev}
           disabled={!canPrev}
         >
-          <ArrowIcon dir="left" />
+          <ArrowIcon dir={lang === "ar" ? "right" : "left"} />
         </button>
 
         <div
@@ -138,7 +137,7 @@ export function V0DoctorsCarousel({
                       className="object-cover object-top"
                       loading={i < 2 ? "eager" : "lazy"}
                     />
-                    {doctor.featured && doctor.slug === "loai-alsalmi" ? (
+                    {doctor.featured ? (
                       <span className="rv-doctor-card-top-rated">
                         <StarIcon />
                         <span className="lang-ar">مميز</span>
@@ -185,7 +184,7 @@ export function V0DoctorsCarousel({
           onClick={next}
           disabled={!canNext}
         >
-          <ArrowIcon dir="right" />
+          <ArrowIcon dir={lang === "ar" ? "left" : "right"} />
         </button>
       </div>
 

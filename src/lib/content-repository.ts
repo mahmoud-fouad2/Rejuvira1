@@ -1894,7 +1894,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "doctorsHero",
         label: "صورة قسم الأطباء",
-        value: doctorPortraits[0],
+        value: "/media/curated/doctor-team.jpg",
       },
       {
         key: "servicesHero",
@@ -2156,7 +2156,7 @@ const defaultMediaSelections: MediaSelections = {
   heroCard1: "/media/hero/rejuvira-hero-1.jpg",
   heroCard2: "/media/hero/rejuvira-hero-2.jpg",
   heroCard3: "/media/hero/rejuvira-hero-3.jpg",
-  doctorsHero: doctorPortraits[0],
+  doctorsHero: "/media/curated/doctor-team.jpg",
   servicesHero: serviceImages.aestheticSurgery,
   aboutHero: serviceImages.devices,
   journalHero: serviceImages.journal,
@@ -2337,7 +2337,7 @@ export const getDoctors = cache(async () => {
         achievements: toStringList(doctor.achievements),
         publications: toStringList(doctor.publications),
         status: doctor.status,
-        featured: doctor.slug === "loai-alsalmi",
+        featured: doctor.isFeatured,
         serviceSlugs: doctor.services.map((service) => service.slug),
       })),
     );

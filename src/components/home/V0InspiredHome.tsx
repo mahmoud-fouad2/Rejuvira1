@@ -16,6 +16,7 @@ import type {
 import { V0DoctorQuotesSlider } from "@/components/home/V0DoctorQuotesSlider";
 import { V0DoctorsCarousel } from "@/components/home/V0DoctorsCarousel";
 import { V0GalleryBeforeAfterCard } from "@/components/home/V0GalleryBeforeAfterCard";
+import { V0JournalCarousel } from "@/components/home/V0JournalCarousel";
 import { V0ServicesStrip } from "@/components/home/V0ServicesStrip";
 import { TestimonialsSplitCarousel, type TestimonialItem } from "@/components/home/TestimonialsSplitCarousel";
 
@@ -160,7 +161,7 @@ export function V0InspiredHome({
   const doctorSource = publishedDoctors.length > 0 ? publishedDoctors : doctors;
   const deviceSource = publishedDevices.length > 0 ? publishedDevices : devices;
   const featuredServices = serviceSource.slice(0, 6);
-  const featuredDoctors = doctorSource.slice(0, 8);
+  const featuredDoctors = doctorSource;
   const featuredDevices = deviceSource.slice(0, 6);
   const gallerySource = galleryItems.filter(
     (item) => item.beforeImageUrl.trim().length > 0 && item.afterImageUrl.trim().length > 0,
@@ -168,7 +169,7 @@ export function V0InspiredHome({
   const featuredGallery = (gallerySource.length > 0 ? gallerySource : galleryItems)
     .filter((item) => item.beforeImageUrl.trim().length > 0 && item.afterImageUrl.trim().length > 0)
     .slice(0, 4);
-  const featuredJournal = journalPosts.slice(0, 3);
+  const featuredJournal = journalPosts.slice(0, 8);
   const testimonialItems =
     settings.homepage.testimonials.length > 0
       ? settings.homepage.testimonials
@@ -547,42 +548,7 @@ export function V0InspiredHome({
               </>
             }
           />
-          <div className="rv-v0-home-journal-grid">
-            {featuredJournal.map((post) => (
-              <Link
-                key={post.id}
-                href={(`/journal/${post.slug}`) as Route}
-                className="rv-v0-home-journal-card"
-              >
-                <span className="rv-v0-home-journal-image">
-                  <Image
-                    src={post.coverImageUrl ?? settings.media.journalHero}
-                    alt={post.titleEn ?? post.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 28vw"
-                    className="object-cover"
-                    loading="lazy"
-                  />
-                </span>
-                <span className="rv-v0-home-journal-body">
-                  <small>{post.category}</small>
-                  <strong>
-                    <span className="lang-ar">{post.title}</span>
-                    <span className="lang-en">{post.titleEn ?? "Medical journal article"}</span>
-                  </strong>
-                  <span>
-                    <span className="lang-ar">{post.excerpt}</span>
-                    <span className="lang-en">{post.excerptEn ?? "A short clinical read from Rejuvira Center."}</span>
-                  </span>
-                  <em>
-                    <span className="lang-ar">قراءة المقال</span>
-                    <span className="lang-en">Read article</span>
-                    <span aria-hidden> ←</span>
-                  </em>
-                </span>
-              </Link>
-            ))}
-          </div>
+          <V0JournalCarousel posts={featuredJournal} fallbackImage={settings.media.journalHero} />
         </section>
       ) : null}
 

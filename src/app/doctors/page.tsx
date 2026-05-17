@@ -18,7 +18,8 @@ export default async function DoctorsPage() {
     getDoctors(),
     getMediaSelections(),
   ]);
-  const [featuredDoctor, ...otherDoctors] = doctors;
+  const featuredDoctorsCount = doctors.filter((doctor) => doctor.featured).length;
+  const heroImage = mediaSelections.doctorsHero;
   const doctorsJsonLd = buildCollectionPageJsonLd({
     path: "/doctors",
     name: "فريق الأطباء في Rejuvira Center",
@@ -35,7 +36,6 @@ export default async function DoctorsPage() {
       />
       <SiteHeader />
       <main className="mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-28 px-6 pt-16 pb-32 lg:px-10">
-        {/* ═══ HERO + FEATURED ═══ */}
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 lg:p-12">
             <p className="eyebrow"><span className="lang-ar">فريقنا الطبي</span><span className="lang-en">Medical Team</span></p>
@@ -48,12 +48,11 @@ export default async function DoctorsPage() {
               <span className="lang-en">Review each doctor's specialty, experience, and related services without distracting content.</span>
             </p>
 
-            {/* Stats row */}
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {[
-                { label: "أطباء مختارون", labelEn: "Selected doctors", value: doctors.length },
+                { label: "أطباء متاحون", labelEn: "Available doctors", value: doctors.length },
                 { label: "تخصصات دقيقة", labelEn: "Specialties", value: new Set(doctors.map((d) => d.specialty)).size },
-                { label: "لغات الخدمة", labelEn: "Service languages", value: new Set(doctors.flatMap((d) => d.languages)).size },
+                { label: "أطباء مميزون", labelEn: "Featured doctors", value: featuredDoctorsCount },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -66,71 +65,54 @@ export default async function DoctorsPage() {
             </div>
           </article>
 
-          {featuredDoctor ? (
-            <article className="surface-panel overflow-hidden rounded-[2.5rem] p-5">
-              <div className="grid h-full gap-5 lg:grid-cols-[0.84fr_1.16fr]">
-                <div className="relative min-h-[30rem] overflow-hidden rounded-[2rem]">
-                  <Image
-                    src={mediaSelections.doctorsHero || featuredDoctor.coverImageUrl}
-                    alt={featuredDoctor.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 42vw"
-                    className="object-cover transition-all duration-700 hover:scale-[1.03]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                </div>
-                <div className="flex flex-col justify-between gap-5 rounded-[2rem] bg-surface p-8">
-                  <div>
-                    <p className="eyebrow"><span className="lang-ar">الطبيب المميز</span><span className="lang-en">Featured Doctor</span></p>
-                    <h2 className="mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em] text-ink">
-                      {featuredDoctor.name}
-                    </h2>
-                    <p className="mt-3 font-serif text-lg text-ink-soft">
-                      {featuredDoctor.title}
-                    </p>
-                    <p className="mt-5 text-base leading-8 text-ink-soft">
-                      {featuredDoctor.summary}
-                    </p>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[1.5rem] border border-line bg-surface p-5 text-sm">
-                      <span className="eyebrow block"><span className="lang-ar">التخصص</span><span className="lang-en">Specialty</span></span>
-                      <span className="mt-2 block font-medium text-ink">{featuredDoctor.specialty}</span>
-                    </div>
-                    <div className="rounded-[1.5rem] border border-line bg-surface p-5 text-sm">
-                      <span className="eyebrow block"><span className="lang-ar">سنوات الخبرة</span><span className="lang-en">Experience</span></span>
-                      <span className="mt-2 block font-medium text-ink">{featuredDoctor.yearsExperience} <span className="lang-ar">سنوات خبرة</span><span className="lang-en">years</span></span>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/doctors/${featuredDoctor.slug}`}
-                    className="btn-primary self-start"
-                  >
-                    <span className="lang-ar">اكتشفي ملف الطبيب</span>
-                    <span className="lang-en">View doctor profile</span>
-                  </Link>
-                </div>
+          <article className="surface-panel overflow-hidden rounded-[2.5rem] p-5">
+            <div className="relative min-h-[30rem] overflow-hidden rounded-[2rem]">
+              <Image
+                src={heroImage}
+                alt="Rejuvira medical team"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 42vw"
+                className="object-cover transition-all duration-700 hover:scale-[1.03]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/18 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 z-10 p-8 text-white">
+                <p className="eyebrow text-white/80"><span className="lang-ar">غلاف القسم</span><span className="lang-en">Section cover</span></p>
+                <h2 className="mt-3 font-serif text-4xl leading-[1.15] tracking-[-0.02em]">
+                  <span className="lang-ar">كل الأطباء بنفس الحضور البصري</span>
+                  <span className="lang-en">Every doctor gets the same visual weight</span>
+                </h2>
+                <p className="mt-4 max-w-xl text-sm leading-7 text-white/85">
+                  <span className="lang-ar">الصورة هنا تمثل القسم كاملًا، بينما تظهر علامة المميز كتاج صغير داخل بطاقة الطبيب فقط.</span>
+                  <span className="lang-en">This image represents the full section; featured doctors are marked only with a small badge.</span>
+                </p>
               </div>
-            </article>
-          ) : null}
+            </div>
+          </article>
         </section>
 
-        {/* ═══ DOCTORS GRID ═══ */}
         <section className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-          {otherDoctors.map((doctor) => (
+          {doctors.map((doctor) => (
             <article
               key={doctor.id}
               className="surface-panel overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
             >
               <div className="group relative h-80 overflow-hidden">
                 <Image
-                  src={doctor.coverImageUrl}
+                  src={doctor.photoUrl || doctor.coverImageUrl}
                   alt={doctor.name}
                   fill
                   sizes="(max-width: 1280px) 50vw, 30vw"
-                  className="object-cover transition-all duration-700 group-hover:scale-[1.06]"
+                  className="object-cover object-top transition-all duration-700 group-hover:scale-[1.06]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                {doctor.featured ? (
+                  <span className="absolute top-5 end-5 z-20 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-[#9a6a12] shadow-lg">
+                    <span aria-hidden>★</span>
+                    <span className="lang-ar">مميز</span>
+                    <span className="lang-en">Featured</span>
+                  </span>
+                ) : null}
                 <div className="absolute inset-x-0 bottom-0 z-10 p-8">
                   <p className="text-sm text-white/80">{doctor.specialty}</p>
                   <h2 className="mt-2 font-serif text-3xl tracking-[-0.02em] text-white">
@@ -143,9 +125,11 @@ export default async function DoctorsPage() {
                   <Badge variant="outline" size="md">
                     {doctor.yearsExperience} <span className="lang-ar">سنوات خبرة</span><span className="lang-en">years</span>
                   </Badge>
-                  <Badge variant="outline" size="md">
-                    {doctor.languages.join(" / ")}
-                  </Badge>
+                  {doctor.languages.length > 0 ? (
+                    <Badge variant="outline" size="md">
+                      {doctor.languages.join(" / ")}
+                    </Badge>
+                  ) : null}
                 </div>
                 <p className="mt-5 text-base leading-7 text-ink-soft">
                   {doctor.summary}

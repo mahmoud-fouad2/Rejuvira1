@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
-import { useMemo } from "react";
 import type { ReactNode } from "react";
 
 import type { ServiceRecord } from "@/lib/content-repository";
@@ -17,13 +16,28 @@ type Props = {
   description?: ReactNode;
 };
 
+function ArrowIcon({ dir = "right" }: { dir?: "left" | "right" }) {
+  if (dir === "left") {
+    return (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 /**
  * V0ServicesStrip — calm snap carousel replacing the marquee; keyboard + dots,
  * paused on hover/focus/hidden-tab, prefers-reduced-motion aware.
  */
 export function V0ServicesStrip({ services, eyebrow, title, description }: Props) {
   const { lang } = useLanguage();
-  const slides = useMemo(() => services.slice(0, 10), [services]);
+  const slides = services;
   const {
     ref,
     index,
@@ -65,9 +79,7 @@ export function V0ServicesStrip({ services, eyebrow, title, description }: Props
           onClick={prev}
           disabled={!canPrev}
         >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <ArrowIcon dir={lang === "ar" ? "right" : "left"} />
         </button>
 
         <div
@@ -107,9 +119,7 @@ export function V0ServicesStrip({ services, eyebrow, title, description }: Props
           onClick={next}
           disabled={!canNext}
         >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <ArrowIcon dir={lang === "ar" ? "left" : "right"} />
         </button>
       </div>
 
