@@ -20,6 +20,9 @@ const contactSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().max(1000).optional().or(z.literal("")),
   serviceSlug: z.string().optional().or(z.literal("")),
+  preferredDate: z.string().optional().or(z.literal("")),
+  preferredTime: z.string().optional().or(z.literal("")),
+  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   preferredLanguage: z.string().optional().or(z.literal("")),
   recaptchaToken: z.string().optional().or(z.literal("")),
   source: z.string().max(120).optional().or(z.literal("")),
@@ -28,6 +31,14 @@ const contactSchema = z.object({
 function formString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value : "";
+}
+
+function parsePreferredAppointment(date?: string, time?: string) {
+  if (!date) return undefined;
+  const normalizedTime = time || "09:00";
+  const parsed = new Date(`${date}T${normalizedTime}:00+03:00`);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  return parsed.toISOString();
 }
 
 async function dispatchFormWebhook({
@@ -79,6 +90,9 @@ export async function submitContactAction(
     email: formString(formData, "email"),
     message: formString(formData, "message"),
     serviceSlug: formString(formData, "serviceSlug"),
+    preferredDate: formString(formData, "preferredDate"),
+    preferredTime: formString(formData, "preferredTime"),
+    appointmentNotes: formString(formData, "appointmentNotes"),
     preferredLanguage: formString(formData, "preferredLanguage"),
     recaptchaToken: formString(formData, "recaptchaToken"),
     source: formString(formData, "source"),
@@ -143,11 +157,20 @@ export async function submitContactAction(
     }
   }
 
+  const preferredAppointmentAt = parsePreferredAppointment(
+    parsed.data.preferredDate,
+    parsed.data.preferredTime,
+  );
+
   const result = await createContactLead({
     fullName: parsed.data.fullName,
     phone: parsed.data.phone,
     preferredLanguage: parsed.data.preferredLanguage || "ar",
     source: parsed.data.source || "Website contact form",
+    ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
+    ...(parsed.data.appointmentNotes
+      ? { appointmentNotes: parsed.data.appointmentNotes }
+      : {}),
     ...(parsed.data.email ? { email: parsed.data.email } : {}),
     ...(parsed.data.message ? { message: parsed.data.message } : {}),
     ...(parsed.data.serviceSlug
@@ -168,6 +191,8 @@ export async function submitContactAction(
       email: parsed.data.email || undefined,
       message: parsed.data.message || undefined,
       serviceSlug: parsed.data.serviceSlug || undefined,
+      preferredAppointmentAt,
+      appointmentNotes: parsed.data.appointmentNotes || undefined,
       preferredLanguage: parsed.data.preferredLanguage || "ar",
     },
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useRef } from "react";
 
 import {
   submitContactAction,
@@ -77,6 +77,7 @@ export function ContactForm({
   const tokenInputRef = useRef<HTMLInputElement | null>(null);
   const tokenInjectedRef = useRef(false);
   const siteKey = recaptchaSiteKey ?? "";
+  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
 
   useEffect(() => {
     if (!siteKey) return;
@@ -181,6 +182,32 @@ export function ContactForm({
           ))}
         </select>
       </label>
+      <div className="grid gap-5 md:grid-cols-2">
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-sm font-semibold tracking-tight">
+            <span className="lang-ar">تاريخ الموعد المفضل</span>
+            <span className="lang-en">Preferred date</span>
+          </span>
+          <input
+            name="preferredDate"
+            type="date"
+            className="field-public"
+            min={today}
+          />
+        </label>
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-sm font-semibold tracking-tight">
+            <span className="lang-ar">الوقت المفضل</span>
+            <span className="lang-en">Preferred time</span>
+          </span>
+          <input
+            name="preferredTime"
+            type="time"
+            className="field-public"
+            step={900}
+          />
+        </label>
+      </div>
       {compact ? null : (
         <label className="grid gap-2">
           <span className="text-ink-strong text-sm font-semibold tracking-tight">
@@ -199,6 +226,11 @@ export function ContactForm({
           />
         </label>
       )}
+      <input
+        type="hidden"
+        name="appointmentNotes"
+        value={compact ? "Preferred appointment requested from compact booking form." : ""}
+      />
       <input type="hidden" name="preferredLanguage" value={lang} />
       <input type="hidden" name="source" value={source} />
       <input

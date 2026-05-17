@@ -38,6 +38,14 @@ function formatDate(iso: string) {
   }
 }
 
+function toDateTimeLocal(iso?: string) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export type CrmSubmissionEditorProps = {
   submission: CrmRecord;
   services: ReadonlyArray<{ slug: string; name: string }>;
@@ -113,6 +121,33 @@ export function CrmSubmissionEditor({
               type="email"
               defaultValue={submission.email ?? ""}
               className="admin-input"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-[1fr_2fr]">
+          <label className="grid gap-1">
+            <span className="admin-field-label">
+              <span className="lang-ar">الموعد المفضل</span>
+              <span className="lang-en">Preferred appointment</span>
+            </span>
+            <input
+              name="preferredAppointmentAt"
+              type="datetime-local"
+              defaultValue={toDateTimeLocal(submission.preferredAppointmentAt)}
+              className="admin-input"
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">
+              <span className="lang-ar">ملاحظات الموعد</span>
+              <span className="lang-en">Appointment notes</span>
+            </span>
+            <input
+              name="appointmentNotes"
+              defaultValue={submission.appointmentNotes ?? ""}
+              className="admin-input"
+              placeholder="مثال: تفضل الفترة المسائية أو اتصال قبل التأكيد"
             />
           </label>
         </div>

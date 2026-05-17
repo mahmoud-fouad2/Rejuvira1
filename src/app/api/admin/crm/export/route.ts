@@ -15,6 +15,8 @@ function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
     Service: submission.serviceLabel ?? "",
     Status: submission.status,
     Source: submission.source,
+    PreferredAppointment: submission.preferredAppointmentAt ?? "",
+    AppointmentNotes: submission.appointmentNotes ?? "",
     Notes: submission.notes ?? "",
     CreatedAt: submission.createdAt,
   }));
@@ -87,6 +89,17 @@ async function createPdfBuffer(
       font: fallbackFont,
       color: rgb(0.35, 0.33, 0.31),
     });
+    cursorY -= 14;
+    page.drawText(
+      `Appointment: ${submission.preferredAppointmentAt ?? "N/A"}`,
+      {
+        x: 40,
+        y: cursorY,
+        size: 10,
+        font: fallbackFont,
+        color: rgb(0.35, 0.33, 0.31),
+      },
+    );
     cursorY -= 14;
     page.drawText(
       `Service: ${submission.serviceLabel ?? "N/A"} | Source: ${submission.source}`,

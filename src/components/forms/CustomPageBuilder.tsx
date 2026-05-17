@@ -321,8 +321,11 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
       (mode === "preview" ? "" : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
+      `<label><span>تاريخ الموعد المفضل</span><input name="preferredDate" type="date"${disabled}></label>` +
+      `<label><span>الوقت المفضل</span><input name="preferredTime" type="time" step="900"${disabled}></label>` +
       `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${disabled} placeholder="name@example.com"></label>` +
       `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو الموعد المناسب"></textarea></label>` +
+      (mode === "preview" ? "" : `<input type="hidden" name="appointmentNotes" value="Landing page appointment request">`) +
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
     return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
   }

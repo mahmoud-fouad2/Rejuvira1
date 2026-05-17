@@ -24,6 +24,10 @@ const payloadSchema = z
     source: z.string().max(120).optional(),
     serviceSlug: z.string().max(120).optional(),
     service: z.string().max(120).optional(),
+    preferredAppointmentAt: z.string().max(80).optional(),
+    preferredDate: z.string().max(40).optional(),
+    preferredTime: z.string().max(20).optional(),
+    appointmentNotes: z.string().max(500).optional(),
     tags: z
       .union([z.string(), z.array(z.string())])
       .optional(),
@@ -111,6 +115,20 @@ function normaliseTags(value: unknown): string[] {
   return [];
 }
 
+function parsePreferredAppointment(data: Record<string, unknown>) {
+  const direct = pickFirst(data, ["preferredAppointmentAt", "appointmentAt", "appointment"]);
+  if (direct) {
+    const parsed = new Date(direct);
+    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
+  }
+  const date = pickFirst(data, ["preferredDate", "appointmentDate", "date"]);
+  if (!date) return undefined;
+  const time = pickFirst(data, ["preferredTime", "appointmentTime", "time"]) ?? "09:00";
+  const parsed = new Date(`${date}T${time}:00+03:00`);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  return parsed.toISOString();
+}
+
 type RouteContext = {
   params: Promise<{ token: string }>;
 };
@@ -178,6 +196,8 @@ async function handleIngest(request: Request, context: RouteContext) {
 
   const email = pickFirst(data, ["email"]);
   const message = pickFirst(data, ["message", "note"]);
+  const preferredAppointmentAt = parsePreferredAppointment(data);
+  const appointmentNotes = pickFirst(data, ["appointmentNotes", "appointmentNote"]);
   const sourceLabel =
     pickFirst(data, ["source"]) ?? webhook.defaultSource ?? "Webhook";
   const serviceSlug = pickFirst(data, ["serviceSlug", "service"]);
@@ -192,6 +212,8 @@ async function handleIngest(request: Request, context: RouteContext) {
       phone,
       ...(email ? { email } : {}),
       ...(message ? { message } : {}),
+      ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
+      ...(appointmentNotes ? { appointmentNotes } : {}),
       source: sourceLabel,
       ...(serviceSlug ? { serviceSlug } : {}),
       preferredLanguage: pickFirst(data, ["preferredLanguage"]) ?? "ar",

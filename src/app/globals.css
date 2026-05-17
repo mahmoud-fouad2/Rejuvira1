@@ -12018,6 +12018,12 @@ html[data-theme="dark"] .admin-modal__panel {
   align-items: center;
   gap: 0.55rem;
 }
+.admin-chip.is-accent {
+  border-color: color-mix(in srgb, var(--admin-accent) 28%, var(--admin-border));
+  background: color-mix(in srgb, var(--admin-accent) 10%, var(--admin-panel));
+  color: var(--admin-accent);
+  font-weight: 850;
+}
 @media (max-width: 680px) {
   .custom-page-list-card {
     grid-template-columns: 1fr;

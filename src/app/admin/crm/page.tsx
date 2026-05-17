@@ -25,6 +25,7 @@ export default async function AdminCrmPage() {
   ).length;
   const bookedCount = submissions.filter((i) => i.status === "BOOKED").length;
   const closedCount = submissions.filter((i) => i.status === "CLOSED").length;
+  const appointmentCount = submissions.filter((i) => i.preferredAppointmentAt).length;
 
   return (
     <>
@@ -57,7 +58,7 @@ export default async function AdminCrmPage() {
         </div>
       </div>
 
-      <section className="grid gap-3 lg:grid-cols-[1fr_1fr_1fr_1fr_2fr]">
+      <section className="grid gap-3 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr_2fr]">
         <div className="admin-kpi">
           <span className="admin-kpi__icon">●</span>
           <span>
@@ -65,6 +66,16 @@ export default async function AdminCrmPage() {
             <span className="admin-kpi__label">
               <span className="lang-ar">جديد</span>
               <span className="lang-en">New</span>
+            </span>
+          </span>
+        </div>
+        <div className="admin-kpi">
+          <span className="admin-kpi__icon is-gold">●</span>
+          <span>
+            <span className="admin-kpi__value">{appointmentCount}</span>
+            <span className="admin-kpi__label">
+              <span className="lang-ar">بموعد</span>
+              <span className="lang-en">Scheduled</span>
             </span>
           </span>
         </div>

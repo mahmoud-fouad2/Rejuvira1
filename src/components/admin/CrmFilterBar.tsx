@@ -34,6 +34,21 @@ const STATUS_BADGE: Record<SubmissionStatus, string> = {
 };
 
 type FilterStatus = SubmissionStatus | "ALL";
+type AppointmentFilter = "ALL" | "WITH_DATE" | "TODAY" | "UPCOMING" | "NO_DATE";
+
+function formatAppointment(iso?: string) {
+  if (!iso) return "No appointment";
+  try {
+    return new Date(iso).toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export function CrmFilterBar({
   submissions,
@@ -49,6 +64,7 @@ export function CrmFilterBar({
   const [source, setSource] = useState<string>("ALL");
   const [tag, setTag] = useState<string>("ALL");
   const [owner, setOwner] = useState<string>("ALL");
+  const [appointment, setAppointment] = useState<AppointmentFilter>("ALL");
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "all">("all");
 
   const allSources = useMemo(() => {
@@ -83,6 +99,27 @@ export function CrmFilterBar({
         if (owner !== "_unassigned" && submission.assignedToId !== owner)
           return false;
       }
+      if (appointment !== "ALL") {
+        const rawAppointment = submission.preferredAppointmentAt;
+        const appointmentTime = rawAppointment
+          ? new Date(rawAppointment).getTime()
+          : null;
+        if (appointment === "WITH_DATE" && !appointmentTime) return false;
+        if (appointment === "NO_DATE" && appointmentTime) return false;
+        if (appointment === "UPCOMING" && (!appointmentTime || appointmentTime < nowSnapshot)) return false;
+        if (appointment === "TODAY") {
+          if (!appointmentTime) return false;
+          const day = new Date(appointmentTime);
+          const now = new Date(nowSnapshot);
+          if (
+            day.getFullYear() !== now.getFullYear() ||
+            day.getMonth() !== now.getMonth() ||
+            day.getDate() !== now.getDate()
+          ) {
+            return false;
+          }
+        }
+      }
       if (cutoff && new Date(submission.createdAt).getTime() < cutoff) return false;
       if (term) {
         const haystack = [
@@ -90,6 +127,8 @@ export function CrmFilterBar({
           submission.phone,
           submission.email ?? "",
           submission.serviceLabel ?? "",
+          submission.preferredAppointmentAt ?? "",
+          submission.appointmentNotes ?? "",
           submission.notes ?? "",
           (submission.tags ?? []).join(" "),
         ]
@@ -99,13 +138,13 @@ export function CrmFilterBar({
       }
       return true;
     });
-  }, [submissions, status, source, tag, owner, range, search, nowSnapshot]);
+  }, [submissions, status, source, tag, owner, appointment, range, search, nowSnapshot]);
 
   return (
     <div className="grid gap-4">
       <div className="admin-card">
         <div className="admin-card__body grid gap-3">
-          <div className="grid gap-3 md:grid-cols-[2fr_1fr_1fr_1fr_auto] md:items-end">
+          <div className="grid gap-3 md:grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] md:items-end">
             <label className="grid gap-1">
               <span className="admin-field-label">
                 <span className="lang-ar">بحث</span>
@@ -118,6 +157,23 @@ export function CrmFilterBar({
                 placeholder="اسم / جوال / بريد / ملاحظات…"
                 className="admin-input"
               />
+            </label>
+            <label className="grid gap-1">
+              <span className="admin-field-label">
+                <span className="lang-ar">المواعيد</span>
+                <span className="lang-en">Appointments</span>
+              </span>
+              <select
+                className="admin-input"
+                value={appointment}
+                onChange={(event) => setAppointment(event.target.value as AppointmentFilter)}
+              >
+                <option value="ALL">All</option>
+                <option value="WITH_DATE">With date</option>
+                <option value="TODAY">Today</option>
+                <option value="UPCOMING">Upcoming</option>
+                <option value="NO_DATE">No date</option>
+              </select>
             </label>
             <label className="grid gap-1">
               <span className="admin-field-label">
@@ -240,6 +296,11 @@ export function CrmFilterBar({
                   <span className="lang-en">{STATUS_EN[submission.status]}</span>
                 </span>
                 <span className="admin-chip">{submission.source}</span>
+                {submission.preferredAppointmentAt ? (
+                  <span className="admin-chip is-accent">
+                    {formatAppointment(submission.preferredAppointmentAt)}
+                  </span>
+                ) : null}
                 {submission.assignedToName ? (
                   <span className="admin-chip">{submission.assignedToName}</span>
                 ) : null}
@@ -288,9 +349,7 @@ export function CrmFilterBar({
                 staff={staff}
                 {...(submission.serviceId
                   ? {
-                      currentServiceSlug: services.find(
-                        (s) => s.name === submission.serviceLabel,
-                      )?.slug,
+                      currentServiceSlug: submission.serviceSlug,
                     }
                   : {})}
               />

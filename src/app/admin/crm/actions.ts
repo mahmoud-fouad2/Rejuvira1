@@ -38,6 +38,8 @@ const updateSchema = z.object({
   fullName: z.string().min(2).max(160).optional(),
   phone: z.string().min(4).max(40).optional(),
   email: z.string().email().max(160).optional().or(z.literal("")),
+  preferredAppointmentAt: z.string().optional().or(z.literal("")),
+  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   serviceSlug: z.string().max(120).optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   tags: tagsSchema,
@@ -59,6 +61,8 @@ export async function updateCrmSubmissionAction(
     fullName: formData.get("fullName") || undefined,
     phone: formData.get("phone") || undefined,
     email: formData.get("email"),
+    preferredAppointmentAt: formData.get("preferredAppointmentAt"),
+    appointmentNotes: formData.get("appointmentNotes"),
     serviceSlug: formData.get("serviceSlug"),
     assignedToId: formData.get("assignedToId"),
     tags: formData.getAll("tags").length
@@ -81,6 +85,12 @@ export async function updateCrmSubmissionAction(
     ...(parsed.data.phone ? { phone: parsed.data.phone } : {}),
     ...(parsed.data.email !== undefined
       ? { email: parsed.data.email || null }
+      : {}),
+    ...(parsed.data.preferredAppointmentAt !== undefined
+      ? { preferredAppointmentAt: parsed.data.preferredAppointmentAt || null }
+      : {}),
+    ...(parsed.data.appointmentNotes !== undefined
+      ? { appointmentNotes: parsed.data.appointmentNotes || null }
       : {}),
     ...(parsed.data.serviceSlug !== undefined
       ? { serviceSlug: parsed.data.serviceSlug || null }

@@ -121,10 +121,13 @@ export type CrmRecord = {
   phone: string;
   email?: string | undefined;
   serviceLabel?: string | undefined;
+  serviceSlug?: string | undefined;
   serviceId?: string | undefined;
   status: SubmissionStatus;
   source: string;
   createdAt: string;
+  preferredAppointmentAt?: string | undefined;
+  appointmentNotes?: string | undefined;
   notes?: string | undefined;
   tags: readonly string[];
   assignedToId?: string | undefined;
@@ -478,6 +481,8 @@ export type CreateContactInput = {
   phone: string;
   email?: string | undefined;
   message?: string | undefined;
+  preferredAppointmentAt?: string | undefined;
+  appointmentNotes?: string | undefined;
   serviceSlug?: string | undefined;
   preferredLanguage?: string | undefined;
   source?: string | undefined;
@@ -490,6 +495,8 @@ export type UpdateCrmSubmissionInput = {
   fullName?: string | undefined;
   phone?: string | undefined;
   email?: string | null | undefined;
+  preferredAppointmentAt?: string | null | undefined;
+  appointmentNotes?: string | null | undefined;
   serviceSlug?: string | null | undefined;
   tags?: readonly string[] | undefined;
   assignedToId?: string | null | undefined;
@@ -1572,6 +1579,7 @@ const seedCrmRecords: CrmRecord[] = [
     status: SubmissionStatus.NEW,
     source: "Home contact form",
     createdAt: "2026-05-10T10:30:00.000Z",
+    preferredAppointmentAt: "2026-05-18T10:00:00.000Z",
     notes: "تحتاج متابعة خلال 12 ساعة.",
     tags: ["VIP", "Skin"],
     comments: [],
@@ -1584,6 +1592,7 @@ const seedCrmRecords: CrmRecord[] = [
     status: SubmissionStatus.CONTACTED,
     source: "WhatsApp CTA",
     createdAt: "2026-05-09T13:15:00.000Z",
+    preferredAppointmentAt: "2026-05-19T15:30:00.000Z",
     notes: "تم الرد وإرسال مواعيد مبدئية.",
     tags: ["Laser"],
     comments: [],
@@ -1596,6 +1605,7 @@ const seedCrmRecords: CrmRecord[] = [
     status: SubmissionStatus.BOOKED,
     source: "Doctor page",
     createdAt: "2026-05-08T08:45:00.000Z",
+    preferredAppointmentAt: "2026-05-20T12:00:00.000Z",
     notes: "تم تأكيد الموعد الأول.",
     tags: ["Booked"],
     comments: [],
@@ -2595,7 +2605,7 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
   try {
     const submissions = await prisma.contactSubmission.findMany({
       include: {
-        service: { select: { nameAr: true, id: true } },
+        service: { select: { nameAr: true, slug: true, id: true } },
         assignedTo: { select: { id: true, name: true } },
         webhook: { select: { id: true, name: true } },
         comments: {
@@ -2612,10 +2622,13 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
       phone: submission.phone,
       email: submission.email ?? undefined,
       serviceLabel: submission.service?.nameAr ?? undefined,
+      serviceSlug: submission.service?.slug ?? undefined,
       serviceId: submission.service?.id ?? undefined,
       status: submission.status,
       source: submission.source ?? "الموقع الإلكتروني",
       createdAt: submission.createdAt.toISOString(),
+      preferredAppointmentAt: submission.preferredAppointmentAt?.toISOString(),
+      appointmentNotes: submission.appointmentNotes ?? undefined,
       notes: submission.internalNotes ?? undefined,
       tags: submission.tags ?? [],
       assignedToId: submission.assignedTo?.id,
@@ -3850,6 +3863,15 @@ export async function deleteGalleryItem(id: string) {
   return { mode: "database" as const, item };
 }
 
+function parseAppointmentDate(value?: string | null): Date | null {
+  if (!value) return null;
+  const normalized = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)
+    ? `${value}:00+03:00`
+    : value;
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export async function createContactLead(
   input: CreateContactInput & {
     webhookId?: string | undefined;
@@ -3867,6 +3889,7 @@ export async function createContactLead(
         select: { id: true },
       })
     : null;
+  const preferredAppointment = parseAppointmentDate(input.preferredAppointmentAt);
 
   const submission = await prisma.contactSubmission.create({
     data: {
@@ -3874,6 +3897,10 @@ export async function createContactLead(
       phone: input.phone,
       preferredLanguage: input.preferredLanguage ?? "ar",
       source: input.source ?? "Website form",
+      ...(preferredAppointment
+        ? { preferredAppointmentAt: preferredAppointment }
+        : {}),
+      ...(input.appointmentNotes ? { appointmentNotes: input.appointmentNotes } : {}),
       status: input.status ?? SubmissionStatus.NEW,
       ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
       ...(input.webhookId ? { webhookId: input.webhookId } : {}),
@@ -4028,6 +4055,7 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
       serviceUpdate = { serviceId: service?.id ?? null };
     }
   }
+  const preferredAppointment = parseAppointmentDate(input.preferredAppointmentAt ?? undefined);
 
   const submission = await prisma.contactSubmission.update({
     where: { id: input.id },
@@ -4037,6 +4065,14 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
       ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
       ...(input.phone !== undefined ? { phone: input.phone } : {}),
       ...(input.email !== undefined ? { email: input.email || null } : {}),
+      ...(input.preferredAppointmentAt !== undefined
+        ? {
+            preferredAppointmentAt: preferredAppointment,
+          }
+        : {}),
+      ...(input.appointmentNotes !== undefined
+        ? { appointmentNotes: input.appointmentNotes || null }
+        : {}),
       ...(input.tags !== undefined ? { tags: [...input.tags] } : {}),
       ...(input.assignedToId !== undefined
         ? { assignedToId: input.assignedToId || null }

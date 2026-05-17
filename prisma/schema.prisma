@@ -188,6 +188,8 @@ model ContactSubmission {
   email              String?
   message            String?          @db.Text
   preferredLanguage  String           @default("ar")
+  preferredAppointmentAt DateTime?
+  appointmentNotes    String?          @db.Text
   source             String?
   utmSource          String?
   utmMedium          String?
@@ -204,6 +206,8 @@ model ContactSubmission {
   assignedTo         User?            @relation("LeadOwner", fields: [assignedToId], references: [id], onDelete: SetNull)
   webhook            Webhook?         @relation(fields: [webhookId], references: [id], onDelete: SetNull)
   comments           CrmComment[]
+
+  @@index([preferredAppointmentAt])
 }
 
 model CrmComment {

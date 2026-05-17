@@ -177,6 +177,9 @@ export default async function AdminWebhooksPage() {
   "phone": "+9665XXXXXXXX",
   "email": "sara@example.com",
   "message": "أرغب باستشارة جلدية",
+  "preferredDate": "2026-05-20",
+  "preferredTime": "17:30",
+  "appointmentNotes": "Prefers an evening callback",
   "source": "Meta Ads",
   "tags": ["VIP", "Skin"]
 }`}

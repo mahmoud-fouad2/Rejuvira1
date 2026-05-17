@@ -12,6 +12,9 @@ const leadSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().max(1000).optional().or(z.literal("")),
   serviceSlug: z.string().optional().or(z.literal("")),
+  preferredDate: z.string().optional().or(z.literal("")),
+  preferredTime: z.string().optional().or(z.literal("")),
+  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   preferredLanguage: z.string().optional().or(z.literal("")),
   source: z.string().max(120).optional().or(z.literal("")),
 });
@@ -19,6 +22,13 @@ const leadSchema = z.object({
 function formString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value : "";
+}
+
+function parsePreferredAppointment(date?: string, time?: string) {
+  if (!date) return undefined;
+  const parsed = new Date(`${date}T${time || "09:00"}:00+03:00`);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  return parsed.toISOString();
 }
 
 function redirectBack(request: Request, status: "success" | "error") {
@@ -36,6 +46,9 @@ export async function POST(request: Request) {
     email: formString(formData, "email"),
     message: formString(formData, "message"),
     serviceSlug: formString(formData, "serviceSlug"),
+    preferredDate: formString(formData, "preferredDate"),
+    preferredTime: formString(formData, "preferredTime"),
+    appointmentNotes: formString(formData, "appointmentNotes"),
     preferredLanguage: formString(formData, "preferredLanguage"),
     source: formString(formData, "source"),
   });
@@ -62,11 +75,20 @@ export async function POST(request: Request) {
   }
 
   try {
+    const preferredAppointmentAt = parsePreferredAppointment(
+      parsed.data.preferredDate,
+      parsed.data.preferredTime,
+    );
+
     await createContactLead({
       fullName: parsed.data.fullName,
       phone: parsed.data.phone,
       preferredLanguage: parsed.data.preferredLanguage || "ar",
       source: parsed.data.source || "Landing page form",
+      ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
+      ...(parsed.data.appointmentNotes
+        ? { appointmentNotes: parsed.data.appointmentNotes }
+        : {}),
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
       ...(parsed.data.serviceSlug ? { serviceSlug: parsed.data.serviceSlug } : {}),
