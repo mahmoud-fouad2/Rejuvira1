@@ -73,32 +73,43 @@ export async function createDoctorAction(
 
   const serviceSlugs = parseSlugList(formData.get("serviceSlugs"));
 
-  const result = await createDoctorDraft({
-    slug: parsed.data.slug,
-    name: parsed.data.name,
-    title: parsed.data.title,
-    specialty: parsed.data.specialty,
-    summary: parsed.data.summary,
-    bio: parsed.data.bio,
-    yearsExperience: parsed.data.yearsExperience,
-    languages: parsed.data.languages
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter(Boolean),
-    featured: parsed.data.featured,
-    status: parsed.data.status,
-    serviceSlugs,
-    ...(parsed.data.photoUrl
-      ? {
-          photoUrl: parsed.data.photoUrl,
-        }
-      : {}),
-    ...(parsed.data.coverImageUrl
-      ? {
-          coverImageUrl: parsed.data.coverImageUrl,
-        }
-      : {}),
-  });
+  let result: Awaited<ReturnType<typeof createDoctorDraft>>;
+  try {
+    result = await createDoctorDraft({
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      title: parsed.data.title,
+      specialty: parsed.data.specialty,
+      summary: parsed.data.summary,
+      bio: parsed.data.bio,
+      yearsExperience: parsed.data.yearsExperience,
+      languages: parsed.data.languages
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+      featured: parsed.data.featured,
+      status: parsed.data.status,
+      serviceSlugs,
+      ...(parsed.data.photoUrl
+        ? {
+            photoUrl: parsed.data.photoUrl,
+          }
+        : {}),
+      ...(parsed.data.coverImageUrl
+        ? {
+            coverImageUrl: parsed.data.coverImageUrl,
+          }
+        : {}),
+    });
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? `تعذر حفظ الطبيب: ${error.message}`
+          : "تعذر حفظ الطبيب حاليًا. يرجى مراجعة البيانات والمحاولة مرة أخرى.",
+    };
+  }
 
   revalidatePath("/admin/doctors");
   revalidatePath("/doctors");
@@ -144,33 +155,44 @@ export async function updateDoctorAction(
 
   const serviceSlugs = parseSlugList(formData.get("serviceSlugs"));
 
-  const result = await updateDoctorProfile({
-    id: parsed.data.id,
-    slug: parsed.data.slug,
-    name: parsed.data.name,
-    title: parsed.data.title,
-    specialty: parsed.data.specialty,
-    summary: parsed.data.summary,
-    bio: parsed.data.bio,
-    yearsExperience: parsed.data.yearsExperience,
-    languages: parsed.data.languages
-      .split(",")
-      .map((entry) => entry.trim())
-      .filter(Boolean),
-    featured: parsed.data.featured,
-    status: parsed.data.status,
-    serviceSlugs,
-    ...(parsed.data.photoUrl
-      ? {
-          photoUrl: parsed.data.photoUrl,
-        }
-      : {}),
-    ...(parsed.data.coverImageUrl
-      ? {
-          coverImageUrl: parsed.data.coverImageUrl,
-        }
-      : {}),
-  });
+  let result: Awaited<ReturnType<typeof updateDoctorProfile>>;
+  try {
+    result = await updateDoctorProfile({
+      id: parsed.data.id,
+      slug: parsed.data.slug,
+      name: parsed.data.name,
+      title: parsed.data.title,
+      specialty: parsed.data.specialty,
+      summary: parsed.data.summary,
+      bio: parsed.data.bio,
+      yearsExperience: parsed.data.yearsExperience,
+      languages: parsed.data.languages
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+      featured: parsed.data.featured,
+      status: parsed.data.status,
+      serviceSlugs,
+      ...(parsed.data.photoUrl
+        ? {
+            photoUrl: parsed.data.photoUrl,
+          }
+        : {}),
+      ...(parsed.data.coverImageUrl
+        ? {
+            coverImageUrl: parsed.data.coverImageUrl,
+          }
+        : {}),
+    });
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error
+          ? `تعذر تحديث الطبيب: ${error.message}`
+          : "تعذر تحديث الطبيب حاليًا. يرجى مراجعة البيانات والمحاولة مرة أخرى.",
+    };
+  }
 
   revalidatePath("/admin/doctors");
   revalidatePath("/doctors");

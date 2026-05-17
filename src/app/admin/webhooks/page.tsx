@@ -2,6 +2,7 @@ import {
   deleteWebhookAction,
   rotateWebhookTokenAction,
 } from "@/app/admin/webhooks/actions";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { WebhookEditor } from "@/components/admin/WebhookEditor";
 import { WebhookCopyLink } from "@/components/admin/WebhookCopyLink";
 import { getServices, getWebhooks } from "@/lib/content-repository";
@@ -26,6 +27,21 @@ export default async function AdminWebhooksPage() {
     getServices(),
   ]);
   const services = servicesRaw.map((s) => ({ slug: s.slug, name: s.name }));
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: webhooks.length },
+    {
+      value: "active",
+      labelAr: "مفعل",
+      labelEn: "Active",
+      count: webhooks.filter((webhook) => webhook.isActive).length,
+    },
+    {
+      value: "disabled",
+      labelAr: "متوقف",
+      labelEn: "Disabled",
+      count: webhooks.filter((webhook) => !webhook.isActive).length,
+    },
+  ];
 
   return (
     <>
@@ -83,7 +99,8 @@ export default async function AdminWebhooksPage() {
               </div>
             </div>
           </div>
-          <div className="admin-data-list">
+          <AdminListControls targetId="admin-webhooks-list" tabs={tabs} />
+          <div className="admin-data-list" data-admin-list="admin-webhooks-list">
             {webhooks.length === 0 ? (
               <p className="px-2 py-6 text-sm text-muted-foreground">
                 <span className="lang-ar">لا توجد ويب هوكس بعد.</span>
@@ -91,7 +108,21 @@ export default async function AdminWebhooksPage() {
               </p>
             ) : null}
             {webhooks.map((webhook) => (
-              <details key={webhook.id} className="admin-data-row !block">
+              <details
+                key={webhook.id}
+                className="admin-data-row !block"
+                data-admin-row
+                data-admin-status={webhook.isActive ? "active" : "disabled"}
+                data-admin-search={[
+                  webhook.name,
+                  webhook.serviceLabel,
+                  webhook.defaultSource,
+                  webhook.defaultTags.join(" "),
+                  webhook.defaultStatus,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
                 <summary className="grid cursor-pointer grid-cols-[1fr_auto] items-center gap-3">
                   <div className="min-w-0">
                     <p className="admin-data-row__title truncate">

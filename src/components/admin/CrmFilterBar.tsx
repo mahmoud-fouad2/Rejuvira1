@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { SubmissionStatus } from "@prisma/client";
 
 import type { CrmRecord } from "@/lib/content-repository";
+import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import { CrmSubmissionEditor } from "@/components/forms/CrmSubmissionEditor";
 import {
   deleteCrmSubmissionAction,
@@ -265,23 +266,20 @@ export function CrmFilterBar({
                     </form>
                   ))}
                 </div>
-                <form
-                  action={deleteCrmSubmissionAction}
-                  onSubmit={(event) => {
-                    if (
-                      !window.confirm(
-                        "هل أنت متأكد من حذف هذا الطلب؟\nDelete this lead permanently?",
-                      )
-                    ) {
-                      event.preventDefault();
-                    }
-                  }}
-                >
+                <form action={deleteCrmSubmissionAction}>
                   <input type="hidden" name="id" value={submission.id} />
-                  <button type="submit" className="admin-btn-danger text-xs">
+                  <AdminConfirmSubmitButton
+                    className="admin-btn-danger text-xs"
+                    titleArabic="حذف الطلب"
+                    titleEnglish="Delete lead"
+                    messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."
+                    messageEnglish="This lead and its follow-up history will be permanently deleted."
+                    confirmArabic="حذف نهائي"
+                    confirmEnglish="Delete"
+                  >
                     <span className="lang-ar">حذف الطلب</span>
                     <span className="lang-en">Delete lead</span>
-                  </button>
+                  </AdminConfirmSubmitButton>
                 </form>
               </div>
               <CrmSubmissionEditor

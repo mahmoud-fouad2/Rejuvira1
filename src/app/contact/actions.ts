@@ -25,6 +25,11 @@ const contactSchema = z.object({
   source: z.string().max(120).optional().or(z.literal("")),
 });
 
+function formString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : "";
+}
+
 async function dispatchFormWebhook({
   settings,
   payload,
@@ -69,14 +74,14 @@ export async function submitContactAction(
   formData: FormData,
 ): Promise<ContactActionState> {
   const parsed = contactSchema.safeParse({
-    fullName: formData.get("fullName"),
-    phone: formData.get("phone"),
-    email: formData.get("email"),
-    message: formData.get("message"),
-    serviceSlug: formData.get("serviceSlug"),
-    preferredLanguage: formData.get("preferredLanguage"),
-    recaptchaToken: formData.get("recaptchaToken"),
-    source: formData.get("source"),
+    fullName: formString(formData, "fullName"),
+    phone: formString(formData, "phone"),
+    email: formString(formData, "email"),
+    message: formString(formData, "message"),
+    serviceSlug: formString(formData, "serviceSlug"),
+    preferredLanguage: formString(formData, "preferredLanguage"),
+    recaptchaToken: formString(formData, "recaptchaToken"),
+    source: formString(formData, "source"),
   });
 
   if (!parsed.success) {

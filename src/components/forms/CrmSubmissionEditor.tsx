@@ -10,6 +10,7 @@ import {
   updateCrmSubmissionAction,
   type CrmActionState,
 } from "@/app/admin/crm/actions";
+import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import type { CrmRecord } from "@/lib/content-repository";
 
 const initialState: CrmActionState = { status: "idle", message: "" };
@@ -335,20 +336,18 @@ export function CrmSubmissionEditor({
 
       <form action={deleteCrmSubmissionAction} className="flex">
         <input type="hidden" name="id" value={submission.id} />
-        <button
-          type="submit"
+        <AdminConfirmSubmitButton
           className="admin-btn-danger text-xs"
-          onClick={(event) => {
-            if (typeof window !== "undefined") {
-              if (!window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
-                event.preventDefault();
-              }
-            }
-          }}
+          titleArabic="حذف الطلب"
+          titleEnglish="Delete lead"
+          messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."
+          messageEnglish="This lead and its follow-up history will be permanently deleted."
+          confirmArabic="حذف نهائي"
+          confirmEnglish="Delete"
         >
           <span className="lang-ar">حذف الطلب نهائيًا</span>
           <span className="lang-en">Delete lead permanently</span>
-        </button>
+        </AdminConfirmSubmitButton>
       </form>
     </div>
   );

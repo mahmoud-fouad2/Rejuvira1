@@ -2,6 +2,7 @@ import { ContentStatus } from "@prisma/client";
 
 import { deleteServiceCategoryAction } from "@/app/admin/service-categories/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { ServiceCategoryForm } from "@/components/forms/ServiceCategoryForm";
 import { getServiceCategories } from "@/lib/content-repository";
 
@@ -18,6 +19,27 @@ function statusMeta(status: ContentStatus) {
 
 export default async function AdminServiceCategoriesPage() {
   const categories = await getServiceCategories();
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: categories.length },
+    {
+      value: ContentStatus.PUBLISHED,
+      labelAr: "منشور",
+      labelEn: "Published",
+      count: categories.filter((category) => category.status === ContentStatus.PUBLISHED).length,
+    },
+    {
+      value: ContentStatus.DRAFT,
+      labelAr: "مسودة",
+      labelEn: "Draft",
+      count: categories.filter((category) => category.status === ContentStatus.DRAFT).length,
+    },
+    {
+      value: ContentStatus.ARCHIVED,
+      labelAr: "مؤرشف",
+      labelEn: "Archived",
+      count: categories.filter((category) => category.status === ContentStatus.ARCHIVED).length,
+    },
+  ];
 
   return (
     <>
@@ -54,11 +76,26 @@ export default async function AdminServiceCategoriesPage() {
             </div>
           </div>
         </div>
-        <div className="admin-data-list">
+        <AdminListControls targetId="admin-categories-list" tabs={tabs} />
+        <div className="admin-data-list" data-admin-list="admin-categories-list">
           {categories.map((category) => {
             const meta = statusMeta(category.status);
             return (
-              <details key={category.id} className="admin-data-row !block">
+              <details
+                key={category.id}
+                className="admin-data-row !block"
+                data-admin-row
+                data-admin-status={category.status}
+                data-admin-search={[
+                  category.name,
+                  category.nameEn,
+                  category.slug,
+                  category.description,
+                  category.descriptionEn,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
                 <summary className="grid cursor-pointer grid-cols-[1fr_auto] items-center gap-3">
                   <div className="min-w-0">
                     <p className="admin-data-row__title truncate">{category.name}</p>

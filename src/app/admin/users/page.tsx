@@ -3,6 +3,7 @@ import { UserRole } from "@prisma/client";
 import { deleteAdminUserAction } from "@/app/admin/users/actions";
 import { auth } from "@/auth";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { AdminUserCreateForm } from "@/components/forms/AdminUserCreateForm";
 import { AdminUserRoleForm } from "@/components/forms/AdminUserRoleForm";
 import {
@@ -27,6 +28,15 @@ export default async function AdminUsersPage() {
     users: users.filter((user) => user.role === role),
   }));
   const canManage = session?.user?.role === UserRole.SUPER_ADMIN;
+  const tabs = [
+    { value: "all", labelAr: "الكل", labelEn: "All", count: users.length },
+    ...groupedUsers.map((group) => ({
+      value: group.role,
+      labelAr: roleLabels[group.role],
+      labelEn: group.role.replace("_", " "),
+      count: group.users.length,
+    })),
+  ];
 
   return (
     <>
@@ -88,9 +98,21 @@ export default async function AdminUsersPage() {
             </div>
           </div>
         </div>
-        <div className="admin-data-list">
+        <AdminListControls targetId="admin-users-list" tabs={tabs} />
+        <div className="admin-data-list" data-admin-list="admin-users-list">
           {users.map((user) => (
-            <div key={user.id} className="admin-data-row grid-cols-[1fr_auto] !items-start">
+            <div
+              key={user.id}
+              className="admin-data-row grid-cols-[1fr_auto] !items-start"
+              data-admin-row
+              data-admin-status={user.role}
+              data-admin-search={[
+                user.name,
+                user.email,
+                user.role,
+                getRoleLabel(user.role),
+              ].join(" ")}
+            >
               <div className="min-w-0">
                 <p className="admin-data-row__title truncate">{user.name}</p>
                 <p className="admin-data-row__meta truncate" dir="ltr">{user.email}</p>

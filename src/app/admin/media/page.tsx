@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { AdminListControls } from "@/components/admin/AdminListControls";
 import { MediaSlotEditor } from "@/components/admin/MediaSlotEditor";
 import { getMediaSelections } from "@/lib/content-repository";
 import { getReferenceAssets } from "@/lib/reference-assets";
@@ -12,6 +13,20 @@ export default async function AdminMediaPage() {
   const categories = Array.from(
     new Set(referenceAssets.map((asset) => asset.category)),
   );
+  const referenceTabs = [
+    {
+      value: "all",
+      labelAr: "الكل",
+      labelEn: "All",
+      count: referenceAssets.length,
+    },
+    ...categories.map((category) => ({
+      value: category,
+      labelAr: category,
+      labelEn: category,
+      count: referenceAssets.filter((asset) => asset.category === category).length,
+    })),
+  ];
 
   const curatedSlots = [
     { key: "brandLogo", labelAr: "الشعار الرئيسي", labelEn: "Main logo", value: mediaSelections.brandLogo, namespace: "brand" },
@@ -87,11 +102,23 @@ export default async function AdminMediaPage() {
             <span className="lang-en">Read-only reference set.</span>
           </p>
         </div>
-        <div className="admin-card__body grid gap-3 md:grid-cols-3 xl:grid-cols-4">
+        <AdminListControls
+          targetId="admin-reference-assets-list"
+          tabs={referenceTabs}
+          searchArabic="بحث في الصور"
+          searchEnglish="Search images"
+        />
+        <div
+          className="admin-card__body grid gap-3 md:grid-cols-3 xl:grid-cols-4"
+          data-admin-list="admin-reference-assets-list"
+        >
           {referenceAssets.map((asset) => (
             <div
               key={asset.fileName}
               className="rounded-xl border p-2"
+              data-admin-row
+              data-admin-status={asset.category}
+              data-admin-search={`${asset.label} ${asset.fileName} ${asset.category}`}
               style={{ borderColor: "var(--admin-border)", background: "var(--admin-panel-soft)" }}
             >
               <div className="relative aspect-square overflow-hidden rounded-lg">

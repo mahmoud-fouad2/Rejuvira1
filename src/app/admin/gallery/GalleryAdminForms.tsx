@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { saveGalleryItemAction, deleteGalleryItemAction } from "./actions";
 import type { GalleryRecord } from "@/lib/content-repository";
+import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 
 type State = { success: boolean; message: string };
@@ -275,21 +276,18 @@ export function DeleteGalleryItemButton({ id }: { id: string }) {
       {state.message && !state.success && (
         <p className="text-[11px] text-[#5c2d3e] mb-1">{state.message}</p>
       )}
-      <button
-        type="submit"
+      <AdminConfirmSubmitButton
         disabled={pending}
-        className="rounded-full px-3 py-1 text-[11px] font-medium transition-all duration-200 disabled:opacity-50"
-        style={{
-          background: "rgba(92,45,62,0.08)",
-          color: "#5c2d3e",
-          border: "1px solid rgba(92,45,62,0.18)",
-        }}
-        onClick={(e) => {
-          if (!confirm("هل أنت متأكد من الحذف؟")) e.preventDefault();
-        }}
+        className="admin-btn-danger text-[11px]"
+        titleArabic="حذف الحالة"
+        titleEnglish="Delete case"
+        messageArabic="سيتم حذف حالة المعرض نهائيًا من لوحة التحكم."
+        messageEnglish="This gallery case will be permanently deleted."
+        confirmArabic="حذف نهائي"
+        confirmEnglish="Delete"
       >
         {pending ? "..." : "حذف"}
-      </button>
+      </AdminConfirmSubmitButton>
     </form>
   );
 }

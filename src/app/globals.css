@@ -11534,6 +11534,52 @@ html[data-theme="dark"] .admin-modal__panel {
   scrollbar-width: thin;
 }
 
+.admin-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+.admin-confirm__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(20, 10, 36, 0.58);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+}
+.admin-confirm__panel {
+  position: relative;
+  width: min(28rem, 100%);
+  border: 1px solid var(--admin-border);
+  border-radius: 0.9rem;
+  background: var(--admin-panel);
+  color: var(--admin-text);
+  padding: 1rem;
+  box-shadow: 0 26px 70px rgba(20, 10, 36, 0.36);
+  animation: rv-modal-pop 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.admin-confirm__panel h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 850;
+}
+.admin-confirm__panel p {
+  margin: 0.45rem 0 0;
+  color: var(--admin-text-soft);
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+.admin-confirm__actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 .admin-shell__content {
   flex: 1;
   padding: 1rem;
@@ -12987,6 +13033,20 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   margin: 0 0.2rem;
   background: var(--admin-border, rgba(31, 16, 64, 0.08));
   align-self: center;
+}
+.rv-rte__link-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.55rem;
+  border-inline: 1px solid var(--admin-border, rgba(31, 16, 64, 0.08));
+  background: var(--admin-panel, #ffffff);
+}
+@media (max-width: 720px) {
+  .rv-rte__link-panel {
+    grid-template-columns: 1fr;
+  }
 }
 .rv-rte__surface {
   background: var(--admin-panel, #ffffff);

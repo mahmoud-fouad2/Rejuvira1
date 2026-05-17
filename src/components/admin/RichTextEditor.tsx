@@ -58,6 +58,8 @@ export function RichTextEditor({
   const [value, setValue] = useState(defaultValue);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [linkPanelOpen, setLinkPanelOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("https://");
 
   useEffect(() => {
     if (surfaceRef.current && surfaceRef.current.innerHTML !== defaultValue) {
@@ -83,14 +85,19 @@ export function RichTextEditor({
   }
 
   function insertLink() {
-    const url = window.prompt("URL", "https://");
-    if (!url) return;
+    const url = linkUrl.trim();
+    if (!url) {
+      setLinkPanelOpen(false);
+      return;
+    }
     if (!/^https?:\/\//i.test(url) && !url.startsWith("/")) {
       setError("الروابط يجب أن تبدأ بـ https:// أو /");
       return;
     }
     setError(null);
     exec("createLink", url);
+    setLinkPanelOpen(false);
+    setLinkUrl("https://");
   }
 
   async function uploadImage(file: File) {
@@ -161,7 +168,13 @@ export function RichTextEditor({
         <button type="button" onClick={() => exec("insertOrderedList")} title="Numbered list">1.</button>
         <button type="button" onClick={() => setBlock("BLOCKQUOTE")} title="Quote">❝</button>
         <span className="rv-rte__sep" />
-        <button type="button" onClick={insertLink} title="Insert link">🔗</button>
+        <button
+          type="button"
+          onClick={() => setLinkPanelOpen((current) => !current)}
+          title="Insert link"
+        >
+          🔗
+        </button>
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
@@ -179,6 +192,40 @@ export function RichTextEditor({
           ⌫
         </button>
       </div>
+
+      {linkPanelOpen ? (
+        <div className="rv-rte__link-panel">
+          <input
+            value={linkUrl}
+            onChange={(event) => setLinkUrl(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                insertLink();
+              }
+              if (event.key === "Escape") {
+                setLinkPanelOpen(false);
+              }
+            }}
+            className="admin-input"
+            dir="ltr"
+            placeholder="https://example.com"
+            autoFocus
+          />
+          <button type="button" className="admin-btn-primary" onClick={insertLink}>
+            <span className="lang-ar">إضافة الرابط</span>
+            <span className="lang-en">Apply link</span>
+          </button>
+          <button
+            type="button"
+            className="admin-btn-secondary"
+            onClick={() => setLinkPanelOpen(false)}
+          >
+            <span className="lang-ar">إلغاء</span>
+            <span className="lang-en">Cancel</span>
+          </button>
+        </div>
+      ) : null}
 
       <div
         ref={surfaceRef}

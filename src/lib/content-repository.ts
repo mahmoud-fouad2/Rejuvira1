@@ -3341,7 +3341,13 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
     return { mode: "preview" as const, item: input };
   }
 
-  const serviceConnect = (input.serviceSlugs ?? []).filter(Boolean);
+  const requestedServiceSlugs = (input.serviceSlugs ?? []).filter(Boolean);
+  const serviceConnect = requestedServiceSlugs.length
+    ? await prisma.service.findMany({
+        where: { slug: { in: requestedServiceSlugs } },
+        select: { slug: true },
+      })
+    : [];
 
   const doctor = await prisma.doctor.create({
     data: {
@@ -3366,7 +3372,7 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
       ...(serviceConnect.length
         ? {
             services: {
-              connect: serviceConnect.map((slug) => ({ slug })),
+              connect: serviceConnect.map((service) => ({ slug: service.slug })),
             },
           }
         : {}),
@@ -3381,7 +3387,17 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
     return { mode: "preview" as const, item: input };
   }
 
-  const serviceSlugs = input.serviceSlugs;
+  const serviceSlugs = Array.isArray(input.serviceSlugs)
+    ? input.serviceSlugs.filter(Boolean)
+    : undefined;
+  const validServiceSlugs = serviceSlugs
+    ? (
+        await prisma.service.findMany({
+          where: { slug: { in: serviceSlugs } },
+          select: { slug: true },
+        })
+      ).map((service) => service.slug)
+    : undefined;
   const data = {
     slug: input.slug,
     nameAr: input.name,
@@ -3399,10 +3415,10 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
     isFeatured: input.featured,
     photoUrl: input.photoUrl || null,
     coverImageUrl: input.coverImageUrl || input.photoUrl || null,
-    ...(Array.isArray(serviceSlugs)
+    ...(Array.isArray(validServiceSlugs)
       ? {
           services: {
-            set: serviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+            set: validServiceSlugs.map((slug) => ({ slug })),
           },
         }
       : {}),
@@ -3428,10 +3444,10 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
       isFeatured: input.featured,
       photoUrl: input.photoUrl || null,
       coverImageUrl: input.coverImageUrl || input.photoUrl || null,
-      ...(Array.isArray(serviceSlugs)
+      ...(Array.isArray(validServiceSlugs) && validServiceSlugs.length
         ? {
             services: {
-              connect: serviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+              connect: validServiceSlugs.map((slug) => ({ slug })),
             },
           }
         : {}),
@@ -4626,7 +4642,7 @@ export async function deleteDoctor(id: string) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, id };
   }
-  const item = await prisma.doctor.delete({ where: { id } });
+  const item = await prisma.doctor.deleteMany({ where: { id } });
   return { mode: "database" as const, item };
 }
 
