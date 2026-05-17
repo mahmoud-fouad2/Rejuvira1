@@ -97,6 +97,33 @@ export default async function AdminPage() {
     { key: "Storage (R2)", state: checks.r2.ok },
     { key: "reCAPTCHA", state: checks.recaptcha.ok },
   ];
+  const contentIssues = [
+    {
+      labelAr: "خدمات تحتاج أطباء",
+      labelEn: "Services need doctors",
+      count: services.filter((service) => service.doctorSlugs.length === 0).length,
+      href: "/admin/content",
+    },
+    {
+      labelAr: "خدمات تحتاج أجهزة",
+      labelEn: "Services need devices",
+      count: services.filter((service) => service.deviceSlugs.length === 0).length,
+      href: "/admin/content",
+    },
+    {
+      labelAr: "مقالات تحتاج ربط خدمة",
+      labelEn: "Articles need service links",
+      count: journal.filter((post) => post.relatedServiceSlugs.length === 0).length,
+      href: "/admin/journal",
+    },
+    {
+      labelAr: "طلبات جديدة تحتاج متابعة",
+      labelEn: "New leads need follow-up",
+      count: submissions.filter((lead) => lead.status === SubmissionStatus.NEW).length,
+      href: "/admin/crm",
+    },
+  ];
+  const nextActions = contentIssues.filter((item) => item.count > 0);
 
   const kpis = [
     {
@@ -177,6 +204,41 @@ export default async function AdminPage() {
           ))}
         </div>
       </div>
+
+      <section className="admin-command-center">
+        <div className="admin-command-center__copy">
+          <span className="admin-command-center__eyebrow">
+            <span className="lang-ar">مركز التشغيل</span>
+            <span className="lang-en">Command center</span>
+          </span>
+          <h2>
+            <span className="lang-ar">المهام الأهم قبل تحديث بيانات الموقع</span>
+            <span className="lang-en">Priority checks before content updates</span>
+          </h2>
+          <p>
+            <span className="lang-ar">هذه اللوحة تجمع النقاط التي تؤثر على ظهور الخدمات والفورمات والربط بين الصفحات.</span>
+            <span className="lang-en">This panel highlights relationship and CRM gaps that affect the public site.</span>
+          </p>
+        </div>
+        <div className="admin-command-center__actions">
+          {(nextActions.length ? nextActions : contentIssues.slice(0, 2)).map((item) => (
+            <Link key={item.labelEn} href={item.href as Route} className="admin-command-action">
+              <strong>{item.count}</strong>
+              <span>
+                <span className="lang-ar">{item.labelAr}</span>
+                <span className="lang-en">{item.labelEn}</span>
+              </span>
+            </Link>
+          ))}
+          <Link href={"/admin/media" as Route} className="admin-command-action is-soft">
+            <strong>ICO</strong>
+            <span>
+              <span className="lang-ar">الفافيكون موحد</span>
+              <span className="lang-en">Unified favicon</span>
+            </span>
+          </Link>
+        </div>
+      </section>
 
       <section className="admin-grid-4">
         {kpis.map((kpi) => (

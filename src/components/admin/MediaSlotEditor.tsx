@@ -47,7 +47,9 @@ export function MediaSlotEditor({
     setUploading(true);
     setError(null);
     try {
-      const preparedFile = await prepareImageUpload(file);
+      const shouldPreserveIconFile =
+        slot === "favicon" || slot === "appleIcon" || file.name.toLowerCase().endsWith(".ico");
+      const preparedFile = shouldPreserveIconFile ? file : await prepareImageUpload(file);
       const form = new FormData();
       form.append("file", preparedFile);
       form.append("namespace", namespace);

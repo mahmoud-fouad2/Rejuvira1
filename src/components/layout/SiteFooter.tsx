@@ -7,6 +7,7 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 import { normalizeSocialUrl } from "@/components/layout/SocialIconCluster";
 import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
+import { getPublicSiteKey } from "@/lib/recaptcha";
 
 const quickLinks = [
   { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
@@ -371,6 +372,7 @@ export async function SiteFooter() {
         <div className="rv-v0-footer-mobile-book">
           <BookingModal
             services={services}
+            recaptchaSiteKey={getPublicSiteKey()}
             compactLabel
             buttonClassName="rv-v0-footer-mobile-book-btn"
             labelAr="احجزي معنا الآن"

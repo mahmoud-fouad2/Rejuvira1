@@ -2,20 +2,8 @@ import type { MetadataRoute } from "next";
 
 import { getRuntimeSettings } from "@/lib/content-repository";
 
-function iconType(src: string) {
-  const clean = src.split("?")[0]?.toLowerCase() ?? "";
-  if (clean.endsWith(".svg")) return "image/svg+xml";
-  if (clean.endsWith(".ico")) return "image/x-icon";
-  if (clean.endsWith(".webp")) return "image/webp";
-  if (clean.endsWith(".jpg") || clean.endsWith(".jpeg")) return "image/jpeg";
-  return "image/png";
-}
-
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const settings = await getRuntimeSettings();
-  const favicon = settings.media.favicon || "/icon.svg";
-  const appleIcon = settings.media.appleIcon || "/apple-icon.png";
-  const brandMark = settings.media.brandMark || "/media/brand-logo-main.png";
   return {
     name: settings.brand.siteName,
     short_name: settings.brand.shortName,
@@ -28,20 +16,26 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     dir: "rtl",
     icons: [
       {
-        src: favicon,
-        sizes: "any",
-        type: iconType(favicon),
+        src: "/favicon-32x32.png",
+        sizes: "32x32",
+        type: "image/png",
       },
       {
-        src: appleIcon,
+        src: "/apple-touch-icon.png",
         sizes: "180x180",
-        type: iconType(appleIcon),
+        type: "image/png",
       },
       {
-        src: brandMark,
-        sizes: "512x512",
-        type: iconType(brandMark),
+        src: "/icon-192.png",
+        sizes: "192x192",
+        type: "image/png",
         purpose: "any",
+      },
+      {
+        src: "/icon-512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
       },
     ],
   };

@@ -11627,6 +11627,100 @@ html[data-theme="dark"] .admin-modal__panel {
   gap: 0.5rem;
 }
 
+/* ── Admin command center ─────────────────────────────── */
+.admin-command-center {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(138, 78, 193, 0.18);
+  border-radius: 0.75rem;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(138, 78, 193, 0.18), transparent 28rem),
+    linear-gradient(135deg, var(--admin-panel), var(--admin-panel-soft));
+  box-shadow: var(--admin-shadow-soft);
+  padding: 1rem;
+}
+@media (min-width: 1024px) {
+  .admin-command-center {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.35fr);
+    align-items: stretch;
+  }
+}
+.admin-command-center__copy {
+  display: grid;
+  align-content: center;
+  gap: 0.35rem;
+}
+.admin-command-center__eyebrow {
+  color: var(--admin-accent);
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.admin-command-center h2 {
+  color: var(--admin-text);
+  font-size: clamp(1.1rem, 2vw, 1.65rem);
+  font-weight: 900;
+  line-height: 1.25;
+}
+.admin-command-center p {
+  max-width: 42rem;
+  color: var(--admin-text-soft);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+.admin-command-center__actions {
+  display: grid;
+  gap: 0.6rem;
+}
+@media (min-width: 640px) {
+  .admin-command-center__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.admin-command-action {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.65rem;
+  background: color-mix(in oklch, var(--admin-panel) 78%, transparent);
+  color: var(--admin-text);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.admin-command-action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(138, 78, 193, 0.34);
+  background: var(--admin-panel);
+}
+.admin-command-action strong {
+  min-width: 2.6rem;
+  height: 2.6rem;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 0.55rem;
+  background: var(--admin-accent-soft);
+  color: var(--admin-accent);
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+.admin-command-action span {
+  min-width: 0;
+  color: var(--admin-text-soft);
+  font-size: 0.8rem;
+  font-weight: 760;
+  line-height: 1.45;
+}
+.admin-command-action.is-soft strong {
+  background: rgba(26, 122, 94, 0.12);
+  color: var(--admin-success);
+}
+
 /* ── Card ─────────────────────────────────────────────── */
 .admin-card {
   background: var(--admin-panel);

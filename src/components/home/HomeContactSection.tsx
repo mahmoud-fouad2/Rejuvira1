@@ -1,5 +1,6 @@
 import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { getPublicSiteKey } from "@/lib/recaptcha";
 import type { RuntimeSettings, ServiceRecord } from "@/lib/content-repository";
 
 const benefits = [
@@ -175,7 +176,12 @@ export function HomeContactSection({
               </div>
             </div>
 
-            <ContactForm services={services} formClassName="rv-v0-home-contact-form" />
+            <ContactForm
+              services={services}
+              formClassName="rv-v0-home-contact-form"
+              recaptchaSiteKey={getPublicSiteKey()}
+              source="Homepage contact form"
+            />
 
             <p className="rv-v0-home-contact-privacy">
               <span className="lang-ar">بالإرسال، توافقين على معالجة بياناتك للتواصل بخصوص طلبك.</span>

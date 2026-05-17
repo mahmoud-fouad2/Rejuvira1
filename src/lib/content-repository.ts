@@ -2148,9 +2148,9 @@ const seedAdminUsers: AdminUserRecord[] = [
 
 const defaultMediaSelections: MediaSelections = {
   brandLogo: "/media/brand-logo-main.png",
-  brandMark: "/icon.svg",
-  favicon: "/icon.svg",
-  appleIcon: "/media/brand-logo-main.png",
+  brandMark: "/media/brand/rejuvira-app-icon.png",
+  favicon: "/favicon.ico",
+  appleIcon: "/apple-touch-icon.png",
   ogImage: "/media/brand-logo-main.png",
   homeHero: "/media/hero/rejuvira-hero-1.jpg",
   heroCard1: "/media/hero/rejuvira-hero-1.jpg",
