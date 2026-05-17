@@ -38,7 +38,10 @@ export function PageLoader() {
   if (!visible) return null;
 
   return (
-    <div aria-hidden="true" className="rv-page-loader pointer-events-none fixed inset-x-0 top-0 z-[9999]">
+    <div
+      aria-hidden="true"
+      className="rv-page-loader pointer-events-none fixed inset-x-0 top-0 z-[9999]"
+    >
       <div
         className="rv-page-loader-bar transition-all duration-500 ease-out"
         style={{

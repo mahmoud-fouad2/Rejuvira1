@@ -58,9 +58,7 @@ export function DoctorQuotesRail({
           </h2>
           <p className="text-ink-soft mt-4 text-sm leading-7">{description}</p>
         </div>
-        <div
-          className="quote-card-bg mt-8 rounded-[2rem] p-6"
-        >
+        <div className="quote-card-bg mt-8 rounded-[2rem] p-6">
           <p
             className="font-serif text-5xl leading-none"
             style={{ color: "var(--violet)" }}
@@ -109,7 +107,9 @@ export function DoctorQuotesRail({
               key={doctor.id}
               onClick={() => setActiveIndex(index)}
               className={`surface-panel flex cursor-pointer items-center gap-4 rounded-[1.8rem] p-3 transition-all duration-300 ${
-                isActive ? "showcase-active-bg shadow-[0_6px_24px_rgba(30,13,78,0.12)]" : ""
+                isActive
+                  ? "showcase-active-bg shadow-[0_6px_24px_rgba(30,13,78,0.12)]"
+                  : ""
               }`}
             >
               {/* Photo */}
@@ -145,8 +145,7 @@ export function DoctorQuotesRail({
                   style={{ color: "var(--violet-mid)" }}
                 >
                   <span className="lang-ar">الملف الطبي</span>
-                  <span className="lang-en">Medical Profile</span>
-                  {" "}
+                  <span className="lang-en">Medical Profile</span>{" "}
                   <span aria-hidden="true">←</span>
                 </Link>
               </div>
@@ -160,7 +159,8 @@ export function DoctorQuotesRail({
                     color: "var(--violet-mid)",
                   }}
                 >
-                  {doctor.yearsExperience} <span className="lang-ar">سنة</span><span className="lang-en">yrs</span>
+                  {doctor.yearsExperience} <span className="lang-ar">سنة</span>
+                  <span className="lang-en">yrs</span>
                 </span>
                 <div
                   className="h-2 w-2 rounded-full transition-all duration-300"
@@ -168,9 +168,7 @@ export function DoctorQuotesRail({
                     background: isActive
                       ? "var(--violet)"
                       : "rgba(30,13,78,0.15)",
-                    boxShadow: isActive
-                      ? "0 0 6px rgba(30,13,78,0.5)"
-                      : "none",
+                    boxShadow: isActive ? "0 0 6px rgba(30,13,78,0.5)" : "none",
                   }}
                 />
               </div>

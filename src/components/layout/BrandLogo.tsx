@@ -31,7 +31,10 @@ export function BrandLogo({
   const baseClass = `rv-brand-logo rv-brand-logo-${variant}`;
 
   return (
-    <span className={`${baseClass} ${className ?? ""}`.trim()} aria-hidden={false}>
+    <span
+      className={`${baseClass} ${className ?? ""}`.trim()}
+      aria-hidden={false}
+    >
       <Image
         src="/media/brand/logo-light.png"
         alt={alt}

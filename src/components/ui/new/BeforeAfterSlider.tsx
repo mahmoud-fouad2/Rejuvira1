@@ -135,7 +135,10 @@ export function BeforeAfterSlider({
       {/* Before image (clipped from the right) */}
       <div
         className="ba-image pointer-events-none"
-        style={{ clipPath: `inset(0 ${100 - position}% 0 0)`, overflow: "hidden" }}
+        style={{
+          clipPath: `inset(0 ${100 - position}% 0 0)`,
+          overflow: "hidden",
+        }}
       >
         <Image
           src={beforeSrc}
@@ -173,16 +176,10 @@ export function BeforeAfterSlider({
       </div>
 
       {/* Labels — Before pill top-right, After pill top-left (logical for RTL too). */}
-      <span
-        className="ba-pill ba-pill-before"
-        aria-hidden
-      >
+      <span className="ba-pill ba-pill-before" aria-hidden>
         {beforeLabel} / Before
       </span>
-      <span
-        className="ba-pill ba-pill-after"
-        aria-hidden
-      >
+      <span className="ba-pill ba-pill-after" aria-hidden>
         {afterLabel} / After
       </span>
 

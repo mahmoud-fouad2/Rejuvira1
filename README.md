@@ -2,9 +2,10 @@
 
 Production website for Rejuvira Center (`rejuveracenter.sa`) — a
 medical dermatology and aesthetic clinic in Riyadh. Built on
-**Next.js 16 (App Router)**, **React 19**, **Tailwind v4**, **Prisma
-+ Neon Postgres**, and **NextAuth v5**. The Arabic experience is
-primary (RTL) with a polished English toggle.
+**Next.js 16 (App Router)**, **React 19**, **Tailwind v4**, \*\*Prisma
+
+- Neon Postgres**, and **NextAuth v5\*\*. The Arabic experience is
+  primary (RTL) with a polished English toggle.
 
 ## Quick start
 
@@ -23,16 +24,16 @@ URL is set).
 
 ## Useful scripts
 
-| Script | What it does |
-| --- | --- |
-| `npm run dev` | Run the Next.js dev server on port 3000. |
-| `npm run build` | Production build (`next build`). |
-| `npm run start` | Start the production server. |
-| `npm run lint` | ESLint over the whole repo. |
-| `npm run typecheck` | `tsc --noEmit`. |
-| `npm run prisma:generate` | Regenerate the Prisma client. |
-| `npm run prisma:migrate:deploy` | Apply pending migrations. |
-| `npm run seed:admin` | Create the first admin user. |
+| Script                          | What it does                             |
+| ------------------------------- | ---------------------------------------- |
+| `npm run dev`                   | Run the Next.js dev server on port 3000. |
+| `npm run build`                 | Production build (`next build`).         |
+| `npm run start`                 | Start the production server.             |
+| `npm run lint`                  | ESLint over the whole repo.              |
+| `npm run typecheck`             | `tsc --noEmit`.                          |
+| `npm run prisma:generate`       | Regenerate the Prisma client.            |
+| `npm run prisma:migrate:deploy` | Apply pending migrations.                |
+| `npm run seed:admin`            | Create the first admin user.             |
 
 ## Production deployment
 

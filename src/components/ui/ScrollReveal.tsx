@@ -4,7 +4,12 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 
 type ScrollRevealProps = {
   children: ReactNode;
-  animation?: "fade-in-up" | "fade-in" | "scale-in" | "slide-in-right" | "slide-in-left";
+  animation?:
+    | "fade-in-up"
+    | "fade-in"
+    | "scale-in"
+    | "slide-in-right"
+    | "slide-in-left";
   delay?: number;
   threshold?: number;
   className?: string;
@@ -34,7 +39,7 @@ export function ScrollReveal({
           observer.unobserve(el);
         }
       },
-      { threshold }
+      { threshold },
     );
 
     observer.observe(el);

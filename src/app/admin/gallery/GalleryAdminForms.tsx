@@ -22,7 +22,10 @@ export function GalleryItemForm({
   item?: GalleryRecord;
   onClose?: () => void;
 }) {
-  const [state, action, pending] = useActionState(saveGalleryItemAction, initial);
+  const [state, action, pending] = useActionState(
+    saveGalleryItemAction,
+    initial,
+  );
   const [splitPercent, setSplitPercent] = useState<number>(
     clampSplit(item?.initialSplitPercent ?? 50),
   );
@@ -56,22 +59,28 @@ export function GalleryItemForm({
             defaultValue={item?.title ?? ""}
             placeholder="مثال: علاج تصبغات الوجه"
             required
-            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
-            style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
+            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 text-sm focus:ring-2 focus:outline-none"
+            style={
+              { "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties
+            }
           />
         </label>
 
         {/* Slug */}
         <label className="flex flex-col gap-1.5">
-          <span className="text-ink-soft text-xs font-medium">الرابط (slug) *</span>
+          <span className="text-ink-soft text-xs font-medium">
+            الرابط (slug) *
+          </span>
           <input
             name="slug"
             defaultValue={item?.slug ?? ""}
             placeholder="facial-pigmentation"
             required
             dir="ltr"
-            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 text-sm font-mono focus:outline-none focus:ring-2"
-            style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
+            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 font-mono text-sm focus:ring-2 focus:outline-none"
+            style={
+              { "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties
+            }
           />
         </label>
 
@@ -83,8 +92,10 @@ export function GalleryItemForm({
             defaultValue={item?.category ?? ""}
             placeholder="مثال: تجديد البشرة"
             required
-            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 text-sm focus:outline-none focus:ring-2"
-            style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
+            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 text-sm focus:ring-2 focus:outline-none"
+            style={
+              { "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties
+            }
           />
         </label>
 
@@ -97,8 +108,10 @@ export function GalleryItemForm({
             placeholder="وصف مختصر للحالة والنتيجة..."
             required
             rows={3}
-            className="border-line bg-canvas text-ink rounded-[1rem] border px-4 py-2.5 text-sm leading-7 resize-none focus:outline-none focus:ring-2"
-            style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
+            className="border-line bg-canvas text-ink resize-none rounded-[1rem] border px-4 py-2.5 text-sm leading-7 focus:ring-2 focus:outline-none"
+            style={
+              { "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties
+            }
           />
         </label>
 
@@ -130,7 +143,7 @@ export function GalleryItemForm({
           border: "1px solid rgba(30,13,78,0.08)",
         }}
       >
-        <p className="text-ink-soft mb-3 text-xs font-semibold uppercase tracking-widest">
+        <p className="text-ink-soft mb-3 text-xs font-semibold tracking-widest uppercase">
           <span className="lang-ar">صورة قبل</span>
           <span className="lang-en">Before image</span>
         </p>
@@ -145,7 +158,9 @@ export function GalleryItemForm({
           />
           <label className="flex flex-col gap-1.5">
             <span className="text-ink-faint text-xs">
-              <span className="lang-ar">النص البديل (alt) — لمحركات البحث *</span>
+              <span className="lang-ar">
+                النص البديل (alt) — لمحركات البحث *
+              </span>
               <span className="lang-en">Alt text (SEO) *</span>
             </span>
             <input
@@ -153,8 +168,12 @@ export function GalleryItemForm({
               defaultValue={item?.beforeImageAlt ?? ""}
               placeholder="قبل علاج تصبغات الوجه - مريضة"
               required
-              className="border-line bg-canvas text-ink rounded-[1rem] border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-              style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
+              className="border-line bg-canvas text-ink rounded-[1rem] border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              style={
+                {
+                  "--tw-ring-color": "rgba(30,13,78,0.3)",
+                } as React.CSSProperties
+              }
             />
           </label>
         </div>
@@ -167,7 +186,7 @@ export function GalleryItemForm({
           border: "1px solid rgba(26,122,94,0.1)",
         }}
       >
-        <p className="text-ink-soft mb-3 text-xs font-semibold uppercase tracking-widest">
+        <p className="text-ink-soft mb-3 text-xs font-semibold tracking-widest uppercase">
           <span className="lang-ar">صورة بعد</span>
           <span className="lang-en">After image</span>
         </p>
@@ -182,7 +201,9 @@ export function GalleryItemForm({
           />
           <label className="flex flex-col gap-1.5">
             <span className="text-ink-faint text-xs">
-              <span className="lang-ar">النص البديل (alt) — لمحركات البحث *</span>
+              <span className="lang-ar">
+                النص البديل (alt) — لمحركات البحث *
+              </span>
               <span className="lang-en">Alt text (SEO) *</span>
             </span>
             <input
@@ -190,8 +211,12 @@ export function GalleryItemForm({
               defaultValue={item?.afterImageAlt ?? ""}
               placeholder="بعد علاج تصبغات الوجه - نتيجة واضحة"
               required
-              className="border-line bg-canvas text-ink rounded-[1rem] border px-3 py-2 text-sm focus:outline-none focus:ring-2"
-              style={{ "--tw-ring-color": "rgba(30,13,78,0.3)" } as React.CSSProperties}
+              className="border-line bg-canvas text-ink rounded-[1rem] border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              style={
+                {
+                  "--tw-ring-color": "rgba(30,13,78,0.3)",
+                } as React.CSSProperties
+              }
             />
           </label>
         </div>
@@ -208,13 +233,13 @@ export function GalleryItemForm({
         <div className="mb-2 flex items-center justify-between gap-3">
           <label
             htmlFor="initialSplitPercent"
-            className="text-ink-soft text-xs font-semibold uppercase tracking-widest"
+            className="text-ink-soft text-xs font-semibold tracking-widest uppercase"
           >
             موضع المقارنة الافتراضي
           </label>
           <span
             dir="ltr"
-            className="text-ink rounded-full border px-3 py-1 text-xs font-mono"
+            className="text-ink rounded-full border px-3 py-1 font-mono text-xs"
             style={{
               borderColor: "rgba(74,36,118,0.18)",
               background: "rgba(255,255,255,0.7)",
@@ -239,8 +264,8 @@ export function GalleryItemForm({
           aria-label="موضع المقارنة الافتراضي بين 0 و 100"
         />
         <p className="text-ink-faint mt-2 text-[11px] leading-5">
-          يحدد موضع شريط المقارنة عند فتح الصورة لأول مرة. القيمة الافتراضية ٥٠٪.
-          يُقصَر العرض على النطاق ٥٪ — ٩٥٪ تلقائيًا عند العرض.
+          يحدد موضع شريط المقارنة عند فتح الصورة لأول مرة. القيمة الافتراضية
+          ٥٠٪. يُقصَر العرض على النطاق ٥٪ — ٩٥٪ تلقائيًا عند العرض.
         </p>
       </div>
 
@@ -253,11 +278,7 @@ export function GalleryItemForm({
           {pending ? "جاري الحفظ..." : item ? "حفظ التعديلات" : "إضافة صورة"}
         </button>
         {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="btn-secondary"
-          >
+          <button type="button" onClick={onClose} className="btn-secondary">
             إلغاء
           </button>
         )}
@@ -268,13 +289,16 @@ export function GalleryItemForm({
 
 /* ─────────────────────── Delete Button ─────────────────────────── */
 export function DeleteGalleryItemButton({ id }: { id: string }) {
-  const [state, action, pending] = useActionState(deleteGalleryItemAction, initial);
+  const [state, action, pending] = useActionState(
+    deleteGalleryItemAction,
+    initial,
+  );
 
   return (
     <form action={action}>
       <input type="hidden" name="id" value={id} />
       {state.message && !state.success && (
-        <p className="text-[11px] text-[#5c2d3e] mb-1">{state.message}</p>
+        <p className="mb-1 text-[11px] text-[#5c2d3e]">{state.message}</p>
       )}
       <AdminConfirmSubmitButton
         disabled={pending}

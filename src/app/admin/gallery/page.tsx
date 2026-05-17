@@ -56,13 +56,15 @@ export default async function AdminGalleryPage() {
       value: ContentStatus.APPROVED,
       labelAr: "معتمد",
       labelEn: "Approved",
-      count: items.filter((item) => item.status === ContentStatus.APPROVED).length,
+      count: items.filter((item) => item.status === ContentStatus.APPROVED)
+        .length,
     },
     {
       value: ContentStatus.REVIEW,
       labelAr: "مراجعة",
       labelEn: "Review",
-      count: items.filter((item) => item.status === ContentStatus.REVIEW).length,
+      count: items.filter((item) => item.status === ContentStatus.REVIEW)
+        .length,
     },
     {
       value: ContentStatus.DRAFT,
@@ -118,106 +120,112 @@ export default async function AdminGalleryPage() {
             {items.map((item) => {
               const currentStatus = item.status ?? ContentStatus.PUBLISHED;
               return (
-              <article
-                key={item.id}
-                className="admin-card overflow-hidden"
-                data-admin-row
-                data-admin-status={currentStatus}
-                data-admin-search={[
-                  item.title,
-                  item.slug,
-                  item.category,
-                  item.description,
-                  item.beforeImageAlt,
-                  item.afterImageAlt,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <div className="grid grid-cols-2">
-                  <div className="relative aspect-[3/2]">
-                    <Image
-                      src={item.beforeImageUrl}
-                      alt={item.beforeImageAlt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, 240px"
-                    />
-                    <span className="absolute bottom-1 end-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white">
-                      قبل
-                    </span>
-                  </div>
-                  <div className="relative aspect-[3/2]">
-                    <Image
-                      src={item.afterImageUrl}
-                      alt={item.afterImageAlt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 50vw, 240px"
-                    />
-                    <span className="absolute bottom-1 start-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white">
-                      بعد
-                    </span>
-                  </div>
-                </div>
-                <div className="admin-card__body">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[color:var(--admin-text)]">
-                        {item.title}
-                      </p>
-                      <p className="truncate text-xs text-[color:var(--admin-text-soft)]">
-                        {item.category}
-                      </p>
+                <article
+                  key={item.id}
+                  className="admin-card overflow-hidden"
+                  data-admin-row
+                  data-admin-status={currentStatus}
+                  data-admin-search={[
+                    item.title,
+                    item.slug,
+                    item.category,
+                    item.description,
+                    item.beforeImageAlt,
+                    item.afterImageAlt,
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  <div className="grid grid-cols-2">
+                    <div className="relative aspect-[3/2]">
+                      <Image
+                        src={item.beforeImageUrl}
+                        alt={item.beforeImageAlt}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 50vw, 240px"
+                      />
+                      <span className="absolute end-1 bottom-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white">
+                        قبل
+                      </span>
                     </div>
-                    <span className={`admin-status-badge ${statusClass(currentStatus)}`}>
-                      <span className="lang-ar">{STATUS_AR[currentStatus]}</span>
-                      <span className="lang-en">{STATUS_EN[currentStatus]}</span>
-                    </span>
+                    <div className="relative aspect-[3/2]">
+                      <Image
+                        src={item.afterImageUrl}
+                        alt={item.afterImageAlt}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 50vw, 240px"
+                      />
+                      <span className="absolute start-1 bottom-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white">
+                        بعد
+                      </span>
+                    </div>
                   </div>
+                  <div className="admin-card__body">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[color:var(--admin-text)]">
+                          {item.title}
+                        </p>
+                        <p className="truncate text-xs text-[color:var(--admin-text-soft)]">
+                          {item.category}
+                        </p>
+                      </div>
+                      <span
+                        className={`admin-status-badge ${statusClass(currentStatus)}`}
+                      >
+                        <span className="lang-ar">
+                          {STATUS_AR[currentStatus]}
+                        </span>
+                        <span className="lang-en">
+                          {STATUS_EN[currentStatus]}
+                        </span>
+                      </span>
+                    </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {STATUS_OPTIONS.map((status) => {
-                      const isCurrent = currentStatus === status;
-                      return (
-                        <form
-                          key={`${item.id}-${status}`}
-                          action={setGalleryItemStatusAction}
-                        >
-                          <input type="hidden" name="id" value={item.id} />
-                          <input type="hidden" name="status" value={status} />
-                          <button
-                            type="submit"
-                            className="admin-btn-secondary text-[11px]"
-                            disabled={isCurrent}
-                            style={
-                              isCurrent
-                                ? {
-                                    borderColor: "var(--admin-accent)",
-                                    color: "var(--admin-accent)",
-                                  }
-                                : undefined
-                            }
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      {STATUS_OPTIONS.map((status) => {
+                        const isCurrent = currentStatus === status;
+                        return (
+                          <form
+                            key={`${item.id}-${status}`}
+                            action={setGalleryItemStatusAction}
                           >
-                            {STATUS_EN[status]}
-                          </button>
-                        </form>
-                      );
-                    })}
-                    <DeleteGalleryItemButton id={item.id} />
-                  </div>
-
-                  <details className="mt-3">
-                    <summary className="cursor-pointer text-xs font-semibold text-[color:var(--admin-accent)]">
-                      <span className="lang-ar">تعديل البيانات</span>
-                      <span className="lang-en">Edit details</span>
-                    </summary>
-                    <div className="mt-3">
-                      <GalleryItemForm item={item} />
+                            <input type="hidden" name="id" value={item.id} />
+                            <input type="hidden" name="status" value={status} />
+                            <button
+                              type="submit"
+                              className="admin-btn-secondary text-[11px]"
+                              disabled={isCurrent}
+                              style={
+                                isCurrent
+                                  ? {
+                                      borderColor: "var(--admin-accent)",
+                                      color: "var(--admin-accent)",
+                                    }
+                                  : undefined
+                              }
+                            >
+                              {STATUS_EN[status]}
+                            </button>
+                          </form>
+                        );
+                      })}
+                      <DeleteGalleryItemButton id={item.id} />
                     </div>
-                  </details>
-                </div>
-              </article>
+
+                    <details className="mt-3">
+                      <summary className="cursor-pointer text-xs font-semibold text-[color:var(--admin-accent)]">
+                        <span className="lang-ar">تعديل البيانات</span>
+                        <span className="lang-en">Edit details</span>
+                      </summary>
+                      <div className="mt-3">
+                        <GalleryItemForm item={item} />
+                      </div>
+                    </details>
+                  </div>
+                </article>
               );
             })}
           </div>

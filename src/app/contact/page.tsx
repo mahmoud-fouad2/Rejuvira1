@@ -34,7 +34,9 @@ export default async function ContactPage() {
     getServices(),
     getRuntimeSettings(),
   ]);
-  const whatsappDigits = digitsOnly(runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone);
+  const whatsappDigits = digitsOnly(
+    runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
+  );
   const primaryDigits = digitsOnly(runtimeSettings.contact.phone);
   const secondaryDigits = digitsOnly(runtimeSettings.contact.phoneSecondary);
   const contactChannels = [
@@ -44,27 +46,39 @@ export default async function ContactPage() {
       value: runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
       hintAr: `زمن الرد المستهدف ${runtimeSettings.ops.sla}`,
       hintEn: `Target response time ${runtimeSettings.ops.sla}`,
-      href: toSaudiWhatsappHref(runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone),
+      href: toSaudiWhatsappHref(
+        runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
+      ),
       kind: "whatsapp" as const,
     },
-    ...(primaryDigits && primaryDigits !== whatsappDigits ? [{
-      labelAr: "الهاتف الرئيسي",
-      labelEn: "Primary phone",
-      value: runtimeSettings.contact.phone,
-      hintAr: `خط الاستقبال — ${runtimeSettings.contact.hoursWeekdays}`,
-      hintEn: `Reception line — ${runtimeSettings.contact.hoursWeekdaysEn}`,
-      href: `tel:${primaryDigits}`,
-      kind: "phone" as const,
-    }] : []),
-    ...(secondaryDigits && secondaryDigits !== primaryDigits && secondaryDigits !== whatsappDigits ? [{
-      labelAr: "الرقم الموحد",
-      labelEn: "Unified line",
-      value: runtimeSettings.contact.phoneSecondary,
-      hintAr: "خط موحد لخدمة العملاء",
-      hintEn: "Unified customer line",
-      href: `tel:${secondaryDigits}`,
-      kind: "phone" as const,
-    }] : []),
+    ...(primaryDigits && primaryDigits !== whatsappDigits
+      ? [
+          {
+            labelAr: "الهاتف الرئيسي",
+            labelEn: "Primary phone",
+            value: runtimeSettings.contact.phone,
+            hintAr: `خط الاستقبال — ${runtimeSettings.contact.hoursWeekdays}`,
+            hintEn: `Reception line — ${runtimeSettings.contact.hoursWeekdaysEn}`,
+            href: `tel:${primaryDigits}`,
+            kind: "phone" as const,
+          },
+        ]
+      : []),
+    ...(secondaryDigits &&
+    secondaryDigits !== primaryDigits &&
+    secondaryDigits !== whatsappDigits
+      ? [
+          {
+            labelAr: "الرقم الموحد",
+            labelEn: "Unified line",
+            value: runtimeSettings.contact.phoneSecondary,
+            hintAr: "خط موحد لخدمة العملاء",
+            hintEn: "Unified customer line",
+            href: `tel:${secondaryDigits}`,
+            kind: "phone" as const,
+          },
+        ]
+      : []),
     {
       labelAr: "البريد الرسمي",
       labelEn: "Primary email",
@@ -92,12 +106,24 @@ export default async function ContactPage() {
                 <span className="lang-en">Contact &amp; Booking</span>
               </p>
               <h1 className="balanced-text text-ink-strong mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] lg:text-6xl">
-                <span className="lang-ar">ابدئي من احتياجك، وسنوجّهك إلى الخدمة أو الطبيب الأنسب.</span>
-                <span className="lang-en">Start from your need, and we will guide you to the right service or doctor.</span>
+                <span className="lang-ar">
+                  ابدئي من احتياجك، وسنوجّهك إلى الخدمة أو الطبيب الأنسب.
+                </span>
+                <span className="lang-en">
+                  Start from your need, and we will guide you to the right
+                  service or doctor.
+                </span>
               </h1>
               <p className="text-ink-soft mt-5 max-w-xl text-lg leading-8">
-                <span className="lang-ar">أرسلي بياناتك وسيتواصل معك الفريق لمساعدتك في اختيار الخدمة أو الطبيب المناسب، مع إجابات واضحة وخطوة تالية محددة بثقة وهدوء.</span>
-                <span className="lang-en">Share your details and the team will help you choose the right service or physician, with clear answers and a defined next step.</span>
+                <span className="lang-ar">
+                  أرسلي بياناتك وسيتواصل معك الفريق لمساعدتك في اختيار الخدمة أو
+                  الطبيب المناسب، مع إجابات واضحة وخطوة تالية محددة بثقة وهدوء.
+                </span>
+                <span className="lang-en">
+                  Share your details and the team will help you choose the right
+                  service or physician, with clear answers and a defined next
+                  step.
+                </span>
               </p>
             </div>
 
@@ -118,8 +144,10 @@ export default async function ContactPage() {
                   key={ch.labelAr}
                   href={ch.href}
                   target={ch.kind === "whatsapp" ? "_blank" : undefined}
-                  rel={ch.kind === "whatsapp" ? "noopener noreferrer" : undefined}
-                  className="group border-line bg-surface flex items-center justify-between rounded-[1.8rem] border px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-purple-mid/25 hover:shadow-[0_20px_50px_oklch(22%_0.06_285/0.09)]"
+                  rel={
+                    ch.kind === "whatsapp" ? "noopener noreferrer" : undefined
+                  }
+                  className="group border-line bg-surface hover:border-purple-mid/25 flex items-center justify-between rounded-[1.8rem] border px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_oklch(22%_0.06_285/0.09)]"
                 >
                   <div className="flex items-center gap-4">
                     <span className="bg-ink-strong flex h-12 w-12 items-center justify-center rounded-full shadow-md ring-1 ring-white/10">
@@ -166,8 +194,13 @@ export default async function ContactPage() {
                     <span className="lang-en">Arrival Experience</span>
                   </p>
                   <p className="mt-2 font-serif text-2xl leading-snug tracking-[-0.02em] text-white">
-                    <span className="lang-ar">بيئة هادئة ومنظمة تبدأ فيها رحلتك بثقة.</span>
-                    <span className="lang-en">A calm, organized environment where your journey begins with confidence.</span>
+                    <span className="lang-ar">
+                      بيئة هادئة ومنظمة تبدأ فيها رحلتك بثقة.
+                    </span>
+                    <span className="lang-en">
+                      A calm, organized environment where your journey begins
+                      with confidence.
+                    </span>
                   </p>
                 </div>
               </div>
@@ -181,7 +214,10 @@ export default async function ContactPage() {
                     <span className="lang-ar">منظم</span>
                     <span className="lang-en">Organized</span>
                   </p>
-                  <p className="text-ink-soft mt-2 text-sm"><span className="lang-ar">رد واضح من الفريق</span><span className="lang-en">Clear team response</span></p>
+                  <p className="text-ink-soft mt-2 text-sm">
+                    <span className="lang-ar">رد واضح من الفريق</span>
+                    <span className="lang-en">Clear team response</span>
+                  </p>
                 </div>
                 <div className="surface-panel rounded-[2rem] p-6 shadow-sm">
                   <p className="text-ink-faint font-sans text-[10px] tracking-[0.24em] uppercase">
@@ -192,7 +228,10 @@ export default async function ContactPage() {
                     <span className="lang-ar">مناسبة</span>
                     <span className="lang-en">Tailored</span>
                   </p>
-                  <p className="text-ink-soft mt-2 text-sm"><span className="lang-ar">توجيه حسب الحالة</span><span className="lang-en">Case-based guidance</span></p>
+                  <p className="text-ink-soft mt-2 text-sm">
+                    <span className="lang-ar">توجيه حسب الحالة</span>
+                    <span className="lang-en">Case-based guidance</span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -202,14 +241,29 @@ export default async function ContactPage() {
         {/* ── CONTACT FORM SECTION ──────────────────────── */}
         <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-            <p className="eyebrow text-ink-soft"><span className="lang-ar">لماذا المركز</span><span className="lang-en">Why Rejuvira</span></p>
+            <p className="eyebrow text-ink-soft">
+              <span className="lang-ar">لماذا المركز</span>
+              <span className="lang-en">Why Rejuvira</span>
+            </p>
             <h2 className="balanced-text text-ink-strong mt-5 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
-              <span className="lang-ar">نجعل كل استفسار بداية واضحة نحو القرار المناسب.</span>
-              <span className="lang-en">We turn every inquiry into a clear start toward the right decision.</span>
+              <span className="lang-ar">
+                نجعل كل استفسار بداية واضحة نحو القرار المناسب.
+              </span>
+              <span className="lang-en">
+                We turn every inquiry into a clear start toward the right
+                decision.
+              </span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              <span className="lang-ar">فريقنا لا يكتفي بالرد، بل يقرأ حاجتك بدقة ويقترح الخيار الأنسب بهدوء ووضوح، من دون ضغط أو وعود غير واقعية.</span>
-              <span className="lang-en">Our team does more than answer. We assess your need carefully and recommend the right option with clarity, without pressure or inflated promises.</span>
+              <span className="lang-ar">
+                فريقنا لا يكتفي بالرد، بل يقرأ حاجتك بدقة ويقترح الخيار الأنسب
+                بهدوء ووضوح، من دون ضغط أو وعود غير واقعية.
+              </span>
+              <span className="lang-en">
+                Our team does more than answer. We assess your need carefully
+                and recommend the right option with clarity, without pressure or
+                inflated promises.
+              </span>
             </p>
             <div className="mt-10 grid gap-4">
               {[
@@ -217,19 +271,22 @@ export default async function ContactPage() {
                   label: "استشارة مخصصة",
                   labelEn: "Personalized consultation",
                   desc: "نختار لك الطبيب والخدمة المناسبَين لحالتك تحديدًا",
-                  descEn: "We guide you to the doctor and service that best match your case.",
+                  descEn:
+                    "We guide you to the doctor and service that best match your case.",
                 },
                 {
                   label: "وضوح كامل",
                   labelEn: "Full clarity",
                   desc: "لا أسرار في التسعير أو التوقعات — كل شيء واضح من البداية",
-                  descEn: "No hidden expectations or unclear next steps. Everything is explained from the start.",
+                  descEn:
+                    "No hidden expectations or unclear next steps. Everything is explained from the start.",
                 },
                 {
                   label: "متابعة ما بعد الجلسة",
                   labelEn: "Post-session follow-up",
                   desc: "لا ننتهي عند انتهاء الجلسة، بل نتابع النتيجة معك",
-                  descEn: "Care continues after the session with clear follow-up when needed.",
+                  descEn:
+                    "Care continues after the session with clear follow-up when needed.",
                 },
               ].map((item) => (
                 <div
@@ -255,14 +312,23 @@ export default async function ContactPage() {
           </article>
 
           <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-            <p className="eyebrow"><span className="lang-ar">أرسلي طلبك</span><span className="lang-en">Send Your Request</span></p>
+            <p className="eyebrow">
+              <span className="lang-ar">أرسلي طلبك</span>
+              <span className="lang-en">Send Your Request</span>
+            </p>
             <h2 className="text-ink mt-3 font-serif text-4xl tracking-[-0.05em]">
               <span className="lang-ar">نموذج التواصل</span>
               <span className="lang-en">Contact Form</span>
             </h2>
             <p className="text-ink-soft mt-3 text-sm">
-              <span className="lang-ar">يصل الطلب مباشرة إلى الفريق المختص ليتم مراجعته والرد عليه بصورة منظمة.</span>
-              <span className="lang-en">Your request is sent directly to the relevant team for structured review and response.</span>
+              <span className="lang-ar">
+                يصل الطلب مباشرة إلى الفريق المختص ليتم مراجعته والرد عليه بصورة
+                منظمة.
+              </span>
+              <span className="lang-en">
+                Your request is sent directly to the relevant team for
+                structured review and response.
+              </span>
             </p>
             <div className="mt-7">
               <ContactForm
@@ -286,10 +352,12 @@ export default async function ContactPage() {
             </h2>
             <p className="text-ink-soft mt-3 text-sm leading-7">
               <span className="lang-ar">
-                خريطة محدّثة لمكان المركز يمكنك من خلالها التحقق من الوصول قبل الزيارة.
+                خريطة محدّثة لمكان المركز يمكنك من خلالها التحقق من الوصول قبل
+                الزيارة.
               </span>
               <span className="lang-en">
-                Live map of our location so you can plan your visit with confidence.
+                Live map of our location so you can plan your visit with
+                confidence.
               </span>
             </p>
             <div className="mt-6">
@@ -336,8 +404,12 @@ export default async function ContactPage() {
                   <span className="lang-en">Working hours</span>
                 </p>
                 <p className="text-ink mt-2 text-base font-semibold">
-                  <span className="lang-ar">{runtimeSettings.contact.hoursWeekdays}</span>
-                  <span className="lang-en">{runtimeSettings.contact.hoursWeekdaysEn}</span>
+                  <span className="lang-ar">
+                    {runtimeSettings.contact.hoursWeekdays}
+                  </span>
+                  <span className="lang-en">
+                    {runtimeSettings.contact.hoursWeekdaysEn}
+                  </span>
                 </p>
               </div>
             </div>
@@ -352,15 +424,21 @@ export default async function ContactPage() {
                 <span className="lang-en">Frequently Asked Questions</span>
               </p>
               <h2 className="text-ink mt-3 font-serif text-4xl leading-tight tracking-[-0.04em]">
-                <span className="lang-ar">إجابات مختصرة تساعدك قبل التواصل.</span>
-                <span className="lang-en">Clear answers before you contact us.</span>
+                <span className="lang-ar">
+                  إجابات مختصرة تساعدك قبل التواصل.
+                </span>
+                <span className="lang-en">
+                  Clear answers before you contact us.
+                </span>
               </h2>
               <p className="text-ink-soft mt-4 text-sm leading-7">
                 <span className="lang-ar">
-                  اخترنا الأسئلة الأكثر ارتباطًا بالحجز والوصول والمتابعة حتى تكون الخطوة التالية واضحة.
+                  اخترنا الأسئلة الأكثر ارتباطًا بالحجز والوصول والمتابعة حتى
+                  تكون الخطوة التالية واضحة.
                 </span>
                 <span className="lang-en">
-                  We grouped the most useful booking, access, and follow-up answers in one focused section.
+                  We grouped the most useful booking, access, and follow-up
+                  answers in one focused section.
                 </span>
               </p>
             </div>
@@ -369,7 +447,7 @@ export default async function ContactPage() {
                 <details
                   key={faq.questionAr}
                   open={index === 0}
-                  className="group border-line bg-surface/80 rounded-[1.6rem] border px-5 py-4 shadow-sm transition-all duration-300 open:border-purple-mid/35 open:bg-white/80 open:shadow-[0_18px_45px_oklch(24%_0.08_285/0.08)] dark:open:bg-white/8"
+                  className="group border-line bg-surface/80 open:border-purple-mid/35 rounded-[1.6rem] border px-5 py-4 shadow-sm transition-all duration-300 open:bg-white/80 open:shadow-[0_18px_45px_oklch(24%_0.08_285/0.08)] dark:open:bg-white/8"
                 >
                   <summary className="text-ink-strong flex cursor-pointer list-none items-center justify-between gap-4 text-base font-semibold marker:hidden">
                     <span>
@@ -377,8 +455,19 @@ export default async function ContactPage() {
                       <span className="lang-en">{faq.questionEn}</span>
                     </span>
                     <span className="bg-purple-soft/70 text-purple-strong grid h-9 w-9 shrink-0 place-items-center rounded-full transition-transform duration-300 group-open:rotate-180">
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                        <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      <svg
+                        viewBox="0 0 24 24"
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        aria-hidden
+                      >
+                        <path
+                          d="m6 9 6 6 6-6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     </span>
                   </summary>

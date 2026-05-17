@@ -25,19 +25,25 @@ export default async function AdminServiceCategoriesPage() {
       value: ContentStatus.PUBLISHED,
       labelAr: "منشور",
       labelEn: "Published",
-      count: categories.filter((category) => category.status === ContentStatus.PUBLISHED).length,
+      count: categories.filter(
+        (category) => category.status === ContentStatus.PUBLISHED,
+      ).length,
     },
     {
       value: ContentStatus.DRAFT,
       labelAr: "مسودة",
       labelEn: "Draft",
-      count: categories.filter((category) => category.status === ContentStatus.DRAFT).length,
+      count: categories.filter(
+        (category) => category.status === ContentStatus.DRAFT,
+      ).length,
     },
     {
       value: ContentStatus.ARCHIVED,
       labelAr: "مؤرشف",
       labelEn: "Archived",
-      count: categories.filter((category) => category.status === ContentStatus.ARCHIVED).length,
+      count: categories.filter(
+        (category) => category.status === ContentStatus.ARCHIVED,
+      ).length,
     },
   ];
 
@@ -77,7 +83,10 @@ export default async function AdminServiceCategoriesPage() {
           </div>
         </div>
         <AdminListControls targetId="admin-categories-list" tabs={tabs} />
-        <div className="admin-data-list" data-admin-list="admin-categories-list">
+        <div
+          className="admin-data-list"
+          data-admin-list="admin-categories-list"
+        >
           {categories.map((category) => {
             const meta = statusMeta(category.status);
             return (
@@ -98,7 +107,9 @@ export default async function AdminServiceCategoriesPage() {
               >
                 <summary className="grid cursor-pointer grid-cols-[1fr_auto] items-center gap-3">
                   <div className="min-w-0">
-                    <p className="admin-data-row__title truncate">{category.name}</p>
+                    <p className="admin-data-row__title truncate">
+                      {category.name}
+                    </p>
                     <p className="admin-data-row__meta truncate">
                       {category.slug} · {category.serviceCount} services
                     </p>

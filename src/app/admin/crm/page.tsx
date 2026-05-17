@@ -25,7 +25,9 @@ export default async function AdminCrmPage() {
   ).length;
   const bookedCount = submissions.filter((i) => i.status === "BOOKED").length;
   const closedCount = submissions.filter((i) => i.status === "CLOSED").length;
-  const appointmentCount = submissions.filter((i) => i.preferredAppointmentAt).length;
+  const appointmentCount = submissions.filter(
+    (i) => i.preferredAppointmentAt,
+  ).length;
 
   return (
     <>
@@ -109,10 +111,7 @@ export default async function AdminCrmPage() {
             </span>
           </span>
         </div>
-        <ChartCard
-          title="آخر 14 يوم"
-          subtitle="Lead volume"
-        >
+        <ChartCard title="آخر 14 يوم" subtitle="Lead volume">
           <div style={{ height: 90 }}>
             <LineChart
               isoDates={submissions.map((s) => s.createdAt)}

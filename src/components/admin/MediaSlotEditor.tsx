@@ -48,12 +48,19 @@ export function MediaSlotEditor({
     setError(null);
     try {
       const shouldPreserveIconFile =
-        slot === "favicon" || slot === "appleIcon" || file.name.toLowerCase().endsWith(".ico");
-      const preparedFile = shouldPreserveIconFile ? file : await prepareImageUpload(file);
+        slot === "favicon" ||
+        slot === "appleIcon" ||
+        file.name.toLowerCase().endsWith(".ico");
+      const preparedFile = shouldPreserveIconFile
+        ? file
+        : await prepareImageUpload(file);
       const form = new FormData();
       form.append("file", preparedFile);
       form.append("namespace", namespace);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: form,
+      });
       const data = (await res.json()) as
         | { ok: true; url: string; key: string }
         | { ok: false; error: string };
@@ -71,10 +78,13 @@ export function MediaSlotEditor({
   return (
     <div
       className="rounded-xl border p-2"
-      style={{ borderColor: "var(--admin-border)", background: "var(--admin-panel-soft)" }}
+      style={{
+        borderColor: "var(--admin-border)",
+        background: "var(--admin-panel-soft)",
+      }}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-        {(draft || current) ? (
+        {draft || current ? (
           <Image
             src={draft || current}
             alt={labelAr}
@@ -141,10 +151,7 @@ export function MediaSlotEditor({
             </>
           )}
         </button>
-        <form
-          action={setMediaSlotAction}
-          onSubmit={() => setCurrent(draft)}
-        >
+        <form action={setMediaSlotAction} onSubmit={() => setCurrent(draft)}>
           <input type="hidden" name="slot" value={slot} />
           <input type="hidden" name="value" value={draft} />
           <button

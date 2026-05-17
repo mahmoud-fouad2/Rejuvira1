@@ -34,14 +34,35 @@ export function GalleryBeforeAfter({ media }: { media: any }) {
           <div className="grid gap-6">
             {/* Side cards */}
             {[
-              { src: media.servicesHero, labelAr: "نحت القوام", labelEn: "Body Contouring", descAr: "نتائج نحت ثلاثي الأبعاد", descEn: "3D body sculpting results" },
-              { src: media.aboutHero, labelAr: "تجديد البشرة", labelEn: "Skin Rejuvenation", descAr: "إشراقة ونضارة تدوم", descEn: "Lasting radiance and glow" },
+              {
+                src: media.servicesHero,
+                labelAr: "نحت القوام",
+                labelEn: "Body Contouring",
+                descAr: "نتائج نحت ثلاثي الأبعاد",
+                descEn: "3D body sculpting results",
+              },
+              {
+                src: media.aboutHero,
+                labelAr: "تجديد البشرة",
+                labelEn: "Skin Rejuvenation",
+                descAr: "إشراقة ونضارة تدوم",
+                descEn: "Lasting radiance and glow",
+              },
             ].map((item) => (
-              <div key={item.labelAr} className="group relative overflow-hidden rounded-[2.4rem] bg-surface shadow-[0_12px_40px_rgba(44,26,74,0.04)]">
+              <div
+                key={item.labelAr}
+                className="group bg-surface relative overflow-hidden rounded-[2.4rem] shadow-[0_12px_40px_rgba(44,26,74,0.04)]"
+              >
                 <div className="relative h-48 overflow-hidden">
-                  <Image src={item.src} alt="" fill sizes="30vw" className="scale-105 object-cover transition-all duration-700 group-hover:scale-100" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-purple-deep/50 to-transparent" />
-                  <div className="absolute bottom-5 right-6">
+                  <Image
+                    src={item.src}
+                    alt=""
+                    fill
+                    sizes="30vw"
+                    className="scale-105 object-cover transition-all duration-700 group-hover:scale-100"
+                  />
+                  <div className="from-purple-deep/50 absolute inset-0 bg-gradient-to-t to-transparent" />
+                  <div className="absolute right-6 bottom-5">
                     <p className="text-sm font-[400] text-white/90">
                       <span className="lang-ar">{item.labelAr}</span>
                       <span className="lang-en">{item.labelEn}</span>

@@ -21,17 +21,18 @@ function rotatePosts<T>(posts: T[]) {
 }
 
 export default async function HomePage() {
-  const [settings, services, doctors, devices, galleryItems, journalPosts] = await Promise.all([
-    getRuntimeSettings(),
-    getServices(),
-    getDoctors(),
-    getDevices(),
-    getGalleryItems(),
-    getJournalPosts(),
-  ]);
+  const [settings, services, doctors, devices, galleryItems, journalPosts] =
+    await Promise.all([
+      getRuntimeSettings(),
+      getServices(),
+      getDoctors(),
+      getDevices(),
+      getGalleryItems(),
+      getJournalPosts(),
+    ]);
 
   return (
-    <div className="relative min-h-screen min-w-0 max-w-full overflow-x-clip bg-background text-foreground">
+    <div className="bg-background text-foreground relative min-h-screen max-w-full min-w-0 overflow-x-clip">
       <CinematicIntro
         logoSrc="/media/brand/intro-logo.png"
         logoAlt={settings.brand.logoAlt}

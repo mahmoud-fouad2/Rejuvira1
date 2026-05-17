@@ -46,7 +46,7 @@ export function HomeShowcaseDeck({
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr] xl:items-end">
         <div className="flex flex-col justify-between gap-8 xl:min-h-[39rem]">
           <div>
-            <p className="text-[10px] font-medium tracking-[0.3em] uppercase text-[var(--violet-mid)]">
+            <p className="text-[10px] font-medium tracking-[0.3em] text-[var(--violet-mid)] uppercase">
               {activeSlide.eyebrow}
             </p>
             <h3 className="text-ink mt-4 max-w-[12ch] font-serif text-4xl leading-[1.02] tracking-[-0.05em] lg:text-5xl">
@@ -81,7 +81,7 @@ export function HomeShowcaseDeck({
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] tracking-[0.26em] uppercase text-[var(--ink-faint)]">
+                    <p className="truncate text-[10px] tracking-[0.26em] text-[var(--ink-faint)] uppercase">
                       {slide.eyebrow}
                     </p>
                     <p className="text-ink mt-2 truncate text-base font-semibold">

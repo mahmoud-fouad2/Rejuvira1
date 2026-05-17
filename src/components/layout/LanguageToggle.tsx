@@ -10,8 +10,10 @@ export function LanguageToggle() {
     <button
       type="button"
       onClick={switchLanguage}
-      aria-label={isAr ? "Switch site language to English" : "التبديل إلى العربية"}
-      className="relative flex h-10 items-center gap-0.5 rounded-full border px-1 transition-colors duration-300 motion-safe:active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--rv-purple-strong)] focus-visible:ring-offset-2"
+      aria-label={
+        isAr ? "Switch site language to English" : "التبديل إلى العربية"
+      }
+      className="relative flex h-10 items-center gap-0.5 rounded-full border px-1 transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[color:var(--rv-purple-strong)] focus-visible:ring-offset-2 focus-visible:outline-none motion-safe:active:scale-[0.96]"
       style={{
         borderColor: "rgba(30,13,78,0.15)",
         background: "rgba(30,13,78,0.04)",
@@ -24,7 +26,9 @@ export function LanguageToggle() {
         }`}
         style={{
           background:
-            isAr === true ? "linear-gradient(135deg, var(--violet), var(--violet-mid))" : "transparent",
+            isAr === true
+              ? "linear-gradient(135deg, var(--violet), var(--violet-mid))"
+              : "transparent",
           color: isAr ? "#fff" : "var(--ink-faint)",
           boxShadow: isAr ? "0 2px 8px rgba(30,13,78,0.35)" : "none",
         }}
@@ -39,7 +43,9 @@ export function LanguageToggle() {
         }`}
         style={{
           background:
-            isAr === false ? "linear-gradient(135deg, var(--violet), var(--violet-mid))" : "transparent",
+            isAr === false
+              ? "linear-gradient(135deg, var(--violet), var(--violet-mid))"
+              : "transparent",
           color: isAr === false ? "#fff" : "var(--ink-faint)",
           boxShadow: isAr === false ? "0 2px 8px rgba(30,13,78,0.35)" : "none",
         }}

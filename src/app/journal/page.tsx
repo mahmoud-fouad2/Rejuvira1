@@ -23,12 +23,16 @@ export default async function JournalPage({
   ]);
   const params = await searchParams;
   const publishedPosts = posts.filter(
-    (post) => (post.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED,
+    (post) =>
+      (post.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED,
   );
   const currentPage = Math.max(1, Number(params?.page ?? "1") || 1);
   const pageSize = 9;
   const [featuredPost, ...allRestPosts] = publishedPosts;
-  const restPosts = allRestPosts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const restPosts = allRestPosts.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
   const totalPages = Math.max(1, Math.ceil(allRestPosts.length / pageSize));
 
   return (
@@ -37,14 +41,29 @@ export default async function JournalPage({
       <main className="mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-28 px-6 pt-16 pb-32 lg:px-10">
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-            <p className="eyebrow text-ink-soft"><span className="lang-ar">المجلة الطبية</span><span className="lang-en">Medical Journal</span></p>
+            <p className="eyebrow text-ink-soft">
+              <span className="lang-ar">المجلة الطبية</span>
+              <span className="lang-en">Medical Journal</span>
+            </p>
             <h1 className="balanced-text text-ink-strong mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
-              <span className="lang-ar">مقالات مختارة توضح الأسئلة الأكثر حضورًا قبل الزيارة.</span>
-              <span className="lang-en">Selected articles answering the questions patients ask most before their visit.</span>
+              <span className="lang-ar">
+                مقالات مختارة توضح الأسئلة الأكثر حضورًا قبل الزيارة.
+              </span>
+              <span className="lang-en">
+                Selected articles answering the questions patients ask most
+                before their visit.
+              </span>
             </h1>
             <p className="text-ink-soft mt-5 max-w-3xl text-lg leading-8">
-              <span className="lang-ar">يقدم هذا القسم مواد مختصرة تشرح الإجراء، التوقعات، وما ينبغي معرفته قبل الاستشارة أو الموعد.</span>
-              <span className="lang-en">This section offers concise articles explaining procedures, expectations, and what should be understood before consultation or treatment.</span>
+              <span className="lang-ar">
+                يقدم هذا القسم مواد مختصرة تشرح الإجراء، التوقعات، وما ينبغي
+                معرفته قبل الاستشارة أو الموعد.
+              </span>
+              <span className="lang-en">
+                This section offers concise articles explaining procedures,
+                expectations, and what should be understood before consultation
+                or treatment.
+              </span>
             </p>
           </article>
           <article className="surface-panel relative min-h-[22rem] overflow-hidden rounded-[2.5rem] shadow-sm lg:min-h-[24rem]">
@@ -141,7 +160,10 @@ export default async function JournalPage({
           ))}
         </section>
         {totalPages > 1 ? (
-          <nav className="flex flex-wrap items-center justify-center gap-2" aria-label="Journal pagination">
+          <nav
+            className="flex flex-wrap items-center justify-center gap-2"
+            aria-label="Journal pagination"
+          >
             {Array.from({ length: totalPages }).map((_, index) => {
               const page = index + 1;
               return (

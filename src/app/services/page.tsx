@@ -29,7 +29,7 @@ export default async function ServicesPage() {
   });
 
   return (
-    <div className="relative z-10 min-h-screen animate-fade-in">
+    <div className="animate-fade-in relative z-10 min-h-screen">
       <Script
         id="services-collection-ld"
         type="application/ld+json"
@@ -40,34 +40,63 @@ export default async function ServicesPage() {
         {/* ═══ HERO + FEATURED ═══ */}
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 lg:p-12">
-            <p className="eyebrow"><span className="lang-ar">الخدمات</span><span className="lang-en">Services</span></p>
-            <h1 className="balanced-text mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] text-ink">
-              <span className="lang-ar">خدمات طبية وتجميلية متكاملة لوجهك وجسمك.</span>
-              <span className="lang-en">Integrated medical aesthetic services for face and body.</span>
+            <p className="eyebrow">
+              <span className="lang-ar">الخدمات</span>
+              <span className="lang-en">Services</span>
+            </p>
+            <h1 className="balanced-text text-ink mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
+              <span className="lang-ar">
+                خدمات طبية وتجميلية متكاملة لوجهك وجسمك.
+              </span>
+              <span className="lang-en">
+                Integrated medical aesthetic services for face and body.
+              </span>
             </h1>
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-ink-soft">
-              <span className="lang-ar">يضم المركز خدمات طبية وتجميلية متكاملة، تشمل العناية بالبشرة، الليزر، الحقن، وتجميل الجسم — موضحة بتفاصيل واضحة تساعد على الاختيار.</span>
-              <span className="lang-en">Explore skin care, laser, injectables, and body aesthetic services with clear details that support confident choices.</span>
+            <p className="text-ink-soft mt-5 max-w-3xl text-lg leading-8">
+              <span className="lang-ar">
+                يضم المركز خدمات طبية وتجميلية متكاملة، تشمل العناية بالبشرة،
+                الليزر، الحقن، وتجميل الجسم — موضحة بتفاصيل واضحة تساعد على
+                الاختيار.
+              </span>
+              <span className="lang-en">
+                Explore skin care, laser, injectables, and body aesthetic
+                services with clear details that support confident choices.
+              </span>
             </p>
 
             {/* Stats row */}
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {[
-                { label: "الخدمات المتاحة", labelEn: "Available services", value: services.length },
-                { label: "الأقسام", labelEn: "Categories", value: categoryCount },
-                { label: "تغطي الوجه والجسم", labelEn: "Face and body", value: "وجه وجسم", valueEn: "Face & body" },
+                {
+                  label: "الخدمات المتاحة",
+                  labelEn: "Available services",
+                  value: services.length,
+                },
+                {
+                  label: "الأقسام",
+                  labelEn: "Categories",
+                  value: categoryCount,
+                },
+                {
+                  label: "تغطي الوجه والجسم",
+                  labelEn: "Face and body",
+                  value: "وجه وجسم",
+                  valueEn: "Face & body",
+                },
               ].map((stat) => (
                 <div
                   key={stat.label}
                   className="surface-panel rounded-[1.8rem] p-6 transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  <p className="text-sm font-medium text-ink-soft">
+                  <p className="text-ink-soft text-sm font-medium">
                     <span className="lang-ar">{stat.label}</span>
                     <span className="lang-en">{stat.labelEn}</span>
                   </p>
-                  <p className="mt-2 font-serif text-3xl text-ink">
+                  <p className="text-ink mt-2 font-serif text-3xl">
                     <span className="lang-ar">{stat.value}</span>
-                    <span className="lang-en">{"valueEn" in stat ? stat.valueEn : stat.value}</span>
+                    <span className="lang-en">
+                      {"valueEn" in stat ? stat.valueEn : stat.value}
+                    </span>
                   </p>
                 </div>
               ))}
@@ -90,16 +119,19 @@ export default async function ServicesPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
-                <div className="flex flex-col justify-between gap-5 rounded-[2rem] bg-surface p-8">
+                <div className="bg-surface flex flex-col justify-between gap-5 rounded-[2rem] p-8">
                   <div>
-                    <p className="eyebrow"><span className="lang-ar">الخدمة المميزة</span><span className="lang-en">Featured Service</span></p>
-                    <h2 className="mt-4 font-serif text-4xl leading-snug tracking-[-0.02em] text-ink">
+                    <p className="eyebrow">
+                      <span className="lang-ar">الخدمة المميزة</span>
+                      <span className="lang-en">Featured Service</span>
+                    </p>
+                    <h2 className="text-ink mt-4 font-serif text-4xl leading-snug tracking-[-0.02em]">
                       {featuredService.name}
                     </h2>
                     <Badge variant="gold" size="md" className="mt-3">
                       {featuredService.category}
                     </Badge>
-                    <p className="mt-5 text-base leading-8 text-ink-soft">
+                    <p className="text-ink-soft mt-5 text-base leading-8">
                       {featuredService.description}
                     </p>
                   </div>
@@ -145,10 +177,10 @@ export default async function ServicesPage() {
               </div>
               <div className="flex flex-col justify-center p-8 lg:p-10">
                 <p className="eyebrow text-ink-soft">{service.category}</p>
-                <h2 className="mt-4 font-serif text-3xl leading-[1.2] tracking-[-0.02em] text-ink">
+                <h2 className="text-ink mt-4 font-serif text-3xl leading-[1.2] tracking-[-0.02em]">
                   {service.name}
                 </h2>
-                <p className="mt-4 text-base leading-7 text-ink-soft">
+                <p className="text-ink-soft mt-4 text-base leading-7">
                   {service.excerpt}
                 </p>
 
@@ -158,9 +190,9 @@ export default async function ServicesPage() {
                     {service.benefits.slice(0, 3).map((benefit) => (
                       <div
                         key={benefit}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 py-1.5 text-xs text-ink-soft"
+                        className="border-line bg-surface text-ink-soft inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs"
                       >
-                        <span className="h-1 w-1 rounded-full bg-gold" />
+                        <span className="bg-gold h-1 w-1 rounded-full" />
                         {benefit}
                       </div>
                     ))}

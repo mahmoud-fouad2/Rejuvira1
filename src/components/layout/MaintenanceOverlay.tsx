@@ -11,8 +11,8 @@ export function MaintenanceOverlay({
 }: MaintenanceOverlayProps) {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-br from-[#1e0d4e] via-[#2c1466] to-[#180a3e] p-6 text-white">
-      <div className="max-w-xl rounded-[2.5rem] border border-white/15 bg-white/5 p-10 backdrop-blur-md shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
-        <p className="text-[10px] tracking-[0.32em] uppercase text-white/70">
+      <div className="max-w-xl rounded-[2.5rem] border border-white/15 bg-white/5 p-10 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-md">
+        <p className="text-[10px] tracking-[0.32em] text-white/70 uppercase">
           {brandName}
         </p>
         <h1 className="mt-4 font-serif text-3xl leading-tight">
@@ -37,7 +37,7 @@ export function MaintenanceOverlay({
             >
               <span className="lang-ar">اتصال مباشر</span>
               <span className="lang-en">Call us</span>
-              <span dir="ltr" className="block text-xs text-white/70 mt-1">
+              <span dir="ltr" className="mt-1 block text-xs text-white/70">
                 {contactPhone}
               </span>
             </a>
@@ -49,7 +49,7 @@ export function MaintenanceOverlay({
             >
               <span className="lang-ar">البريد الإلكتروني</span>
               <span className="lang-en">Email</span>
-              <span dir="ltr" className="block text-xs text-white/70 mt-1">
+              <span dir="ltr" className="mt-1 block text-xs text-white/70">
                 {contactEmail}
               </span>
             </a>

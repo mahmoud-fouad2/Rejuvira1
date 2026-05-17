@@ -13,14 +13,34 @@ const initialState: LoginActionState = {
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
-      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" strokeLinejoin="round" />
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden
+    >
+      <path
+        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"
+        strokeLinejoin="round"
+      />
       <circle cx="12" cy="12" r="3" />
     </svg>
   ) : (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      aria-hidden
+    >
       <path d="m3 3 18 18" strokeLinecap="round" />
-      <path d="M10.6 6.1A10.7 10.7 0 0 1 12 6c6.5 0 10 7 10 7a17.3 17.3 0 0 1-3.3 3.95M6.6 6.6C3.6 8.5 2 12 2 12s3.5 7 10 7c1.9 0 3.6-.5 5.1-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2" strokeLinejoin="round" />
+      <path
+        d="M10.6 6.1A10.7 10.7 0 0 1 12 6c6.5 0 10 7 10 7a17.3 17.3 0 0 1-3.3 3.95M6.6 6.6C3.6 8.5 2 12 2 12s3.5 7 10 7c1.9 0 3.6-.5 5.1-1.3M9.9 9.9a3 3 0 0 0 4.2 4.2"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -50,12 +70,23 @@ export function LoginForm() {
       </Link>
 
       <div className="rv-login-heading">
-        <h1><span className="lang-ar">تسجيل الدخول</span><span className="lang-en">Admin Login</span></h1>
-        <p><span className="lang-ar">أدخل بياناتك للوصول إلى لوحة الإدارة.</span><span className="lang-en">Enter your credentials to access the admin panel.</span></p>
+        <h1>
+          <span className="lang-ar">تسجيل الدخول</span>
+          <span className="lang-en">Admin Login</span>
+        </h1>
+        <p>
+          <span className="lang-ar">أدخل بياناتك للوصول إلى لوحة الإدارة.</span>
+          <span className="lang-en">
+            Enter your credentials to access the admin panel.
+          </span>
+        </p>
       </div>
 
       <label className="rv-login-field">
-        <span><span className="lang-ar">البريد الإلكتروني</span><span className="lang-en">Email</span></span>
+        <span>
+          <span className="lang-ar">البريد الإلكتروني</span>
+          <span className="lang-en">Email</span>
+        </span>
         <input
           type="email"
           name="email"
@@ -67,7 +98,10 @@ export function LoginForm() {
       </label>
 
       <label className="rv-login-field">
-        <span><span className="lang-ar">كلمة المرور</span><span className="lang-en">Password</span></span>
+        <span>
+          <span className="lang-ar">كلمة المرور</span>
+          <span className="lang-en">Password</span>
+        </span>
         <div className="rv-login-password">
           <input
             type={showPassword ? "text" : "password"}
@@ -90,10 +124,14 @@ export function LoginForm() {
       <div className="rv-login-row">
         <label className="rv-login-remember">
           <input type="checkbox" name="rememberMe" defaultChecked />
-          <span><span className="lang-ar">تذكرني</span><span className="lang-en">Remember me</span></span>
+          <span>
+            <span className="lang-ar">تذكرني</span>
+            <span className="lang-en">Remember me</span>
+          </span>
         </label>
         <Link href="/" className="rv-login-hint">
-          <span className="lang-ar">العودة للموقع</span><span className="lang-en">Back to site</span>
+          <span className="lang-ar">العودة للموقع</span>
+          <span className="lang-en">Back to site</span>
         </Link>
       </div>
 

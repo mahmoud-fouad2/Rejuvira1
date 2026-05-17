@@ -13,39 +13,51 @@ const initialState: SettingsActionState = {
   message: "",
 };
 
-const defaultAddressAr = "Al Takhassousi, Ar Rahmaniyyah, التخصصي, طريق الملك عبدالله";
-const defaultAddressEn = "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh";
+const defaultAddressAr =
+  "Al Takhassousi, Ar Rahmaniyyah, التخصصي, طريق الملك عبدالله";
+const defaultAddressEn =
+  "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh";
 
 const defaultContactFaqs = [
   {
     questionAr: "هل يجب حجز موعد مسبق؟",
-    answerAr: "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
+    answerAr:
+      "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
     questionEn: "Should I book an appointment in advance?",
-    answerEn: "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available.",
+    answerEn:
+      "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available.",
   },
   {
     questionAr: "ما هي أوقات العمل؟",
-    answerAr: "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
+    answerAr:
+      "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
     questionEn: "What are the working hours?",
-    answerEn: "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM.",
+    answerEn:
+      "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM.",
   },
   {
     questionAr: "هل تتوفر متابعة بعد العلاج؟",
-    answerAr: "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
+    answerAr:
+      "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
     questionEn: "Is follow-up available after treatment?",
-    answerEn: "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation.",
+    answerEn:
+      "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation.",
   },
   {
     questionAr: "كيف أصل إلى موقع المركز؟",
-    answerAr: "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
+    answerAr:
+      "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
     questionEn: "How can I reach the center?",
-    answerEn: "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation.",
+    answerEn:
+      "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation.",
   },
   {
     questionAr: "ما طرق الدفع المتاحة؟",
-    answerAr: "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
+    answerAr:
+      "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
     questionEn: "What payment methods are available?",
-    answerEn: "Multiple payment methods are available, including bank cards and selected digital payment options.",
+    answerEn:
+      "Multiple payment methods are available, including bank cards and selected digital payment options.",
   },
 ] as const;
 
@@ -66,9 +78,7 @@ const homepageFieldGroups = [
     ["heroPillLabel", "شارة الهيرو العلوية"],
     ["heroTitleAccent", "العبارة المميزة في الهيرو"],
   ],
-  [
-    ["heroTitle", "عنوان الهيرو"],
-  ],
+  [["heroTitle", "عنوان الهيرو"]],
   [["heroDescription", "وصف الهيرو"]],
   [
     ["heroCtaPrimary", "زر الهيرو الأساسي"],
@@ -205,14 +215,18 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
       <div className="grid gap-4 md:grid-cols-2">
         <input
           name="addressAr"
-          defaultValue={getFieldValue(groups, "contact", "addressAr") || defaultAddressAr}
+          defaultValue={
+            getFieldValue(groups, "contact", "addressAr") || defaultAddressAr
+          }
           placeholder="العنوان بالعربية"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />
         <input
           name="addressEn"
-          defaultValue={getFieldValue(groups, "contact", "addressEn") || defaultAddressEn}
+          defaultValue={
+            getFieldValue(groups, "contact", "addressEn") || defaultAddressEn
+          }
           placeholder="Address in English"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
@@ -259,7 +273,9 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         />
       </div>
       <div className="admin-form-section">
-        <p className="text-ink font-semibold">الأسئلة الشائعة في صفحة التواصل</p>
+        <p className="text-ink font-semibold">
+          الأسئلة الشائعة في صفحة التواصل
+        </p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
           تظهر خمسة أسئلة فقط في صفحة التواصل بصياغة مختصرة ومنظمة.
         </p>
@@ -267,38 +283,53 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
       {defaultContactFaqs.map((faq, offset) => {
         const index = offset + 1;
         return (
-        <div key={index} className="grid gap-3 rounded-[1.35rem] border border-[color:var(--rv-line)] p-3 md:grid-cols-2">
-          <input
-            name={`faq${index}QuestionAr`}
-            defaultValue={getFieldValue(groups, "contact", `faq${index}QuestionAr`) || faq.questionAr}
-            placeholder={`السؤال ${index} بالعربية`}
-            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-            required
-          />
-          <input
-            name={`faq${index}QuestionEn`}
-            defaultValue={getFieldValue(groups, "contact", `faq${index}QuestionEn`) || faq.questionEn}
-            placeholder={`FAQ ${index} question in English`}
-            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-            required
-            dir="ltr"
-          />
-          <textarea
-            name={`faq${index}AnswerAr`}
-            defaultValue={getFieldValue(groups, "contact", `faq${index}AnswerAr`) || faq.answerAr}
-            placeholder={`إجابة السؤال ${index}`}
-            className="border-line bg-surface text-ink focus:border-gold min-h-24 rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-            required
-          />
-          <textarea
-            name={`faq${index}AnswerEn`}
-            defaultValue={getFieldValue(groups, "contact", `faq${index}AnswerEn`) || faq.answerEn}
-            placeholder={`FAQ ${index} answer in English`}
-            className="border-line bg-surface text-ink focus:border-gold min-h-24 rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
-            required
-            dir="ltr"
-          />
-        </div>
+          <div
+            key={index}
+            className="grid gap-3 rounded-[1.35rem] border border-[color:var(--rv-line)] p-3 md:grid-cols-2"
+          >
+            <input
+              name={`faq${index}QuestionAr`}
+              defaultValue={
+                getFieldValue(groups, "contact", `faq${index}QuestionAr`) ||
+                faq.questionAr
+              }
+              placeholder={`السؤال ${index} بالعربية`}
+              className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              required
+            />
+            <input
+              name={`faq${index}QuestionEn`}
+              defaultValue={
+                getFieldValue(groups, "contact", `faq${index}QuestionEn`) ||
+                faq.questionEn
+              }
+              placeholder={`FAQ ${index} question in English`}
+              className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              required
+              dir="ltr"
+            />
+            <textarea
+              name={`faq${index}AnswerAr`}
+              defaultValue={
+                getFieldValue(groups, "contact", `faq${index}AnswerAr`) ||
+                faq.answerAr
+              }
+              placeholder={`إجابة السؤال ${index}`}
+              className="border-line bg-surface text-ink focus:border-gold min-h-24 rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              required
+            />
+            <textarea
+              name={`faq${index}AnswerEn`}
+              defaultValue={
+                getFieldValue(groups, "contact", `faq${index}AnswerEn`) ||
+                faq.answerEn
+              }
+              placeholder={`FAQ ${index} answer in English`}
+              className="border-line bg-surface text-ink focus:border-gold min-h-24 rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              required
+              dir="ltr"
+            />
+          </div>
         );
       })}
       <div className="admin-form-section">
@@ -409,21 +440,30 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
       <div className="grid gap-4 md:grid-cols-3">
         <input
           name="heroCard1"
-          defaultValue={getFieldValue(groups, "media", "heroCard1") || "/media/hero/rejuvira-hero-1.jpg"}
+          defaultValue={
+            getFieldValue(groups, "media", "heroCard1") ||
+            "/media/hero/rejuvira-hero-1.jpg"
+          }
           placeholder="صورة الهيرو الأولى"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />
         <input
           name="heroCard2"
-          defaultValue={getFieldValue(groups, "media", "heroCard2") || "/media/hero/rejuvira-hero-2.jpg"}
+          defaultValue={
+            getFieldValue(groups, "media", "heroCard2") ||
+            "/media/hero/rejuvira-hero-2.jpg"
+          }
           placeholder="صورة الهيرو الثانية"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />
         <input
           name="heroCard3"
-          defaultValue={getFieldValue(groups, "media", "heroCard3") || "/media/hero/rejuvira-hero-3.jpg"}
+          defaultValue={
+            getFieldValue(groups, "media", "heroCard3") ||
+            "/media/hero/rejuvira-hero-3.jpg"
+          }
           placeholder="صورة الهيرو الثالثة"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required

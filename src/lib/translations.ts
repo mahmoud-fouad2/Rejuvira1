@@ -37,7 +37,10 @@ export const navTranslations = {
   contact: { ar: "التواصل", en: "Contact" },
   aboutUs: { ar: "من نحن", en: "About Us" },
   announcementTeam: { ar: "فريق متخصص", en: "Specialist Team" },
-  announcementDevices: { ar: "أجهزة طبية معتمدة", en: "Certified Medical Devices" },
+  announcementDevices: {
+    ar: "أجهزة طبية معتمدة",
+    en: "Certified Medical Devices",
+  },
   bookNowLink: { ar: "احجز الآن", en: "Book Now" },
 } as const;
 
@@ -59,10 +62,21 @@ export const homeTranslations = {
   statsResults: { ar: "نتيجة موثقة", en: "Documented Results" },
 
   brandValuesSection: {
-    eyebrows: { ar: ["الوضوح", "العناية", "الدقة"], en: ["Clarity", "Care", "Precision"] },
+    eyebrows: {
+      ar: ["الوضوح", "العناية", "الدقة"],
+      en: ["Clarity", "Care", "Precision"],
+    },
     titles: {
-      ar: ["وضوح من اللحظة الأولى", "رعاية تبدأ قبل الجلسة", "دقة في كل تفصيلة"],
-      en: ["Clarity from the First Moment", "Care Begins Before Your Session", "Precision in Every Detail"],
+      ar: [
+        "وضوح من اللحظة الأولى",
+        "رعاية تبدأ قبل الجلسة",
+        "دقة في كل تفصيلة",
+      ],
+      en: [
+        "Clarity from the First Moment",
+        "Care Begins Before Your Session",
+        "Precision in Every Detail",
+      ],
     },
     descriptions: {
       ar: [
@@ -100,34 +114,40 @@ export const homeTranslations = {
       {
         step: "01",
         title: "استشارة أولى أكثر وضوحًا",
-        description: "تبدأ الرحلة بتقييم واضح للاحتياج والحالة، ثم تحديد الأولوية العلاجية المناسبة قبل أي توصية.",
+        description:
+          "تبدأ الرحلة بتقييم واضح للاحتياج والحالة، ثم تحديد الأولوية العلاجية المناسبة قبل أي توصية.",
       },
       {
         step: "02",
         title: "اختيار هادئ للخطة الأنسب",
-        description: "تُعرض الخيارات بصورة منظمة توضح الغرض من الخدمة، نطاقها، وما يمكن توقعه منها بواقعية.",
+        description:
+          "تُعرض الخيارات بصورة منظمة توضح الغرض من الخدمة، نطاقها، وما يمكن توقعه منها بواقعية.",
       },
       {
         step: "03",
         title: "خطوة نهائية واضحة قبل الحجز",
-        description: "بعد فهم الخدمة المناسبة، يصبح الانتقال إلى طلب الاستشارة مباشرًا وواضحًا دون تشتت.",
+        description:
+          "بعد فهم الخدمة المناسبة، يصبح الانتقال إلى طلب الاستشارة مباشرًا وواضحًا دون تشتت.",
       },
     ],
     en: [
       {
         step: "01",
         title: "A Clearer First Consultation",
-        description: "The journey begins with a clear assessment of the need and condition, then identifying the appropriate treatment priority before any recommendation.",
+        description:
+          "The journey begins with a clear assessment of the need and condition, then identifying the appropriate treatment priority before any recommendation.",
       },
       {
         step: "02",
         title: "A Calm Choice of the Right Plan",
-        description: "Options are presented in an organized manner clarifying the purpose, scope, and realistic expectations of each service.",
+        description:
+          "Options are presented in an organized manner clarifying the purpose, scope, and realistic expectations of each service.",
       },
       {
         step: "03",
         title: "A Clear Final Step Before Booking",
-        description: "After understanding the right service, moving to a consultation request becomes straightforward and clear without distraction.",
+        description:
+          "After understanding the right service, moving to a consultation request becomes straightforward and clear without distraction.",
       },
     ],
   },
@@ -199,7 +219,10 @@ export const galleryTranslations = {
   before: { ar: "قبل", en: "Before" },
   after: { ar: "بعد", en: "After" },
   moodVisual: { ar: "الانطباع البصري", en: "Visual Impression" },
-  moodCaption: { ar: "صور محلية مرتبطة بالخدمة والنتيجة", en: "Local images linked to services and outcomes" },
+  moodCaption: {
+    ar: "صور محلية مرتبطة بالخدمة والنتيجة",
+    en: "Local images linked to services and outcomes",
+  },
   allCategories: { ar: "الكل", en: "All" },
 } as const;
 

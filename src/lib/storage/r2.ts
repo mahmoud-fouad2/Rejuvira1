@@ -56,9 +56,9 @@ export type StorageNamespace = (typeof STORAGE_NAMESPACES)[number];
 export function isR2Configured(): boolean {
   return Boolean(
     process.env.R2_ENDPOINT &&
-      process.env.R2_BUCKET &&
-      process.env.R2_ACCESS_KEY_ID &&
-      process.env.R2_SECRET_ACCESS_KEY,
+    process.env.R2_BUCKET &&
+    process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY,
   );
 }
 
@@ -118,8 +118,9 @@ function uriEncode(value: string, encodeSlash = true): string {
     if (char === "/" && !encodeSlash) return char;
     return char
       .split("")
-      .map((c) =>
-        `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`,
+      .map(
+        (c) =>
+          `%${c.charCodeAt(0).toString(16).toUpperCase().padStart(2, "0")}`,
       )
       .join("");
   });
@@ -154,14 +155,18 @@ function buildObjectUrl(creds: R2Credentials, key: string): URL {
 function signRequest(
   creds: R2Credentials,
   opts: SignedRequestOptions,
-): { url: URL; headers: Record<string, string>; body?: Buffer | Uint8Array | string } {
+): {
+  url: URL;
+  headers: Record<string, string>;
+  body?: Buffer | Uint8Array | string;
+} {
   const url = buildObjectUrl(creds, opts.key);
   const now = new Date();
   const { amzDate, dateStamp } = buildAmzDate(now);
   const payload =
     typeof opts.body === "string"
       ? Buffer.from(opts.body, "utf8")
-      : opts.body ?? Buffer.alloc(0);
+      : (opts.body ?? Buffer.alloc(0));
   const payloadHash = sha256(payload);
 
   const headers: Record<string, string> = {

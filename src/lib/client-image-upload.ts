@@ -3,7 +3,12 @@
 export const MAX_UPLOAD_SOURCE_BYTES = 12 * 1024 * 1024;
 export const MAX_DIRECT_UPLOAD_BYTES = 6 * 1024 * 1024;
 const MAX_OUTPUT_SIDE = 1920;
-const RASTER_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "image/avif"]);
+const RASTER_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+  "image/avif",
+]);
 
 function isPassthrough(file: File) {
   const name = file.name.toLowerCase();
@@ -42,26 +47,35 @@ export async function prepareImageUpload(file: File): Promise<File> {
   const objectUrl = URL.createObjectURL(file);
   try {
     const image = await loadImage(objectUrl);
-    const scale = Math.min(1, MAX_OUTPUT_SIDE / Math.max(image.naturalWidth, image.naturalHeight));
+    const scale = Math.min(
+      1,
+      MAX_OUTPUT_SIDE / Math.max(image.naturalWidth, image.naturalHeight),
+    );
     const width = Math.max(1, Math.round(image.naturalWidth * scale));
     const height = Math.max(1, Math.round(image.naturalHeight * scale));
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
     const context = canvas.getContext("2d", { alpha: false });
-    if (!context) throw new Error("Image compression is not available in this browser.");
+    if (!context)
+      throw new Error("Image compression is not available in this browser.");
     context.drawImage(image, 0, 0, width, height);
 
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(
-        (output) => (output ? resolve(output) : reject(new Error("Could not compress image."))),
+        (output) =>
+          output
+            ? resolve(output)
+            : reject(new Error("Could not compress image.")),
         "image/webp",
         0.84,
       );
     });
 
     if (blob.size > MAX_DIRECT_UPLOAD_BYTES) {
-      throw new Error("Compressed image is still too large. Please crop it or choose a smaller file.");
+      throw new Error(
+        "Compressed image is still too large. Please crop it or choose a smaller file.",
+      );
     }
 
     const baseName = file.name.replace(/\.[^.]+$/, "") || "image";

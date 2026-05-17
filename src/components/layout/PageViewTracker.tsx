@@ -17,7 +17,10 @@ export function PageViewTracker() {
     };
     const body = JSON.stringify(payload);
     if (navigator.sendBeacon) {
-      navigator.sendBeacon("/api/analytics", new Blob([body], { type: "application/json" }));
+      navigator.sendBeacon(
+        "/api/analytics",
+        new Blob([body], { type: "application/json" }),
+      );
       return;
     }
     void fetch("/api/analytics", {

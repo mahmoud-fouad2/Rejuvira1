@@ -20,7 +20,7 @@ export function Skeleton({
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className={`animate-pulse rounded-[1rem] bg-ink-strong/5 ${className}`}
+          className={`bg-ink-strong/5 animate-pulse rounded-[1rem] ${className}`}
           style={{
             width: width ?? (variant === "circle" ? "3rem" : "100%"),
             height:
@@ -33,7 +33,11 @@ export function Skeleton({
                     ? "12rem"
                     : "6rem"),
             borderRadius:
-              variant === "circle" ? "9999px" : variant === "rect" ? "1rem" : undefined,
+              variant === "circle"
+                ? "9999px"
+                : variant === "rect"
+                  ? "1rem"
+                  : undefined,
           }}
         />
       ))}

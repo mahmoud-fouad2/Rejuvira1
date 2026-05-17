@@ -65,7 +65,12 @@ export function MultiSelectChips({
 
   return (
     <div className="rv-multiselect">
-      <input type="hidden" name={name} value={selected.join(",")} required={required} />
+      <input
+        type="hidden"
+        name={name}
+        value={selected.join(",")}
+        required={required}
+      />
       {label ? (
         <label htmlFor={id} className="admin-field-label mb-1 block">
           {label}
@@ -118,7 +123,9 @@ export function MultiSelectChips({
                   onChange={() => toggle(option.value)}
                 />
                 <span className="flex-1">
-                  <span className="block text-sm font-medium">{option.label}</span>
+                  <span className="block text-sm font-medium">
+                    {option.label}
+                  </span>
                   {option.hint ? (
                     <span className="block text-[11px] text-[color:var(--admin-text-faint)]">
                       {option.hint}

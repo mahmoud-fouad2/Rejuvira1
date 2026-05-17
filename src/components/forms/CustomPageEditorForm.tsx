@@ -62,19 +62,31 @@ export function CustomPageEditorForm({
             {mode === "create" ? "PageCraft" : `/p/${initial?.slug ?? ""}`}
           </p>
           <h2>
-            {mode === "create" ? "إنشاء Landing Page جديدة" : "تعديل الصفحة المخصصة"}
+            {mode === "create"
+              ? "إنشاء Landing Page جديدة"
+              : "تعديل الصفحة المخصصة"}
           </h2>
           <p>
-            حفظ هذه الصفحة يتم مباشرة في قاعدة البيانات، والمعاينة داخل البيلدر تتحدث فور تعديل المكونات.
+            حفظ هذه الصفحة يتم مباشرة في قاعدة البيانات، والمعاينة داخل البيلدر
+            تتحدث فور تعديل المكونات.
           </p>
         </div>
         <div className="custom-page-editor-form__actions">
           {previewHref ? (
-            <a href={previewHref} target="_blank" rel="noreferrer" className="admin-btn-secondary">
+            <a
+              href={previewHref}
+              target="_blank"
+              rel="noreferrer"
+              className="admin-btn-secondary"
+            >
               معاينة الصفحة
             </a>
           ) : null}
-          <button type="submit" className="admin-btn-primary" disabled={pending}>
+          <button
+            type="submit"
+            className="admin-btn-primary"
+            disabled={pending}
+          >
             {pending
               ? "جار الحفظ..."
               : mode === "create"
@@ -96,7 +108,7 @@ export function CustomPageEditorForm({
             pattern="[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
             title="slug must be lowercase letters/numbers/hyphens"
           />
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-muted-foreground text-[11px]">
             سيظهر على /p/&lt;slug&gt;
           </span>
         </label>
@@ -161,7 +173,7 @@ export function CustomPageEditorForm({
           name="htmlContent"
           defaultValue={initial?.htmlContent ?? ""}
         />
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-muted-foreground text-[11px]">
           يتم حفظ الصفحة كـ HTML آمن بعد ترتيب البلوكات وتعديل خصائصها.
         </span>
       </section>

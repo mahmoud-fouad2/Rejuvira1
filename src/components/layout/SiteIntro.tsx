@@ -50,7 +50,8 @@ export function SiteIntro({ logoAlt, siteName }: SiteIntroProps) {
     try {
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       if (sessionStorage.getItem(STORAGE_KEY)) return;
-      if (new URLSearchParams(window.location.search).get("nointro") === "1") return;
+      if (new URLSearchParams(window.location.search).get("nointro") === "1")
+        return;
     } catch {
       return;
     }
@@ -66,7 +67,10 @@ export function SiteIntro({ logoAlt, siteName }: SiteIntroProps) {
     };
 
     const introTimer = window.setTimeout(finish, SITE_INTRO_DURATION_MS);
-    const safetyCap = window.setTimeout(finish, Math.max(SITE_INTRO_DURATION_MS + 1200, 5200));
+    const safetyCap = window.setTimeout(
+      finish,
+      Math.max(SITE_INTRO_DURATION_MS + 1200, 5200),
+    );
 
     return () => {
       finished = true;
@@ -78,7 +82,10 @@ export function SiteIntro({ logoAlt, siteName }: SiteIntroProps) {
   if (!portalEl || !active) return null;
 
   return createPortal(
-    <div className={`rv-site-intro-overlay${leaving ? " is-leaving" : ""}`} role="presentation">
+    <div
+      className={`rv-site-intro-overlay${leaving ? "is-leaving" : ""}`}
+      role="presentation"
+    >
       <div className="rv-site-intro-backdrop" aria-hidden="true" />
       <button
         type="button"

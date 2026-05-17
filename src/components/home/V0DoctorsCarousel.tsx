@@ -18,7 +18,13 @@ type V0DoctorsCarouselProps = {
 
 function StarIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="13"
+      height="13"
+      fill="currentColor"
+      aria-hidden
+    >
       <path d="m12 2 3 6.91 7.1.62-5.4 4.72 1.66 7.05L12 17.77 5.64 21.3 7.3 14.25 1.9 9.53 9 8.91Z" />
     </svg>
   );
@@ -27,13 +33,29 @@ function StarIcon() {
 function ArrowIcon({ dir = "right" }: { dir?: "left" | "right" }) {
   if (dir === "left") {
     return (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden
+      >
         <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -56,10 +78,12 @@ const defaultTitle = (
 const defaultDescription = (
   <>
     <span className="lang-ar">
-      كل ملف يبرز التخصص وأعوام الخبرة واللغات والخدمات المرتبطة — بصياغة هادئة كما ستجدينها في العيادة.
+      كل ملف يبرز التخصص وأعوام الخبرة واللغات والخدمات المرتبطة — بصياغة هادئة
+      كما ستجدينها في العيادة.
     </span>
     <span className="lang-en">
-      Each profile highlights specialty, experience, languages, and related services — presented as you would find them in the clinic.
+      Each profile highlights specialty, experience, languages, and related
+      services — presented as you would find them in the clinic.
     </span>
   </>
 );
@@ -97,7 +121,10 @@ export function V0DoctorsCarousel({
   const dotSheet = lang === "en" ? "Choose doctor slide" : "اختيار البطاقة";
 
   return (
-    <section className="rv-doctors-section" aria-labelledby="rv-doctors-heading">
+    <section
+      className="rv-doctors-section"
+      aria-labelledby="rv-doctors-heading"
+    >
       <header className="rv-doctors-head">
         <span className="rv-v0-pill">{eyebrow}</span>
         <h2 id="rv-doctors-heading">{title}</h2>
@@ -123,9 +150,13 @@ export function V0DoctorsCarousel({
         >
           <ul className="rv-doctors-track">
             {slides.map((doctor, i) => (
-              <li key={doctor.id} className="rv-doctors-slide" {...slideProps(i)}>
+              <li
+                key={doctor.id}
+                className="rv-doctors-slide"
+                {...slideProps(i)}
+              >
                 <Link
-                  href={(`/doctors/${doctor.slug}`) as Route}
+                  href={`/doctors/${doctor.slug}` as Route}
                   className="rv-doctor-card"
                 >
                   <span className="rv-doctor-card-photo">
@@ -144,9 +175,16 @@ export function V0DoctorsCarousel({
                         <span className="lang-en">Featured</span>
                       </span>
                     ) : null}
-                    <span className="rv-doctor-card-exp text-[10px]" aria-hidden>
-                      <span className="lang-ar">{doctor.yearsExperience}+ سنة</span>
-                      <span className="lang-en">{doctor.yearsExperience}+ yrs</span>
+                    <span
+                      className="rv-doctor-card-exp text-[10px]"
+                      aria-hidden
+                    >
+                      <span className="lang-ar">
+                        {doctor.yearsExperience}+ سنة
+                      </span>
+                      <span className="lang-en">
+                        {doctor.yearsExperience}+ yrs
+                      </span>
                     </span>
                   </span>
                   <div className="rv-doctor-card-body">
@@ -196,7 +234,9 @@ export function V0DoctorsCarousel({
             role="tab"
             aria-selected={i === index}
             className={i === index ? "is-active" : ""}
-            aria-label={lang === "en" ? `${doctor.name} slide` : `بطاقة ${doctor.name}`}
+            aria-label={
+              lang === "en" ? `${doctor.name} slide` : `بطاقة ${doctor.name}`
+            }
             onClick={() => scrollTo(i)}
           />
         ))}

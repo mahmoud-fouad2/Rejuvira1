@@ -21,11 +21,17 @@ export default async function EditCustomPagePage({
           <span className="admin-page-header__eyebrow">/p/{page.slug}</span>
           <h1>تعديل الصفحة المخصصة</h1>
           <p>
-            مساحة تعديل كاملة للصفحة مع معاينة حية للمكونات وحفظ حقيقي على نفس السجل.
+            مساحة تعديل كاملة للصفحة مع معاينة حية للمكونات وحفظ حقيقي على نفس
+            السجل.
           </p>
         </div>
         <div className="admin-page-header__actions">
-          <a href={`/p/${page.slug}`} target="_blank" rel="noreferrer" className="admin-btn-secondary">
+          <a
+            href={`/p/${page.slug}`}
+            target="_blank"
+            rel="noreferrer"
+            className="admin-btn-secondary"
+          >
             معاينة
           </a>
           <Link href={"/admin/pages" as Route} className="admin-btn-secondary">

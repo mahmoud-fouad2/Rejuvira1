@@ -21,15 +21,21 @@ function resolveUserRole(value: unknown): UserRole {
 
 function readBootstrapCredentials() {
   const email = (
-    process.env.ADMIN_BOOTSTRAP_EMAIL ?? process.env.ADMIN_SEED_EMAIL ?? ""
+    process.env.ADMIN_BOOTSTRAP_EMAIL ??
+    process.env.ADMIN_SEED_EMAIL ??
+    ""
   )
     .trim()
     .toLowerCase();
   const password = (
-    process.env.ADMIN_BOOTSTRAP_PASSWORD ?? process.env.ADMIN_SEED_PASSWORD ?? ""
+    process.env.ADMIN_BOOTSTRAP_PASSWORD ??
+    process.env.ADMIN_SEED_PASSWORD ??
+    ""
   ).trim();
   const name = (
-    process.env.ADMIN_BOOTSTRAP_NAME ?? process.env.ADMIN_SEED_NAME ?? "Rejuvera Super Admin"
+    process.env.ADMIN_BOOTSTRAP_NAME ??
+    process.env.ADMIN_SEED_NAME ??
+    "Rejuvera Super Admin"
   ).trim();
 
   if (!email || !password) return null;
@@ -73,7 +79,10 @@ async function tryBootstrapLogin(email: string, password: string) {
       role: user.role,
     };
   } catch (error) {
-    console.error("[auth] Bootstrap upsert failed, signing in without DB record", error);
+    console.error(
+      "[auth] Bootstrap upsert failed, signing in without DB record",
+      error,
+    );
     // Fall back to an in-memory session so admin can still sign in even when
     // the database is unreachable.
     return {
@@ -178,14 +187,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
 
           if (user) {
-            const isValidPassword = await compare(password, user.hashedPassword);
+            const isValidPassword = await compare(
+              password,
+              user.hashedPassword,
+            );
             if (isValidPassword) {
               await prisma.user
                 .update({
                   where: { id: user.id },
                   data: { lastLoginAt: new Date() },
                 })
-                .catch((err) => console.warn("[auth] lastLoginAt update failed", err));
+                .catch((err) =>
+                  console.warn("[auth] lastLoginAt update failed", err),
+                );
 
               return {
                 id: user.id,
@@ -196,7 +210,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
             console.warn("[auth] Password mismatch for", email);
           } else {
-            console.warn("[auth] No DB user for", email, "— attempting bootstrap");
+            console.warn(
+              "[auth] No DB user for",
+              email,
+              "— attempting bootstrap",
+            );
           }
         } catch (error) {
           console.error("[auth] DB lookup failed, attempting bootstrap", error);

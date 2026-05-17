@@ -42,7 +42,9 @@ export function MaintenancePanel({
     startTransition(async () => {
       const result = await exportCrmCsvAction();
       setCsvState(result);
-      const meta = result.meta as { filename?: string; csv?: string } | undefined;
+      const meta = result.meta as
+        | { filename?: string; csv?: string }
+        | undefined;
       if (result.status === "success" && meta?.csv) {
         const blob = new Blob([meta.csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -80,7 +82,7 @@ export function MaintenancePanel({
   return (
     <div className="grid gap-6 xl:grid-cols-2">
       <article className="surface-panel rounded-[1.85rem] p-6">
-        <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.22em]">
+        <p className="text-ink-faint text-[10px] font-medium tracking-[0.22em] uppercase">
           النسخ الاحتياطي
         </p>
         <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -89,7 +91,9 @@ export function MaintenancePanel({
         <p className="text-ink-soft mt-2 text-sm leading-7">
           تصدير محتوى الجداول الأساسية (الإعدادات، الأطباء، الخدمات، الأجهزة،
           المعرض، المجلة) كملف JSON يُرفع إلى Cloudflare R2 ضمن مسار
-          <code className="text-ink ms-1 rounded-md bg-surface-strong px-1.5 py-0.5 text-xs">backups/yyyy/mm/...</code>
+          <code className="text-ink bg-surface-strong ms-1 rounded-md px-1.5 py-0.5 text-xs">
+            backups/yyyy/mm/...
+          </code>
           .
         </p>
         <button
@@ -103,7 +107,9 @@ export function MaintenancePanel({
         {backupState.message ? (
           <p
             className={`mt-4 text-sm ${
-              backupState.status === "success" ? "text-emerald" : "text-burgundy"
+              backupState.status === "success"
+                ? "text-emerald"
+                : "text-burgundy"
             }`}
           >
             {backupState.message}
@@ -112,7 +118,7 @@ export function MaintenancePanel({
       </article>
 
       <article className="surface-panel rounded-[1.85rem] p-6">
-        <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.22em]">
+        <p className="text-ink-faint text-[10px] font-medium tracking-[0.22em] uppercase">
           التصدير
         </p>
         <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -141,7 +147,7 @@ export function MaintenancePanel({
       </article>
 
       <article className="surface-panel rounded-[1.85rem] p-6">
-        <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.22em]">
+        <p className="text-ink-faint text-[10px] font-medium tracking-[0.22em] uppercase">
           فحص النظام
         </p>
         <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -165,7 +171,7 @@ export function MaintenancePanel({
               return (
                 <div
                   key={key}
-                  className="border-line flex items-center justify-between gap-3 rounded-xl border bg-surface px-3 py-2"
+                  className="border-line bg-surface flex items-center justify-between gap-3 rounded-xl border px-3 py-2"
                 >
                   <span className="text-ink-soft font-medium">{key}</span>
                   <span
@@ -188,7 +194,7 @@ export function MaintenancePanel({
       </article>
 
       <article className="surface-panel rounded-[1.85rem] p-6">
-        <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.22em]">
+        <p className="text-ink-faint text-[10px] font-medium tracking-[0.22em] uppercase">
           إدارة الواجهة العامة
         </p>
         <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -218,7 +224,7 @@ export function MaintenancePanel({
       </article>
 
       <article className="surface-panel rounded-[1.85rem] p-6 xl:col-span-2">
-        <p className="text-ink-faint text-[10px] font-medium uppercase tracking-[0.22em]">
+        <p className="text-ink-faint text-[10px] font-medium tracking-[0.22em] uppercase">
           وضع الصيانة
         </p>
         <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -228,7 +234,9 @@ export function MaintenancePanel({
         </h2>
         <p className="text-ink-soft mt-2 text-sm leading-7">
           عند التفعيل، يظهر إشعار صيانة هادئ للزوار. لوحة الإدارة و
-          <code className="text-ink mx-1 rounded-md bg-surface-strong px-1.5 py-0.5 text-xs">/api/health</code>
+          <code className="text-ink bg-surface-strong mx-1 rounded-md px-1.5 py-0.5 text-xs">
+            /api/health
+          </code>
           تبقيان متاحتين.
         </p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -237,9 +245,7 @@ export function MaintenancePanel({
             onClick={() => handleMaintenance(!maintenance)}
             disabled={pending}
             className={`rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:opacity-60 ${
-              maintenance
-                ? "bg-burgundy text-canvas"
-                : "bg-emerald text-canvas"
+              maintenance ? "bg-burgundy text-canvas" : "bg-emerald text-canvas"
             }`}
           >
             {pending

@@ -64,7 +64,8 @@ export default async function AdminContentHubPage() {
         <div>
           <h1>مركز المحتوى</h1>
           <p>
-            ربط الأقسام بالخدمات، والخدمات بالأطباء والأجهزة والمقالات من مكان واحد.
+            ربط الأقسام بالخدمات، والخدمات بالأطباء والأجهزة والمقالات من مكان
+            واحد.
           </p>
         </div>
         <div className="admin-page-header__actions">
@@ -105,7 +106,9 @@ export default async function AdminContentHubPage() {
         <div className="admin-kpi">
           <span className="admin-kpi__icon is-danger">!</span>
           <span>
-            <strong className="admin-kpi__value">{unlinkedServices.length}</strong>
+            <strong className="admin-kpi__value">
+              {unlinkedServices.length}
+            </strong>
             <span className="admin-kpi__label">خدمات تحتاج ربط</span>
           </span>
         </div>
@@ -135,7 +138,9 @@ export default async function AdminContentHubPage() {
 
               <div className="admin-relationship-card__body">
                 {categoryServices.length === 0 ? (
-                  <p className="admin-empty-note">لا توجد خدمات داخل هذا القسم.</p>
+                  <p className="admin-empty-note">
+                    لا توجد خدمات داخل هذا القسم.
+                  </p>
                 ) : null}
 
                 {categoryServices.map((service) => {
@@ -161,7 +166,9 @@ export default async function AdminContentHubPage() {
                         <span
                           className={`admin-status-badge ${needsLink ? "is-draft" : statusClass(service.status)}`}
                         >
-                          {needsLink ? "يحتاج ربط" : statusLabel(service.status)}
+                          {needsLink
+                            ? "يحتاج ربط"
+                            : statusLabel(service.status)}
                         </span>
                       </summary>
                       <div className="admin-relation-item__detail">

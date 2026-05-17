@@ -1,9 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import {
-  backupKey,
-  isR2Configured,
-  uploadObject,
-} from "@/lib/storage/r2";
+import { backupKey, isR2Configured, uploadObject } from "@/lib/storage/r2";
 import { recordAppLog } from "@/lib/app-log";
 
 export type BackupResult = {
@@ -65,7 +61,9 @@ export async function runBackup(): Promise<BackupResult> {
           },
         })
         .catch(() => []),
-      prisma.auditLog.findMany({ take: 500, orderBy: { createdAt: "desc" } }).catch(() => []),
+      prisma.auditLog
+        .findMany({ take: 500, orderBy: { createdAt: "desc" } })
+        .catch(() => []),
     ]);
 
     const payload = {
@@ -149,11 +147,7 @@ export function buildCsv(
 ): string {
   const header = columns.map((col) => csvCell(col.label)).join(",");
   const body = rows
-    .map((row) =>
-      columns
-        .map((col) => csvCell(row[col.key]))
-        .join(","),
-    )
+    .map((row) => columns.map((col) => csvCell(row[col.key])).join(","))
     .join("\n");
   return `${header}\n${body}`;
 }

@@ -29,12 +29,7 @@ export function Card({
 }: CardProps) {
   return (
     <div
-      className={`
-        ${variantStyles[variant]}
-        ${paddingStyles[padding]}
-        ${hoverEffect ? "transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]" : ""}
-        ${className}
-      `}
+      className={` ${variantStyles[variant]} ${paddingStyles[padding]} ${hoverEffect ? "transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]" : ""} ${className} `}
     >
       {children}
     </div>

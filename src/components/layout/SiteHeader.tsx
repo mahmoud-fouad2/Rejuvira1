@@ -27,9 +27,22 @@ const navLinks = [
   { href: "/contact", labelAr: "تواصلي معنا", labelEn: "Contact" },
 ] as const;
 
-function Icon({ path, className = "h-4 w-4" }: { path: string; className?: string }) {
+function Icon({
+  path,
+  className = "h-4 w-4",
+}: {
+  path: string;
+  className?: string;
+}) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden
+    >
       <path d={path} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -40,13 +53,14 @@ function MenuIcon() {
 }
 
 export async function SiteHeader() {
-  const [runtimeSettings, services, doctors, devices, cookieStore] = await Promise.all([
-    getRuntimeSettings(),
-    getServices(),
-    getDoctors(),
-    getDevices(),
-    cookies(),
-  ]);
+  const [runtimeSettings, services, doctors, devices, cookieStore] =
+    await Promise.all([
+      getRuntimeSettings(),
+      getServices(),
+      getDoctors(),
+      getDevices(),
+      cookies(),
+    ]);
 
   const cookieLang = cookieStore.get("rejuvira-lang")?.value;
   const navLabel = cookieLang === "en" ? "Main navigation" : "التنقل الرئيسي";
@@ -66,10 +80,9 @@ export async function SiteHeader() {
     ? `tel:${runtimeSettings.contact.phoneSecondary.replace(/\D/g, "")}`
     : null;
 
-  const linkByHref = Object.fromEntries(navLinks.map((l) => [l.href, l])) as Record<
-    (typeof navLinks)[number]["href"],
-    (typeof navLinks)[number]
-  >;
+  const linkByHref = Object.fromEntries(
+    navLinks.map((l) => [l.href, l]),
+  ) as Record<(typeof navLinks)[number]["href"], (typeof navLinks)[number]>;
 
   return (
     <header className="rv-v0-header sticky top-0 z-50">
@@ -103,7 +116,9 @@ export async function SiteHeader() {
         <div className="rv-v0-nav mx-auto max-w-[var(--max-width)] px-4 py-3 sm:px-6 lg:px-8">
           <div className="rv-nav-actions">
             <BookingModal
-              services={publishedServices.length > 0 ? publishedServices : services}
+              services={
+                publishedServices.length > 0 ? publishedServices : services
+              }
               recaptchaSiteKey={getPublicSiteKey()}
             />
             <ThemeToggle />
@@ -117,23 +132,31 @@ export async function SiteHeader() {
             </Link>
             <SiteMegaMenu
               triggerLabel="استكشاف المركز"
-              services={publishedServices.length > 0 ? publishedServices : services}
+              services={
+                publishedServices.length > 0 ? publishedServices : services
+              }
               doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
               devices={publishedDevices.length > 0 ? publishedDevices : devices}
             />
-            {(["/gallery", "/journal", "/about", "/contact"] as const).map((href) => {
-              const link = linkByHref[href];
-              return (
-                <Link key={href} href={href} className="rv-v0-nav-link">
-                  <span className="lang-ar">{link.labelAr}</span>
-                  <span className="lang-en">{link.labelEn}</span>
-                </Link>
-              );
-            })}
+            {(["/gallery", "/journal", "/about", "/contact"] as const).map(
+              (href) => {
+                const link = linkByHref[href];
+                return (
+                  <Link key={href} href={href} className="rv-v0-nav-link">
+                    <span className="lang-ar">{link.labelAr}</span>
+                    <span className="lang-en">{link.labelEn}</span>
+                  </Link>
+                );
+              },
+            )}
           </nav>
 
           <div className="rv-nav-brand-wrap">
-            <Link href="/" className="rv-v0-brand" aria-label={runtimeSettings.brand.siteName}>
+            <Link
+              href="/"
+              className="rv-v0-brand"
+              aria-label={runtimeSettings.brand.siteName}
+            >
               <BrandLogo
                 alt={runtimeSettings.brand.logoAlt}
                 width={564}
@@ -148,7 +171,9 @@ export async function SiteHeader() {
 
           <div className="rv-mobile-inline-actions">
             <BookingModal
-              services={publishedServices.length > 0 ? publishedServices : services}
+              services={
+                publishedServices.length > 0 ? publishedServices : services
+              }
               recaptchaSiteKey={getPublicSiteKey()}
               compactLabel
             />
@@ -163,7 +188,11 @@ export async function SiteHeader() {
             <div className="rv-v0-mobile-menu p-3">
               <div className="grid gap-1">
                 {navLinks.map((link) => (
-                  <Link key={link.href} href={link.href} className="rv-v0-mobile-link">
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="rv-v0-mobile-link"
+                  >
                     <span className="lang-ar">{link.labelAr}</span>
                     <span className="lang-en">{link.labelEn}</span>
                   </Link>

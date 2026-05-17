@@ -79,10 +79,16 @@ export default async function AdminUsersPage() {
           {groupedUsers.map((group) => (
             <div key={group.role} className="admin-data-row">
               <div>
-                <p className="admin-data-row__title">{roleLabels[group.role]}</p>
-                <p className="admin-data-row__meta" dir="ltr">{group.role}</p>
+                <p className="admin-data-row__title">
+                  {roleLabels[group.role]}
+                </p>
+                <p className="admin-data-row__meta" dir="ltr">
+                  {group.role}
+                </p>
               </div>
-              <span className="admin-data-row__value">{group.users.length}</span>
+              <span className="admin-data-row__value">
+                {group.users.length}
+              </span>
             </div>
           ))}
         </div>
@@ -115,7 +121,9 @@ export default async function AdminUsersPage() {
             >
               <div className="min-w-0">
                 <p className="admin-data-row__title truncate">{user.name}</p>
-                <p className="admin-data-row__meta truncate" dir="ltr">{user.email}</p>
+                <p className="admin-data-row__meta truncate" dir="ltr">
+                  {user.email}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <span className="admin-chip">{getRoleLabel(user.role)}</span>
                   <span className="admin-chip">
@@ -124,7 +132,7 @@ export default async function AdminUsersPage() {
                   </span>
                 </div>
               </div>
-              <div className="grid gap-2 justify-items-end">
+              <div className="grid justify-items-end gap-2">
                 <AdminUserRoleForm userId={user.id} currentRole={user.role} />
                 {canManage && session?.user?.id !== user.id ? (
                   <form action={deleteAdminUserAction}>
@@ -156,7 +164,9 @@ export default async function AdminUsersPage() {
             <div key={rule.prefix} className="admin-data-row">
               <div>
                 <p className="admin-data-row__title">{rule.label}</p>
-                <p className="admin-data-row__meta" dir="ltr">{rule.prefix}</p>
+                <p className="admin-data-row__meta" dir="ltr">
+                  {rule.prefix}
+                </p>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 {rule.roles.map((role) => (

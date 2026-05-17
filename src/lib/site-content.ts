@@ -333,50 +333,47 @@ export const adminModules = [
   {
     title: "صندوق الطلبات",
     metric: "المراجعين",
-    description:
-      "طلبات التواصل والحجز مع حالة المتابعة والتصدير.",
+    description: "طلبات التواصل والحجز مع حالة المتابعة والتصدير.",
     href: "/admin/crm" as const,
   },
   {
     title: "ملفات الأطباء",
     metric: "الملفات",
-    description:
-      "إضافة وتعديل بيانات الأطباء والصور والخدمات المرتبطة.",
+    description: "إضافة وتعديل بيانات الأطباء والصور والخدمات المرتبطة.",
     href: "/admin/doctors" as const,
   },
   {
     title: "مكتبة الخدمات",
     metric: "الخدمات",
-    description:
-      "إدارة الخدمات، النصوص، الصور، وبيانات الظهور.",
+    description: "إدارة الخدمات، النصوص، الصور، وبيانات الظهور.",
     href: "/admin/services" as const,
   },
   {
     title: "الإعدادات",
     metric: "الهوية",
-    description:
-      "التواصل، الهوية، SEO، التكاملات، وروابط السوشيال.",
+    description: "التواصل، الهوية، SEO، التكاملات، وروابط السوشيال.",
     href: "/admin/settings" as const,
   },
   {
     title: "مكتبة الصور",
     metric: "الأصول",
-    description:
-      "معاينة الأصول ورفع صور جديدة لاستخدامها في الموقع.",
+    description: "معاينة الأصول ورفع صور جديدة لاستخدامها في الموقع.",
     href: "/admin/media" as const,
   },
   {
     title: "جاهزية التشغيل",
     metric: "المنصة",
-    description:
-      "حالة المنصة والربط الأساسي قبل الإطلاق.",
+    description: "حالة المنصة والربط الأساسي قبل الإطلاق.",
     href: "/admin" as const,
   },
 ] as const;
 
 export type AdminNavGroupKey = "overview" | "content" | "ops" | "settings";
 
-export const adminNavGroups: Record<AdminNavGroupKey, { label: string; description: string }> = {
+export const adminNavGroups: Record<
+  AdminNavGroupKey,
+  { label: string; description: string }
+> = {
   overview: { label: "نظرة عامة", description: "الرؤية اليومية للأعمال" },
   content: { label: "المحتوى", description: "صفحات الواجهة والمحتوى" },
   ops: { label: "العمليات", description: "متابعة العمل والتشغيل" },

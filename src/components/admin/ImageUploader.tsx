@@ -26,7 +26,8 @@ type ImageUploaderProps = {
   accept?: string;
 };
 
-const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif,image/svg+xml";
+const DEFAULT_ACCEPT =
+  "image/png,image/jpeg,image/webp,image/avif,image/svg+xml";
 export function ImageUploader({
   name,
   defaultValue = "",

@@ -6,10 +6,7 @@ import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { recordAppLog } from "@/lib/app-log";
 import { buildCsv, runBackup, runConnectionChecks } from "@/lib/backup";
-import {
-  getCrmSubmissions,
-  saveSettingsGroup,
-} from "@/lib/content-repository";
+import { getCrmSubmissions, saveSettingsGroup } from "@/lib/content-repository";
 
 async function ensureAdmin() {
   const session = await auth();

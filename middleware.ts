@@ -22,8 +22,7 @@ function generateRequestId() {
 
 export default auth((request) => {
   const { nextUrl, auth: session } = request;
-  const requestId =
-    request.headers.get("x-request-id") ?? generateRequestId();
+  const requestId = request.headers.get("x-request-id") ?? generateRequestId();
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", nextUrl.pathname);

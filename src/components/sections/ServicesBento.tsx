@@ -37,19 +37,37 @@ export function ServicesBento({ services }: { services: Service[] }) {
 
         {/* Desktop Bento Grid (hidden on mobile) */}
         <div className="desktop-only">
-          <div className="grid grid-cols-3 gap-5" style={{ gridTemplateRows: "1fr 1fr" }}>
+          <div
+            className="grid grid-cols-3 gap-5"
+            style={{ gridTemplateRows: "1fr 1fr" }}
+          >
             {/* First service — large (spans 2 rows, 1 col) */}
             {items[0] && (
               <div className="row-span-2">
                 <MagneticCard className="service-card h-full">
-                  <Link href={`/services/${items[0].slug}`} className="group block h-full">
+                  <Link
+                    href={`/services/${items[0].slug}`}
+                    className="group block h-full"
+                  >
                     <div className="relative h-full min-h-[500px] overflow-hidden rounded-[2rem]">
-                      <Image src={items[0].coverImageUrl} alt={items[0].name} fill sizes="40vw" className="scale-105 object-cover transition-all duration-[1.8s] group-hover:scale-100" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-purple-deep/80 via-purple-deep/10 to-transparent" />
+                      <Image
+                        src={items[0].coverImageUrl}
+                        alt={items[0].name}
+                        fill
+                        sizes="40vw"
+                        className="scale-105 object-cover transition-all duration-[1.8s] group-hover:scale-100"
+                      />
+                      <div className="from-purple-deep/80 via-purple-deep/10 absolute inset-0 bg-gradient-to-t to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-8">
-                        <p className="text-[10px] tracking-widest text-gold-light/70 uppercase">{items[0].category}</p>
-                        <h3 className="mt-2 heading-serif text-3xl font-light tracking-[-0.02em] text-white">{items[0].name}</h3>
-                        <p className="mt-3 line-clamp-2 text-sm leading-7 text-white/60">{items[0].excerpt}</p>
+                        <p className="text-gold-light/70 text-[10px] tracking-widest uppercase">
+                          {items[0].category}
+                        </p>
+                        <h3 className="heading-serif mt-2 text-3xl font-light tracking-[-0.02em] text-white">
+                          {items[0].name}
+                        </h3>
+                        <p className="mt-3 line-clamp-2 text-sm leading-7 text-white/60">
+                          {items[0].excerpt}
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -61,13 +79,26 @@ export function ServicesBento({ services }: { services: Service[] }) {
             <div className="col-span-2 grid grid-cols-2 gap-5">
               {items.slice(1).map((svc) => (
                 <MagneticCard key={svc.id} className="service-card">
-                  <Link href={`/services/${svc.slug}`} className="group block h-full">
+                  <Link
+                    href={`/services/${svc.slug}`}
+                    className="group block h-full"
+                  >
                     <div className="relative h-full min-h-[240px] overflow-hidden rounded-[2rem]">
-                      <Image src={svc.coverImageUrl} alt={svc.name} fill sizes="25vw" className="scale-105 object-cover transition-all duration-[1.8s] group-hover:scale-100" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-purple-deep/80 via-purple-deep/10 to-transparent" />
+                      <Image
+                        src={svc.coverImageUrl}
+                        alt={svc.name}
+                        fill
+                        sizes="25vw"
+                        className="scale-105 object-cover transition-all duration-[1.8s] group-hover:scale-100"
+                      />
+                      <div className="from-purple-deep/80 via-purple-deep/10 absolute inset-0 bg-gradient-to-t to-transparent" />
                       <div className="absolute inset-x-0 bottom-0 p-6">
-                        <p className="text-[10px] tracking-widest text-gold-light/70 uppercase">{svc.category}</p>
-                        <h3 className="mt-1 heading-serif text-xl font-light tracking-[-0.02em] text-white">{svc.name}</h3>
+                        <p className="text-gold-light/70 text-[10px] tracking-widest uppercase">
+                          {svc.category}
+                        </p>
+                        <h3 className="heading-serif mt-1 text-xl font-light tracking-[-0.02em] text-white">
+                          {svc.name}
+                        </h3>
                       </div>
                     </div>
                   </Link>
@@ -78,25 +109,51 @@ export function ServicesBento({ services }: { services: Service[] }) {
         </div>
 
         {/* Mobile Horizontal Scroll */}
-        <div className="mobile-only flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-none">
+        <div className="mobile-only flex snap-x snap-mandatory scrollbar-none gap-5 overflow-x-auto pb-4">
           {items.map((svc, i) => (
-            <Link key={svc.id} href={`/services/${svc.slug}`}
-              className="group relative flex-shrink-0 w-[280px] snap-start overflow-hidden rounded-[2rem] bg-surface"
-              style={{ animation: `fadeUp 0.7s ${0.08 * i}s var(--ease-out) both` }}>
+            <Link
+              key={svc.id}
+              href={`/services/${svc.slug}`}
+              className="group bg-surface relative w-[280px] flex-shrink-0 snap-start overflow-hidden rounded-[2rem]"
+              style={{
+                animation: `fadeUp 0.7s ${0.08 * i}s var(--ease-out) both`,
+              }}
+            >
               <div className="relative h-64 overflow-hidden">
-                <Image src={svc.coverImageUrl} alt={svc.name} fill sizes="280px" className="scale-105 object-cover transition-all duration-[1.5s] group-hover:scale-100" />
-                <div className="absolute inset-0 bg-gradient-to-t from-purple-deep/70 via-purple-deep/5 to-transparent" />
-                <div className="absolute bottom-0 right-0 p-6">
-                  <p className="text-[10px] tracking-widest text-gold-light/70 uppercase">{svc.category}</p>
-                  <h3 className="mt-1 heading-serif text-xl font-light text-white">{svc.name}</h3>
+                <Image
+                  src={svc.coverImageUrl}
+                  alt={svc.name}
+                  fill
+                  sizes="280px"
+                  className="scale-105 object-cover transition-all duration-[1.5s] group-hover:scale-100"
+                />
+                <div className="from-purple-deep/70 via-purple-deep/5 absolute inset-0 bg-gradient-to-t to-transparent" />
+                <div className="absolute right-0 bottom-0 p-6">
+                  <p className="text-gold-light/70 text-[10px] tracking-widest uppercase">
+                    {svc.category}
+                  </p>
+                  <h3 className="heading-serif mt-1 text-xl font-light text-white">
+                    {svc.name}
+                  </h3>
                 </div>
               </div>
               <div className="p-5">
-                <p className="line-clamp-2 text-sm leading-7 text-text-secondary">{svc.excerpt}</p>
-                <span className="mt-4 inline-flex items-center gap-2 text-xs font-[400] text-purple-mid transition-all group-hover:gap-3">
+                <p className="text-text-secondary line-clamp-2 text-sm leading-7">
+                  {svc.excerpt}
+                </p>
+                <span className="text-purple-mid mt-4 inline-flex items-center gap-2 text-xs font-[400] transition-all group-hover:gap-3">
                   <span className="lang-ar">اكتشفي الخدمة</span>
                   <span className="lang-en">Discover</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
                 </span>
               </div>
             </Link>
@@ -107,9 +164,23 @@ export function ServicesBento({ services }: { services: Service[] }) {
         {services.length > 5 && (
           <div className="mt-12 text-center">
             <Link href="/services" className="btn-primary">
-              <span className="lang-ar">عرض جميع الخدمات ({services.length})</span>
-              <span className="lang-en">View All Services ({services.length})</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="rtl-flip"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              <span className="lang-ar">
+                عرض جميع الخدمات ({services.length})
+              </span>
+              <span className="lang-en">
+                View All Services ({services.length})
+              </span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="rtl-flip"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
             </Link>
           </div>
         )}

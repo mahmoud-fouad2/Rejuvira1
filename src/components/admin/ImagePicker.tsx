@@ -38,7 +38,11 @@ const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
 const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
 const MAX_OUTPUT_SIDE = 1920;
 
-const ASPECT_PRESETS: Array<{ id: string; label: string; value: number | null }> = [
+const ASPECT_PRESETS: Array<{
+  id: string;
+  label: string;
+  value: number | null;
+}> = [
   { id: "free", label: "Free", value: null },
   { id: "1:1", label: "1:1", value: 1 },
   { id: "4:3", label: "4:3", value: 4 / 3 },
@@ -59,8 +63,12 @@ async function renderCroppedBlob(
   const radian = (rotation * Math.PI) / 180;
 
   // Compute the bounding box of the rotated image so we can place it.
-  const rotatedWidth = Math.abs(image.width * Math.cos(radian)) + Math.abs(image.height * Math.sin(radian));
-  const rotatedHeight = Math.abs(image.width * Math.sin(radian)) + Math.abs(image.height * Math.cos(radian));
+  const rotatedWidth =
+    Math.abs(image.width * Math.cos(radian)) +
+    Math.abs(image.height * Math.sin(radian));
+  const rotatedHeight =
+    Math.abs(image.width * Math.sin(radian)) +
+    Math.abs(image.height * Math.cos(radian));
 
   const stage = document.createElement("canvas");
   stage.width = rotatedWidth;
@@ -72,7 +80,10 @@ async function renderCroppedBlob(
   stageCtx.drawImage(image, -image.width / 2, -image.height / 2);
 
   const out = document.createElement("canvas");
-  const scale = Math.min(1, MAX_OUTPUT_SIDE / Math.max(area.width, area.height));
+  const scale = Math.min(
+    1,
+    MAX_OUTPUT_SIDE / Math.max(area.width, area.height),
+  );
   out.width = Math.max(1, Math.round(area.width * scale));
   out.height = Math.max(1, Math.round(area.height * scale));
   const outCtx = out.getContext("2d");
@@ -192,7 +203,10 @@ export function ImagePicker({
     }
   }
 
-  async function uploadBlob(blob: Blob, suggestedName: string): Promise<string> {
+  async function uploadBlob(
+    blob: Blob,
+    suggestedName: string,
+  ): Promise<string> {
     const form = new FormData();
     form.append("file", blob, suggestedName);
     form.append("namespace", namespace);
@@ -215,9 +229,10 @@ export function ImagePicker({
     setError(null);
     try {
       const area = croppedArea ?? { x: 0, y: 0, width: 0, height: 0 };
-      const blob = area.width > 0 && area.height > 0
-        ? await renderCroppedBlob(editorSource, area, rotation)
-        : await fetch(editorSource).then((r) => r.blob());
+      const blob =
+        area.width > 0 && area.height > 0
+          ? await renderCroppedBlob(editorSource, area, rotation)
+          : await fetch(editorSource).then((r) => r.blob());
       const url = await uploadBlob(blob, `image-${Date.now()}.webp`);
       updateValue(url);
       setEditorOpen(false);
@@ -244,10 +259,7 @@ export function ImagePicker({
   return (
     <div className="rv-image-picker">
       {label ? (
-        <label
-          htmlFor={inputId}
-          className="admin-field-label mb-1 block"
-        >
+        <label htmlFor={inputId} className="admin-field-label mb-1 block">
           {label}
         </label>
       ) : null}
@@ -351,7 +363,11 @@ export function ImagePicker({
       ) : null}
 
       {editorOpen && editorSource ? (
-        <div className="rv-image-picker__editor" role="dialog" aria-modal="true">
+        <div
+          className="rv-image-picker__editor"
+          role="dialog"
+          aria-modal="true"
+        >
           <button
             type="button"
             className="rv-image-picker__editor-backdrop"

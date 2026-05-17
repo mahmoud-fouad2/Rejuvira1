@@ -156,17 +156,51 @@ export function RichTextEditor({
       />
 
       <div className="rv-rte__toolbar" role="toolbar" aria-label="Format">
-        <button type="button" onClick={() => setBlock("P")} title="Paragraph">¶</button>
-        <button type="button" onClick={() => setBlock("H2")} title="Heading 2">H2</button>
-        <button type="button" onClick={() => setBlock("H3")} title="Heading 3">H3</button>
+        <button type="button" onClick={() => setBlock("P")} title="Paragraph">
+          ¶
+        </button>
+        <button type="button" onClick={() => setBlock("H2")} title="Heading 2">
+          H2
+        </button>
+        <button type="button" onClick={() => setBlock("H3")} title="Heading 3">
+          H3
+        </button>
         <span className="rv-rte__sep" />
-        <button type="button" onClick={() => exec("bold")} title="Bold"><strong>B</strong></button>
-        <button type="button" onClick={() => exec("italic")} title="Italic"><em>I</em></button>
-        <button type="button" onClick={() => exec("underline")} title="Underline"><u>U</u></button>
+        <button type="button" onClick={() => exec("bold")} title="Bold">
+          <strong>B</strong>
+        </button>
+        <button type="button" onClick={() => exec("italic")} title="Italic">
+          <em>I</em>
+        </button>
+        <button
+          type="button"
+          onClick={() => exec("underline")}
+          title="Underline"
+        >
+          <u>U</u>
+        </button>
         <span className="rv-rte__sep" />
-        <button type="button" onClick={() => exec("insertUnorderedList")} title="Bulleted list">•</button>
-        <button type="button" onClick={() => exec("insertOrderedList")} title="Numbered list">1.</button>
-        <button type="button" onClick={() => setBlock("BLOCKQUOTE")} title="Quote">❝</button>
+        <button
+          type="button"
+          onClick={() => exec("insertUnorderedList")}
+          title="Bulleted list"
+        >
+          •
+        </button>
+        <button
+          type="button"
+          onClick={() => exec("insertOrderedList")}
+          title="Numbered list"
+        >
+          1.
+        </button>
+        <button
+          type="button"
+          onClick={() => setBlock("BLOCKQUOTE")}
+          title="Quote"
+        >
+          ❝
+        </button>
         <span className="rv-rte__sep" />
         <button
           type="button"
@@ -212,7 +246,11 @@ export function RichTextEditor({
             placeholder="https://example.com"
             autoFocus
           />
-          <button type="button" className="admin-btn-primary" onClick={insertLink}>
+          <button
+            type="button"
+            className="admin-btn-primary"
+            onClick={insertLink}
+          >
             <span className="lang-ar">إضافة الرابط</span>
             <span className="lang-en">Apply link</span>
           </button>

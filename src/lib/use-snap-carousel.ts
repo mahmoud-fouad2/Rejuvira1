@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Direction = "ltr" | "rtl";
 
@@ -135,7 +129,9 @@ export function useSnapCarousel(
         let best = 0;
         let bestDist = Number.POSITIVE_INFINITY;
         for (let i = 0; i < count; i += 1) {
-          const slide = el.querySelector<HTMLElement>(`[data-snap-slide="${i}"]`);
+          const slide = el.querySelector<HTMLElement>(
+            `[data-snap-slide="${i}"]`,
+          );
           if (!slide) continue;
           const s = slide.getBoundingClientRect();
           const c = s.left + s.width / 2;
@@ -206,7 +202,8 @@ export function useSnapCarousel(
 
     const id = window.setInterval(() => {
       if (!visible || !inView) return;
-      if (hoverRef.current || focusRef.current || interactingRef.current) return;
+      if (hoverRef.current || focusRef.current || interactingRef.current)
+        return;
       if (Date.now() < pausedUntilRef.current) return;
       scrollToSlide(index + 1);
     }, autoplayMs);

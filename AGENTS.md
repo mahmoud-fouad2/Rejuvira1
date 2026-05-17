@@ -4,16 +4,16 @@
 
 ### Quick reference
 
-| Task | Command |
-|---|---|
-| Dev server | `npm run dev` (port 3000) |
-| Lint | `npm run lint` |
-| Type check | `npm run typecheck` |
-| Prisma generate | `npx prisma generate` |
-| Migrations | `npx prisma migrate deploy` |
-| Seed admin | `ADMIN_SEED_EMAIL=x ADMIN_SEED_PASSWORD=y npm run seed:admin` |
-| Prod build | `NODE_ENV=production npm run build` |
-| Standalone test | `HOSTNAME=0.0.0.0 PORT=3001 npm run start:standalone` |
+| Task            | Command                                                       |
+| --------------- | ------------------------------------------------------------- |
+| Dev server      | `npm run dev` (port 3000)                                     |
+| Lint            | `npm run lint`                                                |
+| Type check      | `npm run typecheck`                                           |
+| Prisma generate | `npx prisma generate`                                         |
+| Migrations      | `npx prisma migrate deploy`                                   |
+| Seed admin      | `ADMIN_SEED_EMAIL=x ADMIN_SEED_PASSWORD=y npm run seed:admin` |
+| Prod build      | `NODE_ENV=production npm run build`                           |
+| Standalone test | `HOSTNAME=0.0.0.0 PORT=3001 npm run start:standalone`         |
 
 ### Database
 

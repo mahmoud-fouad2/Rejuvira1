@@ -28,9 +28,7 @@ const payloadSchema = z
     preferredDate: z.string().max(40).optional(),
     preferredTime: z.string().max(20).optional(),
     appointmentNotes: z.string().max(500).optional(),
-    tags: z
-      .union([z.string(), z.array(z.string())])
-      .optional(),
+    tags: z.union([z.string(), z.array(z.string())]).optional(),
     preferredLanguage: z.string().min(2).max(10).optional(),
     utmSource: z.string().max(120).optional(),
     utmMedium: z.string().max(120).optional(),
@@ -104,7 +102,10 @@ function pickFirst<T extends Record<string, unknown>>(
 function normaliseTags(value: unknown): string[] {
   if (!value) return [];
   if (Array.isArray(value)) {
-    return value.filter((v) => typeof v === "string").map((v) => v.trim()).filter(Boolean);
+    return value
+      .filter((v) => typeof v === "string")
+      .map((v) => v.trim())
+      .filter(Boolean);
   }
   if (typeof value === "string") {
     return value
@@ -116,14 +117,19 @@ function normaliseTags(value: unknown): string[] {
 }
 
 function parsePreferredAppointment(data: Record<string, unknown>) {
-  const direct = pickFirst(data, ["preferredAppointmentAt", "appointmentAt", "appointment"]);
+  const direct = pickFirst(data, [
+    "preferredAppointmentAt",
+    "appointmentAt",
+    "appointment",
+  ]);
   if (direct) {
     const parsed = new Date(direct);
     if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
   }
   const date = pickFirst(data, ["preferredDate", "appointmentDate", "date"]);
   if (!date) return undefined;
-  const time = pickFirst(data, ["preferredTime", "appointmentTime", "time"]) ?? "09:00";
+  const time =
+    pickFirst(data, ["preferredTime", "appointmentTime", "time"]) ?? "09:00";
   const parsed = new Date(`${date}T${time}:00+03:00`);
   if (Number.isNaN(parsed.getTime())) return undefined;
   return parsed.toISOString();
@@ -143,10 +149,7 @@ async function handleIngest(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
   if (!webhook.isActive) {
-    return NextResponse.json(
-      { error: "Webhook disabled" },
-      { status: 410 },
-    );
+    return NextResponse.json({ error: "Webhook disabled" }, { status: 410 });
   }
 
   const ip =
@@ -188,16 +191,16 @@ async function handleIngest(request: Request, context: RouteContext) {
       ip,
       userAgent: ua,
     });
-    return NextResponse.json(
-      { error: "phone is required" },
-      { status: 422 },
-    );
+    return NextResponse.json({ error: "phone is required" }, { status: 422 });
   }
 
   const email = pickFirst(data, ["email"]);
   const message = pickFirst(data, ["message", "note"]);
   const preferredAppointmentAt = parsePreferredAppointment(data);
-  const appointmentNotes = pickFirst(data, ["appointmentNotes", "appointmentNote"]);
+  const appointmentNotes = pickFirst(data, [
+    "appointmentNotes",
+    "appointmentNote",
+  ]);
   const sourceLabel =
     pickFirst(data, ["source"]) ?? webhook.defaultSource ?? "Webhook";
   const serviceSlug = pickFirst(data, ["serviceSlug", "service"]);
@@ -235,7 +238,8 @@ async function handleIngest(request: Request, context: RouteContext) {
       { status: 200 },
     );
   } catch (error) {
-    const messageText = error instanceof Error ? error.message : "Internal error";
+    const messageText =
+      error instanceof Error ? error.message : "Internal error";
     await recordWebhookEvent({
       webhookId: webhook.id,
       payload: raw,
@@ -244,10 +248,7 @@ async function handleIngest(request: Request, context: RouteContext) {
       ip,
       userAgent: ua,
     });
-    return NextResponse.json(
-      { error: "Internal error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }
 

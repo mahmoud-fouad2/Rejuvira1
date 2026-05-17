@@ -118,9 +118,13 @@ export function BarChart({
           );
         })}
       </svg>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-1 text-[10px] text-muted-foreground">
+      <div className="text-muted-foreground grid grid-cols-[repeat(auto-fit,minmax(48px,1fr))] gap-1 text-[10px]">
         {data.map((entry) => (
-          <span key={entry.label} className="truncate text-center" title={`${entry.label}: ${entry.value}`}>
+          <span
+            key={entry.label}
+            className="truncate text-center"
+            title={`${entry.label}: ${entry.value}`}
+          >
             {entry.label}
           </span>
         ))}

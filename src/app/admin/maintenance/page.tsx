@@ -13,8 +13,12 @@ export default async function AdminMaintenancePage() {
             <span className="lang-en">Maintenance</span>
           </h1>
           <p>
-            <span className="lang-ar">النسخ الاحتياطي، فحص الاتصال، وضع الصيانة، وتفريغ ذاكرة المؤقت.</span>
-            <span className="lang-en">Backups, connectivity checks, maintenance mode, cache.</span>
+            <span className="lang-ar">
+              النسخ الاحتياطي، فحص الاتصال، وضع الصيانة، وتفريغ ذاكرة المؤقت.
+            </span>
+            <span className="lang-en">
+              Backups, connectivity checks, maintenance mode, cache.
+            </span>
           </p>
         </div>
       </div>

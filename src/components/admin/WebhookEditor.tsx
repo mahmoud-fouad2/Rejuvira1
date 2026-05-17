@@ -11,14 +11,17 @@ import {
 
 const initialState: WebhookActionState = { status: "idle", message: "" };
 
-const STATUS_OPTIONS: Array<{ value: SubmissionStatus; ar: string; en: string }> =
-  [
-    { value: SubmissionStatus.NEW, ar: "جديد", en: "New" },
-    { value: SubmissionStatus.CONTACTED, ar: "تم التواصل", en: "Contacted" },
-    { value: SubmissionStatus.FOLLOW_UP, ar: "متابعة", en: "Follow-up" },
-    { value: SubmissionStatus.BOOKED, ar: "محجوز", en: "Booked" },
-    { value: SubmissionStatus.CLOSED, ar: "مغلق", en: "Closed" },
-  ];
+const STATUS_OPTIONS: Array<{
+  value: SubmissionStatus;
+  ar: string;
+  en: string;
+}> = [
+  { value: SubmissionStatus.NEW, ar: "جديد", en: "New" },
+  { value: SubmissionStatus.CONTACTED, ar: "تم التواصل", en: "Contacted" },
+  { value: SubmissionStatus.FOLLOW_UP, ar: "متابعة", en: "Follow-up" },
+  { value: SubmissionStatus.BOOKED, ar: "محجوز", en: "Booked" },
+  { value: SubmissionStatus.CLOSED, ar: "مغلق", en: "Closed" },
+];
 
 export type WebhookEditorProps = {
   mode: "create" | "edit";

@@ -4,11 +4,7 @@ import Link from "next/link";
 
 import type { MegaMenuEntry } from "@/lib/site-content";
 
-function Bi({
-  field,
-}: {
-  field: { ar: string; en: string };
-}) {
+function Bi({ field }: { field: { ar: string; en: string } }) {
   return (
     <>
       <span className="lang-ar">{field.ar}</span>
@@ -24,13 +20,13 @@ export function MegaMenu({ entry }: { entry: MegaMenuEntry }) {
     <div className="rv-mega group/mega relative hidden xl:block">
       <Link
         href={entry.href as Route}
-        className="rv-mega-trigger relative rounded-full px-3.5 py-2 text-[0.8125rem] font-semibold tracking-[-0.01em] text-[color:var(--rv-text)] transition-colors duration-200 hover:text-[color:var(--rv-purple-strong)] focus-visible:text-[color:var(--rv-purple-strong)] after:absolute after:inset-x-3 after:-bottom-[2px] after:h-px after:origin-center after:scale-x-0 after:bg-gradient-to-l after:from-[color:var(--rv-purple-strong)] after:to-[#c9a26a] after:transition-transform after:duration-300 group-hover/mega:after:scale-x-100 group-focus-within/mega:after:scale-x-100"
+        className="rv-mega-trigger relative rounded-full px-3.5 py-2 text-[0.8125rem] font-semibold tracking-[-0.01em] text-[color:var(--rv-text)] transition-colors duration-200 after:absolute after:inset-x-3 after:-bottom-[2px] after:h-px after:origin-center after:scale-x-0 after:bg-gradient-to-l after:from-[color:var(--rv-purple-strong)] after:to-[#c9a26a] after:transition-transform after:duration-300 group-focus-within/mega:after:scale-x-100 group-hover/mega:after:scale-x-100 hover:text-[color:var(--rv-purple-strong)] focus-visible:text-[color:var(--rv-purple-strong)]"
       >
         <Bi field={entry.label} />
       </Link>
 
       <div
-        className="pointer-events-none absolute left-1/2 top-[calc(100%+0.45rem)] z-50 mt-4 w-[min(92vw,80rem)] -translate-x-1/2 translate-y-3 opacity-0 backdrop-blur-sm transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-focus-within/mega:pointer-events-auto group-focus-within/mega:translate-y-0 group-focus-within/mega:opacity-100 group-hover/mega:pointer-events-auto group-hover/mega:translate-y-0 group-hover/mega:opacity-100"
+        className="pointer-events-none absolute top-[calc(100%+0.45rem)] left-1/2 z-50 mt-4 w-[min(92vw,80rem)] -translate-x-1/2 translate-y-3 opacity-0 backdrop-blur-sm transition-[opacity,transform,filter] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-focus-within/mega:pointer-events-auto group-focus-within/mega:translate-y-0 group-focus-within/mega:opacity-100 group-hover/mega:pointer-events-auto group-hover/mega:translate-y-0 group-hover/mega:opacity-100"
         role="region"
         aria-label="Mega menu"
       >
@@ -50,11 +46,11 @@ export function MegaMenu({ entry }: { entry: MegaMenuEntry }) {
               <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[rgba(30,13,78,0.35)] to-transparent" />
 
               <div className="relative flex h-full min-h-[22rem] flex-col justify-between p-6 sm:p-7">
-                <p className="text-[0.625rem] font-semibold uppercase tracking-[0.32em] text-white/70">
+                <p className="text-[0.625rem] font-semibold tracking-[0.32em] text-white/70 uppercase">
                   <Bi field={entry.featured.eyebrow} />
                 </p>
                 <div>
-                  <h3 className="balanced-text text-lg font-semibold leading-snug tracking-[-0.02em] text-white sm:text-xl">
+                  <h3 className="balanced-text text-lg leading-snug font-semibold tracking-[-0.02em] text-white sm:text-xl">
                     <Bi field={entry.featured.title} />
                   </h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-white/75">
@@ -66,8 +62,20 @@ export function MegaMenu({ entry }: { entry: MegaMenuEntry }) {
                   >
                     <span className="lang-ar">استكشف القسم</span>
                     <span className="lang-en">Explore section</span>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                      <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      aria-hidden
+                    >
+                      <path
+                        d="m9 18 6-6-6-6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </Link>
                 </div>
@@ -85,7 +93,7 @@ export function MegaMenu({ entry }: { entry: MegaMenuEntry }) {
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <div className="mt-5">
-                    <p className="text-sm font-semibold leading-snug text-[color:var(--rv-text)]">
+                    <p className="text-sm leading-snug font-semibold text-[color:var(--rv-text)]">
                       <Bi field={card.title} />
                     </p>
                     <p className="mt-2 text-[0.8125rem] leading-relaxed text-[color:var(--rv-muted)]">
@@ -95,8 +103,20 @@ export function MegaMenu({ entry }: { entry: MegaMenuEntry }) {
                   <div className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-[color:var(--rv-purple-strong)] opacity-0 transition-opacity duration-200 group-hover/card:opacity-100 group-focus-visible/card:opacity-100">
                     <span className="lang-ar">فتح</span>
                     <span className="lang-en">Open</span>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-                      <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      aria-hidden
+                    >
+                      <path
+                        d="m9 18 6-6-6-6"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
                 </Link>
@@ -106,19 +126,34 @@ export function MegaMenu({ entry }: { entry: MegaMenuEntry }) {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-[color:var(--rv-line)] bg-[var(--rv-card)] px-4 py-3 sm:px-5 sm:py-3.5">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#c9a26a]" aria-hidden />
+              <span
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#c9a26a]"
+                aria-hidden
+              />
               <p className="text-[0.8125rem] leading-relaxed text-[color:var(--rv-muted)]">
                 <Bi field={entry.summary} />
               </p>
             </div>
             <Link
               href={entry.href as Route}
-              className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-[color:var(--rv-purple-strong)] underline-offset-4 transition-colors duration-150 hover:text-[color:var(--rv-purple)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--rv-purple-strong)]"
+              className="flex shrink-0 items-center gap-1.5 text-sm font-semibold whitespace-nowrap text-[color:var(--rv-purple-strong)] underline-offset-4 transition-colors duration-150 hover:text-[color:var(--rv-purple)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--rv-purple-strong)]"
             >
               <span className="lang-ar">عرض الكل</span>
               <span className="lang-en">See all</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                aria-hidden
+              >
+                <path
+                  d="m9 18 6-6-6-6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </Link>
           </div>

@@ -39,25 +39,46 @@ export function DoctorEditorForm({
             <span className="lang-ar">الاسم</span>
             <span className="lang-en">Name</span>
           </span>
-          <input name="name" defaultValue={doctor.name} required className="admin-input" />
+          <input
+            name="name"
+            defaultValue={doctor.name}
+            required
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
-          <input name="slug" defaultValue={doctor.slug} required dir="ltr" className="admin-input font-mono" />
+          <input
+            name="slug"
+            defaultValue={doctor.slug}
+            required
+            dir="ltr"
+            className="admin-input font-mono"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">المسمى</span>
             <span className="lang-en">Title</span>
           </span>
-          <input name="title" defaultValue={doctor.title} required className="admin-input" />
+          <input
+            name="title"
+            defaultValue={doctor.title}
+            required
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">التخصص</span>
             <span className="lang-en">Specialty</span>
           </span>
-          <input name="specialty" defaultValue={doctor.specialty} required className="admin-input" />
+          <input
+            name="specialty"
+            defaultValue={doctor.specialty}
+            required
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -78,7 +99,12 @@ export function DoctorEditorForm({
             <span className="lang-ar">اللغات (CSV)</span>
             <span className="lang-en">Languages (CSV)</span>
           </span>
-          <input name="languages" defaultValue={doctor.languages.join(", ")} required className="admin-input" />
+          <input
+            name="languages"
+            defaultValue={doctor.languages.join(", ")}
+            required
+            className="admin-input"
+          />
         </label>
         <ImagePicker
           name="photoUrl"
@@ -107,24 +133,45 @@ export function DoctorEditorForm({
           <span className="lang-ar">ملخص</span>
           <span className="lang-en">Summary</span>
         </span>
-        <textarea name="summary" defaultValue={doctor.summary} rows={2} required className="admin-input" />
+        <textarea
+          name="summary"
+          defaultValue={doctor.summary}
+          rows={2}
+          required
+          className="admin-input"
+        />
       </label>
       <label className="grid gap-1">
         <span className="admin-field-label">
           <span className="lang-ar">السيرة</span>
           <span className="lang-en">Bio</span>
         </span>
-        <textarea name="bio" defaultValue={doctor.bio} rows={4} required className="admin-input" />
+        <textarea
+          name="bio"
+          defaultValue={doctor.bio}
+          rows={4}
+          required
+          className="admin-input"
+        />
       </label>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="admin-input flex items-center gap-3">
-          <input type="checkbox" name="featured" value="true" defaultChecked={doctor.featured} />
+          <input
+            type="checkbox"
+            name="featured"
+            value="true"
+            defaultChecked={doctor.featured}
+          />
           <span className="text-sm text-[color:var(--admin-text-soft)]">
             <span className="lang-ar">طبيب مميز</span>
             <span className="lang-en">Featured</span>
           </span>
         </label>
-        <select name="status" defaultValue={doctor.status} className="admin-input">
+        <select
+          name="status"
+          defaultValue={doctor.status}
+          className="admin-input"
+        >
           <option value="DRAFT">DRAFT</option>
           <option value="REVIEW">REVIEW</option>
           <option value="PUBLISHED">PUBLISHED</option>
@@ -132,7 +179,9 @@ export function DoctorEditorForm({
         </select>
       </div>
       {state.message ? (
-        <p className={`text-xs font-medium ${state.status === "success" ? "text-emerald" : "text-burgundy"}`}>
+        <p
+          className={`text-xs font-medium ${state.status === "success" ? "text-emerald" : "text-burgundy"}`}
+        >
           {state.message}
         </p>
       ) : null}

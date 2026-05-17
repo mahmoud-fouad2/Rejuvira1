@@ -30,7 +30,8 @@ export function MagneticCard({
 
   const onLeave = () => {
     if (ref.current) {
-      ref.current.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
+      ref.current.style.transform =
+        "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)";
     }
   };
 
@@ -40,7 +41,9 @@ export function MagneticCard({
       className={className}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      style={{ transition: "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)" }}
+      style={{
+        transition: "transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+      }}
     >
       {children}
     </div>

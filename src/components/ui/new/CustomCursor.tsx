@@ -15,8 +15,10 @@ export function CustomCursor() {
     const ring = ringRef.current;
     if (!cursor || !ring) return;
 
-    let mx = 0, my = 0;
-    let ringX = 0, ringY = 0;
+    let mx = 0,
+      my = 0;
+    let ringX = 0,
+      ringY = 0;
     let raf: number;
 
     const onMove = (e: PointerEvent) => {
@@ -61,8 +63,33 @@ export function CustomCursor() {
 
   return (
     <>
-      <div ref={cursorRef} className="pointer-events-none fixed left-0 top-0 z-[99999] hidden lg:block" style={{ width: 12, height: 12, borderRadius: "50%", background: "var(--gold)", transform: "translate(0, 0)", mixBlendMode: "difference", transition: "width 0.3s, height 0.3s, background 0.3s" }} />
-      <div ref={ringRef} className="pointer-events-none fixed left-0 top-0 z-[99998] hidden rounded-full lg:block" style={{ width: 40, height: 40, border: "1px solid var(--gold)", transform: "translate(0, 0)", transition: "width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s", marginLeft: -20, marginTop: -20 }} />
+      <div
+        ref={cursorRef}
+        className="pointer-events-none fixed top-0 left-0 z-[99999] hidden lg:block"
+        style={{
+          width: 12,
+          height: 12,
+          borderRadius: "50%",
+          background: "var(--gold)",
+          transform: "translate(0, 0)",
+          mixBlendMode: "difference",
+          transition: "width 0.3s, height 0.3s, background 0.3s",
+        }}
+      />
+      <div
+        ref={ringRef}
+        className="pointer-events-none fixed top-0 left-0 z-[99998] hidden rounded-full lg:block"
+        style={{
+          width: 40,
+          height: 40,
+          border: "1px solid var(--gold)",
+          transform: "translate(0, 0)",
+          transition:
+            "width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s",
+          marginLeft: -20,
+          marginTop: -20,
+        }}
+      />
     </>
   );
 }

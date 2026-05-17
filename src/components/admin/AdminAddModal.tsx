@@ -84,11 +84,7 @@ export function AdminAddModal({
                 tabIndex={-1}
                 onClick={() => setOpen(false)}
               />
-              <div
-                className="admin-modal__panel"
-                ref={dialogRef}
-                tabIndex={-1}
-              >
+              <div className="admin-modal__panel" ref={dialogRef} tabIndex={-1}>
                 <header className="admin-modal__header">
                   <div>
                     <h2 id={titleId} className="admin-modal__title">

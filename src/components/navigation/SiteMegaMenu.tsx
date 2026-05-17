@@ -135,7 +135,9 @@ export function SiteMegaMenu({
         setOpen(true);
       }}
       onBlur={(event) => {
-        if (!containerRef.current?.contains(event.relatedTarget as Node | null)) {
+        if (
+          !containerRef.current?.contains(event.relatedTarget as Node | null)
+        ) {
           scheduleClose();
         }
       }}
@@ -172,11 +174,19 @@ export function SiteMegaMenu({
               <span className="lang-en">Quick browse</span>
             </p>
             <p className="rv-mega-panel-title">
-              <span className="lang-ar">الخدمات، الأطباء، والأجهزة في مكان واحد</span>
-              <span className="lang-en">Services, doctors, and devices in one place</span>
+              <span className="lang-ar">
+                الخدمات، الأطباء، والأجهزة في مكان واحد
+              </span>
+              <span className="lang-en">
+                Services, doctors, and devices in one place
+              </span>
             </p>
           </div>
-          <Link href="/services" className="rv-mega-panel-all" onClick={() => setOpen(false)}>
+          <Link
+            href="/services"
+            className="rv-mega-panel-all"
+            onClick={() => setOpen(false)}
+          >
             <span className="lang-ar">كل الخدمات</span>
             <span className="lang-en">All services</span>
             <span aria-hidden>←</span>
@@ -184,7 +194,10 @@ export function SiteMegaMenu({
         </div>
         <div className="rv-mega-grid">
           {columns.map((column) => (
-            <div key={`${column.titleAr}-${column.titleEn}`} className="rv-mega-col">
+            <div
+              key={`${column.titleAr}-${column.titleEn}`}
+              className="rv-mega-col"
+            >
               <p className="rv-mega-col-title">
                 <span className="lang-ar">{column.titleAr}</span>
                 <span className="lang-en">{column.titleEn}</span>
@@ -230,15 +243,20 @@ export function SiteMegaMenu({
             </p>
             <div>
               <p className="rv-mega-feature-title">
-                <span className="lang-ar">خطة طبية واضحة تبدأ من تقييم دقيق للحالة</span>
-                <span className="lang-en">A clear plan begins with a careful assessment</span>
+                <span className="lang-ar">
+                  خطة طبية واضحة تبدأ من تقييم دقيق للحالة
+                </span>
+                <span className="lang-en">
+                  A clear plan begins with a careful assessment
+                </span>
               </p>
               <p className="rv-mega-feature-copy">
                 <span className="lang-ar">
                   أرسلي طلبك ليصلك تأكيد من فريق الاستقبال خلال ساعات العمل.
                 </span>
                 <span className="lang-en">
-                  Send a request and the front desk will confirm during business hours.
+                  Send a request and the front desk will confirm during business
+                  hours.
                 </span>
               </p>
             </div>

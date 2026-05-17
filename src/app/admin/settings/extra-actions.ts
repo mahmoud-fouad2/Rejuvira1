@@ -32,7 +32,8 @@ export async function saveOperationsAction(
   }
   await saveSettingsGroup("ops", {
     defaultTheme: parsed.data.defaultTheme,
-    themeToggleEnabled: parsed.data.themeToggleEnabled === "on" ? "true" : "false",
+    themeToggleEnabled:
+      parsed.data.themeToggleEnabled === "on" ? "true" : "false",
     recaptchaEnabled: parsed.data.recaptchaEnabled === "on" ? "true" : "false",
     maintenanceMode: parsed.data.maintenanceMode === "on" ? "true" : "false",
   });
@@ -75,7 +76,8 @@ export async function saveIntegrationsAction(
     chatbaseWidgetId: parsed.data.chatbaseWidgetId ?? "",
     customHeadCode: parsed.data.customHeadCode ?? "",
     customBodyCode: parsed.data.customBodyCode ?? "",
-    formWebhookEnabled: parsed.data.formWebhookEnabled === "on" ? "true" : "false",
+    formWebhookEnabled:
+      parsed.data.formWebhookEnabled === "on" ? "true" : "false",
     formWebhookUrl: parsed.data.formWebhookUrl ?? "",
     formWebhookSecret: parsed.data.formWebhookSecret ?? "",
   });
@@ -191,7 +193,8 @@ export async function saveSocialChannelsAction(
   const visibility: Record<string, string> = {};
   for (const key of SOCIAL_KEYS) {
     social[key] = String(formData.get(`social_${key}`) ?? "");
-    visibility[key] = formData.get(`visibility_${key}`) === "on" ? "true" : "false";
+    visibility[key] =
+      formData.get(`visibility_${key}`) === "on" ? "true" : "false";
   }
   await Promise.all([
     saveSettingsGroup("social", social),

@@ -20,7 +20,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getJournalPostBySlug(slug);
 
-  if (!post || (post.status ?? ContentStatus.PUBLISHED) !== ContentStatus.PUBLISHED) {
+  if (
+    !post ||
+    (post.status ?? ContentStatus.PUBLISHED) !== ContentStatus.PUBLISHED
+  ) {
     return {
       title: "المقال غير موجود",
     };
@@ -46,7 +49,10 @@ export default async function JournalDetailPage({
   const { slug } = await params;
   const post = await getJournalPostBySlug(slug);
 
-  if (!post || (post.status ?? ContentStatus.PUBLISHED) !== ContentStatus.PUBLISHED) {
+  if (
+    !post ||
+    (post.status ?? ContentStatus.PUBLISHED) !== ContentStatus.PUBLISHED
+  ) {
     notFound();
   }
 
@@ -108,7 +114,10 @@ export default async function JournalDetailPage({
           <article className="surface-panel rounded-[2.5rem] p-7 lg:p-10">
             <div className="grid gap-6">
               {post.body.map((paragraph) => {
-                const looksLikeHtml = /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div|strong|em|a)\b/i.test(paragraph);
+                const looksLikeHtml =
+                  /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div|strong|em|a)\b/i.test(
+                    paragraph,
+                  );
                 if (looksLikeHtml) {
                   return (
                     <div

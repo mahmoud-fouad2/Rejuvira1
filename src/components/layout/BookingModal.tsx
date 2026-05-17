@@ -44,7 +44,9 @@ export function BookingModal({
 }) {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [state, setState] = useState<"closed" | "opening" | "open" | "closing">("closed");
+  const [state, setState] = useState<"closed" | "opening" | "open" | "closing">(
+    "closed",
+  );
   const [mounted, setMounted] = useState(false);
   const titleId = useId();
 
@@ -102,11 +104,7 @@ export function BookingModal({
 
   return (
     <>
-      <button
-        type="button"
-        className={buttonClassName}
-        onClick={startOpen}
-      >
+      <button type="button" className={buttonClassName} onClick={startOpen}>
         <span className="lang-ar">
           {labelAr ?? (compactLabel ? "احجزي" : "احجزي موعدك")}
         </span>
@@ -194,10 +192,12 @@ export function BookingModal({
                 </div>
                 <h2 id={titleId} className="rv-booking-title">
                   <span className="lang-ar">
-                    احجزي موعدك بخطوات بسيطة، وسيتواصل معك فريق ريجوفيرا لتأكيد التفاصيل.
+                    احجزي موعدك بخطوات بسيطة، وسيتواصل معك فريق ريجوفيرا لتأكيد
+                    التفاصيل.
                   </span>
                   <span className="lang-en">
-                    Book in a few simple steps and our team will confirm the details.
+                    Book in a few simple steps and our team will confirm the
+                    details.
                   </span>
                 </h2>
                 <p className="rv-booking-lead">
@@ -205,7 +205,8 @@ export function BookingModal({
                     اكتبي الاسم ورقم الجوال واختاري الخدمة الأقرب لاحتياجك.
                   </span>
                   <span className="lang-en">
-                    Enter your name, phone number, and the service you are interested in.
+                    Enter your name, phone number, and the service you are
+                    interested in.
                   </span>
                 </p>
                 <ContactForm

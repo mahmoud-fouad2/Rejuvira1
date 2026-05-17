@@ -47,7 +47,10 @@ function badRequest(message: string, status = 400) {
 
 export async function POST(request: Request) {
   const session = await auth();
-  if (!session?.user?.role || !canAccessAdminRoute("/admin/media", session.user.role)) {
+  if (
+    !session?.user?.role ||
+    !canAccessAdminRoute("/admin/media", session.user.role)
+  ) {
     return NextResponse.json(
       { ok: false, error: "Unauthorized" },
       { status: 401 },
@@ -78,7 +81,9 @@ export async function POST(request: Request) {
   }
 
   const namespaceRaw = String(form.get("namespace") ?? "media/uploads");
-  const namespace = ALLOWED_NAMESPACES.includes(namespaceRaw as StorageNamespace)
+  const namespace = ALLOWED_NAMESPACES.includes(
+    namespaceRaw as StorageNamespace,
+  )
     ? (namespaceRaw as StorageNamespace)
     : "media/uploads";
 
@@ -92,7 +97,8 @@ export async function POST(request: Request) {
       `Unsupported content type: ${contentType}. Allowed: ${Array.from(ALLOWED_CONTENT_TYPES).join(", ")}`,
     );
   }
-  const maxBytes = contentType === "application/pdf" ? MAX_DOCUMENT_BYTES : MAX_IMAGE_BYTES;
+  const maxBytes =
+    contentType === "application/pdf" ? MAX_DOCUMENT_BYTES : MAX_IMAGE_BYTES;
   if (file.size > maxBytes) {
     return badRequest(
       `File too large (${file.size} bytes). Limit is ${maxBytes} bytes.`,
@@ -132,9 +138,6 @@ export async function POST(request: Request) {
       message: `Upload failed: ${message}`,
       meta: { namespace },
     });
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 },
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

@@ -11,7 +11,9 @@ const staticSrc = path.join(root, ".next", "static");
 const publicSrc = path.join(root, "public");
 
 if (!existsSync(standalone)) {
-  console.error("[sync-standalone] Missing .next/standalone — run `next build` first.");
+  console.error(
+    "[sync-standalone] Missing .next/standalone — run `next build` first.",
+  );
   process.exit(1);
 }
 
@@ -22,7 +24,9 @@ if (!existsSync(staticSrc)) {
 
 mkdirSync(path.join(standalone, ".next"), { recursive: true });
 
-cpSync(staticSrc, path.join(standalone, ".next", "static"), { recursive: true });
+cpSync(staticSrc, path.join(standalone, ".next", "static"), {
+  recursive: true,
+});
 cpSync(publicSrc, path.join(standalone, "public"), { recursive: true });
 
 console.log("[sync-standalone] public + .next/static → .next/standalone ✓");

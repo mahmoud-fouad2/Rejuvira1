@@ -10,10 +10,7 @@ import {
   saveSocialChannelsAction,
   type ExtraSettingsState,
 } from "@/app/admin/settings/extra-actions";
-import type {
-  RuntimeSettings,
-  SeoSettings,
-} from "@/lib/content-repository";
+import type { RuntimeSettings, SeoSettings } from "@/lib/content-repository";
 
 const initialState: ExtraSettingsState = { status: "idle", message: "" };
 
@@ -72,7 +69,7 @@ function OperationsCard({
   );
   return (
     <article className="surface-panel rounded-[1.85rem] p-6">
-      <p className="text-ink-faint text-[10px] font-semibold uppercase tracking-[0.22em]">
+      <p className="text-ink-faint text-[10px] font-semibold tracking-[0.22em] uppercase">
         تفضيلات العرض والحماية
       </p>
       <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -84,7 +81,9 @@ function OperationsCard({
       </p>
       <form action={formAction} className="mt-5 grid gap-4">
         <label className="grid gap-2 text-sm">
-          <span className="text-ink-strong font-semibold">المظهر الافتراضي</span>
+          <span className="text-ink-strong font-semibold">
+            المظهر الافتراضي
+          </span>
           <select
             name="defaultTheme"
             defaultValue={settings.ops.defaultTheme ?? "system"}
@@ -128,16 +127,16 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
   );
   return (
     <article className="surface-panel rounded-[1.85rem] p-6">
-      <p className="text-ink-faint text-[10px] font-semibold uppercase tracking-[0.22em]">
+      <p className="text-ink-faint text-[10px] font-semibold tracking-[0.22em] uppercase">
         التكاملات والأكواد
       </p>
       <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
         Chatbase، أكواد مؤقتة، و Webhook النماذج
       </h2>
       <p className="text-ink-soft mt-2 text-sm leading-7">
-        يمكنك إضافة Widget أو Google Tag أو أي كود مؤقت بدون تعديل ملفات المشروع.
-        الأكواد هنا تُحقن في الواجهة العامة فقط، والـ Webhook يستقبل كل طلب
-        حجز أو تواصل بعد تسجيله داخل CRM.
+        يمكنك إضافة Widget أو Google Tag أو أي كود مؤقت بدون تعديل ملفات
+        المشروع. الأكواد هنا تُحقن في الواجهة العامة فقط، والـ Webhook يستقبل كل
+        طلب حجز أو تواصل بعد تسجيله داخل CRM.
       </p>
       <form action={formAction} className="mt-5 grid gap-4 text-sm">
         <ToggleField
@@ -231,7 +230,7 @@ function ContactExtraCard({ settings }: { settings: RuntimeSettings }) {
   );
   return (
     <article className="surface-panel rounded-[1.85rem] p-6">
-      <p className="text-ink-faint text-[10px] font-semibold uppercase tracking-[0.22em]">
+      <p className="text-ink-faint text-[10px] font-semibold tracking-[0.22em] uppercase">
         صفحة التواصل والخرائط
       </p>
       <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -289,7 +288,11 @@ function ContactExtraCard({ settings }: { settings: RuntimeSettings }) {
             />
           </label>
         </div>
-        <SubmitMessage pending={pending} state={state} label="حفظ خريطة وعنوان التواصل" />
+        <SubmitMessage
+          pending={pending}
+          state={state}
+          label="حفظ خريطة وعنوان التواصل"
+        />
       </form>
     </article>
   );
@@ -304,7 +307,7 @@ function SeoCard({ settings }: { settings: RuntimeSettings }) {
   const seo = settings.seo[page];
   return (
     <article className="surface-panel rounded-[1.85rem] p-6">
-      <p className="text-ink-faint text-[10px] font-semibold uppercase tracking-[0.22em]">
+      <p className="text-ink-faint text-[10px] font-semibold tracking-[0.22em] uppercase">
         تحسين محركات البحث
       </p>
       <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
@@ -330,11 +333,7 @@ function SeoCard({ settings }: { settings: RuntimeSettings }) {
           </button>
         ))}
       </div>
-      <form
-        key={page}
-        action={formAction}
-        className="mt-5 grid gap-4 text-sm"
-      >
+      <form key={page} action={formAction} className="mt-5 grid gap-4 text-sm">
         <input type="hidden" name="page" value={page} />
         <div className="grid gap-3 md:grid-cols-2">
           <label className="grid gap-2">
@@ -411,7 +410,11 @@ function SeoCard({ settings }: { settings: RuntimeSettings }) {
             />
           </label>
         </div>
-        <SubmitMessage pending={pending} state={state} label="حفظ SEO لهذه الصفحة" />
+        <SubmitMessage
+          pending={pending}
+          state={state}
+          label="حفظ SEO لهذه الصفحة"
+        />
       </form>
     </article>
   );
@@ -424,27 +427,29 @@ function SocialChannelsCard({ settings }: { settings: RuntimeSettings }) {
   );
   return (
     <article className="surface-panel rounded-[1.85rem] p-6">
-      <p className="text-ink-faint text-[10px] font-semibold uppercase tracking-[0.22em]">
+      <p className="text-ink-faint text-[10px] font-semibold tracking-[0.22em] uppercase">
         التواصل الاجتماعي
       </p>
       <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
         قنوات التواصل وإظهار الأيقونات
       </h2>
       <p className="text-ink-soft mt-2 text-sm leading-7">
-        املأي الرابط الكامل لكل قناة. القنوات الفارغة لا تظهر للزوار. يمكن
-        أيضًا إخفاء قناة موجود رابطها من المربع المقابل.
+        املأي الرابط الكامل لكل قناة. القنوات الفارغة لا تظهر للزوار. يمكن أيضًا
+        إخفاء قناة موجود رابطها من المربع المقابل.
       </p>
       <form action={formAction} className="mt-5 grid gap-3 text-sm">
         {SOCIAL_CHANNELS.map((channel) => {
-          const url = (settings.social as Record<string, string>)[channel.key] ?? "";
-          const visible =
-            settings.socialVisibility[channel.key] !== false;
+          const url =
+            (settings.social as Record<string, string>)[channel.key] ?? "";
+          const visible = settings.socialVisibility[channel.key] !== false;
           return (
             <div
               key={channel.key}
               className="border-line bg-surface grid items-center gap-3 rounded-[1.4rem] border p-3 md:grid-cols-[1fr_2fr_auto]"
             >
-              <span className="text-ink-strong font-semibold">{channel.label}</span>
+              <span className="text-ink-strong font-semibold">
+                {channel.label}
+              </span>
               <input
                 name={`social_${channel.key}`}
                 defaultValue={url}
@@ -452,7 +457,7 @@ function SocialChannelsCard({ settings }: { settings: RuntimeSettings }) {
                 placeholder="https://..."
                 className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-3 py-2 text-xs outline-none"
               />
-              <label className="flex items-center gap-2 text-xs text-ink-soft">
+              <label className="text-ink-soft flex items-center gap-2 text-xs">
                 <input
                   type="checkbox"
                   name={`visibility_${channel.key}`}
@@ -464,7 +469,11 @@ function SocialChannelsCard({ settings }: { settings: RuntimeSettings }) {
             </div>
           );
         })}
-        <SubmitMessage pending={pending} state={state} label="حفظ قنوات التواصل" />
+        <SubmitMessage
+          pending={pending}
+          state={state}
+          label="حفظ قنوات التواصل"
+        />
       </form>
     </article>
   );

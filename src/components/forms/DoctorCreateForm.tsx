@@ -46,14 +46,25 @@ export function DoctorCreateForm({
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
-          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+          <input
+            name="slug"
+            required
+            dir="ltr"
+            className="admin-input font-mono"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">سنوات الخبرة</span>
             <span className="lang-en">Years</span>
           </span>
-          <input name="yearsExperience" type="number" min="0" required className="admin-input" />
+          <input
+            name="yearsExperience"
+            type="number"
+            min="0"
+            required
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -88,7 +99,12 @@ export function DoctorCreateForm({
             <span className="lang-ar">اللغات</span>
             <span className="lang-en">Languages (CSV)</span>
           </span>
-          <input name="languages" placeholder="العربية، الإنجليزية" required className="admin-input" />
+          <input
+            name="languages"
+            placeholder="العربية، الإنجليزية"
+            required
+            className="admin-input"
+          />
         </label>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -116,7 +132,13 @@ export function DoctorCreateForm({
           <span className="lang-ar">ملخص (عربي)</span>
           <span className="lang-en">Summary (Arabic)</span>
         </span>
-        <textarea name="summary" rows={2} required dir="rtl" className="admin-input" />
+        <textarea
+          name="summary"
+          rows={2}
+          required
+          dir="rtl"
+          className="admin-input"
+        />
       </label>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
@@ -124,7 +146,13 @@ export function DoctorCreateForm({
             <span className="lang-ar">السيرة (عربي)</span>
             <span className="lang-en">Bio (Arabic)</span>
           </span>
-          <textarea name="bio" rows={4} required dir="rtl" className="admin-input" />
+          <textarea
+            name="bio"
+            rows={4}
+            required
+            dir="rtl"
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -150,7 +178,9 @@ export function DoctorCreateForm({
         </select>
       </div>
       {state.message ? (
-        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+        <p
+          className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}
+        >
           {state.message}
         </p>
       ) : null}

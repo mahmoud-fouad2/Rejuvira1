@@ -64,19 +64,22 @@ export default async function AdminJournalPage() {
       value: ContentStatus.PUBLISHED,
       labelAr: "منشور",
       labelEn: "Published",
-      count: posts.filter((post) => post.status === ContentStatus.PUBLISHED).length,
+      count: posts.filter((post) => post.status === ContentStatus.PUBLISHED)
+        .length,
     },
     {
       value: ContentStatus.APPROVED,
       labelAr: "معتمد",
       labelEn: "Approved",
-      count: posts.filter((post) => post.status === ContentStatus.APPROVED).length,
+      count: posts.filter((post) => post.status === ContentStatus.APPROVED)
+        .length,
     },
     {
       value: ContentStatus.REVIEW,
       labelAr: "مراجعة",
       labelEn: "Review",
-      count: posts.filter((post) => post.status === ContentStatus.REVIEW).length,
+      count: posts.filter((post) => post.status === ContentStatus.REVIEW)
+        .length,
     },
     {
       value: ContentStatus.DRAFT,
@@ -137,11 +140,16 @@ export default async function AdminJournalPage() {
       </div>
 
       <AdminListControls targetId="admin-journal-list" tabs={tabs} />
-      <section className="admin-editor-grid" data-admin-list="admin-journal-list">
+      <section
+        className="admin-editor-grid"
+        data-admin-list="admin-journal-list"
+      >
         {posts.map((post) => {
           const currentStatus = post.status ?? ContentStatus.PUBLISHED;
           const relatedServiceNames = services
-            .filter((service) => post.relatedServiceSlugs.includes(service.slug))
+            .filter((service) =>
+              post.relatedServiceSlugs.includes(service.slug),
+            )
             .map((service) => service.name);
 
           return (
@@ -175,9 +183,7 @@ export default async function AdminJournalPage() {
                   <span className="admin-editor-card__kicker">
                     {post.category} · {post.readingTime}
                   </span>
-                  <span className="admin-editor-card__title">
-                    {post.title}
-                  </span>
+                  <span className="admin-editor-card__title">{post.title}</span>
                   <span className="admin-editor-card__excerpt">
                     {post.excerpt}
                   </span>

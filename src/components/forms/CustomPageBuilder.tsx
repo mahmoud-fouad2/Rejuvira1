@@ -184,9 +184,27 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
 };
 
 const templates: Array<{ label: string; blocks: BlockKind[] }> = [
-  { label: "صفحة خدمة", blocks: ["hero", "stats", "steps", "services", "doctors", "faq", "leadForm", "cta"] },
-  { label: "Lead page", blocks: ["hero", "offer", "testimonial", "gallery", "leadForm", "faq"] },
-  { label: "حملة حجز", blocks: ["hero", "text", "gallery", "leadForm", "contact", "faq"] },
+  {
+    label: "صفحة خدمة",
+    blocks: [
+      "hero",
+      "stats",
+      "steps",
+      "services",
+      "doctors",
+      "faq",
+      "leadForm",
+      "cta",
+    ],
+  },
+  {
+    label: "Lead page",
+    blocks: ["hero", "offer", "testimonial", "gallery", "leadForm", "faq"],
+  },
+  {
+    label: "حملة حجز",
+    blocks: ["hero", "text", "gallery", "leadForm", "contact", "faq"],
+  },
   { label: "تعريف طبي", blocks: ["hero", "text", "video", "services", "cta"] },
 ];
 
@@ -232,7 +250,9 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
   const title = escapeHtml(block.title);
   const subtitle = escapeHtml(block.subtitle || "");
   const body = block.body || "";
-  const image = escapeHtml(block.imageUrl || "/media/curated/clinic-treatment-room.jpeg");
+  const image = escapeHtml(
+    block.imageUrl || "/media/curated/clinic-treatment-room.jpeg",
+  );
   const buttonLabel = escapeHtml(block.buttonLabel || "احجزي موعدك");
   const buttonHref = escapeHtml(block.buttonHref || "/contact");
   const style = `style="--builder-accent:${accent}"`;
@@ -251,28 +271,40 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "stats") {
     const stats = parsePairs(body)
-      .map((item) => `<article><strong>${escapeHtml(item.body)}</strong><span>${escapeHtml(item.title)}</span></article>`)
+      .map(
+        (item) =>
+          `<article><strong>${escapeHtml(item.body)}</strong><span>${escapeHtml(item.title)}</span></article>`,
+      )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-stats")}" ${style}><h2>${title}</h2><div>${stats}</div></section>`;
   }
 
   if (block.kind === "services" || block.kind === "doctors") {
     const cards = parsePairs(body)
-      .map((item) => `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`)
+      .map(
+        (item) =>
+          `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`,
+      )
       .join("");
     return `<section class="${classes(block, `rv-builder-section rv-builder-${block.kind}`)}" ${style}><h2>${title}</h2><div>${cards}</div></section>`;
   }
 
   if (block.kind === "steps") {
     const steps = parsePairs(body)
-      .map((item, index) => `<article><span>${index + 1}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`)
+      .map(
+        (item, index) =>
+          `<article><span>${index + 1}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`,
+      )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-steps")}" ${style}><h2>${title}</h2><div>${steps}</div></section>`;
   }
 
   if (block.kind === "offer") {
     const perks = parsePairs(body)
-      .map((item) => `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span></li>`)
+      .map(
+        (item) =>
+          `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span></li>`,
+      )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-offer")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2><ul>${perks}</ul></div><a href="${buttonHref}">${buttonLabel}</a></section>`;
   }
@@ -297,14 +329,20 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "faq") {
     const faqs = parsePairs(body)
-      .map((item) => `<details><summary>${escapeHtml(item.title)}</summary><p>${escapeHtml(item.body)}</p></details>`)
+      .map(
+        (item) =>
+          `<details><summary>${escapeHtml(item.title)}</summary><p>${escapeHtml(item.body)}</p></details>`,
+      )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-faq")}" ${style}><h2>${title}</h2><div>${faqs}</div></section>`;
   }
 
   if (block.kind === "contact") {
     const rows = parsePairs(body)
-      .map((item) => `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span></li>`)
+      .map(
+        (item) =>
+          `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span></li>`,
+      )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-contact")}" ${style}><h2>${title}</h2><ul>${rows}</ul><a href="${buttonHref}">${buttonLabel}</a></section>`;
   }
@@ -318,14 +356,18 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     const disabled = mode === "preview" ? " disabled" : "";
     const required = mode === "preview" ? "" : " required";
     const controls =
-      (mode === "preview" ? "" : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">`) +
+      (mode === "preview"
+        ? ""
+        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
       `<label><span>تاريخ الموعد المفضل</span><input name="preferredDate" type="date"${disabled}></label>` +
       `<label><span>الوقت المفضل</span><input name="preferredTime" type="time" step="900"${disabled}></label>` +
       `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${disabled} placeholder="name@example.com"></label>` +
       `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو الموعد المناسب"></textarea></label>` +
-      (mode === "preview" ? "" : `<input type="hidden" name="appointmentNotes" value="Landing page appointment request">`) +
+      (mode === "preview"
+        ? ""
+        : `<input type="hidden" name="appointmentNotes" value="Landing page appointment request">`) +
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
     return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
   }
@@ -351,8 +393,12 @@ function initialBlocks(html?: string): BuilderBlock[] {
     const encoded = html.match(/data-blocks="([^"]+)"/)?.[1];
     if (encoded) {
       try {
-        const parsed = JSON.parse(decodeURIComponent(encoded)) as BuilderBlock[];
-        const valid = parsed.filter((block) => block.id && block.kind && block.title);
+        const parsed = JSON.parse(
+          decodeURIComponent(encoded),
+        ) as BuilderBlock[];
+        const valid = parsed.filter(
+          (block) => block.id && block.kind && block.title,
+        );
         if (valid.length) return valid;
       } catch {
         return createTemplate(["hero", "text", "cta"]);
@@ -369,7 +415,15 @@ function initialBlocks(html?: string): BuilderBlock[] {
       },
     ];
   }
-  return createTemplate(["hero", "stats", "steps", "services", "faq", "leadForm", "cta"]);
+  return createTemplate([
+    "hero",
+    "stats",
+    "steps",
+    "services",
+    "faq",
+    "leadForm",
+    "cta",
+  ]);
 }
 
 export function CustomPageBuilder({
@@ -379,7 +433,9 @@ export function CustomPageBuilder({
   name: string;
   defaultValue?: string;
 }) {
-  const [blocks, setBlocks] = useState<BuilderBlock[]>(() => initialBlocks(defaultValue));
+  const [blocks, setBlocks] = useState<BuilderBlock[]>(() =>
+    initialBlocks(defaultValue),
+  );
   const [selectedId, setSelectedId] = useState(blocks[0]?.id ?? "");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
@@ -401,7 +457,9 @@ export function CustomPageBuilder({
 
   function update(id: string, patch: Partial<BuilderBlock>) {
     setBlocks((current) =>
-      current.map((block) => (block.id === id ? { ...block, ...patch } : block)),
+      current.map((block) =>
+        block.id === id ? { ...block, ...patch } : block,
+      ),
     );
   }
 
@@ -474,7 +532,11 @@ export function CustomPageBuilder({
         <div className="pagecraft-panel__header">العناصر</div>
         <div className="pagecraft-elements">
           {blockLibrary.map((item) => (
-            <button key={item.kind} type="button" onClick={() => add(item.kind)}>
+            <button
+              key={item.kind}
+              type="button"
+              onClick={() => add(item.kind)}
+            >
               <strong>{item.label}</strong>
               <span>{item.hint}</span>
             </button>
@@ -519,7 +581,11 @@ export function CustomPageBuilder({
                 className={`pagecraft-block ${selectedId === block.id ? "is-selected" : ""}`}
               >
                 <div className="pagecraft-block__tools">
-                  <button type="button" onClick={() => move(block.id, -1)} disabled={index === 0}>
+                  <button
+                    type="button"
+                    onClick={() => move(block.id, -1)}
+                    disabled={index === 0}
+                  >
                     ↑
                   </button>
                   <button
@@ -536,7 +602,11 @@ export function CustomPageBuilder({
                     حذف
                   </button>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: renderBlock(block, "preview") }} />
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: renderBlock(block, "preview"),
+                  }}
+                />
               </section>
             ))}
           </div>
@@ -551,14 +621,18 @@ export function CustomPageBuilder({
               <span>العنوان</span>
               <input
                 value={selected.title}
-                onChange={(event) => update(selected.id, { title: event.target.value })}
+                onChange={(event) =>
+                  update(selected.id, { title: event.target.value })
+                }
               />
             </label>
             <label>
               <span>وصف قصير</span>
               <input
                 value={selected.subtitle ?? ""}
-                onChange={(event) => update(selected.id, { subtitle: event.target.value })}
+                onChange={(event) =>
+                  update(selected.id, { subtitle: event.target.value })
+                }
               />
             </label>
             <label>
@@ -577,12 +651,29 @@ export function CustomPageBuilder({
               </span>
               <textarea
                 value={selected.body ?? ""}
-                rows={["services", "doctors", "stats", "gallery", "faq", "steps", "offer", "contact"].includes(selected.kind) ? 8 : 5}
-                onChange={(event) => update(selected.id, { body: event.target.value })}
+                rows={
+                  [
+                    "services",
+                    "doctors",
+                    "stats",
+                    "gallery",
+                    "faq",
+                    "steps",
+                    "offer",
+                    "contact",
+                  ].includes(selected.kind)
+                    ? 8
+                    : 5
+                }
+                onChange={(event) =>
+                  update(selected.id, { body: event.target.value })
+                }
               />
             </label>
 
-            {selected.kind === "hero" || selected.kind === "image" || selected.kind === "video" ? (
+            {selected.kind === "hero" ||
+            selected.kind === "image" ||
+            selected.kind === "video" ? (
               <ImagePicker
                 name={`builder-${selected.id}-image`}
                 label="الصورة"
@@ -604,7 +695,9 @@ export function CustomPageBuilder({
                   <span>نص الزر</span>
                   <input
                     value={selected.buttonLabel ?? ""}
-                    onChange={(event) => update(selected.id, { buttonLabel: event.target.value })}
+                    onChange={(event) =>
+                      update(selected.id, { buttonLabel: event.target.value })
+                    }
                   />
                 </label>
                 <label>
@@ -612,7 +705,9 @@ export function CustomPageBuilder({
                   <input
                     dir="ltr"
                     value={selected.buttonHref ?? ""}
-                    onChange={(event) => update(selected.id, { buttonHref: event.target.value })}
+                    onChange={(event) =>
+                      update(selected.id, { buttonHref: event.target.value })
+                    }
                   />
                 </label>
               </div>
@@ -623,7 +718,9 @@ export function CustomPageBuilder({
                 <button
                   key={align}
                   type="button"
-                  className={(selected.align ?? "right") === align ? "is-active" : ""}
+                  className={
+                    (selected.align ?? "right") === align ? "is-active" : ""
+                  }
                   onClick={() => update(selected.id, { align })}
                 >
                   {align}
@@ -635,7 +732,9 @@ export function CustomPageBuilder({
                 <button
                   key={tone}
                   type="button"
-                  className={(selected.tone ?? "light") === tone ? "is-active" : ""}
+                  className={
+                    (selected.tone ?? "light") === tone ? "is-active" : ""
+                  }
                   onClick={() => update(selected.id, { tone })}
                 >
                   {tone}
@@ -648,7 +747,9 @@ export function CustomPageBuilder({
               <input
                 type="color"
                 value={selected.accent ?? "#4a2476"}
-                onChange={(event) => update(selected.id, { accent: event.target.value })}
+                onChange={(event) =>
+                  update(selected.id, { accent: event.target.value })
+                }
               />
             </label>
           </div>

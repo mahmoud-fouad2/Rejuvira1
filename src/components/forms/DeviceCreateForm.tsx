@@ -48,7 +48,12 @@ export function DeviceCreateForm({
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
-          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+          <input
+            name="slug"
+            required
+            dir="ltr"
+            className="admin-input font-mono"
+          />
         </label>
         <ImagePicker
           name="imageUrl"
@@ -79,14 +84,25 @@ export function DeviceCreateForm({
             <span className="lang-ar">الوصف (عربي)</span>
             <span className="lang-en">Description (Arabic)</span>
           </span>
-          <textarea name="description" rows={4} required dir="rtl" className="admin-input" />
+          <textarea
+            name="description"
+            rows={4}
+            required
+            dir="rtl"
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">الوصف (إنجليزي)</span>
             <span className="lang-en">Description (English)</span>
           </span>
-          <textarea name="descriptionEn" rows={4} dir="ltr" className="admin-input" />
+          <textarea
+            name="descriptionEn"
+            rows={4}
+            dir="ltr"
+            className="admin-input"
+          />
         </label>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -104,7 +120,9 @@ export function DeviceCreateForm({
         />
       </div>
       {state.message ? (
-        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+        <p
+          className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}
+        >
           {state.message}
         </p>
       ) : null}

@@ -36,11 +36,31 @@ function detectInitialLang(url: string | null, cookieLang: string | undefined) {
 /* ── Local IBM Plex Sans Arabic (body) ──────────────────── */
 const rejuviraSans = localFont({
   src: [
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-Light.woff2", weight: "300", style: "normal" },
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-SemiBold.woff2", weight: "600", style: "normal" },
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-Bold.woff2", weight: "700", style: "normal" },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
   ],
   variable: "--font-rejuvira-sans",
   display: "swap",
@@ -48,9 +68,21 @@ const rejuviraSans = localFont({
 
 const rejuviraDisplay = localFont({
   src: [
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-SemiBold.woff2", weight: "600", style: "normal" },
-    { path: "../../public/assets/fonts/IBMPlexSansArabic-Bold.woff2", weight: "700", style: "normal" },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-SemiBold.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "../../public/assets/fonts/IBMPlexSansArabic-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
   ],
   variable: "--font-rejuvira-display",
   display: "swap",
@@ -83,7 +115,9 @@ export async function generateMetadata(): Promise<Metadata> {
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
         { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       ],
-      apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+      apple: [
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      ],
       shortcut: "/favicon.ico",
     },
     openGraph: {
@@ -116,11 +150,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const runtimeSettings = await getRuntimeSettings();
   const headerStore = await headers();
   const cookieStore = await cookies();
-  const pathname = headerStore.get("x-pathname") ?? headerStore.get("x-invoke-path") ?? "/";
+  const pathname =
+    headerStore.get("x-pathname") ?? headerStore.get("x-invoke-path") ?? "/";
   const url = headerStore.get("x-url");
   const cookieLang = cookieStore.get("rejuvira-lang")?.value;
   const initialLang = detectInitialLang(url, cookieLang);

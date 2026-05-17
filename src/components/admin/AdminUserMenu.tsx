@@ -82,7 +82,10 @@ export function AdminUserMenu({ name, email, roleLabel }: AdminUserMenuProps) {
       {open ? (
         <div className="admin-user-menu__panel" role="menu">
           <div className="admin-user-menu__header">
-            <span className="admin-user-menu__avatar admin-user-menu__avatar--lg" aria-hidden>
+            <span
+              className="admin-user-menu__avatar admin-user-menu__avatar--lg"
+              aria-hidden
+            >
               {initials}
             </span>
             <span className="admin-user-menu__header-info">

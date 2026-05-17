@@ -85,8 +85,12 @@ export async function createServiceAction(
       excerpt: parsed.data.excerpt,
       ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
       description: parsed.data.description,
-      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
-      ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
+      ...(parsed.data.descriptionEn
+        ? { descriptionEn: parsed.data.descriptionEn }
+        : {}),
+      ...(parsed.data.coverImageUrl
+        ? { coverImageUrl: parsed.data.coverImageUrl }
+        : {}),
     });
 
     revalidate();
@@ -133,12 +137,16 @@ export async function updateServiceAction(
       excerpt: parsed.data.excerpt,
       ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
       description: parsed.data.description,
-      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      ...(parsed.data.descriptionEn
+        ? { descriptionEn: parsed.data.descriptionEn }
+        : {}),
       status: parsed.data.status,
       featured: parsed.data.featured,
       doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
       deviceSlugs: parseSlugList(formData.get("deviceSlugs")),
-      ...(parsed.data.coverImageUrl ? { coverImageUrl: parsed.data.coverImageUrl } : {}),
+      ...(parsed.data.coverImageUrl
+        ? { coverImageUrl: parsed.data.coverImageUrl }
+        : {}),
     });
 
     revalidate();

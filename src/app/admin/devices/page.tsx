@@ -14,11 +14,19 @@ import { getDevices, getServices } from "@/lib/content-repository";
 function statusMeta(status: ContentStatus) {
   switch (status) {
     case ContentStatus.PUBLISHED:
-      return { className: "is-published", labelAr: "منشور", labelEn: "Published" };
+      return {
+        className: "is-published",
+        labelAr: "منشور",
+        labelEn: "Published",
+      };
     case ContentStatus.REVIEW:
       return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
     case ContentStatus.ARCHIVED:
-      return { className: "is-archived", labelAr: "مؤرشف", labelEn: "Archived" };
+      return {
+        className: "is-archived",
+        labelAr: "مؤرشف",
+        labelEn: "Archived",
+      };
     default:
       return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
   }
@@ -37,19 +45,23 @@ export default async function AdminDevicesPage() {
       value: ContentStatus.PUBLISHED,
       labelAr: "منشور",
       labelEn: "Published",
-      count: devices.filter((device) => device.status === ContentStatus.PUBLISHED).length,
+      count: devices.filter(
+        (device) => device.status === ContentStatus.PUBLISHED,
+      ).length,
     },
     {
       value: ContentStatus.REVIEW,
       labelAr: "مراجعة",
       labelEn: "Review",
-      count: devices.filter((device) => device.status === ContentStatus.REVIEW).length,
+      count: devices.filter((device) => device.status === ContentStatus.REVIEW)
+        .length,
     },
     {
       value: ContentStatus.DRAFT,
       labelAr: "مسودة",
       labelEn: "Draft",
-      count: devices.filter((device) => device.status === ContentStatus.DRAFT).length,
+      count: devices.filter((device) => device.status === ContentStatus.DRAFT)
+        .length,
     },
   ];
 
@@ -110,11 +122,22 @@ export default async function AdminDevicesPage() {
                     .join(" ")}
                 >
                   <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
-                    <div className="relative h-12 w-14 overflow-hidden rounded-lg" style={{ background: "var(--admin-panel-soft)" }}>
-                      <Image src={device.imageUrl} alt={device.name} fill className="object-cover" sizes="56px" />
+                    <div
+                      className="relative h-12 w-14 overflow-hidden rounded-lg"
+                      style={{ background: "var(--admin-panel-soft)" }}
+                    >
+                      <Image
+                        src={device.imageUrl}
+                        alt={device.name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
                     </div>
                     <div className="min-w-0">
-                      <p className="admin-data-row__title truncate">{device.name}</p>
+                      <p className="admin-data-row__title truncate">
+                        {device.name}
+                      </p>
                       <p className="admin-data-row__meta truncate">
                         {device.certifications.join(" • ")}
                       </p>
@@ -125,7 +148,10 @@ export default async function AdminDevicesPage() {
                     </span>
                   </summary>
 
-                  <div className="mt-4 grid gap-4 border-t pt-4" style={{ borderColor: "var(--admin-border)" }}>
+                  <div
+                    className="mt-4 grid gap-4 border-t pt-4"
+                    style={{ borderColor: "var(--admin-border)" }}
+                  >
                     <DeviceEditorForm
                       device={{
                         id: device.id,

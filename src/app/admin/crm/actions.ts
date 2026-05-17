@@ -67,7 +67,7 @@ export async function updateCrmSubmissionAction(
     assignedToId: formData.get("assignedToId"),
     tags: formData.getAll("tags").length
       ? (formData.getAll("tags") as string[]).join(",")
-      : (formData.get("tagsCsv") as string | null) ?? undefined,
+      : ((formData.get("tagsCsv") as string | null) ?? undefined),
   });
 
   if (!parsed.success) {

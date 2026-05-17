@@ -16,7 +16,8 @@ const textMap: Record<string, string> = {
   "+ إضافة حالة جديدة": "+ Add a new case",
   "تعديل البيانات": "Edit details",
   "لا توجد حالات بعد.": "No cases yet.",
-  "استخدم النموذج أعلاه لإضافة أول حالة.": "Use the form above to add your first case.",
+  "استخدم النموذج أعلاه لإضافة أول حالة.":
+    "Use the form above to add your first case.",
   "حالة منشورة": "Published",
   حذف: "Delete",
   "هل أنت متأكد من الحذف؟": "Are you sure you want to delete?",
@@ -47,7 +48,10 @@ function translateTextNodes(root: ParentNode, lang: "ar" | "en") {
     if (!parent) continue;
     if (parent.closest(SKIP_ANCESTOR)) continue;
     // Skip pre-bilingual spans entirely; they are managed by CSS.
-    if (parent.classList.contains("lang-ar") || parent.classList.contains("lang-en"))
+    if (
+      parent.classList.contains("lang-ar") ||
+      parent.classList.contains("lang-en")
+    )
       continue;
 
     const stored = originalByNode.get(node);
@@ -60,7 +64,9 @@ function translateTextNodes(root: ParentNode, lang: "ar" | "en") {
 
     const target =
       lang === "en"
-        ? (textMap[trimmed] ? original.replace(trimmed, textMap[trimmed]!) : original)
+        ? textMap[trimmed]
+          ? original.replace(trimmed, textMap[trimmed]!)
+          : original
         : original;
 
     if (node.textContent !== target) {
@@ -74,7 +80,8 @@ const placeholderMap: Record<string, string> = {
   "مثال: تجديد البشرة": "Example: skin renewal",
   "وصف مختصر للحالة والنتيجة...": "Short description of case and outcome...",
   "قبل علاج تصبغات الوجه - مريضة": "Before pigmentation treatment - patient",
-  "بعد علاج تصبغات الوجه - نتيجة واضحة": "After pigmentation treatment - clear result",
+  "بعد علاج تصبغات الوجه - نتيجة واضحة":
+    "After pigmentation treatment - clear result",
 };
 
 const originalAttrByElement = new WeakMap<
@@ -99,7 +106,9 @@ function translateAttributes(root: ParentNode, lang: "ar" | "en") {
       const original = bag[attr]!;
       const desired =
         lang === "en"
-          ? (placeholderMap[original] ?? textMap[normalize(original)] ?? original)
+          ? (placeholderMap[original] ??
+            textMap[normalize(original)] ??
+            original)
           : original;
       if (value !== desired) element.setAttribute(attr, desired);
     }
@@ -136,7 +145,11 @@ export function AdminLanguageBridge() {
 
     apply();
     const observer = new MutationObserver(schedule);
-    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
 
     const htmlObserver = new MutationObserver(schedule);
     htmlObserver.observe(document.documentElement, {

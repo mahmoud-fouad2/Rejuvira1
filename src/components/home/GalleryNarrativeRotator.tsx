@@ -120,7 +120,9 @@ export function GalleryNarrativeRotator({
           </Link>
           <Link href="/contact" className="btn-secondary">
             <span className="lang-ar">اطلبي استشارة مرتبطة بهذه الحالة</span>
-            <span className="lang-en">Request a Consultation for This Case</span>
+            <span className="lang-en">
+              Request a Consultation for This Case
+            </span>
           </Link>
         </div>
       </article>

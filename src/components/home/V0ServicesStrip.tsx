@@ -19,13 +19,29 @@ type Props = {
 function ArrowIcon({ dir = "right" }: { dir?: "left" | "right" }) {
   if (dir === "left") {
     return (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden
+      >
         <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -35,7 +51,12 @@ function ArrowIcon({ dir = "right" }: { dir?: "left" | "right" }) {
  * V0ServicesStrip — calm snap carousel replacing the marquee; keyboard + dots,
  * paused on hover/focus/hidden-tab, prefers-reduced-motion aware.
  */
-export function V0ServicesStrip({ services, eyebrow, title, description }: Props) {
+export function V0ServicesStrip({
+  services,
+  eyebrow,
+  title,
+  description,
+}: Props) {
   const { lang } = useLanguage();
   const slides = services;
   const {
@@ -90,8 +111,15 @@ export function V0ServicesStrip({ services, eyebrow, title, description }: Props
         >
           <ul className="rv-strip-track">
             {slides.map((service, i) => (
-              <li key={`${service.id}-${i}`} className="rv-strip-slide" {...slideProps(i)}>
-                <Link href={(`/services/${service.slug}`) as Route} className="rv-strip-card">
+              <li
+                key={`${service.id}-${i}`}
+                className="rv-strip-slide"
+                {...slideProps(i)}
+              >
+                <Link
+                  href={`/services/${service.slug}` as Route}
+                  className="rv-strip-card"
+                >
                   <span className="rv-strip-image">
                     <Image
                       src={service.coverImageUrl}
@@ -123,7 +151,11 @@ export function V0ServicesStrip({ services, eyebrow, title, description }: Props
         </button>
       </div>
 
-      <div className="rv-strip-dots" role="tablist" aria-label={lang === "en" ? "Choose service card" : "اختيار البطاقة"}>
+      <div
+        className="rv-strip-dots"
+        role="tablist"
+        aria-label={lang === "en" ? "Choose service card" : "اختيار البطاقة"}
+      >
         {slides.map((service, i) => (
           <button
             key={`${service.id}-dot`}
@@ -131,7 +163,9 @@ export function V0ServicesStrip({ services, eyebrow, title, description }: Props
             role="tab"
             aria-selected={i === index}
             className={i === index ? "is-active" : ""}
-            aria-label={lang === "en" ? `${service.name} card` : `بطاقة ${service.name}`}
+            aria-label={
+              lang === "en" ? `${service.name} card` : `بطاقة ${service.name}`
+            }
             onClick={() => scrollTo(i)}
           />
         ))}

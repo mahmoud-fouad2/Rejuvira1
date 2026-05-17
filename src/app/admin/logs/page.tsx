@@ -26,9 +26,12 @@ const LEVEL_LABELS: Record<AppLogLevel | "all", { ar: string; en: string }> = {
   debug: { ar: "تشخيص", en: "Debug" },
 };
 
-export default async function AdminLogsPage(props: { searchParams: SearchParams }) {
+export default async function AdminLogsPage(props: {
+  searchParams: SearchParams;
+}) {
   const searchParams = await props.searchParams;
-  const level = (searchParams.level as AppLogLevel | "all" | undefined) ?? "all";
+  const level =
+    (searchParams.level as AppLogLevel | "all" | undefined) ?? "all";
   const kind = searchParams.kind ?? "all";
   const cursor = searchParams.cursor;
   const size = Math.min(Math.max(Number(searchParams.size ?? 50), 10), 200);
@@ -60,8 +63,12 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
             <span className="lang-en">Logs</span>
           </h1>
           <p>
-            <span className="lang-ar">سجل التطبيق وأخطاء النظام وسجل العمليات الإدارية.</span>
-            <span className="lang-en">Application, error and admin audit logs.</span>
+            <span className="lang-ar">
+              سجل التطبيق وأخطاء النظام وسجل العمليات الإدارية.
+            </span>
+            <span className="lang-en">
+              Application, error and admin audit logs.
+            </span>
           </p>
         </div>
         <div className="admin-page-header__actions">
@@ -96,7 +103,9 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
                 <span className="lang-en">Level</span>
               </span>
               <select name="level" defaultValue={level} className="admin-input">
-                {(Object.keys(LEVEL_LABELS) as Array<keyof typeof LEVEL_LABELS>).map((k) => (
+                {(
+                  Object.keys(LEVEL_LABELS) as Array<keyof typeof LEVEL_LABELS>
+                ).map((k) => (
                   <option key={k} value={k}>
                     {LEVEL_LABELS[k].ar} / {LEVEL_LABELS[k].en}
                   </option>
@@ -121,7 +130,11 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
                 <span className="lang-ar">عدد الأسطر</span>
                 <span className="lang-en">Page size</span>
               </span>
-              <select name="size" defaultValue={String(size)} className="admin-input">
+              <select
+                name="size"
+                defaultValue={String(size)}
+                className="admin-input"
+              >
                 {["25", "50", "100", "200"].map((v) => (
                   <option key={v} value={v}>
                     {v}
@@ -205,22 +218,38 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
                     >
                       {log.level}
                     </span>
-                    <span className="text-sm font-semibold text-[color:var(--admin-text)]">{log.kind}</span>
+                    <span className="text-sm font-semibold text-[color:var(--admin-text)]">
+                      {log.kind}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-[color:var(--admin-text-faint)]">{log.createdAt}</span>
+                    <span className="text-xs text-[color:var(--admin-text-faint)]">
+                      {log.createdAt}
+                    </span>
                     <form action={deleteAppLogAction}>
                       <input type="hidden" name="id" value={log.id} />
-                      <button type="submit" className="admin-btn-danger text-xs" aria-label="Delete entry">
+                      <button
+                        type="submit"
+                        className="admin-btn-danger text-xs"
+                        aria-label="Delete entry"
+                      >
                         <span className="lang-ar">حذف</span>
                         <span className="lang-en">Delete</span>
                       </button>
                     </form>
                   </div>
                 </div>
-                <p className="mt-2 text-sm text-[color:var(--admin-text-soft)]">{log.message}</p>
+                <p className="mt-2 text-sm text-[color:var(--admin-text-soft)]">
+                  {log.message}
+                </p>
                 {log.meta ? (
-                  <pre className="mt-2 max-h-32 overflow-auto rounded-lg p-2 text-[11px] leading-5" style={{ background: "var(--admin-panel-soft)", color: "var(--admin-text-faint)" }}>
+                  <pre
+                    className="mt-2 max-h-32 overflow-auto rounded-lg p-2 text-[11px] leading-5"
+                    style={{
+                      background: "var(--admin-panel-soft)",
+                      color: "var(--admin-text-faint)",
+                    }}
+                  >
                     {JSON.stringify(log.meta, null, 2)}
                   </pre>
                 ) : null}
@@ -268,9 +297,14 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
               <div key={log.id} className="admin-data-row !block">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-semibold text-[color:var(--admin-text)]">
-                    {log.route} <span className="text-[color:var(--admin-text-faint)]">HTTP {log.statusCode}</span>
+                    {log.route}{" "}
+                    <span className="text-[color:var(--admin-text-faint)]">
+                      HTTP {log.statusCode}
+                    </span>
                   </p>
-                  <span className={`admin-status-badge ${log.isResolved ? "is-published" : "is-draft"}`}>
+                  <span
+                    className={`admin-status-badge ${log.isResolved ? "is-published" : "is-draft"}`}
+                  >
                     {log.isResolved ? (
                       <>
                         <span className="lang-ar">معالج</span>
@@ -284,12 +318,20 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
                     )}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-[color:var(--admin-text-soft)]">{log.message}</p>
-                <p className="mt-1 text-xs text-[color:var(--admin-text-faint)]">{log.createdAt}</p>
+                <p className="mt-2 text-sm text-[color:var(--admin-text-soft)]">
+                  {log.message}
+                </p>
+                <p className="mt-1 text-xs text-[color:var(--admin-text-faint)]">
+                  {log.createdAt}
+                </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <form action={toggleErrorLogResolutionAction}>
                     <input type="hidden" name="logId" value={log.id} />
-                    <input type="hidden" name="nextValue" value={log.isResolved ? "false" : "true"} />
+                    <input
+                      type="hidden"
+                      name="nextValue"
+                      value={log.isResolved ? "false" : "true"}
+                    />
                     <button type="submit" className="admin-btn-secondary">
                       {log.isResolved ? (
                         <>
@@ -345,7 +387,9 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
               <div key={row.id} className="admin-data-row !block">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="admin-status-badge is-review">{row.action}</span>
+                    <span className="admin-status-badge is-review">
+                      {row.action}
+                    </span>
                     <span className="text-sm font-semibold text-[color:var(--admin-text)]">
                       {row.entityType}
                       {row.entityId ? (
@@ -356,11 +400,18 @@ export default async function AdminLogsPage(props: { searchParams: SearchParams 
                     </span>
                   </div>
                   <span className="text-xs text-[color:var(--admin-text-faint)]">
-                    {row.actorName ?? row.actorUserId.slice(0, 8)} · {row.createdAt}
+                    {row.actorName ?? row.actorUserId.slice(0, 8)} ·{" "}
+                    {row.createdAt}
                   </span>
                 </div>
                 {row.metadata ? (
-                  <pre className="mt-2 max-h-32 overflow-auto rounded-lg p-2 text-[11px] leading-5" style={{ background: "var(--admin-panel-soft)", color: "var(--admin-text-faint)" }}>
+                  <pre
+                    className="mt-2 max-h-32 overflow-auto rounded-lg p-2 text-[11px] leading-5"
+                    style={{
+                      background: "var(--admin-panel-soft)",
+                      color: "var(--admin-text-faint)",
+                    }}
+                  >
                     {JSON.stringify(row.metadata, null, 2)}
                   </pre>
                 ) : null}

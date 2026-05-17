@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
-import { getRuntimeSettings, type SeoPageDefaults, type SeoSettings } from "@/lib/content-repository";
+import {
+  getRuntimeSettings,
+  type SeoPageDefaults,
+  type SeoSettings,
+} from "@/lib/content-repository";
 
 export type SeoPageKey = keyof SeoSettings;
 
@@ -59,7 +63,8 @@ export async function buildPageMetadata(
   const title = `${titleAr} — ${titleEn}`;
   const description = `${descAr} ${descEn}`.trim();
   const canonicalUrl = getCanonicalPath(input.path);
-  const ogImage = input.ogImage ?? settings.media.ogImage ?? "/media/og/og-default.png";
+  const ogImage =
+    input.ogImage ?? settings.media.ogImage ?? "/media/og/og-default.png";
 
   return {
     metadataBase: new URL(getSiteUrl()),
@@ -127,7 +132,9 @@ export function buildLocalBusinessJsonLd(settings: {
 }) {
   const baseUrl = getSiteUrl();
   const sameAs = settings.social
-    ? Object.values(settings.social).filter((url) => url && /^https?:\/\//.test(url))
+    ? Object.values(settings.social).filter(
+        (url) => url && /^https?:\/\//.test(url),
+      )
     : [];
   return {
     "@context": "https://schema.org",
@@ -158,15 +165,18 @@ export function buildLocalBusinessJsonLd(settings: {
         "Riyadh, Saudi Arabia",
     },
     areaServed: ["SA", { "@type": "City", name: "Riyadh" }],
-    medicalSpecialty: [
-      "Dermatology",
-      "PlasticSurgery",
-      "Aesthetic Medicine",
-    ],
+    medicalSpecialty: ["Dermatology", "PlasticSurgery", "Aesthetic Medicine"],
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+        dayOfWeek: [
+          "Saturday",
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+        ],
         opens: "14:00",
         closes: "22:00",
       },

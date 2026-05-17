@@ -51,7 +51,12 @@ export function ServiceCreateForm({ categories = [] }: Props) {
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
-          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+          <input
+            name="slug"
+            required
+            dir="ltr"
+            className="admin-input font-mono"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -68,11 +73,17 @@ export function ServiceCreateForm({ categories = [] }: Props) {
               >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.nameEn ? `${category.name} / ${category.nameEn}` : category.name}
+                    {category.nameEn
+                      ? `${category.name} / ${category.nameEn}`
+                      : category.name}
                   </option>
                 ))}
               </select>
-              <input type="hidden" name="category" value={defaultCategory?.name ?? "Services"} />
+              <input
+                type="hidden"
+                name="category"
+                value={defaultCategory?.name ?? "Services"}
+              />
             </>
           ) : (
             <input name="category" required className="admin-input" />
@@ -91,14 +102,25 @@ export function ServiceCreateForm({ categories = [] }: Props) {
             <span className="lang-ar">ملخص (عربي)</span>
             <span className="lang-en">Excerpt (Arabic)</span>
           </span>
-          <textarea name="excerpt" rows={2} required className="admin-input" dir="rtl" />
+          <textarea
+            name="excerpt"
+            rows={2}
+            required
+            className="admin-input"
+            dir="rtl"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">ملخص (إنجليزي)</span>
             <span className="lang-en">Excerpt (English)</span>
           </span>
-          <textarea name="excerptEn" rows={2} className="admin-input" dir="ltr" />
+          <textarea
+            name="excerptEn"
+            rows={2}
+            className="admin-input"
+            dir="ltr"
+          />
         </label>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
@@ -107,18 +129,31 @@ export function ServiceCreateForm({ categories = [] }: Props) {
             <span className="lang-ar">الوصف (عربي)</span>
             <span className="lang-en">Description (Arabic)</span>
           </span>
-          <textarea name="description" rows={4} required className="admin-input" dir="rtl" />
+          <textarea
+            name="description"
+            rows={4}
+            required
+            className="admin-input"
+            dir="rtl"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">الوصف (إنجليزي)</span>
             <span className="lang-en">Description (English)</span>
           </span>
-          <textarea name="descriptionEn" rows={4} className="admin-input" dir="ltr" />
+          <textarea
+            name="descriptionEn"
+            rows={4}
+            className="admin-input"
+            dir="ltr"
+          />
         </label>
       </div>
       {state.message ? (
-        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+        <p
+          className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}
+        >
           {state.message}
         </p>
       ) : null}

@@ -203,11 +203,14 @@ export function sanitizeHtml(input: string): string {
   );
 
   // Closing tags: keep only allowed ones.
-  html = html.replace(/<\/([a-zA-Z][a-zA-Z0-9-]*)\s*>/g, (_match, tagRaw: string) => {
-    const tag = tagRaw.toLowerCase();
-    if (!ALLOWED_TAGS.has(tag)) return "";
-    return `</${tag}>`;
-  });
+  html = html.replace(
+    /<\/([a-zA-Z][a-zA-Z0-9-]*)\s*>/g,
+    (_match, tagRaw: string) => {
+      const tag = tagRaw.toLowerCase();
+      if (!ALLOWED_TAGS.has(tag)) return "";
+      return `</${tag}>`;
+    },
+  );
 
   return html;
 }

@@ -24,7 +24,16 @@ const benefits = [
 
 function PhoneGlyph({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden
+    >
       <path
         d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.86.3 1.7.51 2.52a2 2 0 0 1-.45 2.11L8.09 10.91a16 16 0 0 0 6 6l1.56-1.08a2 2 0 0 1 2.11-.45c.82.21 1.66.39 2.52.51A2 2 0 0 1 22 16.92z"
         strokeLinecap="round"
@@ -36,8 +45,21 @@ function PhoneGlyph({ className }: { className?: string }) {
 
 function MailGlyph({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
-      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" strokeLinecap="round" strokeLinejoin="round" />
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      aria-hidden
+    >
+      <path
+        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path d="m22 6-10 7L2 6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -66,15 +88,19 @@ export function HomeContactSection({
               <span className="lang-en">Book your visit</span>
             </span>
             <h2 className="rv-v0-home-contact-title">
-              <span className="lang-ar">ابدئي رحلتك بثقة ومعايير طبية واضحة</span>
+              <span className="lang-ar">
+                ابدئي رحلتك بثقة ومعايير طبية واضحة
+              </span>
               <span className="lang-en">Begin your journey with us today</span>
             </h2>
             <p className="rv-v0-home-contact-lead">
               <span className="lang-ar">
-                أرسلي بياناتك عبر النموذج أدناه، وسينسّق فريق المركز متابعتك وفق الأولويات الطبية وبأسرع وقت تشغيلي مناسب.
+                أرسلي بياناتك عبر النموذج أدناه، وسينسّق فريق المركز متابعتك وفق
+                الأولويات الطبية وبأسرع وقت تشغيلي مناسب.
               </span>
               <span className="lang-en">
-                Submit your details and our coordination team reviews every message with discreet, clinically appropriate follow-up timing.
+                Submit your details and our coordination team reviews every
+                message with discreet, clinically appropriate follow-up timing.
               </span>
             </p>
 
@@ -108,7 +134,10 @@ export function HomeContactSection({
                 </div>
               </a>
               {secondaryTelHref ? (
-                <a href={secondaryTelHref} className="rv-v0-home-contact-channel">
+                <a
+                  href={secondaryTelHref}
+                  className="rv-v0-home-contact-channel"
+                >
                   <span className="rv-v0-home-contact-channel-icon">
                     <PhoneGlyph />
                   </span>
@@ -117,13 +146,19 @@ export function HomeContactSection({
                       <span className="lang-ar">الرقم الموحد</span>
                       <span className="lang-en">Unified line</span>
                     </span>
-                    <span className="rv-v0-home-contact-channel-value" dir="ltr">
+                    <span
+                      className="rv-v0-home-contact-channel-value"
+                      dir="ltr"
+                    >
                       {settings.contact.phoneSecondary}
                     </span>
                   </div>
                 </a>
               ) : null}
-              <a href={`mailto:${settings.contact.email}`} className="rv-v0-home-contact-channel">
+              <a
+                href={`mailto:${settings.contact.email}`}
+                className="rv-v0-home-contact-channel"
+              >
                 <span className="rv-v0-home-contact-channel-icon">
                   <MailGlyph />
                 </span>
@@ -159,9 +194,29 @@ export function HomeContactSection({
           <div className="rv-v0-home-contact-form-card">
             <div className="rv-v0-home-contact-form-head">
               <span className="rv-v0-home-contact-form-icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M16 2v4M8 2v4M3 10h18" strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  viewBox="0 0 24 24"
+                  width="22"
+                  height="22"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                >
+                  <rect
+                    x="3"
+                    y="4"
+                    width="18"
+                    height="18"
+                    rx="2"
+                    ry="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M16 2v4M8 2v4M3 10h18"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </span>
               <div>
@@ -170,7 +225,9 @@ export function HomeContactSection({
                   <span className="lang-en">Request a consultation</span>
                 </h3>
                 <p className="rv-v0-home-contact-form-sub">
-                  <span className="lang-ar">يراجع الفريق طلبك ويتواصل معك في أقرب وقت</span>
+                  <span className="lang-ar">
+                    يراجع الفريق طلبك ويتواصل معك في أقرب وقت
+                  </span>
                   <span className="lang-en">We will reach out shortly</span>
                 </p>
               </div>
@@ -184,8 +241,13 @@ export function HomeContactSection({
             />
 
             <p className="rv-v0-home-contact-privacy">
-              <span className="lang-ar">بالإرسال، توافقين على معالجة بياناتك للتواصل بخصوص طلبك.</span>
-              <span className="lang-en">By submitting, you agree we may process your details to respond to this request.</span>
+              <span className="lang-ar">
+                بالإرسال، توافقين على معالجة بياناتك للتواصل بخصوص طلبك.
+              </span>
+              <span className="lang-en">
+                By submitting, you agree we may process your details to respond
+                to this request.
+              </span>
             </p>
           </div>
         </div>
@@ -196,12 +258,19 @@ export function HomeContactSection({
               <span className="lang-en">Center location</span>
             </span>
             <h3>
-              <span className="lang-ar">الوصول إلى ريجوفيرا بسهولة داخل الرياض</span>
+              <span className="lang-ar">
+                الوصول إلى ريجوفيرا بسهولة داخل الرياض
+              </span>
               <span className="lang-en">Reach Rejuvira easily in Riyadh</span>
             </h3>
             <p>
-              <span className="lang-ar">موقع واضح داخل الرياض لتخطيط زيارتك بسهولة.</span>
-              <span className="lang-en">An interactive map helps you plan your route before visiting the center.</span>
+              <span className="lang-ar">
+                موقع واضح داخل الرياض لتخطيط زيارتك بسهولة.
+              </span>
+              <span className="lang-en">
+                An interactive map helps you plan your route before visiting the
+                center.
+              </span>
             </p>
           </div>
           <GoogleMapsEmbed

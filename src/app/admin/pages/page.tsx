@@ -9,13 +9,25 @@ import { getCustomPages } from "@/lib/content-repository";
 function statusMeta(status: ContentStatus) {
   switch (status) {
     case ContentStatus.PUBLISHED:
-      return { className: "is-published", labelAr: "منشورة", labelEn: "Published" };
+      return {
+        className: "is-published",
+        labelAr: "منشورة",
+        labelEn: "Published",
+      };
     case ContentStatus.REVIEW:
       return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
     case ContentStatus.APPROVED:
-      return { className: "is-published", labelAr: "معتمدة", labelEn: "Approved" };
+      return {
+        className: "is-published",
+        labelAr: "معتمدة",
+        labelEn: "Approved",
+      };
     case ContentStatus.ARCHIVED:
-      return { className: "is-archived", labelAr: "مؤرشفة", labelEn: "Archived" };
+      return {
+        className: "is-archived",
+        labelAr: "مؤرشفة",
+        labelEn: "Archived",
+      };
     default:
       return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
   }
@@ -30,8 +42,13 @@ export default async function AdminCustomPagesPage() {
   const published = pages.filter(
     (page) => page.status === ContentStatus.PUBLISHED,
   ).length;
-  const draft = pages.filter((page) => page.status === ContentStatus.DRAFT).length;
-  const totalBlocks = pages.reduce((sum, page) => sum + countBlocks(page.htmlContent), 0);
+  const draft = pages.filter(
+    (page) => page.status === ContentStatus.DRAFT,
+  ).length;
+  const totalBlocks = pages.reduce(
+    (sum, page) => sum + countBlocks(page.htmlContent),
+    0,
+  );
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: pages.length },
     {
@@ -44,13 +61,15 @@ export default async function AdminCustomPagesPage() {
       value: ContentStatus.APPROVED,
       labelAr: "معتمد",
       labelEn: "Approved",
-      count: pages.filter((page) => page.status === ContentStatus.APPROVED).length,
+      count: pages.filter((page) => page.status === ContentStatus.APPROVED)
+        .length,
     },
     {
       value: ContentStatus.REVIEW,
       labelAr: "مراجعة",
       labelEn: "Review",
-      count: pages.filter((page) => page.status === ContentStatus.REVIEW).length,
+      count: pages.filter((page) => page.status === ContentStatus.REVIEW)
+        .length,
     },
     {
       value: ContentStatus.DRAFT,
@@ -71,15 +90,20 @@ export default async function AdminCustomPagesPage() {
           </h1>
           <p>
             <span className="lang-ar">
-              إدارة صفحات مستقلة للحملات والـ leads مع تعديل كامل في صفحة عمل مخصصة.
+              إدارة صفحات مستقلة للحملات والـ leads مع تعديل كامل في صفحة عمل
+              مخصصة.
             </span>
             <span className="lang-en">
-              Manage campaign pages and lead pages in a dedicated editing workspace.
+              Manage campaign pages and lead pages in a dedicated editing
+              workspace.
             </span>
           </p>
         </div>
         <div className="admin-page-header__actions">
-          <Link href={"/admin/pages/new" as Route} className="admin-btn-primary">
+          <Link
+            href={"/admin/pages/new" as Route}
+            className="admin-btn-primary"
+          >
             إنشاء صفحة جديدة
           </Link>
         </div>
@@ -109,7 +133,8 @@ export default async function AdminCustomPagesPage() {
         {pages.length === 0 ? (
           <article className="admin-card">
             <div className="admin-card__body text-sm text-[color:var(--admin-text-faint)]">
-              لا توجد صفحات بعد. ابدئي من زر إنشاء صفحة جديدة لبناء Landing Page كاملة.
+              لا توجد صفحات بعد. ابدئي من زر إنشاء صفحة جديدة لبناء Landing Page
+              كاملة.
             </div>
           </article>
         ) : null}
@@ -141,7 +166,9 @@ export default async function AdminCustomPagesPage() {
               <div className="custom-page-list-card__body">
                 <div className="custom-page-list-card__title-row">
                   <div>
-                    <p className="custom-page-list-card__path">/p/{page.slug}</p>
+                    <p className="custom-page-list-card__path">
+                      /p/{page.slug}
+                    </p>
                     <h2>{page.titleAr}</h2>
                   </div>
                   <span className={`admin-status-badge ${meta.className}`}>
@@ -155,11 +182,17 @@ export default async function AdminCustomPagesPage() {
                     "صفحة مخصصة قابلة للبناء والتعديل من PageCraft."}
                 </p>
                 <div className="custom-page-list-card__meta">
-                  <span>آخر تعديل: {new Date(page.updatedAt).toLocaleDateString("ar-SA")}</span>
+                  <span>
+                    آخر تعديل:{" "}
+                    {new Date(page.updatedAt).toLocaleDateString("ar-SA")}
+                  </span>
                   {page.noindex ? <span>Noindex</span> : null}
                 </div>
                 <div className="custom-page-list-card__actions">
-                  <Link href={`/admin/pages/${page.id}` as Route} className="admin-btn-primary">
+                  <Link
+                    href={`/admin/pages/${page.id}` as Route}
+                    className="admin-btn-primary"
+                  >
                     تعديل الصفحة
                   </Link>
                   <a

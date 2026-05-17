@@ -20,7 +20,9 @@ declare global {
 }
 
 function appendSnippet(target: HTMLElement, html: string, marker: string) {
-  const existing = document.querySelectorAll(`[data-rejuvira-snippet="${marker}"]`);
+  const existing = document.querySelectorAll(
+    `[data-rejuvira-snippet="${marker}"]`,
+  );
   existing.forEach((node) => node.remove());
   if (!html.trim()) return;
 
@@ -31,7 +33,8 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
     let nextNode = node.cloneNode(true) as ChildNode;
     if (node.nodeName.toLowerCase() === "script") {
       const sourceScript = node as HTMLScriptElement;
-      const scriptContent = `${sourceScript.src} ${sourceScript.text}`.toLowerCase();
+      const scriptContent =
+        `${sourceScript.src} ${sourceScript.text}`.toLowerCase();
       if (scriptContent.includes("chatbase")) return;
       const script = document.createElement("script");
       Array.from(sourceScript.attributes).forEach((attr) => {
@@ -60,13 +63,18 @@ export function ExternalIntegrations({
   customHeadCode,
   customBodyCode,
 }: ExternalIntegrationsProps) {
-  const chatId = useMemo(() => normalizeChatbaseId(chatbaseWidgetId), [chatbaseWidgetId]);
+  const chatId = useMemo(
+    () => normalizeChatbaseId(chatbaseWidgetId),
+    [chatbaseWidgetId],
+  );
 
   useEffect(() => {
     appendSnippet(document.head, customHeadCode, "head");
     appendSnippet(document.body, customBodyCode, "body");
     return () => {
-      document.querySelectorAll("[data-rejuvira-snippet]").forEach((node) => node.remove());
+      document
+        .querySelectorAll("[data-rejuvira-snippet]")
+        .forEach((node) => node.remove());
     };
   }, [customHeadCode, customBodyCode]);
 

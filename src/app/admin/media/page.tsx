@@ -24,24 +24,95 @@ export default async function AdminMediaPage() {
       value: category,
       labelAr: category,
       labelEn: category,
-      count: referenceAssets.filter((asset) => asset.category === category).length,
+      count: referenceAssets.filter((asset) => asset.category === category)
+        .length,
     })),
   ];
 
   const curatedSlots = [
-    { key: "brandLogo", labelAr: "الشعار الرئيسي", labelEn: "Main logo", value: mediaSelections.brandLogo, namespace: "brand" },
-    { key: "brandMark", labelAr: "أيقونة الهوية", labelEn: "Brand mark", value: mediaSelections.brandMark, namespace: "brand" },
-    { key: "favicon", labelAr: "Favicon", labelEn: "Favicon", value: mediaSelections.favicon, namespace: "brand", accept: "image/png,image/svg+xml,image/x-icon,.ico" },
-    { key: "appleIcon", labelAr: "Apple Touch Icon", labelEn: "Apple Touch Icon", value: mediaSelections.appleIcon, namespace: "brand" },
-    { key: "ogImage", labelAr: "صورة المشاركة", labelEn: "Social sharing image", value: mediaSelections.ogImage },
-    { key: "homeHero", labelAr: "الصفحة الرئيسية", labelEn: "Homepage", value: mediaSelections.homeHero },
-    { key: "heroCard1", labelAr: "بطاقة 1", labelEn: "Card 1", value: mediaSelections.heroCard1 },
-    { key: "heroCard2", labelAr: "بطاقة 2", labelEn: "Card 2", value: mediaSelections.heroCard2 },
-    { key: "heroCard3", labelAr: "بطاقة 3", labelEn: "Card 3", value: mediaSelections.heroCard3 },
-    { key: "doctorsHero", labelAr: "قسم الأطباء", labelEn: "Doctors page", value: mediaSelections.doctorsHero },
-    { key: "servicesHero", labelAr: "قسم الخدمات", labelEn: "Services page", value: mediaSelections.servicesHero },
-    { key: "aboutHero", labelAr: "من نحن", labelEn: "About page", value: mediaSelections.aboutHero },
-    { key: "journalHero", labelAr: "المجلة", labelEn: "Journal page", value: mediaSelections.journalHero },
+    {
+      key: "brandLogo",
+      labelAr: "الشعار الرئيسي",
+      labelEn: "Main logo",
+      value: mediaSelections.brandLogo,
+      namespace: "brand",
+    },
+    {
+      key: "brandMark",
+      labelAr: "أيقونة الهوية",
+      labelEn: "Brand mark",
+      value: mediaSelections.brandMark,
+      namespace: "brand",
+    },
+    {
+      key: "favicon",
+      labelAr: "Favicon",
+      labelEn: "Favicon",
+      value: mediaSelections.favicon,
+      namespace: "brand",
+      accept: "image/png,image/svg+xml,image/x-icon,.ico",
+    },
+    {
+      key: "appleIcon",
+      labelAr: "Apple Touch Icon",
+      labelEn: "Apple Touch Icon",
+      value: mediaSelections.appleIcon,
+      namespace: "brand",
+    },
+    {
+      key: "ogImage",
+      labelAr: "صورة المشاركة",
+      labelEn: "Social sharing image",
+      value: mediaSelections.ogImage,
+    },
+    {
+      key: "homeHero",
+      labelAr: "الصفحة الرئيسية",
+      labelEn: "Homepage",
+      value: mediaSelections.homeHero,
+    },
+    {
+      key: "heroCard1",
+      labelAr: "بطاقة 1",
+      labelEn: "Card 1",
+      value: mediaSelections.heroCard1,
+    },
+    {
+      key: "heroCard2",
+      labelAr: "بطاقة 2",
+      labelEn: "Card 2",
+      value: mediaSelections.heroCard2,
+    },
+    {
+      key: "heroCard3",
+      labelAr: "بطاقة 3",
+      labelEn: "Card 3",
+      value: mediaSelections.heroCard3,
+    },
+    {
+      key: "doctorsHero",
+      labelAr: "قسم الأطباء",
+      labelEn: "Doctors page",
+      value: mediaSelections.doctorsHero,
+    },
+    {
+      key: "servicesHero",
+      labelAr: "قسم الخدمات",
+      labelEn: "Services page",
+      value: mediaSelections.servicesHero,
+    },
+    {
+      key: "aboutHero",
+      labelAr: "من نحن",
+      labelEn: "About page",
+      value: mediaSelections.aboutHero,
+    },
+    {
+      key: "journalHero",
+      labelAr: "المجلة",
+      labelEn: "Journal page",
+      value: mediaSelections.journalHero,
+    },
   ] as const;
 
   return (
@@ -54,10 +125,12 @@ export default async function AdminMediaPage() {
           </h1>
           <p>
             <span className="lang-ar">
-              {curatedSlots.length} موضع · {referenceAssets.length} ملف مرجعي · {categories.length} تصنيف
+              {curatedSlots.length} موضع · {referenceAssets.length} ملف مرجعي ·{" "}
+              {categories.length} تصنيف
             </span>
             <span className="lang-en">
-              {curatedSlots.length} slots · {referenceAssets.length} reference files · {categories.length} categories
+              {curatedSlots.length} slots · {referenceAssets.length} reference
+              files · {categories.length} categories
             </span>
           </p>
         </div>
@@ -119,15 +192,25 @@ export default async function AdminMediaPage() {
               data-admin-row
               data-admin-status={asset.category}
               data-admin-search={`${asset.label} ${asset.fileName} ${asset.category}`}
-              style={{ borderColor: "var(--admin-border)", background: "var(--admin-panel-soft)" }}
+              style={{
+                borderColor: "var(--admin-border)",
+                background: "var(--admin-panel-soft)",
+              }}
             >
               <div className="relative aspect-square overflow-hidden rounded-lg">
-                <Image src={asset.path} alt={asset.label} fill className="object-cover" sizes="200px" unoptimized />
+                <Image
+                  src={asset.path}
+                  alt={asset.label}
+                  fill
+                  className="object-cover"
+                  sizes="200px"
+                  unoptimized
+                />
               </div>
               <p className="mt-2 truncate text-xs font-semibold text-[color:var(--admin-text)]">
                 {asset.label}
               </p>
-              <p className="text-[10px] uppercase tracking-[0.12em] text-[color:var(--admin-text-faint)]">
+              <p className="text-[10px] tracking-[0.12em] text-[color:var(--admin-text-faint)] uppercase">
                 {asset.category}
               </p>
             </div>

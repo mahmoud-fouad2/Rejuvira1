@@ -35,14 +35,22 @@ export function AdminUserRoleForm({
   return (
     <form action={formAction} className="flex items-center gap-2">
       <input type="hidden" name="id" value={userId} />
-      <select name="role" defaultValue={currentRole} className="admin-input !py-1.5 !text-xs">
+      <select
+        name="role"
+        defaultValue={currentRole}
+        className="admin-input !py-1.5 !text-xs"
+      >
         {roleOptions.map((role) => (
           <option key={role.value} value={role.value}>
             {role.label}
           </option>
         ))}
       </select>
-      <button type="submit" disabled={isPending} className="admin-btn-secondary">
+      <button
+        type="submit"
+        disabled={isPending}
+        className="admin-btn-secondary"
+      >
         {isPending ? (
           <>
             <span className="lang-ar">حفظ...</span>
@@ -56,7 +64,9 @@ export function AdminUserRoleForm({
         )}
       </button>
       {state.message ? (
-        <span className={`text-[11px] ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+        <span
+          className={`text-[11px] ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}
+        >
           {state.message}
         </span>
       ) : null}

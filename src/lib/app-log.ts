@@ -40,7 +40,9 @@ export async function recordAppLog(input: RecordAppLogInput): Promise<void> {
 
   if (!canUseDatabase()) {
     if (process.env.NODE_ENV !== "production") {
-      console.log(`[app-log:${payload.level}] ${payload.kind} — ${payload.message}`);
+      console.log(
+        `[app-log:${payload.level}] ${payload.kind} — ${payload.message}`,
+      );
     }
     return;
   }
@@ -121,9 +123,7 @@ export async function listAppLogs(
       where,
       orderBy: { createdAt: "desc" },
       take: limit + 1,
-      ...(query.cursor
-        ? { cursor: { id: query.cursor }, skip: 1 }
-        : {}),
+      ...(query.cursor ? { cursor: { id: query.cursor }, skip: 1 } : {}),
     });
 
     const items = rows.slice(0, limit).map((row) => ({
@@ -138,8 +138,7 @@ export async function listAppLogs(
       createdAt: row.createdAt.toISOString(),
     }));
 
-    const nextCursor =
-      rows.length > limit ? (rows[limit]?.id ?? null) : null;
+    const nextCursor = rows.length > limit ? (rows[limit]?.id ?? null) : null;
 
     return { items, nextCursor };
   } catch {

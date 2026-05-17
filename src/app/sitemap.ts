@@ -67,7 +67,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly" as const,
     })),
     ...customPages
-      .filter((page) => page.status === ContentStatus.PUBLISHED && !page.noindex)
+      .filter(
+        (page) => page.status === ContentStatus.PUBLISHED && !page.noindex,
+      )
       .map((page) => ({
         path: `/p/${page.slug}`,
         priority: 0.5,

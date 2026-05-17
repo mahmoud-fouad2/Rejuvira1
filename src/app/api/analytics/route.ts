@@ -17,8 +17,7 @@ export async function POST(request: Request) {
           typeof body.language === "string" ? body.language.slice(0, 16) : "",
         timezone:
           typeof body.timezone === "string" ? body.timezone.slice(0, 80) : "",
-        screen:
-          typeof body.screen === "string" ? body.screen.slice(0, 40) : "",
+        screen: typeof body.screen === "string" ? body.screen.slice(0, 40) : "",
       },
     });
   } catch {

@@ -14,11 +14,19 @@ import { getDoctors, getServices } from "@/lib/content-repository";
 function statusMeta(status: ContentStatus) {
   switch (status) {
     case ContentStatus.PUBLISHED:
-      return { className: "is-published", labelAr: "منشور", labelEn: "Published" };
+      return {
+        className: "is-published",
+        labelAr: "منشور",
+        labelEn: "Published",
+      };
     case ContentStatus.REVIEW:
       return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
     case ContentStatus.ARCHIVED:
-      return { className: "is-archived", labelAr: "مؤرشف", labelEn: "Archived" };
+      return {
+        className: "is-archived",
+        labelAr: "مؤرشف",
+        labelEn: "Archived",
+      };
     default:
       return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
   }
@@ -37,19 +45,23 @@ export default async function AdminDoctorsPage() {
       value: ContentStatus.PUBLISHED,
       labelAr: "منشور",
       labelEn: "Published",
-      count: doctors.filter((doctor) => doctor.status === ContentStatus.PUBLISHED).length,
+      count: doctors.filter(
+        (doctor) => doctor.status === ContentStatus.PUBLISHED,
+      ).length,
     },
     {
       value: ContentStatus.REVIEW,
       labelAr: "مراجعة",
       labelEn: "Review",
-      count: doctors.filter((doctor) => doctor.status === ContentStatus.REVIEW).length,
+      count: doctors.filter((doctor) => doctor.status === ContentStatus.REVIEW)
+        .length,
     },
     {
       value: ContentStatus.DRAFT,
       labelAr: "مسودة",
       labelEn: "Draft",
-      count: doctors.filter((doctor) => doctor.status === ContentStatus.DRAFT).length,
+      count: doctors.filter((doctor) => doctor.status === ContentStatus.DRAFT)
+        .length,
     },
   ];
 
@@ -109,12 +121,25 @@ export default async function AdminDoctorsPage() {
                     .join(" ")}
                 >
                   <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
-                    <div className="relative h-12 w-12 overflow-hidden rounded-full" style={{ background: "var(--admin-panel-soft)" }}>
-                      <Image src={doctor.photoUrl} alt={doctor.name} fill className="object-cover" sizes="48px" />
+                    <div
+                      className="relative h-12 w-12 overflow-hidden rounded-full"
+                      style={{ background: "var(--admin-panel-soft)" }}
+                    >
+                      <Image
+                        src={doctor.photoUrl}
+                        alt={doctor.name}
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
                     </div>
                     <div className="min-w-0">
-                      <p className="admin-data-row__title truncate">{doctor.name}</p>
-                      <p className="admin-data-row__meta truncate">{doctor.specialty}</p>
+                      <p className="admin-data-row__title truncate">
+                        {doctor.name}
+                      </p>
+                      <p className="admin-data-row__meta truncate">
+                        {doctor.specialty}
+                      </p>
                     </div>
                     <span className={`admin-status-badge ${meta.className}`}>
                       <span className="lang-ar">{meta.labelAr}</span>
@@ -122,8 +147,14 @@ export default async function AdminDoctorsPage() {
                     </span>
                   </summary>
 
-                  <div className="mt-4 grid gap-4 border-t pt-4" style={{ borderColor: "var(--admin-border)" }}>
-                    <DoctorEditorForm doctor={doctor} serviceOptions={serviceOptions} />
+                  <div
+                    className="mt-4 grid gap-4 border-t pt-4"
+                    style={{ borderColor: "var(--admin-border)" }}
+                  >
+                    <DoctorEditorForm
+                      doctor={doctor}
+                      serviceOptions={serviceOptions}
+                    />
 
                     <div className="flex flex-wrap gap-2">
                       {[

@@ -1,6 +1,9 @@
 import { Prisma } from "@prisma/client";
 
-export function adminActionErrorMessage(error: unknown, fallback = "تعذر حفظ التغييرات. حاول مرة أخرى."): string {
+export function adminActionErrorMessage(
+  error: unknown,
+  fallback = "تعذر حفظ التغييرات. حاول مرة أخرى.",
+): string {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       const target = Array.isArray(error.meta?.target)

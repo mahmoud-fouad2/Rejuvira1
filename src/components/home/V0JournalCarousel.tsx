@@ -16,14 +16,30 @@ type Props = {
 function ArrowIcon({ dir = "right" }: { dir?: "left" | "right" }) {
   if (dir === "left") {
     return (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        width="20"
+        height="20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        aria-hidden
+      >
         <path d="m15 18-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
 
   return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden
+    >
       <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -68,12 +84,20 @@ export function V0JournalCarousel({ posts, fallbackImage }: Props) {
         <ArrowIcon dir={prevIconDirection} />
       </button>
 
-      <div ref={ref} className="rv-journal-carousel-viewport" {...viewportProps}>
+      <div
+        ref={ref}
+        className="rv-journal-carousel-viewport"
+        {...viewportProps}
+      >
         <ul className="rv-journal-carousel-track">
           {posts.map((post, i) => (
-            <li key={post.id} className="rv-journal-carousel-slide" {...slideProps(i)}>
+            <li
+              key={post.id}
+              className="rv-journal-carousel-slide"
+              {...slideProps(i)}
+            >
               <Link
-                href={(`/journal/${post.slug}`) as Route}
+                href={`/journal/${post.slug}` as Route}
                 className="rv-v0-home-journal-card"
               >
                 <span className="rv-v0-home-journal-image">
@@ -90,11 +114,16 @@ export function V0JournalCarousel({ posts, fallbackImage }: Props) {
                   <small>{post.category}</small>
                   <strong>
                     <span className="lang-ar">{post.title}</span>
-                    <span className="lang-en">{post.titleEn ?? "Medical journal article"}</span>
+                    <span className="lang-en">
+                      {post.titleEn ?? "Medical journal article"}
+                    </span>
                   </strong>
                   <span>
                     <span className="lang-ar">{post.excerpt}</span>
-                    <span className="lang-en">{post.excerptEn ?? "A short clinical read from Rejuvira Center."}</span>
+                    <span className="lang-en">
+                      {post.excerptEn ??
+                        "A short clinical read from Rejuvira Center."}
+                    </span>
                   </span>
                   <em>
                     <span className="lang-ar">قراءة المقال</span>
@@ -118,7 +147,11 @@ export function V0JournalCarousel({ posts, fallbackImage }: Props) {
         <ArrowIcon dir={nextIconDirection} />
       </button>
 
-      <div className="rv-journal-carousel-dots" role="tablist" aria-label={lang === "en" ? "Choose article" : "اختيار المقال"}>
+      <div
+        className="rv-journal-carousel-dots"
+        role="tablist"
+        aria-label={lang === "en" ? "Choose article" : "اختيار المقال"}
+      >
         {posts.map((post, i) => (
           <button
             key={`${post.id}-dot`}
@@ -126,7 +159,11 @@ export function V0JournalCarousel({ posts, fallbackImage }: Props) {
             role="tab"
             aria-selected={i === index}
             className={i === index ? "is-active" : ""}
-            aria-label={lang === "en" ? `${post.titleEn ?? post.title} article` : `مقال ${post.title}`}
+            aria-label={
+              lang === "en"
+                ? `${post.titleEn ?? post.title} article`
+                : `مقال ${post.title}`
+            }
             onClick={() => scrollTo(i)}
           />
         ))}

@@ -75,10 +75,10 @@ export default async function AdminWebhooksPage() {
           </div>
           <div className="admin-card__body">
             <WebhookEditor mode="create" services={services} />
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="text-muted-foreground mt-3 text-xs">
               <span className="lang-ar">
-                بعد الإنشاء انسخ الرابط وأرسله لمنصة الإعلانات (Meta/Snap/Google)
-                أو ضعه في فورم خارجي.
+                بعد الإنشاء انسخ الرابط وأرسله لمنصة الإعلانات
+                (Meta/Snap/Google) أو ضعه في فورم خارجي.
               </span>
               <span className="lang-en">
                 After creating, copy the link into Meta/Snap/Google or any
@@ -100,9 +100,12 @@ export default async function AdminWebhooksPage() {
             </div>
           </div>
           <AdminListControls targetId="admin-webhooks-list" tabs={tabs} />
-          <div className="admin-data-list" data-admin-list="admin-webhooks-list">
+          <div
+            className="admin-data-list"
+            data-admin-list="admin-webhooks-list"
+          >
             {webhooks.length === 0 ? (
-              <p className="px-2 py-6 text-sm text-muted-foreground">
+              <p className="text-muted-foreground px-2 py-6 text-sm">
                 <span className="lang-ar">لا توجد ويب هوكس بعد.</span>
                 <span className="lang-en">No webhooks yet.</span>
               </p>
@@ -128,7 +131,7 @@ export default async function AdminWebhooksPage() {
                     <p className="admin-data-row__title truncate">
                       {webhook.name}
                       {webhook.serviceLabel ? (
-                        <span className="ms-2 text-xs text-muted-foreground">
+                        <span className="text-muted-foreground ms-2 text-xs">
                           · {webhook.serviceLabel}
                         </span>
                       ) : null}
@@ -161,7 +164,7 @@ export default async function AdminWebhooksPage() {
                     </span>
                     <WebhookCopyLink token={webhook.token} />
                     <details className="text-xs">
-                      <summary className="cursor-pointer text-muted-foreground">
+                      <summary className="text-muted-foreground cursor-pointer">
                         <span className="lang-ar">نموذج طلب POST</span>
                         <span className="lang-en">Sample POST payload</span>
                       </summary>
@@ -172,7 +175,7 @@ export default async function AdminWebhooksPage() {
                           border: "1px solid var(--admin-border)",
                         }}
                       >
-{`{
+                        {`{
   "fullName": "Sara Aljohani",
   "phone": "+9665XXXXXXXX",
   "email": "sara@example.com",
@@ -201,7 +204,8 @@ export default async function AdminWebhooksPage() {
                     }}
                     initialServiceSlug={
                       webhook.serviceLabel
-                        ? services.find((s) => s.name === webhook.serviceLabel)?.slug ?? ""
+                        ? (services.find((s) => s.name === webhook.serviceLabel)
+                            ?.slug ?? "")
                         : ""
                     }
                   />

@@ -40,7 +40,10 @@ function paletteFor(status: ContentStatus | string) {
   }
 }
 
-export function AdminStatusBadge({ status, className = "" }: AdminStatusBadgeProps) {
+export function AdminStatusBadge({
+  status,
+  className = "",
+}: AdminStatusBadgeProps) {
   const palette = paletteFor(status);
 
   return (

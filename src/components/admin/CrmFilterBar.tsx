@@ -86,13 +86,15 @@ export function CrmFilterBar({
   const [nowSnapshot] = useState(() => Date.now());
 
   const filtered = useMemo(() => {
-    const days = range === "7d" ? 7 : range === "30d" ? 30 : range === "90d" ? 90 : null;
+    const days =
+      range === "7d" ? 7 : range === "30d" ? 30 : range === "90d" ? 90 : null;
     const cutoff = days ? nowSnapshot - days * 86_400_000 : null;
     const term = search.trim().toLowerCase();
 
     return submissions.filter((submission) => {
       if (status !== "ALL" && submission.status !== status) return false;
-      if (source !== "ALL" && (submission.source ?? "—") !== source) return false;
+      if (source !== "ALL" && (submission.source ?? "—") !== source)
+        return false;
       if (tag !== "ALL" && !(submission.tags ?? []).includes(tag)) return false;
       if (owner !== "ALL") {
         if (owner === "_unassigned" && submission.assignedToId) return false;
@@ -106,7 +108,11 @@ export function CrmFilterBar({
           : null;
         if (appointment === "WITH_DATE" && !appointmentTime) return false;
         if (appointment === "NO_DATE" && appointmentTime) return false;
-        if (appointment === "UPCOMING" && (!appointmentTime || appointmentTime < nowSnapshot)) return false;
+        if (
+          appointment === "UPCOMING" &&
+          (!appointmentTime || appointmentTime < nowSnapshot)
+        )
+          return false;
         if (appointment === "TODAY") {
           if (!appointmentTime) return false;
           const day = new Date(appointmentTime);
@@ -120,7 +126,8 @@ export function CrmFilterBar({
           }
         }
       }
-      if (cutoff && new Date(submission.createdAt).getTime() < cutoff) return false;
+      if (cutoff && new Date(submission.createdAt).getTime() < cutoff)
+        return false;
       if (term) {
         const haystack = [
           submission.fullName,
@@ -138,7 +145,17 @@ export function CrmFilterBar({
       }
       return true;
     });
-  }, [submissions, status, source, tag, owner, appointment, range, search, nowSnapshot]);
+  }, [
+    submissions,
+    status,
+    source,
+    tag,
+    owner,
+    appointment,
+    range,
+    search,
+    nowSnapshot,
+  ]);
 
   return (
     <div className="grid gap-4">
@@ -166,7 +183,9 @@ export function CrmFilterBar({
               <select
                 className="admin-input"
                 value={appointment}
-                onChange={(event) => setAppointment(event.target.value as AppointmentFilter)}
+                onChange={(event) =>
+                  setAppointment(event.target.value as AppointmentFilter)
+                }
               >
                 <option value="ALL">All</option>
                 <option value="WITH_DATE">With date</option>
@@ -232,7 +251,7 @@ export function CrmFilterBar({
             </label>
             <div className="text-sm font-medium">
               {filtered.length}
-              <span className="ms-1 text-xs text-muted-foreground">
+              <span className="text-muted-foreground ms-1 text-xs">
                 / {submissions.length}
               </span>
             </div>
@@ -240,24 +259,30 @@ export function CrmFilterBar({
 
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="admin-segmented" role="tablist">
-              {(["ALL", ...Object.keys(STATUS_AR)] as FilterStatus[]).map((value) => (
-                <button
-                  type="button"
-                  key={value}
-                  onClick={() => setStatus(value)}
-                  className={status === value ? "is-active" : ""}
-                >
-                  {value === "ALL" ? "All" : STATUS_EN[value as SubmissionStatus]}
-                </button>
-              ))}
+              {(["ALL", ...Object.keys(STATUS_AR)] as FilterStatus[]).map(
+                (value) => (
+                  <button
+                    type="button"
+                    key={value}
+                    onClick={() => setStatus(value)}
+                    className={status === value ? "is-active" : ""}
+                  >
+                    {value === "ALL"
+                      ? "All"
+                      : STATUS_EN[value as SubmissionStatus]}
+                  </button>
+                ),
+              )}
             </div>
             <div className="admin-segmented">
-              {([
-                { id: "7d", label: "7d" },
-                { id: "30d", label: "30d" },
-                { id: "90d", label: "90d" },
-                { id: "all", label: "All" },
-              ] as const).map((option) => (
+              {(
+                [
+                  { id: "7d", label: "7d" },
+                  { id: "30d", label: "30d" },
+                  { id: "90d", label: "90d" },
+                  { id: "all", label: "All" },
+                ] as const
+              ).map((option) => (
                 <button
                   type="button"
                   key={option.id}
@@ -274,7 +299,7 @@ export function CrmFilterBar({
 
       <section className="grid gap-3">
         {filtered.length === 0 ? (
-          <p className="px-2 py-6 text-sm text-muted-foreground">
+          <p className="text-muted-foreground px-2 py-6 text-sm">
             <span className="lang-ar">لا توجد طلبات تطابق الفلاتر.</span>
             <span className="lang-en">No leads match the current filters.</span>
           </p>
@@ -284,16 +309,26 @@ export function CrmFilterBar({
             <summary className="admin-card__header cursor-pointer">
               <div className="flex flex-1 flex-wrap items-center gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-base font-semibold">{submission.fullName}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
+                  <p className="text-base font-semibold">
+                    {submission.fullName}
+                  </p>
+                  <p className="text-muted-foreground mt-0.5 text-xs">
                     {submission.phone}
                     {submission.email ? ` · ${submission.email}` : ""}
-                    {submission.serviceLabel ? ` · ${submission.serviceLabel}` : ""}
+                    {submission.serviceLabel
+                      ? ` · ${submission.serviceLabel}`
+                      : ""}
                   </p>
                 </div>
-                <span className={`admin-status-badge ${STATUS_BADGE[submission.status]}`}>
-                  <span className="lang-ar">{STATUS_AR[submission.status]}</span>
-                  <span className="lang-en">{STATUS_EN[submission.status]}</span>
+                <span
+                  className={`admin-status-badge ${STATUS_BADGE[submission.status]}`}
+                >
+                  <span className="lang-ar">
+                    {STATUS_AR[submission.status]}
+                  </span>
+                  <span className="lang-en">
+                    {STATUS_EN[submission.status]}
+                  </span>
                 </span>
                 <span className="admin-chip">{submission.source}</span>
                 {submission.preferredAppointmentAt ? (
@@ -302,7 +337,9 @@ export function CrmFilterBar({
                   </span>
                 ) : null}
                 {submission.assignedToName ? (
-                  <span className="admin-chip">{submission.assignedToName}</span>
+                  <span className="admin-chip">
+                    {submission.assignedToName}
+                  </span>
                 ) : null}
                 {(submission.tags ?? []).slice(0, 3).map((tagValue) => (
                   <span key={tagValue} className="admin-tag-chip">
@@ -314,18 +351,20 @@ export function CrmFilterBar({
             <div className="admin-card__body grid gap-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-2">
-                  {(Object.keys(STATUS_AR) as SubmissionStatus[]).map((value) => (
-                    <form key={value} action={setCrmStatusAction}>
-                      <input type="hidden" name="id" value={submission.id} />
-                      <input type="hidden" name="status" value={value} />
-                      <button
-                        type="submit"
-                        className={`admin-btn-secondary text-xs ${submission.status === value ? "border-[color:var(--admin-accent)] text-[color:var(--admin-accent)]" : ""}`}
-                      >
-                        {STATUS_EN[value]}
-                      </button>
-                    </form>
-                  ))}
+                  {(Object.keys(STATUS_AR) as SubmissionStatus[]).map(
+                    (value) => (
+                      <form key={value} action={setCrmStatusAction}>
+                        <input type="hidden" name="id" value={submission.id} />
+                        <input type="hidden" name="status" value={value} />
+                        <button
+                          type="submit"
+                          className={`admin-btn-secondary text-xs ${submission.status === value ? "border-[color:var(--admin-accent)] text-[color:var(--admin-accent)]" : ""}`}
+                        >
+                          {STATUS_EN[value]}
+                        </button>
+                      </form>
+                    ),
+                  )}
                 </div>
                 <form action={deleteCrmSubmissionAction}>
                   <input type="hidden" name="id" value={submission.id} />

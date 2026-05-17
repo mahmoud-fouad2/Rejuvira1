@@ -4,7 +4,8 @@ const prisma = new PrismaClient();
 const CORE_SEED_VERSION = "2026-05-17-rejuvera-core-v1";
 
 const images = {
-  surgery: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
+  surgery:
+    "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
   face: "/media/curated/service-injectables.webp",
   skin: "/media/curated/service-skin-rejuvenation.webp",
   laser: "/media/curated/service-laser-hair-removal.jpg",
@@ -17,64 +18,79 @@ const categories = [
     slug: "plastic-surgery",
     nameAr: "قسم جراحة التجميل",
     nameEn: "Plastic Surgery Department",
-    descriptionAr: "عمليات تجميل متكاملة لتحسين المظهر باستخدام أحدث الأساليب الجراحية الآمنة.",
-    descriptionEn: "Comprehensive cosmetic procedures to enhance appearance with modern, safe surgical planning.",
+    descriptionAr:
+      "عمليات تجميل متكاملة لتحسين المظهر باستخدام أحدث الأساليب الجراحية الآمنة.",
+    descriptionEn:
+      "Comprehensive cosmetic procedures to enhance appearance with modern, safe surgical planning.",
   },
   {
     slug: "general-surgery",
     nameAr: "قسم الجراحة العامة",
     nameEn: "General Surgery Department",
-    descriptionAr: "إجراء مختلف العمليات الجراحية العامة بأحدث الأساليب الطبية المنظمة.",
-    descriptionEn: "General surgical care delivered with structured assessment and modern techniques.",
+    descriptionAr:
+      "إجراء مختلف العمليات الجراحية العامة بأحدث الأساليب الطبية المنظمة.",
+    descriptionEn:
+      "General surgical care delivered with structured assessment and modern techniques.",
   },
   {
     slug: "female-aesthetics",
     nameAr: "قسم التجميل النسائي",
     nameEn: "Female Aesthetics Department",
-    descriptionAr: "حلول تجميلية وعلاجية متخصصة لصحة وجمال المرأة بخصوصية ووضوح.",
-    descriptionEn: "Specialized aesthetic and therapeutic solutions for women's health and confidence.",
+    descriptionAr:
+      "حلول تجميلية وعلاجية متخصصة لصحة وجمال المرأة بخصوصية ووضوح.",
+    descriptionEn:
+      "Specialized aesthetic and therapeutic solutions for women's health and confidence.",
   },
   {
     slug: "obstetrics-gynecology",
     nameAr: "قسم النساء والولادة",
     nameEn: "Obstetrics and Gynecology Department",
-    descriptionAr: "رعاية شاملة للمرأة من متابعة الحمل حتى الخدمات النسائية المتخصصة.",
-    descriptionEn: "Comprehensive women's care from pregnancy follow-up to specialized gynecology services.",
+    descriptionAr:
+      "رعاية شاملة للمرأة من متابعة الحمل حتى الخدمات النسائية المتخصصة.",
+    descriptionEn:
+      "Comprehensive women's care from pregnancy follow-up to specialized gynecology services.",
   },
   {
     slug: "men-health",
     nameAr: "قسم الصحة الذكورية",
     nameEn: "Men's Health Department",
     descriptionAr: "علاج مشاكل صحة الرجل والهرمونات والإنجاب بسرية وخطة واضحة.",
-    descriptionEn: "Private, structured care for men's health, hormonal, and reproductive concerns.",
+    descriptionEn:
+      "Private, structured care for men's health, hormonal, and reproductive concerns.",
   },
   {
     slug: "non-surgical-body-contouring",
     nameAr: "قسم النحت غير الجراحي",
     nameEn: "Non-Surgical Body Contouring Department",
-    descriptionAr: "تقنيات حديثة لتنسيق القوام بدون جراحة ونتائج متدرجة تناسب الحالة.",
-    descriptionEn: "Modern non-surgical technologies for gradual, case-appropriate body contouring.",
+    descriptionAr:
+      "تقنيات حديثة لتنسيق القوام بدون جراحة ونتائج متدرجة تناسب الحالة.",
+    descriptionEn:
+      "Modern non-surgical technologies for gradual, case-appropriate body contouring.",
   },
   {
     slug: "neurosurgery",
     nameAr: "قسم الجراحات العصبية",
     nameEn: "Neurosurgery Department",
-    descriptionAr: "علاج أمراض المخ والأعصاب والعمود الفقري بتقنيات وخطط دقيقة.",
-    descriptionEn: "Brain, nerve, and spine care based on precise diagnosis and treatment planning.",
+    descriptionAr:
+      "علاج أمراض المخ والأعصاب والعمود الفقري بتقنيات وخطط دقيقة.",
+    descriptionEn:
+      "Brain, nerve, and spine care based on precise diagnosis and treatment planning.",
   },
   {
     slug: "dermatology-aesthetic-procedures",
     nameAr: "قسم الإجراءات الجلدية والتجميل",
     nameEn: "Dermatology and Aesthetic Procedures Department",
     descriptionAr: "علاج مشاكل البشرة والشعر وتقديم خدمات تجميلية غير جراحية.",
-    descriptionEn: "Skin, hair, and non-surgical aesthetic services guided by clinical assessment.",
+    descriptionEn:
+      "Skin, hair, and non-surgical aesthetic services guided by clinical assessment.",
   },
   {
     slug: "facial-plastic-surgery",
     nameAr: "قسم عمليات تجميل الوجه",
     nameEn: "Facial Plastic Surgery Department",
     descriptionAr: "حلول جراحية متقدمة لإعادة شباب الوجه وتحقيق تناسق طبيعي.",
-    descriptionEn: "Advanced facial procedures for balanced, natural-looking rejuvenation.",
+    descriptionEn:
+      "Advanced facial procedures for balanced, natural-looking rejuvenation.",
   },
 ];
 
@@ -87,8 +103,10 @@ const doctors = [
     titleEn: "Consultant Plastic and Reconstructive Surgeon",
     specialtyAr: "جراحة التجميل والترميم",
     specialtyEn: "Plastic and Reconstructive Surgery",
-    bioAr: "يقيّم الحالات الجراحية والتجميلية بمنهج يوازن بين السلامة الطبية ودقة التخطيط وتحديد ما يمكن تحقيقه فعليًا لكل حالة.",
-    bioEn: "Evaluates aesthetic and reconstructive cases with a balanced approach to safety, planning, and realistic outcomes.",
+    bioAr:
+      "يقيّم الحالات الجراحية والتجميلية بمنهج يوازن بين السلامة الطبية ودقة التخطيط وتحديد ما يمكن تحقيقه فعليًا لكل حالة.",
+    bioEn:
+      "Evaluates aesthetic and reconstructive cases with a balanced approach to safety, planning, and realistic outcomes.",
     photoUrl: "/media/doctors/loai-alsalmi.webp",
     yearsExperience: 25,
     languages: ["العربية", "الإنجليزية"],
@@ -102,8 +120,10 @@ const doctors = [
     titleEn: "Consultant Plastic and Reconstructive Surgeon",
     specialtyAr: "جراحة التجميل والترميم",
     specialtyEn: "Plastic and Reconstructive Surgery",
-    bioAr: "يتعامل مع الحالات الجراحية والترميمية من منظور يبدأ بالتشخيص وترتيب الأولويات العلاجية والجراحية وفق احتياج الحالة.",
-    bioEn: "Approaches surgical and reconstructive cases through diagnosis, prioritization, and patient-specific planning.",
+    bioAr:
+      "يتعامل مع الحالات الجراحية والترميمية من منظور يبدأ بالتشخيص وترتيب الأولويات العلاجية والجراحية وفق احتياج الحالة.",
+    bioEn:
+      "Approaches surgical and reconstructive cases through diagnosis, prioritization, and patient-specific planning.",
     photoUrl: "/media/doctors/maher-alahdab.webp",
     yearsExperience: 20,
     languages: ["العربية", "الإنجليزية"],
@@ -117,8 +137,10 @@ const doctors = [
     titleEn: "Consultant Plastic and Reconstructive Surgeon",
     specialtyAr: "جراحة التجميل والترميم",
     specialtyEn: "Plastic and Reconstructive Surgery",
-    bioAr: "تقدم الاستشارات الجراحية والترميمية مع تركيز على السلامة ودقة التخطيط وتحديد الإجراء الأنسب للحالة.",
-    bioEn: "Provides surgical and reconstructive consultations focused on safety, planning, and case-appropriate procedures.",
+    bioAr:
+      "تقدم الاستشارات الجراحية والترميمية مع تركيز على السلامة ودقة التخطيط وتحديد الإجراء الأنسب للحالة.",
+    bioEn:
+      "Provides surgical and reconstructive consultations focused on safety, planning, and case-appropriate procedures.",
     photoUrl: "/media/doctors/saham-arfaj.webp",
     yearsExperience: 15,
     languages: ["العربية", "الإنجليزية"],
@@ -132,8 +154,10 @@ const doctors = [
     titleEn: "Consultant Neurosurgeon and Spine Surgeon",
     specialtyAr: "جراحة المخ والأعصاب والعمود الفقري",
     specialtyEn: "Neurosurgery and Spine Surgery",
-    bioAr: "يعتمد على تقييم سريري دقيق في الحالات الجراحية المعقدة مع شرح واضح للمراجع قبل اختيار أي مسار علاجي.",
-    bioEn: "Uses careful clinical assessment for complex neurosurgical and spine cases before choosing a treatment path.",
+    bioAr:
+      "يعتمد على تقييم سريري دقيق في الحالات الجراحية المعقدة مع شرح واضح للمراجع قبل اختيار أي مسار علاجي.",
+    bioEn:
+      "Uses careful clinical assessment for complex neurosurgical and spine cases before choosing a treatment path.",
     photoUrl: "/media/doctors/sabah-alrashid.webp",
     yearsExperience: 30,
     languages: ["العربية", "الإنجليزية"],
@@ -147,8 +171,10 @@ const doctors = [
     titleEn: "Female Aesthetics, Obstetrics and Gynecology Specialist",
     specialtyAr: "التجميل النسائي وطب النساء والولادة",
     specialtyEn: "Female Aesthetics, Obstetrics and Gynecology",
-    bioAr: "تقدم خدمات التجميل النسائي وطب النساء والولادة بمنهج يركز على الخصوصية ووضوح الخيارات المناسبة لكل حالة.",
-    bioEn: "Provides female aesthetic and gynecology care with privacy, clarity, and case-specific planning.",
+    bioAr:
+      "تقدم خدمات التجميل النسائي وطب النساء والولادة بمنهج يركز على الخصوصية ووضوح الخيارات المناسبة لكل حالة.",
+    bioEn:
+      "Provides female aesthetic and gynecology care with privacy, clarity, and case-specific planning.",
     photoUrl: "/media/doctors/karima-jamjoom.webp",
     yearsExperience: 15,
     languages: ["العربية", "الإنجليزية"],
@@ -162,8 +188,10 @@ const doctors = [
     titleEn: "Consultant Female Aesthetics",
     specialtyAr: "التجميل النسائي",
     specialtyEn: "Female Aesthetics",
-    bioAr: "تعتمد على تقييم واضح ومباشر في خدمات التجميل النسائي مع شرح منظم للخيارات وحدود كل إجراء.",
-    bioEn: "Offers clear female aesthetic assessment with structured explanation of options and expected limits.",
+    bioAr:
+      "تعتمد على تقييم واضح ومباشر في خدمات التجميل النسائي مع شرح منظم للخيارات وحدود كل إجراء.",
+    bioEn:
+      "Offers clear female aesthetic assessment with structured explanation of options and expected limits.",
     photoUrl: "/media/doctors/najwa-batarfi.webp",
     yearsExperience: 15,
     languages: ["العربية", "الإنجليزية"],
@@ -177,8 +205,10 @@ const doctors = [
     titleEn: "Consultant Dermatology and Aesthetics",
     specialtyAr: "الجلدية والتجميل",
     specialtyEn: "Dermatology and Aesthetics",
-    bioAr: "تركز على التشخيص الواضح وضبط الخطة العلاجية وفق طبيعة البشرة واحتياج الحالة من إجراءات جلدية أو تجميلية.",
-    bioEn: "Focuses on diagnosis-led skin and aesthetic planning tailored to skin type and patient goals.",
+    bioAr:
+      "تركز على التشخيص الواضح وضبط الخطة العلاجية وفق طبيعة البشرة واحتياج الحالة من إجراءات جلدية أو تجميلية.",
+    bioEn:
+      "Focuses on diagnosis-led skin and aesthetic planning tailored to skin type and patient goals.",
     photoUrl: "/media/doctors/natali-domloj.webp",
     yearsExperience: 20,
     languages: ["العربية", "الإنجليزية", "الفرنسية"],
@@ -192,8 +222,10 @@ const doctors = [
     titleEn: "General Surgery Specialist",
     specialtyAr: "الجراحة العامة",
     specialtyEn: "General Surgery",
-    bioAr: "تقدم تقييمًا واضحًا في الجراحة العامة مع شرح الخطة العلاجية وتحديد احتياج التدخل الجراحي.",
-    bioEn: "Provides general surgery assessment with clear treatment planning and surgical decision support.",
+    bioAr:
+      "تقدم تقييمًا واضحًا في الجراحة العامة مع شرح الخطة العلاجية وتحديد احتياج التدخل الجراحي.",
+    bioEn:
+      "Provides general surgery assessment with clear treatment planning and surgical decision support.",
     photoUrl: "/media/doctors/falwah-aljanoubi.webp",
     yearsExperience: 5,
     languages: ["العربية", "الإنجليزية"],
@@ -207,8 +239,10 @@ const doctors = [
     titleEn: "Consultant General, Breast Oncology and Endocrine Surgeon",
     specialtyAr: "جراحة عامة وجراحة أورام الثدي والغدد الصماء",
     specialtyEn: "General, Breast Oncology and Endocrine Surgery",
-    bioAr: "يعتمد على منهج سريري دقيق في تقييم الحالات الجراحية وترتيب الخيارات العلاجية وشرحها بصورة واضحة.",
-    bioEn: "Uses a precise clinical approach to surgical evaluation, treatment prioritization, and patient communication.",
+    bioAr:
+      "يعتمد على منهج سريري دقيق في تقييم الحالات الجراحية وترتيب الخيارات العلاجية وشرحها بصورة واضحة.",
+    bioEn:
+      "Uses a precise clinical approach to surgical evaluation, treatment prioritization, and patient communication.",
     photoUrl: "/media/doctors/bandar-alharthi.webp",
     yearsExperience: 21,
     languages: ["العربية", "الإنجليزية"],
@@ -222,8 +256,10 @@ const doctors = [
     titleEn: "Senior Registrar Plastic Surgery",
     specialtyAr: "جراحة التجميل",
     specialtyEn: "Plastic Surgery",
-    bioAr: "يقدم استشارات جراحة التجميل بمنهج عملي يركز على تقييم الحالة وتحديد الإجراء المناسب وشرح الخطوات المتوقعة.",
-    bioEn: "Provides practical plastic surgery consultations focused on assessment, procedure selection, and clear next steps.",
+    bioAr:
+      "يقدم استشارات جراحة التجميل بمنهج عملي يركز على تقييم الحالة وتحديد الإجراء المناسب وشرح الخطوات المتوقعة.",
+    bioEn:
+      "Provides practical plastic surgery consultations focused on assessment, procedure selection, and clear next steps.",
     photoUrl: "/media/doctors/ahmed-eldesouki.webp",
     yearsExperience: 7,
     languages: ["العربية", "الإنجليزية"],
@@ -231,8 +267,18 @@ const doctors = [
   },
 ];
 
-const plasticSurgeons = ["loai-alsalmi", "maher-alahdab", "saham-arfaj", "ahmed-eldesouki"];
-const breastTeam = ["loai-alsalmi", "maher-alahdab", "ahmed-eldesouki", "bandar-alharthi"];
+const plasticSurgeons = [
+  "loai-alsalmi",
+  "maher-alahdab",
+  "saham-arfaj",
+  "ahmed-eldesouki",
+];
+const breastTeam = [
+  "loai-alsalmi",
+  "maher-alahdab",
+  "ahmed-eldesouki",
+  "bandar-alharthi",
+];
 const dermatologyTeam = ["natali-domloj", "saham-arfaj"];
 const femaleTeam = ["karima-jamjoom", "najwa-batarfi"];
 
@@ -243,7 +289,8 @@ const services = [
     nameEn: "Rhinoplasty",
     categorySlug: "facial-plastic-surgery",
     excerptAr: "أنف متناسق يبرز جمال ملامحك ويعزز ثقتك بنفسك.",
-    excerptEn: "A balanced nose shape that supports facial harmony and confidence.",
+    excerptEn:
+      "A balanced nose shape that supports facial harmony and confidence.",
     image: images.face,
     doctors: plasticSurgeons,
   },
@@ -253,7 +300,8 @@ const services = [
     nameEn: "Breast Augmentation",
     categorySlug: "plastic-surgery",
     excerptAr: "امتلاء أنثوي جذاب يعزز تناسق الجسم والثقة.",
-    excerptEn: "Feminine volume planned to suit body proportions and expectations.",
+    excerptEn:
+      "Feminine volume planned to suit body proportions and expectations.",
     image: images.surgery,
     doctors: breastTeam,
   },
@@ -263,7 +311,8 @@ const services = [
     nameEn: "Breast Lift",
     categorySlug: "plastic-surgery",
     excerptAr: "استعادة شكل مرفوع ومشدود يمنحك مظهرًا أنثويًا شابًا بدون ترهل.",
-    excerptEn: "Restores a lifted breast shape and improves sagging with careful planning.",
+    excerptEn:
+      "Restores a lifted breast shape and improves sagging with careful planning.",
     image: images.surgery,
     doctors: breastTeam,
   },
@@ -273,7 +322,8 @@ const services = [
     nameEn: "Liposuction",
     categorySlug: "plastic-surgery",
     excerptAr: "تخلص مدروس من الدهون العنيدة مع نحت أوضح للقوام.",
-    excerptEn: "Targeted fat removal for clearer body definition in suitable cases.",
+    excerptEn:
+      "Targeted fat removal for clearer body definition in suitable cases.",
     image: images.body,
     doctors: plasticSurgeons,
   },
@@ -283,7 +333,8 @@ const services = [
     nameEn: "Upper and Lower Blepharoplasty",
     categorySlug: "facial-plastic-surgery",
     excerptAr: "عيون أكثر إشراقًا بدون ترهل أو انتفاخ واضح.",
-    excerptEn: "Refreshes the eye area by addressing eyelid heaviness or puffiness.",
+    excerptEn:
+      "Refreshes the eye area by addressing eyelid heaviness or puffiness.",
     image: images.face,
     doctors: plasticSurgeons,
   },
@@ -303,7 +354,8 @@ const services = [
     nameEn: "Otoplasty",
     categorySlug: "facial-plastic-surgery",
     excerptAr: "تصحيح بروز الأذن وتحسين شكلها بتخطيط جراحي دقيق.",
-    excerptEn: "Improves prominent ear shape through precise surgical planning.",
+    excerptEn:
+      "Improves prominent ear shape through precise surgical planning.",
     image: images.face,
     doctors: plasticSurgeons,
   },
@@ -333,7 +385,8 @@ const services = [
     nameEn: "Breast Reduction",
     categorySlug: "plastic-surgery",
     excerptAr: "راحة أكبر وتناسق أفضل للجسم مع تحسين الشكل العام.",
-    excerptEn: "Reduces breast size to improve comfort, balance, and proportions.",
+    excerptEn:
+      "Reduces breast size to improve comfort, balance, and proportions.",
     image: images.surgery,
     doctors: breastTeam,
   },
@@ -343,7 +396,8 @@ const services = [
     nameEn: "Breast Implant Revision",
     categorySlug: "plastic-surgery",
     excerptAr: "تحديث الشكل أو الحجم بنتيجة أفضل وقرار طبي أوضح.",
-    excerptEn: "Updates implant size or shape after medical and aesthetic assessment.",
+    excerptEn:
+      "Updates implant size or shape after medical and aesthetic assessment.",
     image: images.surgery,
     doctors: breastTeam,
   },
@@ -353,7 +407,8 @@ const services = [
     nameEn: "Breast Implant Removal",
     categorySlug: "plastic-surgery",
     excerptAr: "عودة طبيعية لشكل الثدي بدون حشوات وفق خطة آمنة.",
-    excerptEn: "Removes implants with a plan focused on safety and natural shape.",
+    excerptEn:
+      "Removes implants with a plan focused on safety and natural shape.",
     image: images.surgery,
     doctors: breastTeam,
   },
@@ -363,9 +418,15 @@ const services = [
     nameEn: "Male Gynecomastia Surgery",
     categorySlug: "men-health",
     excerptAr: "صدر مسطح ومظهر رجولي بثقة أكبر.",
-    excerptEn: "Improves male chest contour for a flatter, more confident appearance.",
+    excerptEn:
+      "Improves male chest contour for a flatter, more confident appearance.",
     image: images.body,
-    doctors: ["loai-alsalmi", "maher-alahdab", "ahmed-eldesouki", "bandar-alharthi"],
+    doctors: [
+      "loai-alsalmi",
+      "maher-alahdab",
+      "ahmed-eldesouki",
+      "bandar-alharthi",
+    ],
   },
   {
     slug: "bbl",
@@ -373,7 +434,8 @@ const services = [
     nameEn: "Brazilian Butt Lift (BBL)",
     categorySlug: "plastic-surgery",
     excerptAr: "امتلاء طبيعي وجذاب باستخدام الدهون الذاتية للحالات المناسبة.",
-    excerptEn: "Uses fat transfer to enhance buttock fullness in suitable cases.",
+    excerptEn:
+      "Uses fat transfer to enhance buttock fullness in suitable cases.",
     image: images.body,
     doctors: plasticSurgeons,
   },
@@ -403,7 +465,8 @@ const services = [
     nameEn: "Post-Weight-Loss Body Lift",
     categorySlug: "plastic-surgery",
     excerptAr: "استعادة قوام متناسق بعد نزول الوزن الكبير.",
-    excerptEn: "Improves loose skin after major weight loss with staged planning.",
+    excerptEn:
+      "Improves loose skin after major weight loss with staged planning.",
     image: images.body,
     doctors: plasticSurgeons,
   },
@@ -433,7 +496,8 @@ const services = [
     nameEn: "Full Body Lift",
     categorySlug: "plastic-surgery",
     excerptAr: "حل شامل لترهلات الجسم بالكامل بنتيجة متناسقة.",
-    excerptEn: "A comprehensive approach for body laxity and proportional improvement.",
+    excerptEn:
+      "A comprehensive approach for body laxity and proportional improvement.",
     image: images.body,
     doctors: plasticSurgeons,
   },
@@ -462,8 +526,10 @@ const services = [
     nameAr: "إزالة الشعر بالليزر",
     nameEn: "Laser Hair Removal",
     categorySlug: "dermatology-aesthetic-procedures",
-    excerptAr: "جلسات مدروسة لتقليل الشعر غير المرغوب فيه حسب نوع البشرة والشعر.",
-    excerptEn: "Structured sessions tailored to skin type, hair density, and treatment area.",
+    excerptAr:
+      "جلسات مدروسة لتقليل الشعر غير المرغوب فيه حسب نوع البشرة والشعر.",
+    excerptEn:
+      "Structured sessions tailored to skin type, hair density, and treatment area.",
     image: images.laser,
     doctors: ["natali-domloj"],
   },
@@ -473,7 +539,8 @@ const services = [
     nameEn: "Injectable Facial Harmony",
     categorySlug: "dermatology-aesthetic-procedures",
     excerptAr: "نهج تجميلي يبرز توازن الملامح ويحافظ على التعبير الطبيعي.",
-    excerptEn: "A balanced injectable approach that supports natural facial expression.",
+    excerptEn:
+      "A balanced injectable approach that supports natural facial expression.",
     image: images.face,
     doctors: dermatologyTeam,
   },
@@ -483,7 +550,8 @@ const services = [
     nameEn: "Non-Surgical Body Contouring",
     categorySlug: "non-surgical-body-contouring",
     excerptAr: "تقنيات حديثة لتحسين تناسق القوام بدون جراحة للحالات المناسبة.",
-    excerptEn: "Modern non-surgical options to improve body contour in suitable cases.",
+    excerptEn:
+      "Modern non-surgical options to improve body contour in suitable cases.",
     image: images.body,
     doctors: ["loai-alsalmi", "ahmed-eldesouki"],
   },
@@ -503,7 +571,8 @@ const services = [
     nameEn: "Female Aesthetic Care",
     categorySlug: "female-aesthetics",
     excerptAr: "حلول نسائية تجميلية وعلاجية بخصوصية وخطة واضحة.",
-    excerptEn: "Private female aesthetic care with clear, case-specific planning.",
+    excerptEn:
+      "Private female aesthetic care with clear, case-specific planning.",
     image: images.clinic,
     doctors: femaleTeam,
   },
@@ -599,7 +668,8 @@ async function upsertDoctors() {
         achievements: [],
         education: [doctor.titleAr],
         photoUrl: existing?.photoUrl || doctor.photoUrl,
-        coverImageUrl: existing?.coverImageUrl || existing?.photoUrl || doctor.photoUrl,
+        coverImageUrl:
+          existing?.coverImageUrl || existing?.photoUrl || doctor.photoUrl,
       },
       create: {
         slug: doctor.slug,
@@ -681,8 +751,18 @@ async function upsertServices() {
 
 async function updateBrandDefaults() {
   const brandSettings = [
-    { groupKey: "brand", itemKey: "siteName", label: "اسم الموقع", value: "Rejuvera Center" },
-    { groupKey: "brand", itemKey: "shortName", label: "الاسم المختصر", value: "Rejuvera" },
+    {
+      groupKey: "brand",
+      itemKey: "siteName",
+      label: "اسم الموقع",
+      value: "Rejuvera Center",
+    },
+    {
+      groupKey: "brand",
+      itemKey: "shortName",
+      label: "الاسم المختصر",
+      value: "Rejuvera",
+    },
   ];
 
   for (const setting of brandSettings) {
@@ -709,7 +789,9 @@ async function main() {
     select: { value: true },
   });
   if (currentSeed?.value === CORE_SEED_VERSION) {
-    console.log(`[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`);
+    console.log(
+      `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
+    );
     return;
   }
 

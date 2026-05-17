@@ -16,10 +16,7 @@ const initialState: ContactActionState = {
 
 type GrecaptchaApi = {
   ready: (cb: () => void) => void;
-  execute: (
-    siteKey: string,
-    options: { action: string },
-  ) => Promise<string>;
+  execute: (siteKey: string, options: { action: string }) => Promise<string>;
 };
 
 declare global {
@@ -37,7 +34,11 @@ function loadRecaptchaScript(siteKey: string): Promise<void> {
     );
     if (existing) {
       existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("script error")), { once: true });
+      existing.addEventListener(
+        "error",
+        () => reject(new Error("script error")),
+        { once: true },
+      );
       return;
     }
     const script = document.createElement("script");
@@ -46,7 +47,9 @@ function loadRecaptchaScript(siteKey: string): Promise<void> {
     script.defer = true;
     script.dataset.rejuviraRecaptcha = "1";
     script.addEventListener("load", () => resolve(), { once: true });
-    script.addEventListener("error", () => reject(new Error("script error")), { once: true });
+    script.addEventListener("error", () => reject(new Error("script error")), {
+      once: true,
+    });
     document.head.appendChild(script);
   });
 }
@@ -173,7 +176,9 @@ export function ContactForm({
           defaultValue=""
         >
           <option value="">
-            {lang === "ar" ? "اختر الخدمة (اختياري)" : "Select a service (optional)"}
+            {lang === "ar"
+              ? "اختر الخدمة (اختياري)"
+              : "Select a service (optional)"}
           </option>
           {services.map((service) => (
             <option key={service.id} value={service.slug}>
@@ -229,7 +234,11 @@ export function ContactForm({
       <input
         type="hidden"
         name="appointmentNotes"
-        value={compact ? "Preferred appointment requested from compact booking form." : ""}
+        value={
+          compact
+            ? "Preferred appointment requested from compact booking form."
+            : ""
+        }
       />
       <input type="hidden" name="preferredLanguage" value={lang} />
       <input type="hidden" name="source" value={source} />
@@ -243,7 +252,7 @@ export function ContactForm({
         <p
           className={`rounded-[1.1rem] px-4 py-3 text-sm ${
             state.status === "success"
-              ? "border border-emerald/25 bg-emerald/10 text-emerald"
+              ? "border-emerald/25 bg-emerald/10 text-emerald border"
               : "border border-[rgba(92,45,62,0.22)] bg-[rgba(92,45,62,0.08)] text-[oklch(38%_0.08_15)]"
           }`}
         >
@@ -270,12 +279,8 @@ export function ContactForm({
       </button>
       {siteKey ? (
         <p className="text-ink-faint text-[10px] leading-5">
-          <span className="lang-ar">
-            محمي بواسطة reCAPTCHA. تطبق
-          </span>
-          <span className="lang-en">
-            Protected by reCAPTCHA. The Google{" "}
-          </span>
+          <span className="lang-ar">محمي بواسطة reCAPTCHA. تطبق</span>
+          <span className="lang-en">Protected by reCAPTCHA. The Google </span>
           <a
             href="https://policies.google.com/privacy"
             target="_blank"

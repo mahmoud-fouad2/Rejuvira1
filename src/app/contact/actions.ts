@@ -5,7 +5,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
-import { createContactLead, getRuntimeSettings } from "@/lib/content-repository";
+import {
+  createContactLead,
+  getRuntimeSettings,
+} from "@/lib/content-repository";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
 
@@ -59,7 +62,10 @@ async function dispatchFormWebhook({
       headers: {
         "content-type": "application/json",
         ...(settings.integrations.formWebhookSecret
-          ? { "x-rejuvira-webhook-secret": settings.integrations.formWebhookSecret }
+          ? {
+              "x-rejuvira-webhook-secret":
+                settings.integrations.formWebhookSecret,
+            }
           : {}),
       },
       body: JSON.stringify(payload),
@@ -185,7 +191,8 @@ export async function submitContactAction(
       source: parsed.data.source || "Website contact form",
       submittedAt: new Date().toISOString(),
       mode: result.mode,
-      submissionId: result.mode === "database" ? result.submission.id : undefined,
+      submissionId:
+        result.mode === "database" ? result.submission.id : undefined,
       fullName: parsed.data.fullName,
       phone: parsed.data.phone,
       email: parsed.data.email || undefined,

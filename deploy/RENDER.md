@@ -11,13 +11,13 @@ The full set of build/runtime variables is declared in
 
 ## 1) Node runtime
 
-| Setting | Value |
-| --- | --- |
-| Runtime | `Node` |
-| Region | `Frankfurt` (Europe) or `Oregon` — match the Neon region |
-| Plan | `Starter` allocates **512MB RAM**. Next.js production often exceeds that under modest traffic — expect **OOM / instance restarts** on Starter. Prefer **`standard`** (**2GB**) for reliable production (**Render → Billing / change plan**). |
-| Node version | `>= 22` (Render auto-detects `engines.node` from `package.json`) |
-| Persistent disk | **Not required.** All uploads go to Cloudflare R2. |
+| Setting         | Value                                                                                                                                                                                                                                        |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime         | `Node`                                                                                                                                                                                                                                       |
+| Region          | `Frankfurt` (Europe) or `Oregon` — match the Neon region                                                                                                                                                                                     |
+| Plan            | `Starter` allocates **512MB RAM**. Next.js production often exceeds that under modest traffic — expect **OOM / instance restarts** on Starter. Prefer **`standard`** (**2GB**) for reliable production (**Render → Billing / change plan**). |
+| Node version    | `>= 22` (Render auto-detects `engines.node` from `package.json`)                                                                                                                                                                             |
+| Persistent disk | **Not required.** All uploads go to Cloudflare R2.                                                                                                                                                                                           |
 
 The repository's [`render.yaml`](../render.yaml) declares the service
 and the full env-var skeleton (values are not committed; set them in
@@ -41,7 +41,6 @@ cd .next/standalone && node --max-old-space-size=460 server.js
 
 Local smoke (after `npm run build`): `npm run start:standalone` (runs `server.js` with correct cwd).
 
-
 Notes:
 
 - `npm run build` ends with copying `public/` and `.next/static/` into
@@ -58,49 +57,50 @@ Notes:
 
 ## 3) Health check
 
-| Setting | Value |
-| --- | --- |
-| Health check path | `/api/health` |
-| Expected status | `200 OK` |
-| Response body | `{ "status": "ok", ... }` (JSON) |
+| Setting           | Value                            |
+| ----------------- | -------------------------------- |
+| Health check path | `/api/health`                    |
+| Expected status   | `200 OK`                         |
+| Response body     | `{ "status": "ok", ... }` (JSON) |
 
 ## 4) Environment variables (Render → Environment)
 
 Copy these into the dashboard. Required values **must** be set before
 the first deploy. Optional values can be added later.
 
-| Key | Required | Sample value | Purpose |
-| --- | --- | --- | --- |
-| `DATABASE_URL` | Yes | Neon **pooled** URI (`…-pooler…` host when Neon offers it) | Used by the app at runtime (serverless-friendly). If Neon does not give a separate pooled string, use their default **non‑pooling** URI. Optional Prisma tightening: append `?connection_limit=5&pool_timeout=10` **after** `sslmode=require` (`&connection_limit=5…`) — adjust for traffic. |
-| `DIRECT_URL` | Yes | Neon **direct** URI (non-pooler host) | Required for `prisma migrate deploy` during build (advisory locks). Do **not** point both at the pooler-only endpoint. |
-| `NEXTAUTH_URL` | Yes | `https://rejuveracenter.sa` | Public base URL for NextAuth callbacks. |
-| `NEXTAUTH_SECRET` | Yes | `<random 32+ bytes>` | NextAuth session encryption secret. Generate with `openssl rand -base64 32`. Render can auto-generate this. |
-| `AUTH_URL` | Yes | `https://rejuveracenter.sa` | NextAuth v5 mirror of `NEXTAUTH_URL`. |
-| `AUTH_SECRET` | Yes | same as `NEXTAUTH_SECRET` | NextAuth v5 mirror of `NEXTAUTH_SECRET`. |
-| `SITE_URL` | Yes | `https://rejuveracenter.sa` | Used by SEO, sitemap, robots, OG. |
-| `R2_ACCOUNT_ID` | Yes | `b7e00c4c9c0ba3b4b20a0b001e2b14ac` | Cloudflare R2 account id. |
-| `R2_ENDPOINT` | Yes | `https://b7e00c4c9c0ba3b4b20a0b001e2b14ac.r2.cloudflarestorage.com` | R2 S3-compatible endpoint. |
-| `R2_BUCKET` | Yes | `rejuvera` | Target bucket name. |
-| `R2_ACCESS_KEY_ID` | Yes | _from Cloudflare R2 → API Tokens_ | R2 access key id. |
-| `R2_SECRET_ACCESS_KEY` | Yes | _from Cloudflare R2 → API Tokens_ | R2 secret access key. |
-| `R2_PUBLIC_BASE_URL` | Optional | `https://cdn.rejuveracenter.sa` | Public CDN/custom domain prefix; when set, uploads expose direct public URLs. |
-| `RECAPTCHA_SITE_KEY` | Yes | `6LddL-osAAAAAGw48jLbjDZqd0LNRJtLNP1BCR09` | reCAPTCHA v3 site key. |
-| `RECAPTCHA_SECRET_KEY` | Yes | `6LddL-osAAAAADyUqH0399qBwVVY2-jAi0Rjj1D5` | reCAPTCHA v3 secret. |
-| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Yes | same as `RECAPTCHA_SITE_KEY` | Site key exposed to the browser. |
-| `CONTACT_PHONE_PRIMARY` | Optional | `0114999959` | Initial seed for DB Settings. |
-| `CONTACT_PHONE_SECONDARY` | Optional | `9200 17403` | Initial seed for DB Settings. |
-| `CONTACT_EMAIL_PRIMARY` | Optional | `info@rejuveracenter.sa` | Initial seed for DB Settings. |
-| `CONTACT_EMAIL_SECONDARY` | Optional | `info@rejuveracenter.com.sa` | Initial seed for DB Settings. |
-| `GOOGLE_MAPS_EMBED_URL` | Optional | `https://www.google.com/maps/embed?...` | Initial seed for `contact.mapsEmbedUrl`. |
-| `NEXT_TELEMETRY_DISABLED` | Optional | `1` | Disables Next.js anonymous telemetry. |
-| `NODE_OPTIONS` | Optional | e.g. `--inspect` extras | Rarely needed — the Render **start command** already passes `--max-old-space-size` via `node`. Extra flags merge with Node defaults. |
-| `HOSTNAME` | Optional | `0.0.0.0` | Declared in `render.yaml`; ensures the standalone server binds publicly (Render supplies `PORT`). |
+| Key                              | Required | Sample value                                                        | Purpose                                                                                                                                                                                                                                                                                      |
+| -------------------------------- | -------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`                   | Yes      | Neon **pooled** URI (`…-pooler…` host when Neon offers it)          | Used by the app at runtime (serverless-friendly). If Neon does not give a separate pooled string, use their default **non‑pooling** URI. Optional Prisma tightening: append `?connection_limit=5&pool_timeout=10` **after** `sslmode=require` (`&connection_limit=5…`) — adjust for traffic. |
+| `DIRECT_URL`                     | Yes      | Neon **direct** URI (non-pooler host)                               | Required for `prisma migrate deploy` during build (advisory locks). Do **not** point both at the pooler-only endpoint.                                                                                                                                                                       |
+| `NEXTAUTH_URL`                   | Yes      | `https://rejuveracenter.sa`                                         | Public base URL for NextAuth callbacks.                                                                                                                                                                                                                                                      |
+| `NEXTAUTH_SECRET`                | Yes      | `<random 32+ bytes>`                                                | NextAuth session encryption secret. Generate with `openssl rand -base64 32`. Render can auto-generate this.                                                                                                                                                                                  |
+| `AUTH_URL`                       | Yes      | `https://rejuveracenter.sa`                                         | NextAuth v5 mirror of `NEXTAUTH_URL`.                                                                                                                                                                                                                                                        |
+| `AUTH_SECRET`                    | Yes      | same as `NEXTAUTH_SECRET`                                           | NextAuth v5 mirror of `NEXTAUTH_SECRET`.                                                                                                                                                                                                                                                     |
+| `SITE_URL`                       | Yes      | `https://rejuveracenter.sa`                                         | Used by SEO, sitemap, robots, OG.                                                                                                                                                                                                                                                            |
+| `R2_ACCOUNT_ID`                  | Yes      | `b7e00c4c9c0ba3b4b20a0b001e2b14ac`                                  | Cloudflare R2 account id.                                                                                                                                                                                                                                                                    |
+| `R2_ENDPOINT`                    | Yes      | `https://b7e00c4c9c0ba3b4b20a0b001e2b14ac.r2.cloudflarestorage.com` | R2 S3-compatible endpoint.                                                                                                                                                                                                                                                                   |
+| `R2_BUCKET`                      | Yes      | `rejuvera`                                                          | Target bucket name.                                                                                                                                                                                                                                                                          |
+| `R2_ACCESS_KEY_ID`               | Yes      | _from Cloudflare R2 → API Tokens_                                   | R2 access key id.                                                                                                                                                                                                                                                                            |
+| `R2_SECRET_ACCESS_KEY`           | Yes      | _from Cloudflare R2 → API Tokens_                                   | R2 secret access key.                                                                                                                                                                                                                                                                        |
+| `R2_PUBLIC_BASE_URL`             | Optional | `https://cdn.rejuveracenter.sa`                                     | Public CDN/custom domain prefix; when set, uploads expose direct public URLs.                                                                                                                                                                                                                |
+| `RECAPTCHA_SITE_KEY`             | Yes      | `6LddL-osAAAAAGw48jLbjDZqd0LNRJtLNP1BCR09`                          | reCAPTCHA v3 site key.                                                                                                                                                                                                                                                                       |
+| `RECAPTCHA_SECRET_KEY`           | Yes      | `6LddL-osAAAAADyUqH0399qBwVVY2-jAi0Rjj1D5`                          | reCAPTCHA v3 secret.                                                                                                                                                                                                                                                                         |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | Yes      | same as `RECAPTCHA_SITE_KEY`                                        | Site key exposed to the browser.                                                                                                                                                                                                                                                             |
+| `CONTACT_PHONE_PRIMARY`          | Optional | `0114999959`                                                        | Initial seed for DB Settings.                                                                                                                                                                                                                                                                |
+| `CONTACT_PHONE_SECONDARY`        | Optional | `9200 17403`                                                        | Initial seed for DB Settings.                                                                                                                                                                                                                                                                |
+| `CONTACT_EMAIL_PRIMARY`          | Optional | `info@rejuveracenter.sa`                                            | Initial seed for DB Settings.                                                                                                                                                                                                                                                                |
+| `CONTACT_EMAIL_SECONDARY`        | Optional | `info@rejuveracenter.com.sa`                                        | Initial seed for DB Settings.                                                                                                                                                                                                                                                                |
+| `GOOGLE_MAPS_EMBED_URL`          | Optional | `https://www.google.com/maps/embed?...`                             | Initial seed for `contact.mapsEmbedUrl`.                                                                                                                                                                                                                                                     |
+| `NEXT_TELEMETRY_DISABLED`        | Optional | `1`                                                                 | Disables Next.js anonymous telemetry.                                                                                                                                                                                                                                                        |
+| `NODE_OPTIONS`                   | Optional | e.g. `--inspect` extras                                             | Rarely needed — the Render **start command** already passes `--max-old-space-size` via `node`. Extra flags merge with Node defaults.                                                                                                                                                         |
+| `HOSTNAME`                       | Optional | `0.0.0.0`                                                           | Declared in `render.yaml`; ensures the standalone server binds publicly (Render supplies `PORT`).                                                                                                                                                                                            |
 
 > Secrets that the user has **not yet provided**:
+>
 > - `R2_ACCESS_KEY_ID`
 > - `R2_SECRET_ACCESS_KEY`
-> Create them in Cloudflare R2 → _Manage R2 API Tokens_ → _Create
-> API Token_ → _Object Read & Write on bucket `rejuvera`_.
+>   Create them in Cloudflare R2 → _Manage R2 API Tokens_ → _Create
+>   API Token_ → _Object Read & Write on bucket `rejuvera`_.
 
 ## 5) Cron jobs (Render Cron)
 
@@ -151,10 +151,10 @@ at `/admin` and seeded admin credentials can be created with
 
 ## 8) Operational endpoints
 
-| Route | Purpose |
-| --- | --- |
-| `GET /api/health` | Liveness probe (Render health check). |
-| `POST /api/admin/upload` | Authenticated upload to R2 (multipart form). |
+| Route                    | Purpose                                                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `GET /api/health`        | Liveness probe (Render health check).                                                                           |
+| `POST /api/admin/upload` | Authenticated upload to R2 (multipart form).                                                                    |
 | `POST /api/admin/backup` | Authenticated nightly JSON snapshot of the content tables, stored in R2 under `backups/yyyy/mm/dd-{ulid}.json`. |
 
 All `/api/admin/*` routes require a signed-in admin session. The
@@ -199,5 +199,6 @@ Last resort (single-worker setups only): set **`PRISMA_SCHEMA_DISABLE_ADVISORY_L
 Starter instances cap RAM at ~**512MB** total — **RSS** includes V8 heap, buffers, native Prisma/driver memory, Next.js caches, concurrent requests, exports (PDF/XLS), etc.
 
 **Operational fixes:**
+
 - Prefer upgrading the web service to **Standard (2GB)** when traffic or admin exports are non-trivial.
 - The production start path uses **standalone `server.js`** plus `node --max-old-space-size=460` to avoid the Node/V8 allocator claiming the whole slab at once — if you upgrade plans you can raise/remove that cap via the documented start command tweak.

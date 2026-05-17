@@ -31,7 +31,7 @@ export function AnimatedCounter({
           obs.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
     obs.observe(ref);
     return () => obs.disconnect();
@@ -48,7 +48,9 @@ export function AnimatedCounter({
       step++;
       const progress = Math.min(step / steps, 1);
       const eased = easeOut(progress);
-      const current = Math.round(value * eased * Math.pow(10, decimals)) / Math.pow(10, decimals);
+      const current =
+        Math.round(value * eased * Math.pow(10, decimals)) /
+        Math.pow(10, decimals);
       setCount(current);
       if (progress >= 1) clearInterval(timer);
     }, duration / steps);

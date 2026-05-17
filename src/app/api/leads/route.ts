@@ -91,7 +91,9 @@ export async function POST(request: Request) {
         : {}),
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(parsed.data.serviceSlug ? { serviceSlug: parsed.data.serviceSlug } : {}),
+      ...(parsed.data.serviceSlug
+        ? { serviceSlug: parsed.data.serviceSlug }
+        : {}),
     });
     revalidatePath("/admin/crm");
     return redirectBack(request, "success");

@@ -67,8 +67,12 @@ export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
                   />
                 ) : (
                   <>
-                    <span className="lang-ar">{initialsFromName(t.authorAr)}</span>
-                    <span className="lang-en">{initialsFromName(t.authorEn)}</span>
+                    <span className="lang-ar">
+                      {initialsFromName(t.authorAr)}
+                    </span>
+                    <span className="lang-en">
+                      {initialsFromName(t.authorEn)}
+                    </span>
                   </>
                 )}
               </span>

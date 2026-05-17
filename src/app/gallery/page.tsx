@@ -39,18 +39,33 @@ export default async function GalleryPage() {
                 <span className="lang-en">Results Gallery</span>
               </p>
               <h1 className="balanced-text text-ink mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] lg:text-6xl">
-                <span className="lang-ar">نتائج حقيقية تعكس الدقة والاهتمام بكل تفصيلة.</span>
-                <span className="lang-en">Real results reflecting precision and attention to every detail.</span>
+                <span className="lang-ar">
+                  نتائج حقيقية تعكس الدقة والاهتمام بكل تفصيلة.
+                </span>
+                <span className="lang-en">
+                  Real results reflecting precision and attention to every
+                  detail.
+                </span>
               </h1>
               <p className="text-ink-soft mt-5 max-w-xl text-base leading-8">
-                <span className="lang-ar">هذا القسم يجمع مرجعًا بصريًا صادقًا لما يمكن تحقيقه. مقارنات قبل وبعد تُظهر النتيجة الفعلية دون مبالغة، لأن الثقة تُبنى بالوضوح لا بالإبهار.</span>
-                <span className="lang-en">This section gathers an honest visual reference for what can be achieved. Before and after comparisons show real results without exaggeration, because trust is built on clarity, not spectacle.</span>
+                <span className="lang-ar">
+                  هذا القسم يجمع مرجعًا بصريًا صادقًا لما يمكن تحقيقه. مقارنات
+                  قبل وبعد تُظهر النتيجة الفعلية دون مبالغة، لأن الثقة تُبنى
+                  بالوضوح لا بالإبهار.
+                </span>
+                <span className="lang-en">
+                  This section gathers an honest visual reference for what can
+                  be achieved. Before and after comparisons show real results
+                  without exaggeration, because trust is built on clarity, not
+                  spectacle.
+                </span>
               </p>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
                 <p className="eyebrow">
-                  <span className="lang-ar">حالات موثقة</span><span className="lang-en">Documented Cases</span>
+                  <span className="lang-ar">حالات موثقة</span>
+                  <span className="lang-en">Documented Cases</span>
                 </p>
                 <p className="text-ink mt-3 font-serif text-3xl">
                   {items.length}+
@@ -58,7 +73,8 @@ export default async function GalleryPage() {
               </div>
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
                 <p className="eyebrow">
-                  <span className="lang-ar">أقسام العناية</span><span className="lang-en">Care Categories</span>
+                  <span className="lang-ar">أقسام العناية</span>
+                  <span className="lang-en">Care Categories</span>
                 </p>
                 <p className="text-ink mt-3 font-serif text-3xl">
                   {categories.length}
@@ -66,7 +82,8 @@ export default async function GalleryPage() {
               </div>
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
                 <p className="eyebrow">
-                  <span className="lang-ar">نسبة الرضا</span><span className="lang-en">Satisfaction Rate</span>
+                  <span className="lang-ar">نسبة الرضا</span>
+                  <span className="lang-en">Satisfaction Rate</span>
                 </p>
                 <p className="text-ink mt-3 font-serif text-3xl">97%</p>
               </div>
@@ -86,10 +103,17 @@ export default async function GalleryPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                 <div className="absolute inset-x-5 bottom-5">
-                  <p className="eyebrow text-white/70"><span className="lang-ar">الانطباع البصري</span><span className="lang-en">Visual Narrative</span></p>
+                  <p className="eyebrow text-white/70">
+                    <span className="lang-ar">الانطباع البصري</span>
+                    <span className="lang-en">Visual Narrative</span>
+                  </p>
                   <p className="font-serif text-2xl tracking-[-0.04em] text-white">
-                    <span className="lang-ar">مقارنات منظمة مرتبطة بالخدمة والنتيجة</span>
-                    <span className="lang-en">Real imagery tied to the service and the expected outcome</span>
+                    <span className="lang-ar">
+                      مقارنات منظمة مرتبطة بالخدمة والنتيجة
+                    </span>
+                    <span className="lang-en">
+                      Real imagery tied to the service and the expected outcome
+                    </span>
                   </p>
                 </div>
               </div>
@@ -117,7 +141,8 @@ export default async function GalleryPage() {
         {categories.length > 1 ? (
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-ink-soft text-sm">
-              <span className="lang-ar">التصفية:</span><span className="lang-en">Filter:</span>
+              <span className="lang-ar">التصفية:</span>
+              <span className="lang-en">Filter:</span>
             </span>
             {categories.map((cat) => (
               <span
@@ -139,8 +164,12 @@ export default async function GalleryPage() {
               <span className="lang-en">Before &amp; After Comparisons</span>
             </p>
             <h2 className="balanced-text text-ink mt-3 font-serif text-5xl tracking-[-0.055em]">
-              <span className="lang-ar">وضوح النتيجة هو أقوى دليل على جودة العناية.</span>
-              <span className="lang-en">The clarity of results is the strongest proof of care quality.</span>
+              <span className="lang-ar">
+                وضوح النتيجة هو أقوى دليل على جودة العناية.
+              </span>
+              <span className="lang-en">
+                The clarity of results is the strongest proof of care quality.
+              </span>
             </h2>
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
@@ -161,7 +190,8 @@ export default async function GalleryPage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       <span className="absolute right-3 bottom-3 rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                        <span className="lang-ar">قبل</span><span className="lang-en">Before</span>
+                        <span className="lang-ar">قبل</span>
+                        <span className="lang-en">Before</span>
                       </span>
                     </div>
                   </div>
@@ -176,7 +206,8 @@ export default async function GalleryPage() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                       <span className="bg-emerald/80 absolute bottom-3 left-3 rounded-full px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                        <span className="lang-ar">بعد</span><span className="lang-en">After</span>
+                        <span className="lang-ar">بعد</span>
+                        <span className="lang-en">After</span>
                       </span>
                     </div>
                   </div>
@@ -185,17 +216,24 @@ export default async function GalleryPage() {
                   <div className="flex items-center justify-between gap-3">
                     <span className="eyebrow">
                       <span className="lang-ar">{item.category}</span>
-                      <span className="lang-en">{item.categoryEn ?? "Before and after"}</span>
+                      <span className="lang-en">
+                        {item.categoryEn ?? "Before and after"}
+                      </span>
                     </span>
                     <div className="h-px flex-1 bg-[linear-gradient(to_right,transparent,var(--line-subtle),transparent)]" />
                   </div>
                   <h3 className="text-ink mt-3 font-serif text-3xl tracking-[-0.04em]">
                     <span className="lang-ar">{item.title}</span>
-                    <span className="lang-en">{item.titleEn ?? "Treatment result preview"}</span>
+                    <span className="lang-en">
+                      {item.titleEn ?? "Treatment result preview"}
+                    </span>
                   </h3>
                   <p className="text-ink-soft mt-2 text-sm leading-7">
                     <span className="lang-ar">{item.description}</span>
-                    <span className="lang-en">{item.descriptionEn ?? "A visual comparison connected to a defined service and clear treatment plan."}</span>
+                    <span className="lang-en">
+                      {item.descriptionEn ??
+                        "A visual comparison connected to a defined service and clear treatment plan."}
+                    </span>
                   </p>
                 </div>
               </article>
@@ -206,14 +244,28 @@ export default async function GalleryPage() {
         {/* ── CTA ────────────────────────────────────────── */}
         <section className="grid gap-5 lg:grid-cols-[0.92fr_1.08fr]">
           <article className="surface-panel rounded-[2.4rem] p-8 lg:p-10">
-            <p className="eyebrow"><span className="lang-ar">نتيجتك القادمة</span><span className="lang-en">Your Next Result</span></p>
+            <p className="eyebrow">
+              <span className="lang-ar">نتيجتك القادمة</span>
+              <span className="lang-en">Your Next Result</span>
+            </p>
             <h2 className="balanced-text text-ink mt-4 font-serif text-5xl tracking-[-0.055em]">
-              <span className="lang-ar">ابدئي بخطة واضحة وشاهدي الفرق بنفسك.</span>
-              <span className="lang-en">Start with a clear plan and see the difference yourself.</span>
+              <span className="lang-ar">
+                ابدئي بخطة واضحة وشاهدي الفرق بنفسك.
+              </span>
+              <span className="lang-en">
+                Start with a clear plan and see the difference yourself.
+              </span>
             </h2>
             <p className="text-ink-soft mt-4 text-sm leading-8">
-              <span className="lang-ar">كل نتيجة في هذا القسم مرتبطة بخدمة وخطة علاجية محددة. ابدئي من الاستشارة لمعرفة ما يناسب حالتك.</span>
-              <span className="lang-en">Every result in this section is connected to a defined service and treatment plan. Start with a consultation to understand what fits your case.</span>
+              <span className="lang-ar">
+                كل نتيجة في هذا القسم مرتبطة بخدمة وخطة علاجية محددة. ابدئي من
+                الاستشارة لمعرفة ما يناسب حالتك.
+              </span>
+              <span className="lang-en">
+                Every result in this section is connected to a defined service
+                and treatment plan. Start with a consultation to understand what
+                fits your case.
+              </span>
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
@@ -243,10 +295,18 @@ export default async function GalleryPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
               <div className="absolute inset-x-5 bottom-5 rounded-[1.4rem] border border-white/30 bg-white/20 p-4 backdrop-blur-md">
-                <p className="eyebrow text-white/70"><span className="lang-ar">جودة التجربة</span><span className="lang-en">Experience Quality</span></p>
+                <p className="eyebrow text-white/70">
+                  <span className="lang-ar">جودة التجربة</span>
+                  <span className="lang-en">Experience Quality</span>
+                </p>
                 <p className="font-serif text-2xl leading-snug tracking-[-0.04em] text-white">
-                  <span className="lang-ar">أجهزة وخطط علاجية معروضة بما يخدم فهم النتيجة المتوقعة.</span>
-                  <span className="lang-en">Devices and treatment plans presented to clarify the expected result.</span>
+                  <span className="lang-ar">
+                    أجهزة وخطط علاجية معروضة بما يخدم فهم النتيجة المتوقعة.
+                  </span>
+                  <span className="lang-en">
+                    Devices and treatment plans presented to clarify the
+                    expected result.
+                  </span>
                 </p>
               </div>
             </div>
@@ -257,4 +317,3 @@ export default async function GalleryPage() {
     </div>
   );
 }
-

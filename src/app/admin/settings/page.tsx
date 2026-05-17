@@ -21,8 +21,12 @@ export default async function AdminSettingsPage() {
             <span className="lang-en">Settings</span>
           </h1>
           <p>
-            <span className="lang-ar">جهات الاتصال، الهوية، الصور، SEO، التكاملات.</span>
-            <span className="lang-en">Contact, brand, images, SEO, integrations.</span>
+            <span className="lang-ar">
+              جهات الاتصال، الهوية، الصور، SEO، التكاملات.
+            </span>
+            <span className="lang-en">
+              Contact, brand, images, SEO, integrations.
+            </span>
           </p>
         </div>
       </div>

@@ -80,7 +80,11 @@ export default async function AdminLayout({
   return (
     <div className="admin-shell admin-app font-[family-name:var(--font-rejuvira-sans)] antialiased">
       <AdminLanguageBridge />
-      <AdminMobileShell brand={brand} sidebar={sidebarContent} topbarMeta={topbarMeta}>
+      <AdminMobileShell
+        brand={brand}
+        sidebar={sidebarContent}
+        topbarMeta={topbarMeta}
+      >
         {children}
       </AdminMobileShell>
     </div>

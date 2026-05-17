@@ -37,7 +37,10 @@ export function CinematicIntro({ logoSrc, logoAlt }: CinematicIntroProps) {
 
     setVisible(true);
 
-    if (typeof document !== "undefined" && (document as Document & { fonts?: FontFaceSet }).fonts) {
+    if (
+      typeof document !== "undefined" &&
+      (document as Document & { fonts?: FontFaceSet }).fonts
+    ) {
       (document as Document & { fonts?: FontFaceSet })
         .fonts!.ready.then(() => {
           fontReadyRef.current = true;

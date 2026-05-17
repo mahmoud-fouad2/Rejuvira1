@@ -15,14 +15,17 @@ import type { CrmRecord } from "@/lib/content-repository";
 
 const initialState: CrmActionState = { status: "idle", message: "" };
 
-const STATUS_OPTIONS: Array<{ value: SubmissionStatus; ar: string; en: string }> =
-  [
-    { value: SubmissionStatus.NEW, ar: "جديد", en: "New" },
-    { value: SubmissionStatus.CONTACTED, ar: "تم التواصل", en: "Contacted" },
-    { value: SubmissionStatus.FOLLOW_UP, ar: "متابعة", en: "Follow-up" },
-    { value: SubmissionStatus.BOOKED, ar: "محجوز", en: "Booked" },
-    { value: SubmissionStatus.CLOSED, ar: "مغلق", en: "Closed" },
-  ];
+const STATUS_OPTIONS: Array<{
+  value: SubmissionStatus;
+  ar: string;
+  en: string;
+}> = [
+  { value: SubmissionStatus.NEW, ar: "جديد", en: "New" },
+  { value: SubmissionStatus.CONTACTED, ar: "تم التواصل", en: "Contacted" },
+  { value: SubmissionStatus.FOLLOW_UP, ar: "متابعة", en: "Follow-up" },
+  { value: SubmissionStatus.BOOKED, ar: "محجوز", en: "Booked" },
+  { value: SubmissionStatus.CLOSED, ar: "مغلق", en: "Closed" },
+];
 
 function formatDate(iso: string) {
   try {
@@ -68,7 +71,10 @@ export function CrmSubmissionEditor({
     initialState,
   );
 
-  const initialTags = useMemo(() => [...(submission.tags ?? [])], [submission.tags]);
+  const initialTags = useMemo(
+    () => [...(submission.tags ?? [])],
+    [submission.tags],
+  );
   const [tags, setTags] = useState<string[]>(initialTags);
   const [tagInput, setTagInput] = useState("");
 
@@ -238,7 +244,7 @@ export function CrmSubmissionEditor({
                 }
               }}
               placeholder="Enter to add"
-              className="admin-input flex-1 min-w-[8rem]"
+              className="admin-input min-w-[8rem] flex-1"
             />
             {tagInput.trim() ? (
               <button
@@ -271,11 +277,17 @@ export function CrmSubmissionEditor({
 
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           <div className="flex flex-wrap gap-2">
-            <button type="submit" disabled={isPending} className="admin-btn-primary">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="admin-btn-primary"
+            >
               <span className="lang-ar">
                 {isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
               </span>
-              <span className="lang-en">{isPending ? "Saving..." : "Save"}</span>
+              <span className="lang-en">
+                {isPending ? "Saving..." : "Save"}
+              </span>
             </button>
           </div>
           {state.message ? (
@@ -288,7 +300,10 @@ export function CrmSubmissionEditor({
         </div>
       </form>
 
-      <div className="admin-card !shadow-none border" style={{ borderColor: "var(--admin-border)" }}>
+      <div
+        className="admin-card border !shadow-none"
+        style={{ borderColor: "var(--admin-border)" }}
+      >
         <div className="admin-card__header">
           <div>
             <div className="admin-card__subtitle">Activity</div>
@@ -309,7 +324,11 @@ export function CrmSubmissionEditor({
               className="admin-input"
             />
             <div className="flex items-center justify-between gap-2">
-              <button type="submit" disabled={commentPending} className="admin-btn-secondary text-xs">
+              <button
+                type="submit"
+                disabled={commentPending}
+                className="admin-btn-secondary text-xs"
+              >
                 <span className="lang-ar">إضافة ملاحظة</span>
                 <span className="lang-en">Add note</span>
               </button>
@@ -324,7 +343,7 @@ export function CrmSubmissionEditor({
           </form>
 
           {submission.comments.length === 0 ? (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               <span className="lang-ar">لا توجد ملاحظات داخلية بعد.</span>
               <span className="lang-en">No internal notes yet.</span>
             </p>
@@ -344,7 +363,7 @@ export function CrmSubmissionEditor({
                       <p className="text-[13px] font-medium">
                         {comment.authorName ?? "—"}
                       </p>
-                      <p className="text-[11px] text-muted-foreground">
+                      <p className="text-muted-foreground text-[11px]">
                         {formatDate(comment.createdAt)}
                       </p>
                     </div>
@@ -359,7 +378,7 @@ export function CrmSubmissionEditor({
                       </button>
                     </form>
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed">
+                  <p className="mt-1 text-[13px] leading-relaxed whitespace-pre-wrap">
                     {comment.body}
                   </p>
                 </li>

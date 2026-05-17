@@ -11,7 +11,8 @@ export default function NewCustomPagePage() {
           <span className="admin-page-header__eyebrow">PageCraft</span>
           <h1>إنشاء صفحة مخصصة جديدة</h1>
           <p>
-            ابنِ صفحة حملة أو lead page بمكونات جاهزة، ثم احفظها فعليًا في قاعدة البيانات.
+            ابنِ صفحة حملة أو lead page بمكونات جاهزة، ثم احفظها فعليًا في قاعدة
+            البيانات.
           </p>
         </div>
         <div className="admin-page-header__actions">

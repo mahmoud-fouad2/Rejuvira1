@@ -611,7 +611,8 @@ const doctorPortraits = [
 ] as const;
 
 const serviceImages = {
-  aestheticSurgery: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
+  aestheticSurgery:
+    "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
   skinCare: "/media/curated/service-skin-rejuvenation.webp",
   laser: "/media/curated/service-laser-hair-removal.jpg",
   injectables: "/media/curated/service-injectables.webp",
@@ -1004,7 +1005,12 @@ const seedServices: ServiceRecord[] = [
       "شرح البدائل والمخاطر والتوقعات",
       "متابعة منظمة بعد الإجراء",
     ],
-    doctorSlugs: ["loai-alsalmi", "maher-alahdab", "saham-arfaj", "ahmed-eldesouki"],
+    doctorSlugs: [
+      "loai-alsalmi",
+      "maher-alahdab",
+      "saham-arfaj",
+      "ahmed-eldesouki",
+    ],
     deviceSlugs: [],
     status: ContentStatus.PUBLISHED,
     featured: true,
@@ -1182,8 +1188,10 @@ const seedGallery: GalleryRecord[] = [
     category: "الجراحة التجميلية",
     description:
       "مقارنة مرتبطة بإجراءات شد الوجه والرقبة مع إبراز أهمية التقييم الجراحي والتوقعات الواقعية.",
-    beforeImageUrl: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-2.50.24-PM.jpeg",
-    afterImageUrl: "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
+    beforeImageUrl:
+      "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-2.50.24-PM.jpeg",
+    afterImageUrl:
+      "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
     beforeImageAlt: "شد الوجه والرقبة قبل",
     afterImageAlt: "شد الوجه والرقبة بعد",
     initialSplitPercent: 50,
@@ -1250,7 +1258,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-aesthetic-surgery-planning",
     slug: "aesthetic-surgery-planning-riyadh",
     title: "كيف تبدأ استشارة الجراحة التجميلية بخطة واضحة وآمنة؟",
-    excerpt: "دليل مختصر من ريجوفيرا يوضح ما يجب مناقشته قبل أي قرار جراحي تجميلي في الرياض.",
+    excerpt:
+      "دليل مختصر من ريجوفيرا يوضح ما يجب مناقشته قبل أي قرار جراحي تجميلي في الرياض.",
     body: [
       "الاستشارة الجراحية الناجحة لا تبدأ من اسم العملية، بل من فهم الهدف، تقييم الحالة، وتوضيح الخيارات الممكنة وحدود كل خيار.",
       "في ريجوفيرا نركز على أن تكون المراجعة مطمئنة وواضحة، مع شرح مسار التحضير والمتابعة حتى يكون القرار مبنيًا على معرفة لا على توقعات غير دقيقة.",
@@ -1266,7 +1275,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-body-contouring-expectations",
     slug: "body-contouring-realistic-expectations",
     title: "تنسيق القوام: ماذا يجب أن تعرفي قبل اختيار الإجراء؟",
-    excerpt: "مقال يشرح الفروق بين تحسين التناسق وتغيير الشكل، وكيف تحدد الاستشارة الخيار المناسب.",
+    excerpt:
+      "مقال يشرح الفروق بين تحسين التناسق وتغيير الشكل، وكيف تحدد الاستشارة الخيار المناسب.",
     body: [
       "تنسيق القوام يحتاج قراءة دقيقة لتوزيع الدهون، جودة الجلد، نمط الحياة، والهدف المطلوب. لذلك تختلف الخطة من حالة لأخرى.",
       "الأفضل دائمًا هو اختيار إجراء يخدم التناسق الطبيعي ويضع توقعات واقعية حول مدة التعافي ووقت ظهور النتيجة.",
@@ -1282,7 +1292,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-skin-tightening-guide",
     slug: "skin-tightening-options-guide",
     title: "شد البشرة غير الجراحي: متى يكون مناسبًا؟",
-    excerpt: "شرح مبسط للحالات التي يناسبها الشد غير الجراحي ومتى تكون الخيارات الأخرى أفضل.",
+    excerpt:
+      "شرح مبسط للحالات التي يناسبها الشد غير الجراحي ومتى تكون الخيارات الأخرى أفضل.",
     body: [
       "تقنيات الشد غير الجراحي قد تكون مناسبة عند وجود ترهل خفيف أو متوسط، لكنها ليست بديلًا لكل الحالات الجراحية.",
       "التقييم الطبي يحدد هل الهدف هو تحفيز الكولاجين، تحسين الملمس، أو الانتقال إلى خطة مختلفة أكثر ملاءمة.",
@@ -1298,7 +1309,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-prp-hair-skin",
     slug: "prp-hair-skin-before-treatment",
     title: "حقن البلازما للشعر والبشرة: أسئلة مهمة قبل البدء",
-    excerpt: "متى تكون البلازما خيارًا مناسبًا، وما الذي يجب تقييمه قبل تحديد عدد الجلسات؟",
+    excerpt:
+      "متى تكون البلازما خيارًا مناسبًا، وما الذي يجب تقييمه قبل تحديد عدد الجلسات؟",
     body: [
       "البلازما ليست إجراءً موحدًا لكل الحالات. في الشعر مثلًا نحتاج تقييم درجة التساقط والأسباب المحتملة قبل اعتماد الخطة.",
       "وفي البشرة، يختلف الهدف بين تحسين النضارة ودعم التعافي ضمن خطة أوسع. لذلك تبدأ النتيجة الجيدة من تشخيص صحيح.",
@@ -1314,7 +1326,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-choosing-doctor",
     slug: "choosing-aesthetic-doctor-riyadh",
     title: "كيف تختارين الطبيب المناسب للتجميل الطبي؟",
-    excerpt: "معايير تساعدك على قراءة الملف الطبي والخبرة وطريقة شرح الخطة قبل الحجز.",
+    excerpt:
+      "معايير تساعدك على قراءة الملف الطبي والخبرة وطريقة شرح الخطة قبل الحجز.",
     body: [
       "اختيار الطبيب لا يعتمد على الصورة أو عدد السنوات فقط، بل على وضوح التواصل، التخصص، وطريقة شرح التوقعات والمخاطر.",
       "ملف الطبيب الجيد يجب أن يوضح مجالات الخبرة والخدمات المرتبطة به، حتى تختاري الاستشارة المناسبة من البداية.",
@@ -1330,7 +1343,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-before-after-reading",
     slug: "how-to-read-before-after-photos",
     title: "كيف تقرئين صور قبل وبعد بطريقة صحيحة؟",
-    excerpt: "دليل لفهم صور النتائج دون مبالغة: الإضاءة، الزاوية، الفترة الزمنية، وطبيعة الحالة.",
+    excerpt:
+      "دليل لفهم صور النتائج دون مبالغة: الإضاءة، الزاوية، الفترة الزمنية، وطبيعة الحالة.",
     body: [
       "صور قبل وبعد تساعد على تكوين تصور، لكنها تحتاج قراءة دقيقة. اختلاف الإضاءة أو الزاوية قد يغير الانطباع بشكل كبير.",
       "الأهم هو ربط الصورة بالخدمة، نوع الحالة، والمدة بين الصورتين، حتى يصبح القرار مبنيًا على فهم واقعي.",
@@ -1346,7 +1360,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-consultation-prep",
     slug: "prepare-for-aesthetic-consultation",
     title: "كيف تستعدين لاستشارة التجميل في ريجوفيرا؟",
-    excerpt: "خطوات بسيطة تساعدك على الاستفادة من الاستشارة: الأسئلة، الصور، التاريخ الطبي، والهدف المطلوب.",
+    excerpt:
+      "خطوات بسيطة تساعدك على الاستفادة من الاستشارة: الأسئلة، الصور، التاريخ الطبي، والهدف المطلوب.",
     body: [
       "قبل الاستشارة، اكتبي الأسئلة الأساسية والنتيجة التي تتمنينها، وأحضري أي معلومات طبية قد تؤثر على الخطة.",
       "كلما كانت المعلومات أوضح، أصبح بإمكان الفريق الطبي اقتراح مسار أدق وأكثر ملاءمة لحالتك.",
@@ -1361,8 +1376,10 @@ const seedJournalPosts: JournalPostRecord[] = [
   {
     id: "journal-face-neck-lift-fillers",
     slug: "face-neck-lift-threads-fillers",
-    title: "شد الوجه والرقبة: متى تحتاجين العملية؟ وما الفرق بينها وبين الخيوط والفيلر؟",
-    excerpt: "دليل مبسط يوضح الفرق بين شد الوجه والفيلر والخيوط، ومتى تكون العملية خيارًا أنسب للترهل الواضح.",
+    title:
+      "شد الوجه والرقبة: متى تحتاجين العملية؟ وما الفرق بينها وبين الخيوط والفيلر؟",
+    excerpt:
+      "دليل مبسط يوضح الفرق بين شد الوجه والفيلر والخيوط، ومتى تكون العملية خيارًا أنسب للترهل الواضح.",
     body: [
       "مع التقدم في العمر، قد تبدأ ملامح الوجه في فقدان تحديدها تدريجيًا، ويظهر الترهل في منطقة الخدين، خط الفك، والرقبة. هنا تتساءل كثير من السيدات: هل أحتاج إلى فيلر؟ أم خيوط؟ أم أن شد الوجه هو الخيار الأنسب؟",
       "الفيلر يساعد في تعويض فقدان الحجم في مناطق محددة، بينما قد تستخدم الخيوط لتحسين الرفع بدرجة بسيطة ومؤقتة لدى بعض الحالات. أما عملية شد الوجه والرقبة فتهدف إلى التعامل مع الترهل الواضح في الجلد والأنسجة العميقة وتحسين تحديد الفك والرقبة بصورة أشمل.",
@@ -1382,8 +1399,10 @@ const seedJournalPosts: JournalPostRecord[] = [
   {
     id: "journal-breast-augmentation-size",
     slug: "breast-augmentation-size-riyadh",
-    title: "تكبير الثدي في الرياض: كيف تختارين المقاس المناسب والنتيجة الطبيعية؟",
-    excerpt: "تكبير الثدي ليس اختيار حجم أكبر فقط، بل تخطيط للتناسق مع شكل الجسم والأنسجة والنتيجة الطبيعية.",
+    title:
+      "تكبير الثدي في الرياض: كيف تختارين المقاس المناسب والنتيجة الطبيعية؟",
+    excerpt:
+      "تكبير الثدي ليس اختيار حجم أكبر فقط، بل تخطيط للتناسق مع شكل الجسم والأنسجة والنتيجة الطبيعية.",
     body: [
       "تكبير الثدي ليس مجرد اختيار حجم أكبر، بل هو قرار يعتمد على التناسق الكامل مع شكل الجسم. فالنتيجة الجميلة لا تقاس بالمقاس وحده، وإنما بمدى تناسب الامتلاء مع عرض الصدر، شكل الكتفين، الخصر، وطبيعة الأنسجة.",
       "عند التفكير في تكبير الثدي، يتم تقييم حجم الثدي الحالي، عرض القفص الصدري، شكل الجسم العام، سماكة الجلد والأنسجة، ورغبة المريضة في نتيجة ناعمة أو أكثر امتلاءً.",
@@ -1404,7 +1423,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-body-contouring-weight-loss",
     slug: "body-contouring-after-weight-loss",
     title: "نحت الجسم بعد فقدان الوزن: ما المناطق التي يمكن تحسينها جراحيًا؟",
-    excerpt: "بعد نزول الوزن قد تظهر ترهلات في البطن والذراعين والفخذين، وتحتاج الخطة إلى تقييم دقيق للتناسق.",
+    excerpt:
+      "بعد نزول الوزن قد تظهر ترهلات في البطن والذراعين والفخذين، وتحتاج الخطة إلى تقييم دقيق للتناسق.",
     body: [
       "فقدان الوزن إنجاز كبير، لكنه في بعض الحالات قد يترك خلفه ترهلات جلدية أو مناطق غير متناسقة لا تختفي بالرياضة وحدها. وهنا يأتي دور جراحات تنسيق القوام ونحت الجسم لتحسين شكل الجسم بعد النزول.",
       "قد تظهر الترهلات في البطن والخصر، الذراعين، الفخذين، الظهر، والصدر في بعض الحالات. ولا يهدف نحت الجسم فقط إلى إزالة الجلد الزائد، بل إلى إعادة تحسين الانسيابية والتناسق بين أجزاء الجسم.",
@@ -1425,7 +1445,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-liposuction-vs-contouring",
     slug: "liposuction-vs-body-contouring",
     title: "شفط الدهون أم نحت الجسم؟ الفرق بين الإجرائين وأيهما أنسب لكِ",
-    excerpt: "شرح الفرق بين شفط الدهون ونحت الجسم، وكيف يحدد الفحص الإجراء الأنسب حسب الدهون والترهل ومرونة الجلد.",
+    excerpt:
+      "شرح الفرق بين شفط الدهون ونحت الجسم، وكيف يحدد الفحص الإجراء الأنسب حسب الدهون والترهل ومرونة الجلد.",
     body: [
       "كثير من الأشخاص يستخدمون مصطلحي شفط الدهون ونحت الجسم وكأنهما شيء واحد، لكن بينهما فرق مهم في الهدف والنتيجة.",
       "شفط الدهون يركز على إزالة التراكمات الدهنية الموضعية التي لا تستجيب بسهولة للرياضة أو النظام الغذائي، مثل دهون البطن، الخاصرتين، الذراعين، أو الظهر.",
@@ -1445,8 +1466,10 @@ const seedJournalPosts: JournalPostRecord[] = [
   {
     id: "journal-tummy-tuck-after-pregnancy",
     slug: "tummy-tuck-after-pregnancy-weight-loss",
-    title: "ترهلات البطن بعد الحمل أو نزول الوزن: متى تكون عملية شد البطن هي الحل؟",
-    excerpt: "متى لا تكفي الرياضة أو شفط الدهون وحدهما، ومتى يكون شد البطن خيارًا لتحسين شكل المنطقة؟",
+    title:
+      "ترهلات البطن بعد الحمل أو نزول الوزن: متى تكون عملية شد البطن هي الحل؟",
+    excerpt:
+      "متى لا تكفي الرياضة أو شفط الدهون وحدهما، ومتى يكون شد البطن خيارًا لتحسين شكل المنطقة؟",
     body: [
       "بعد الحمل أو فقدان الوزن، قد تلاحظ بعض السيدات أن منطقة البطن لم تعد تستجيب للرياضة بنفس الشكل السابق. قد يقل الوزن، لكن يظل هناك جلد زائد، ارتخاء، أو بروز في البطن يؤثر على تناسق القوام.",
       "قد تكون المشكلة ناتجة عن ترهل الجلد، ضعف أو تباعد عضلات البطن، تجمع دهون موضعية، أو تغير شكل السرة وأسفل البطن.",
@@ -1467,7 +1490,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-rhinoplasty-face-balance",
     slug: "rhinoplasty-face-balance",
     title: "تجميل الأنف: كيف تعرفين أن النتيجة ستناسب ملامح وجهك؟",
-    excerpt: "تجميل الأنف لا يعني التصغير فقط، بل تحقيق الانسجام مع الذقن والشفاه والجبهة والهوية الطبيعية للوجه.",
+    excerpt:
+      "تجميل الأنف لا يعني التصغير فقط، بل تحقيق الانسجام مع الذقن والشفاه والجبهة والهوية الطبيعية للوجه.",
     body: [
       "الأنف من أكثر ملامح الوجه تأثيرًا على التوازن العام، ولهذا فإن تجميل الأنف لا يعتمد على تصغيره فقط، بل على تحقيق الانسجام مع باقي تفاصيل الوجه.",
       "النتيجة الناجحة تحافظ على الهوية الطبيعية للوجه، تتناسب مع الذقن والشفاه والجبهة، تعالج الملاحظة التي تزعج المريض دون مبالغة، وتبدو متوازنة من الأمام والجانب.",
@@ -1488,7 +1512,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-before-aesthetic-surgery-questions",
     slug: "questions-before-aesthetic-surgery",
     title: "قبل عملية التجميل: 10 أسئلة مهمة يجب طرحها على الجرّاح",
-    excerpt: "قائمة أسئلة تساعد على فهم الإجراء والنتيجة والبدائل والتعافي قبل اتخاذ قرار العملية.",
+    excerpt:
+      "قائمة أسئلة تساعد على فهم الإجراء والنتيجة والبدائل والتعافي قبل اتخاذ قرار العملية.",
     body: [
       "اتخاذ قرار بإجراء عملية تجميلية يحتاج إلى فهم واضح، وليس استعجالًا. الاستشارة الجيدة لا تقتصر على معرفة السعر أو موعد العملية، بل تشمل أسئلة تساعدك على تكوين صورة واقعية عن الإجراء والنتيجة.",
       "من أهم الأسئلة: هل هذا الإجراء مناسب لحالتي؟ ما النتيجة المتوقعة؟ ما البدائل؟ ما مدة التعافي؟ متى تظهر النتيجة النهائية؟ هل سأحتاج إلى راحة من العمل؟ ما التعليمات قبل وبعد الإجراء؟ ما المضاعفات المحتملة؟ هل يمكن مشاهدة حالات مشابهة؟ وكيف تتم المتابعة؟",
@@ -1508,7 +1533,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-results-recovery-timeline",
     slug: "facelift-body-contouring-results-recovery",
     title: "متى تظهر نتيجة عمليات شد الوجه ونحت الجسم؟ دليل التعافي خطوة بخطوة",
-    excerpt: "النتائج تمر بمراحل، من التورم الأولي إلى التحسن التدريجي والنتيجة النهائية خلال أشهر حسب الحالة.",
+    excerpt:
+      "النتائج تمر بمراحل، من التورم الأولي إلى التحسن التدريجي والنتيجة النهائية خلال أشهر حسب الحالة.",
     body: [
       "من أكثر الأسئلة شيوعًا بعد الإجراءات التجميلية: متى أرى النتيجة؟ والإجابة تختلف حسب نوع العملية، طبيعة الجسم، ومدى الالتزام بتعليمات التعافي.",
       "في الأيام الأولى قد يظهر تورم أو كدمات بدرجات متفاوتة، وهذا جزء متوقع من مرحلة الشفاء. بعد ذلك تبدأ الملامح في التحسن تدريجيًا، لكن الحكم النهائي على النتيجة يحتاج إلى وقت.",
@@ -1529,7 +1555,8 @@ const seedJournalPosts: JournalPostRecord[] = [
     id: "journal-early-face-sagging",
     slug: "early-face-sagging-causes-treatment",
     title: "أسباب ترهل الوجه المبكر وطرق التعامل معه جراحيًا وغير جراحيًا",
-    excerpt: "ترهل الوجه لا يرتبط بالعمر فقط؛ فقد يظهر مع فقدان الوزن أو ضعف مرونة الجلد وتغير توزيع الدهون.",
+    excerpt:
+      "ترهل الوجه لا يرتبط بالعمر فقط؛ فقد يظهر مع فقدان الوزن أو ضعف مرونة الجلد وتغير توزيع الدهون.",
     body: [
       "ترهل الوجه لا يرتبط بالعمر فقط، بل قد يظهر بدرجات مختلفة نتيجة عوامل متعددة تؤثر على مرونة الجلد وتناسق الملامح.",
       "من الأسباب الشائعة: التقدم الطبيعي في العمر، فقدان الوزن الكبير، تغير توزيع الدهون في الوجه، ضعف مرونة الجلد، والتعرض المستمر للعوامل الخارجية دون عناية مناسبة.",
@@ -1549,8 +1576,10 @@ const seedJournalPosts: JournalPostRecord[] = [
   {
     id: "journal-choose-plastic-surgeon-riyadh",
     slug: "choose-plastic-surgeon-riyadh",
-    title: "كيف تختارين أفضل جرّاح تجميل في الرياض؟ علامات الجودة والثقة قبل الحجز",
-    excerpt: "اختيار جرّاح التجميل يبدأ من الخبرة، وضوح التواصل، الخطة الواقعية، والمتابعة قبل وبعد الإجراء.",
+    title:
+      "كيف تختارين أفضل جرّاح تجميل في الرياض؟ علامات الجودة والثقة قبل الحجز",
+    excerpt:
+      "اختيار جرّاح التجميل يبدأ من الخبرة، وضوح التواصل، الخطة الواقعية، والمتابعة قبل وبعد الإجراء.",
     body: [
       "اختيار جرّاح التجميل خطوة لا تقل أهمية عن اختيار الإجراء نفسه. فالنتيجة الجيدة تبدأ من التقييم الصحيح، وضوح التواصل، والخبرة المناسبة للحالة.",
       "عند البحث عن جرّاح تجميل، انتبهي إلى وضوح المؤهلات والخبرة، القدرة على شرح الخيارات بواقعية، مناقشة التوقعات، تقديم خطة تناسب الحالة لا نسخة مكررة للجميع، وجود متابعة واضحة، والتركيز على السلامة وليس النتيجة الشكلية فقط.",
@@ -1615,33 +1644,43 @@ const seedCrmRecords: CrmRecord[] = [
 const defaultContactFaqs: ContactFaqItem[] = [
   {
     questionAr: "هل يجب حجز موعد مسبق؟",
-    answerAr: "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
+    answerAr:
+      "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
     questionEn: "Should I book an appointment in advance?",
-    answerEn: "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available.",
+    answerEn:
+      "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available.",
   },
   {
     questionAr: "ما هي أوقات العمل؟",
-    answerAr: "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
+    answerAr:
+      "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
     questionEn: "What are the working hours?",
-    answerEn: "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM.",
+    answerEn:
+      "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM.",
   },
   {
     questionAr: "هل تتوفر متابعة بعد العلاج؟",
-    answerAr: "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
+    answerAr:
+      "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
     questionEn: "Is follow-up available after treatment?",
-    answerEn: "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation.",
+    answerEn:
+      "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation.",
   },
   {
     questionAr: "كيف أصل إلى موقع المركز؟",
-    answerAr: "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
+    answerAr:
+      "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
     questionEn: "How can I reach the center?",
-    answerEn: "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation.",
+    answerEn:
+      "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation.",
   },
   {
     questionAr: "ما طرق الدفع المتاحة؟",
-    answerAr: "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
+    answerAr:
+      "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
     questionEn: "What payment methods are available?",
-    answerEn: "Multiple payment methods are available, including bank cards and selected digital payment options.",
+    answerEn:
+      "Multiple payment methods are available, including bank cards and selected digital payment options.",
   },
 ];
 
@@ -1678,7 +1717,8 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "addressEn",
         label: "Address in English",
-        value: "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh",
+        value:
+          "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh",
       },
       // hours block - subagent #3
       {
@@ -1720,10 +1760,20 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "faq1AnswerAr",
         label: "إجابة السؤال الشائع الأول",
-        value: "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
+        value:
+          "نعم، يفضّل حجز موعد مسبق لتقليل الانتظار وضمان توفر الطبيب أو الخدمة المناسبة في الوقت المطلوب.",
       },
-      { key: "faq1QuestionEn", label: "FAQ 1 question", value: "Should I book an appointment in advance?" },
-      { key: "faq1AnswerEn", label: "FAQ 1 answer", value: "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available." },
+      {
+        key: "faq1QuestionEn",
+        label: "FAQ 1 question",
+        value: "Should I book an appointment in advance?",
+      },
+      {
+        key: "faq1AnswerEn",
+        label: "FAQ 1 answer",
+        value:
+          "Yes. Booking ahead helps reduce waiting time and ensures the right physician or service is available.",
+      },
       {
         key: "faq2QuestionAr",
         label: "السؤال الشائع الثاني",
@@ -1732,10 +1782,20 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "faq2AnswerAr",
         label: "إجابة السؤال الشائع الثاني",
-        value: "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
+        value:
+          "يعمل المركز من السبت إلى الخميس من الساعة 2:00 مساءً إلى 10:00 مساءً.",
       },
-      { key: "faq2QuestionEn", label: "FAQ 2 question", value: "What are the working hours?" },
-      { key: "faq2AnswerEn", label: "FAQ 2 answer", value: "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM." },
+      {
+        key: "faq2QuestionEn",
+        label: "FAQ 2 question",
+        value: "What are the working hours?",
+      },
+      {
+        key: "faq2AnswerEn",
+        label: "FAQ 2 answer",
+        value:
+          "The center is open Saturday to Thursday from 2:00 PM to 10:00 PM.",
+      },
       {
         key: "faq3QuestionAr",
         label: "السؤال الشائع الثالث",
@@ -1744,10 +1804,20 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "faq3AnswerAr",
         label: "إجابة السؤال الشائع الثالث",
-        value: "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
+        value:
+          "نعم، يتم ترتيب المتابعة حسب خطة العلاج وتوصية الطبيب لضمان وضوح التعليمات بعد الزيارة.",
       },
-      { key: "faq3QuestionEn", label: "FAQ 3 question", value: "Is follow-up available after treatment?" },
-      { key: "faq3AnswerEn", label: "FAQ 3 answer", value: "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation." },
+      {
+        key: "faq3QuestionEn",
+        label: "FAQ 3 question",
+        value: "Is follow-up available after treatment?",
+      },
+      {
+        key: "faq3AnswerEn",
+        label: "FAQ 3 answer",
+        value:
+          "Yes. Follow-up is arranged according to the treatment plan and the physician's recommendation.",
+      },
       {
         key: "faq4QuestionAr",
         label: "السؤال الشائع الرابع",
@@ -1756,10 +1826,20 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "faq4AnswerAr",
         label: "إجابة السؤال الشائع الرابع",
-        value: "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
+        value:
+          "يمكنك استخدام الخريطة في صفحة التواصل أو فتح الموقع عبر خرائط Google، والعنوان موضح بصيغة مناسبة لمحركات البحث.",
       },
-      { key: "faq4QuestionEn", label: "FAQ 4 question", value: "How can I reach the center?" },
-      { key: "faq4AnswerEn", label: "FAQ 4 answer", value: "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation." },
+      {
+        key: "faq4QuestionEn",
+        label: "FAQ 4 question",
+        value: "How can I reach the center?",
+      },
+      {
+        key: "faq4AnswerEn",
+        label: "FAQ 4 answer",
+        value:
+          "You can use the map on the contact page or open the location in Google Maps. The address is listed clearly for navigation.",
+      },
       {
         key: "faq5QuestionAr",
         label: "السؤال الشائع الخامس",
@@ -1768,10 +1848,20 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "faq5AnswerAr",
         label: "إجابة السؤال الشائع الخامس",
-        value: "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
+        value:
+          "تتوفر وسائل دفع متعددة تشمل البطاقات البنكية وبعض حلول الدفع الإلكتروني، ويمكن التأكد من التفاصيل عند الحجز.",
       },
-      { key: "faq5QuestionEn", label: "FAQ 5 question", value: "What payment methods are available?" },
-      { key: "faq5AnswerEn", label: "FAQ 5 answer", value: "Multiple payment methods are available, including bank cards and selected digital payment options." },
+      {
+        key: "faq5QuestionEn",
+        label: "FAQ 5 question",
+        value: "What payment methods are available?",
+      },
+      {
+        key: "faq5AnswerEn",
+        label: "FAQ 5 answer",
+        value:
+          "Multiple payment methods are available, including bank cards and selected digital payment options.",
+      },
     ],
   },
   {
@@ -1820,7 +1910,8 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "tagline",
         label: "الجملة الافتتاحية",
-        value: "مركز طبي للتجميل والجراحات التجميلية وطب الجلدية والعناية بالبشرة",
+        value:
+          "مركز طبي للتجميل والجراحات التجميلية وطب الجلدية والعناية بالبشرة",
       },
       {
         key: "announcement",
@@ -1836,7 +1927,8 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "logoAlt",
         label: "النص البديل للشعار",
-        value: "شعار Rejuvera Center للتجميل الطبي والجراحات التجميلية والعناية بالبشرة",
+        value:
+          "شعار Rejuvera Center للتجميل الطبي والجراحات التجميلية والعناية بالبشرة",
       },
     ],
   },
@@ -2071,45 +2163,87 @@ const seedSettings: SettingsGroup[] = [
         value:
           "اقتباسات مختارة من الأطباء تعكس منهجهم السريري وطريقتهم في تقييم الحالة وبناء الخطة المناسبة.",
       },
-      { key: "testimonial1AuthorAr", label: "اسم رأي العميل الأول", value: "سارة العتيبي" },
-      { key: "testimonial1AuthorEn", label: "Testimonial 1 author", value: "Sara Alotaibi" },
+      {
+        key: "testimonial1AuthorAr",
+        label: "اسم رأي العميل الأول",
+        value: "سارة العتيبي",
+      },
+      {
+        key: "testimonial1AuthorEn",
+        label: "Testimonial 1 author",
+        value: "Sara Alotaibi",
+      },
       {
         key: "testimonial1QuoteAr",
         label: "تعليق العميل الأول",
-        value: "شرح الطبيب الخطة بوضوح قبل البدء، وكانت المتابعة بعد الجلسة منظمة.",
+        value:
+          "شرح الطبيب الخطة بوضوح قبل البدء، وكانت المتابعة بعد الجلسة منظمة.",
       },
       {
         key: "testimonial1QuoteEn",
         label: "Testimonial 1 quote",
-        value: "The plan was clear before starting, and follow-up after the visit was organized.",
+        value:
+          "The plan was clear before starting, and follow-up after the visit was organized.",
       },
-      { key: "testimonial1Avatar", label: "صورة العميل الأول", value: "/media/curated/fallback-portrait.jpg" },
-      { key: "testimonial2AuthorAr", label: "اسم رأي العميل الثاني", value: "نورة خالد" },
-      { key: "testimonial2AuthorEn", label: "Testimonial 2 author", value: "Noura Khalid" },
+      {
+        key: "testimonial1Avatar",
+        label: "صورة العميل الأول",
+        value: "/media/curated/fallback-portrait.jpg",
+      },
+      {
+        key: "testimonial2AuthorAr",
+        label: "اسم رأي العميل الثاني",
+        value: "نورة خالد",
+      },
+      {
+        key: "testimonial2AuthorEn",
+        label: "Testimonial 2 author",
+        value: "Noura Khalid",
+      },
       {
         key: "testimonial2QuoteAr",
         label: "تعليق العميل الثاني",
-        value: "الاستشارة كانت هادئة ومباشرة، ولم أشعر بضغط لاختيار إجراء معين.",
+        value:
+          "الاستشارة كانت هادئة ومباشرة، ولم أشعر بضغط لاختيار إجراء معين.",
       },
       {
         key: "testimonial2QuoteEn",
         label: "Testimonial 2 quote",
-        value: "The consultation was calm and direct, with no pressure to choose a procedure.",
+        value:
+          "The consultation was calm and direct, with no pressure to choose a procedure.",
       },
-      { key: "testimonial2Avatar", label: "صورة العميل الثاني", value: "/media/curated/doctor-candidate-1.jpg" },
-      { key: "testimonial3AuthorAr", label: "اسم رأي العميل الثالث", value: "مها محمد" },
-      { key: "testimonial3AuthorEn", label: "Testimonial 3 author", value: "Maha Mohammed" },
+      {
+        key: "testimonial2Avatar",
+        label: "صورة العميل الثاني",
+        value: "/media/curated/doctor-candidate-1.jpg",
+      },
+      {
+        key: "testimonial3AuthorAr",
+        label: "اسم رأي العميل الثالث",
+        value: "مها محمد",
+      },
+      {
+        key: "testimonial3AuthorEn",
+        label: "Testimonial 3 author",
+        value: "Maha Mohammed",
+      },
       {
         key: "testimonial3QuoteAr",
         label: "تعليق العميل الثالث",
-        value: "الحجز واضح، والاستقبال منظم، والتعليمات بعد الزيارة وصلت في وقت مناسب.",
+        value:
+          "الحجز واضح، والاستقبال منظم، والتعليمات بعد الزيارة وصلت في وقت مناسب.",
       },
       {
         key: "testimonial3QuoteEn",
         label: "Testimonial 3 quote",
-        value: "Booking was clear, reception was organized, and aftercare instructions arrived on time.",
+        value:
+          "Booking was clear, reception was organized, and aftercare instructions arrived on time.",
       },
-      { key: "testimonial3Avatar", label: "صورة العميل الثالث", value: "/media/curated/doctor-candidate-2.jpg" },
+      {
+        key: "testimonial3Avatar",
+        label: "صورة العميل الثالث",
+        value: "/media/curated/doctor-candidate-2.jpg",
+      },
     ],
   },
   {
@@ -2251,8 +2385,10 @@ function toStringList(value: unknown): string[] {
 
 const imageFallbackMap: Record<string, string> = {
   "/media/reference/legacy/56549.png": "/media/reference/legacy/56549.webp",
-  "/media/reference/legacy/88985959.png": "/media/reference/legacy/88985959.webp",
-  "/media/curated/doctor-candidate-3.jpg": "/media/curated/doctor-candidate-3.webp",
+  "/media/reference/legacy/88985959.png":
+    "/media/reference/legacy/88985959.webp",
+  "/media/curated/doctor-candidate-3.jpg":
+    "/media/curated/doctor-candidate-3.webp",
   "/media/doctors/loai-alsalmi.png": "/media/doctors/loai-alsalmi.webp",
   "/media/doctors/maher-alahdab.png": "/media/doctors/maher-alahdab.webp",
   "/media/doctors/saham-arfaj.png": "/media/doctors/saham-arfaj.webp",
@@ -2273,13 +2409,17 @@ const imageFallbackMap: Record<string, string> = {
   "/media/curated/service-skin-care.svg": serviceImages.skinCare,
   "/media/curated/service-laser.svg": serviceImages.laser,
   "/media/curated/service-injectables.svg": serviceImages.injectables,
-  "/media/curated/service-aesthetic-surgery.svg": serviceImages.aestheticSurgery,
+  "/media/curated/service-aesthetic-surgery.svg":
+    serviceImages.aestheticSurgery,
   "/media/curated/device-platform.svg": serviceImages.devices,
   "/media/curated/device-body.svg": serviceImages.body,
   "/media/curated/doctor-profile.svg": "/media/curated/fallback-portrait.jpg",
 };
 
-function toDisplayAsset(value: string | null | undefined, fallback: string): string {
+function toDisplayAsset(
+  value: string | null | undefined,
+  fallback: string,
+): string {
   const source = value?.trim() || fallback;
   if (source.includes("images.unsplash.com")) {
     return fallback;
@@ -2292,7 +2432,11 @@ function toDoctorAsset(slug: string, value: string | null | undefined): string {
     (doctorPortraitBySlug as Record<string, string>)[slug] ??
     "/media/curated/fallback-portrait.jpg";
   const source = value?.trim();
-  if (!source || source.includes("images.unsplash.com") || source === "/media/curated/doctor-profile.svg") {
+  if (
+    !source ||
+    source.includes("images.unsplash.com") ||
+    source === "/media/curated/doctor-profile.svg"
+  ) {
     return fallback;
   }
   return imageFallbackMap[source] ?? source;
@@ -2300,7 +2444,8 @@ function toDoctorAsset(slug: string, value: string | null | undefined): string {
 
 function serviceImageForSlug(slug: string): string {
   if (slug.includes("laser")) return serviceImages.laser;
-  if (slug.includes("inject") || slug.includes("facial")) return serviceImages.injectables;
+  if (slug.includes("inject") || slug.includes("facial"))
+    return serviceImages.injectables;
   if (slug.includes("body")) return serviceImages.body;
   if (slug.includes("surgery")) return serviceImages.aestheticSurgery;
   if (slug.includes("prp")) return serviceImages.prp;
@@ -2308,7 +2453,12 @@ function serviceImageForSlug(slug: string): string {
 }
 
 function deviceImageForSlug(slug: string): string {
-  if (slug.includes("body") || slug.includes("emsculpt") || slug.includes("emface")) return serviceImages.body;
+  if (
+    slug.includes("body") ||
+    slug.includes("emsculpt") ||
+    slug.includes("emface")
+  )
+    return serviceImages.body;
   if (slug.includes("laser")) return serviceImages.devices;
   return serviceImages.devices;
 }
@@ -2349,11 +2499,16 @@ export const getDoctors = cache(async () => {
         specialty: doctor.specialtyAr,
         specialtyEn: doctor.specialtyEn,
         summary: toDoctorSummary(doctor.publications, doctor.bioAr),
-        summaryEn: doctor.bioEn ? toDoctorSummary(doctor.publications, doctor.bioEn) : null,
+        summaryEn: doctor.bioEn
+          ? toDoctorSummary(doctor.publications, doctor.bioEn)
+          : null,
         bio: doctor.bioAr,
         bioEn: doctor.bioEn,
         photoUrl: toDoctorAsset(doctor.slug, doctor.photoUrl),
-        coverImageUrl: toDoctorAsset(doctor.slug, doctor.coverImageUrl ?? doctor.photoUrl),
+        coverImageUrl: toDoctorAsset(
+          doctor.slug,
+          doctor.coverImageUrl ?? doctor.photoUrl,
+        ),
         yearsExperience: doctor.yearsExperience ?? 0,
         languages: doctor.languages,
         education: toStringList(doctor.education),
@@ -2375,7 +2530,9 @@ export async function getDoctorBySlug(slug: string) {
 }
 
 function seedServiceCategories(): ServiceCategoryRecord[] {
-  const names = Array.from(new Set(seedServices.map((service) => service.category)));
+  const names = Array.from(
+    new Set(seedServices.map((service) => service.category)),
+  );
   return names.map((name, index) => ({
     id: `seed-${index + 1}`,
     slug: `category-${index + 1}`,
@@ -2385,40 +2542,43 @@ function seedServiceCategories(): ServiceCategoryRecord[] {
     descriptionEn: null,
     status: ContentStatus.PUBLISHED,
     sortOrder: index + 1,
-    serviceCount: seedServices.filter((service) => service.category === name).length,
+    serviceCount: seedServices.filter((service) => service.category === name)
+      .length,
   }));
 }
 
-export const getServiceCategories = cache(async (): Promise<ServiceCategoryRecord[]> => {
-  if (!canUseDatabase()) {
-    return seedServiceCategories();
-  }
-
-  try {
-    const categories = await prisma.serviceCategory.findMany({
-      include: { _count: { select: { services: true } } },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-    });
-
-    if (categories.length === 0) {
+export const getServiceCategories = cache(
+  async (): Promise<ServiceCategoryRecord[]> => {
+    if (!canUseDatabase()) {
       return seedServiceCategories();
     }
 
-    return categories.map((category) => ({
-      id: category.id,
-      slug: category.slug,
-      name: category.nameAr,
-      nameEn: category.nameEn,
-      description: category.descriptionAr,
-      descriptionEn: category.descriptionEn,
-      status: category.status,
-      sortOrder: category.sortOrder,
-      serviceCount: category._count.services,
-    }));
-  } catch {
-    return seedServiceCategories();
-  }
-});
+    try {
+      const categories = await prisma.serviceCategory.findMany({
+        include: { _count: { select: { services: true } } },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+      });
+
+      if (categories.length === 0) {
+        return seedServiceCategories();
+      }
+
+      return categories.map((category) => ({
+        id: category.id,
+        slug: category.slug,
+        name: category.nameAr,
+        nameEn: category.nameEn,
+        description: category.descriptionAr,
+        descriptionEn: category.descriptionEn,
+        status: category.status,
+        sortOrder: category.sortOrder,
+        serviceCount: category._count.services,
+      }));
+    } catch {
+      return seedServiceCategories();
+    }
+  },
+);
 
 export const getServices = cache(async () => {
   if (!canUseDatabase()) {
@@ -2498,10 +2658,7 @@ export const getDevices = cache(async () => {
       excerptEn: device.excerptEn,
       description: device.descriptionAr,
       descriptionEn: device.descriptionEn,
-      imageUrl: toPrimaryAsset(
-        device.gallery,
-        deviceImageForSlug(device.slug),
-      ),
+      imageUrl: toPrimaryAsset(device.gallery, deviceImageForSlug(device.slug)),
       certifications: toStringList(device.certifications),
       serviceSlugs: device.services.map((service) => service.slug),
       status: device.status,
@@ -2534,8 +2691,14 @@ export const getGalleryItems = cache(async () => {
       categoryEn: item.categoryKey,
       description: item.descriptionAr ?? "",
       descriptionEn: item.descriptionEn,
-      beforeImageUrl: toDisplayAsset(item.beforeImageUrl, "/media/reference/legacy/13.png"),
-      afterImageUrl: toDisplayAsset(item.afterImageUrl, "/media/reference/legacy/18.png"),
+      beforeImageUrl: toDisplayAsset(
+        item.beforeImageUrl,
+        "/media/reference/legacy/13.png",
+      ),
+      afterImageUrl: toDisplayAsset(
+        item.afterImageUrl,
+        "/media/reference/legacy/18.png",
+      ),
       beforeImageAlt: item.beforeImageAlt ?? item.titleAr,
       afterImageAlt: item.afterImageAlt ?? item.titleAr,
       initialSplitPercent: item.initialSplitPercent,
@@ -2766,9 +2929,8 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
           "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3624.125146317555!2d46.6527524!3d24.7225835!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e2f1d4473cdb6e9%3A0xaae6f892cde87ef5!2z2YXYsdmD2LIg2LHZitis2YjZgdmK2LHYpyDYp9mE2LfYqNmKIHwgUmVqdXZlcmEgTWVkaWNhbCBDZW50ZXI!5e0!3m2!1sar!2ssa!4v1778808648059!5m2!1sar!2ssa",
       ),
       mapsShape:
-        (getValue("contact", "mapsShape", "rounded") as
-          | "square"
-          | "rounded") ?? "rounded",
+        (getValue("contact", "mapsShape", "rounded") as "square" | "rounded") ??
+        "rounded",
       addressAr: getValue(
         "contact",
         "addressAr",
@@ -2779,36 +2941,46 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "addressEn",
         "Al Takhassousi, Ar Rahmaniyyah, Al Takhassousi, King Abdullah Road, Riyadh",
       ),
-      faqs: defaultContactFaqs.map((fallback, offset) => {
-        const index = offset + 1;
-        return {
-          questionAr: getValue("contact", `faq${index}QuestionAr`, fallback.questionAr),
-          answerAr: getValue("contact", `faq${index}AnswerAr`, fallback.answerAr),
-          questionEn: getValue("contact", `faq${index}QuestionEn`, fallback.questionEn),
-          answerEn: getValue("contact", `faq${index}AnswerEn`, fallback.answerEn),
-        };
-      }).filter((item) => item.questionAr && item.answerAr),
+      faqs: defaultContactFaqs
+        .map((fallback, offset) => {
+          const index = offset + 1;
+          return {
+            questionAr: getValue(
+              "contact",
+              `faq${index}QuestionAr`,
+              fallback.questionAr,
+            ),
+            answerAr: getValue(
+              "contact",
+              `faq${index}AnswerAr`,
+              fallback.answerAr,
+            ),
+            questionEn: getValue(
+              "contact",
+              `faq${index}QuestionEn`,
+              fallback.questionEn,
+            ),
+            answerEn: getValue(
+              "contact",
+              `faq${index}AnswerEn`,
+              fallback.answerEn,
+            ),
+          };
+        })
+        .filter((item) => item.questionAr && item.answerAr),
       // hours block - subagent #3
       hoursWeekdays: getValue(
         "contact",
         "hoursWeekdays",
         "السبت — الخميس · 2:00 م — 10:00 م",
       ),
-      hoursWeekend: getValue(
-        "contact",
-        "hoursWeekend",
-        "",
-      ),
+      hoursWeekend: getValue("contact", "hoursWeekend", ""),
       hoursWeekdaysEn: getValue(
         "contact",
         "hoursWeekdaysEn",
         "Sat – Thu · 2:00 PM – 10:00 PM",
       ),
-      hoursWeekendEn: getValue(
-        "contact",
-        "hoursWeekendEn",
-        "",
-      ),
+      hoursWeekendEn: getValue("contact", "hoursWeekendEn", ""),
     },
     brand: {
       siteName: getValue("brand", "siteName", "Rejuvera Center"),
@@ -2843,8 +3015,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
           "recaptchaEnabled",
           process.env.RECAPTCHA_SECRET_KEY ? "true" : "false",
         ) !== "false",
-      maintenanceMode:
-        getValue("ops", "maintenanceMode", "false") === "true",
+      maintenanceMode: getValue("ops", "maintenanceMode", "false") === "true",
       defaultTheme:
         (getValue("ops", "defaultTheme", "system") as
           | "light"
@@ -2854,62 +3025,61 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         getValue("ops", "themeToggleEnabled", "true") !== "false",
     },
     media: {
-      brandLogo: toDisplayAsset(getValue(
-        "media",
-        "brandLogo",
+      brandLogo: toDisplayAsset(
+        getValue("media", "brandLogo", defaultMediaSelections.brandLogo),
         defaultMediaSelections.brandLogo,
-      ), defaultMediaSelections.brandLogo),
-      brandMark: toDisplayAsset(getValue(
-        "media",
-        "brandMark",
+      ),
+      brandMark: toDisplayAsset(
+        getValue("media", "brandMark", defaultMediaSelections.brandMark),
         defaultMediaSelections.brandMark,
-      ), defaultMediaSelections.brandMark),
-      favicon: toDisplayAsset(getValue(
-        "media",
-        "favicon",
+      ),
+      favicon: toDisplayAsset(
+        getValue("media", "favicon", defaultMediaSelections.favicon),
         defaultMediaSelections.favicon,
-      ), defaultMediaSelections.favicon),
-      appleIcon: toDisplayAsset(getValue(
-        "media",
-        "appleIcon",
+      ),
+      appleIcon: toDisplayAsset(
+        getValue("media", "appleIcon", defaultMediaSelections.appleIcon),
         defaultMediaSelections.appleIcon,
-      ), defaultMediaSelections.appleIcon),
-      ogImage: toDisplayAsset(getValue(
-        "media",
-        "ogImage",
+      ),
+      ogImage: toDisplayAsset(
+        getValue("media", "ogImage", defaultMediaSelections.ogImage),
         defaultMediaSelections.ogImage,
-      ), defaultMediaSelections.ogImage),
-      homeHero: toDisplayAsset(getValue("media", "homeHero", defaultMediaSelections.homeHero), defaultMediaSelections.homeHero),
-      heroCard1: toDisplayAsset(getValue("media", "heroCard1", defaultMediaSelections.heroCard1), defaultMediaSelections.heroCard1),
-      heroCard2: toDisplayAsset(getValue("media", "heroCard2", defaultMediaSelections.heroCard2), defaultMediaSelections.heroCard2),
-      heroCard3: toDisplayAsset(getValue("media", "heroCard3", defaultMediaSelections.heroCard3), defaultMediaSelections.heroCard3),
-      doctorsHero: toDisplayAsset(getValue(
-        "media",
-        "doctorsHero",
+      ),
+      homeHero: toDisplayAsset(
+        getValue("media", "homeHero", defaultMediaSelections.homeHero),
+        defaultMediaSelections.homeHero,
+      ),
+      heroCard1: toDisplayAsset(
+        getValue("media", "heroCard1", defaultMediaSelections.heroCard1),
+        defaultMediaSelections.heroCard1,
+      ),
+      heroCard2: toDisplayAsset(
+        getValue("media", "heroCard2", defaultMediaSelections.heroCard2),
+        defaultMediaSelections.heroCard2,
+      ),
+      heroCard3: toDisplayAsset(
+        getValue("media", "heroCard3", defaultMediaSelections.heroCard3),
+        defaultMediaSelections.heroCard3,
+      ),
+      doctorsHero: toDisplayAsset(
+        getValue("media", "doctorsHero", defaultMediaSelections.doctorsHero),
         defaultMediaSelections.doctorsHero,
-      ), defaultMediaSelections.doctorsHero),
-      servicesHero: toDisplayAsset(getValue(
-        "media",
-        "servicesHero",
+      ),
+      servicesHero: toDisplayAsset(
+        getValue("media", "servicesHero", defaultMediaSelections.servicesHero),
         defaultMediaSelections.servicesHero,
-      ), defaultMediaSelections.servicesHero),
-      aboutHero: toDisplayAsset(getValue(
-        "media",
-        "aboutHero",
+      ),
+      aboutHero: toDisplayAsset(
+        getValue("media", "aboutHero", defaultMediaSelections.aboutHero),
         defaultMediaSelections.aboutHero,
-      ), defaultMediaSelections.aboutHero),
-      journalHero: toDisplayAsset(getValue(
-        "media",
-        "journalHero",
+      ),
+      journalHero: toDisplayAsset(
+        getValue("media", "journalHero", defaultMediaSelections.journalHero),
         defaultMediaSelections.journalHero,
-      ), defaultMediaSelections.journalHero),
+      ),
     },
     homepage: {
-      heroTitle: getValue(
-        "homepage",
-        "heroTitle",
-        "اكتشفي جمالك",
-      ),
+      heroTitle: getValue("homepage", "heroTitle", "اكتشفي جمالك"),
       heroTitleAccent: getValue(
         "homepage",
         "heroTitleAccent",
@@ -2935,11 +3105,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "heroCtaSecondary",
         "شاهدي قصص النجاح",
       ),
-      heroTitleEn: getValue(
-        "homepage",
-        "heroTitleEn",
-        "Discover refined care",
-      ),
+      heroTitleEn: getValue("homepage", "heroTitleEn", "Discover refined care"),
       heroTitleAccentEn: getValue(
         "homepage",
         "heroTitleAccentEn",
@@ -2965,11 +3131,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "heroCtaSecondaryEn",
         "View results gallery",
       ),
-      stripEyebrow: getValue(
-        "homepage",
-        "stripEyebrow",
-        "مختارات من الخدمات",
-      ),
+      stripEyebrow: getValue("homepage", "stripEyebrow", "مختارات من الخدمات"),
       stripTitle: getValue(
         "homepage",
         "stripTitle",
@@ -2980,11 +3142,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "stripDescription",
         "مدخل منظم لتصفح الخدمات وفتح ما يهمك بنقرة واحدة.",
       ),
-      stripEyebrowEn: getValue(
-        "homepage",
-        "stripEyebrowEn",
-        "Curated picks",
-      ),
+      stripEyebrowEn: getValue("homepage", "stripEyebrowEn", "Curated picks"),
       stripTitleEn: getValue(
         "homepage",
         "stripTitleEn",
@@ -3101,8 +3259,16 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "Short excerpts that reflect bedside judgement and conservative decision-making.",
       ),
       testimonials: [1, 2, 3].map((index) => ({
-        authorAr: getValue("homepage", `testimonial${index}AuthorAr`, "مراجعة موثقة"),
-        authorEn: getValue("homepage", `testimonial${index}AuthorEn`, "Verified patient"),
+        authorAr: getValue(
+          "homepage",
+          `testimonial${index}AuthorAr`,
+          "مراجعة موثقة",
+        ),
+        authorEn: getValue(
+          "homepage",
+          `testimonial${index}AuthorEn`,
+          "Verified patient",
+        ),
         quoteAr: getValue(
           "homepage",
           `testimonial${index}QuoteAr`,
@@ -3182,8 +3348,10 @@ function buildSeoSettings(
   ];
   const defaults: Record<keyof SeoSettings, SeoPageDefaults> = {
     home: {
-      titleAr: "Rejuvira Center — جراحات تجميلية وطب جلدية وعناية بالبشرة في الرياض",
-      titleEn: "Rejuvira Center — Aesthetic Surgery, Dermatology & Skin Care in Riyadh",
+      titleAr:
+        "Rejuvira Center — جراحات تجميلية وطب جلدية وعناية بالبشرة في الرياض",
+      titleEn:
+        "Rejuvira Center — Aesthetic Surgery, Dermatology & Skin Care in Riyadh",
       descriptionAr:
         "مركز ريجوفيرا الطبي في الرياض: استشارات جلدية، خدمات تجميل، أجهزة معتمدة وأطباء متخصصون. خطة علاجية واضحة من أول زيارة.",
       descriptionEn:
@@ -3398,7 +3566,9 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
       ...(serviceConnect.length
         ? {
             services: {
-              connect: serviceConnect.map((service) => ({ slug: service.slug })),
+              connect: serviceConnect.map((service) => ({
+                slug: service.slug,
+              })),
             },
           }
         : {}),
@@ -3605,8 +3775,7 @@ export async function createJournalPostDraft(input: CreateJournalPostInput) {
       excerptAr: input.excerpt,
       excerptEn: input.excerptEn || null,
       bodyAr: input.body,
-      coverImageUrl:
-        input.coverImageUrl ?? serviceImages.laser,
+      coverImageUrl: input.coverImageUrl ?? serviceImages.laser,
       categoryKey: input.category,
       readingTimeLabel: input.readingTime,
       relatedServiceSlugs: input.relatedServiceSlugs,
@@ -3902,7 +4071,9 @@ export async function createContactLead(
         select: { id: true },
       })
     : null;
-  const preferredAppointment = parseAppointmentDate(input.preferredAppointmentAt);
+  const preferredAppointment = parseAppointmentDate(
+    input.preferredAppointmentAt,
+  );
 
   const submission = await prisma.contactSubmission.create({
     data: {
@@ -3913,7 +4084,9 @@ export async function createContactLead(
       ...(preferredAppointment
         ? { preferredAppointmentAt: preferredAppointment }
         : {}),
-      ...(input.appointmentNotes ? { appointmentNotes: input.appointmentNotes } : {}),
+      ...(input.appointmentNotes
+        ? { appointmentNotes: input.appointmentNotes }
+        : {}),
       status: input.status ?? SubmissionStatus.NEW,
       ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
       ...(input.webhookId ? { webhookId: input.webhookId } : {}),
@@ -3977,7 +4150,9 @@ export async function deleteAppLog(id: string) {
   }
   try {
     const client = prisma as unknown as {
-      appLog?: { delete: (args: { where: { id: string } }) => Promise<unknown> };
+      appLog?: {
+        delete: (args: { where: { id: string } }) => Promise<unknown>;
+      };
     };
     if (!client.appLog) return { mode: "noop" as const, id };
     await client.appLog.delete({ where: { id } });
@@ -4041,7 +4216,9 @@ export async function getAuditLogs(
       entityType: row.entityType,
       entityId: row.entityId ?? null,
       metadata:
-        row.metadata && typeof row.metadata === "object" && !Array.isArray(row.metadata)
+        row.metadata &&
+        typeof row.metadata === "object" &&
+        !Array.isArray(row.metadata)
           ? (row.metadata as Record<string, unknown>)
           : null,
       createdAt: row.createdAt.toISOString(),
@@ -4068,7 +4245,9 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
       serviceUpdate = { serviceId: service?.id ?? null };
     }
   }
-  const preferredAppointment = parseAppointmentDate(input.preferredAppointmentAt ?? undefined);
+  const preferredAppointment = parseAppointmentDate(
+    input.preferredAppointmentAt ?? undefined,
+  );
 
   const submission = await prisma.contactSubmission.update({
     where: { id: input.id },
@@ -4354,7 +4533,7 @@ export async function updateWebhook(input: UpdateWebhookInput) {
       defaultStatus: input.defaultStatus,
       defaultTags: [...input.defaultTags],
       defaultSource: input.defaultSource || null,
-      serviceId: input.serviceSlug ? service?.id ?? null : null,
+      serviceId: input.serviceSlug ? (service?.id ?? null) : null,
     },
   });
   return { mode: "database" as const, item };

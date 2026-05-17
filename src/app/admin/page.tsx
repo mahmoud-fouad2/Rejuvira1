@@ -41,36 +41,63 @@ const pipelineLabelsEn: Record<SubmissionStatus, string> = {
 function statusBadge(status: ContentStatus) {
   switch (status) {
     case ContentStatus.PUBLISHED:
-      return { className: "is-published", labelAr: "منشور", labelEn: "Published" };
+      return {
+        className: "is-published",
+        labelAr: "منشور",
+        labelEn: "Published",
+      };
     case ContentStatus.REVIEW:
       return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
     case ContentStatus.ARCHIVED:
-      return { className: "is-archived", labelAr: "مؤرشف", labelEn: "Archived" };
+      return {
+        className: "is-archived",
+        labelAr: "مؤرشف",
+        labelEn: "Archived",
+      };
     default:
       return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
   }
 }
 
 const Icon = ({ d }: { d: string }) => (
-  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    className="h-5 w-5"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.7"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d={d} />
   </svg>
 );
 
 export default async function AdminPage() {
-  const [doctors, services, devices, gallery, journal, submissions, users, checks] =
-    await Promise.all([
-      getDoctors(),
-      getServices(),
-      getDevices(),
-      getGalleryItems(),
-      getJournalPosts(),
-      getCrmSubmissions(),
-      getAdminUsers(),
-      runConnectionChecks(),
-    ]);
+  const [
+    doctors,
+    services,
+    devices,
+    gallery,
+    journal,
+    submissions,
+    users,
+    checks,
+  ] = await Promise.all([
+    getDoctors(),
+    getServices(),
+    getDevices(),
+    getGalleryItems(),
+    getJournalPosts(),
+    getCrmSubmissions(),
+    getAdminUsers(),
+    runConnectionChecks(),
+  ]);
 
-  const analytics = await listAppLogs({ kind: "analytics.pageview", limit: 200 });
+  const analytics = await listAppLogs({
+    kind: "analytics.pageview",
+    limit: 200,
+  });
   const pageCounts = new Map<string, number>();
   const referrerCounts = new Map<string, number>();
   analytics.items.forEach((item) => {
@@ -82,8 +109,12 @@ export default async function AdminPage() {
     pageCounts.set(path, (pageCounts.get(path) ?? 0) + 1);
     referrerCounts.set(referrer, (referrerCounts.get(referrer) ?? 0) + 1);
   });
-  const topPages = Array.from(pageCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const topReferrers = Array.from(referrerCounts.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topPages = Array.from(pageCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const topReferrers = Array.from(referrerCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
 
   const pipelineCounts = pipelineOrder.map((status) => ({
     status,
@@ -101,25 +132,29 @@ export default async function AdminPage() {
     {
       labelAr: "خدمات تحتاج أطباء",
       labelEn: "Services need doctors",
-      count: services.filter((service) => service.doctorSlugs.length === 0).length,
+      count: services.filter((service) => service.doctorSlugs.length === 0)
+        .length,
       href: "/admin/content",
     },
     {
       labelAr: "خدمات تحتاج أجهزة",
       labelEn: "Services need devices",
-      count: services.filter((service) => service.deviceSlugs.length === 0).length,
+      count: services.filter((service) => service.deviceSlugs.length === 0)
+        .length,
       href: "/admin/content",
     },
     {
       labelAr: "مقالات تحتاج ربط خدمة",
       labelEn: "Articles need service links",
-      count: journal.filter((post) => post.relatedServiceSlugs.length === 0).length,
+      count: journal.filter((post) => post.relatedServiceSlugs.length === 0)
+        .length,
       href: "/admin/journal",
     },
     {
       labelAr: "طلبات جديدة تحتاج متابعة",
       labelEn: "New leads need follow-up",
-      count: submissions.filter((lead) => lead.status === SubmissionStatus.NEW).length,
+      count: submissions.filter((lead) => lead.status === SubmissionStatus.NEW)
+        .length,
       href: "/admin/crm",
     },
   ];
@@ -130,13 +165,17 @@ export default async function AdminPage() {
       label: { ar: "الأطباء", en: "Doctors" },
       value: doctors.length,
       href: "/admin/doctors",
-      icon: <Icon d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />,
+      icon: (
+        <Icon d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8" />
+      ),
     },
     {
       label: { ar: "الخدمات", en: "Services" },
       value: services.length,
       href: "/admin/services",
-      icon: <Icon d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z M12 12 3 8.5 M12 12v9 M12 12l9-3.5" />,
+      icon: (
+        <Icon d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z M12 12 3 8.5 M12 12v9 M12 12l9-3.5" />
+      ),
       iconCls: "is-gold",
     },
     {
@@ -149,7 +188,9 @@ export default async function AdminPage() {
       label: { ar: "الطلبات", en: "Leads" },
       value: submissions.length,
       href: "/admin/crm",
-      icon: <Icon d="M21 11.5a8.4 8.4 0 0 1-2 5.4l-3 3-3-3a8.4 8.4 0 1 1 8-5.4Z M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />,
+      icon: (
+        <Icon d="M21 11.5a8.4 8.4 0 0 1-2 5.4l-3 3-3-3a8.4 8.4 0 1 1 8-5.4Z M12 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+      ),
       iconCls: "is-success",
     },
     {
@@ -163,19 +204,26 @@ export default async function AdminPage() {
       label: { ar: "المجلة", en: "Journal" },
       value: journal.length,
       href: "/admin/journal",
-      icon: <Icon d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />,
+      icon: (
+        <Icon d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+      ),
     },
     {
       label: { ar: "المستخدمون", en: "Users" },
       value: users.length,
       href: "/admin/users",
-      icon: <Icon d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M22 11V9a2 2 0 0 0-2-2h-2" />,
+      icon: (
+        <Icon d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M22 11V9a2 2 0 0 0-2-2h-2" />
+      ),
     },
     {
       label: { ar: "محجوزة", en: "Booked" },
-      value: submissions.filter((s) => s.status === SubmissionStatus.BOOKED).length,
+      value: submissions.filter((s) => s.status === SubmissionStatus.BOOKED)
+        .length,
       href: "/admin/crm",
-      icon: <Icon d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2 M9 14l2 2 4-4" />,
+      icon: (
+        <Icon d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2 M9 14l2 2 4-4" />
+      ),
       iconCls: "is-success",
     },
   ] as const;
@@ -189,8 +237,12 @@ export default async function AdminPage() {
             <span className="lang-en">Overview</span>
           </h1>
           <p>
-            <span className="lang-ar">جميع الأرقام محدّثة من قاعدة البيانات.</span>
-            <span className="lang-en">All metrics reflect the live database.</span>
+            <span className="lang-ar">
+              جميع الأرقام محدّثة من قاعدة البيانات.
+            </span>
+            <span className="lang-en">
+              All metrics reflect the live database.
+            </span>
           </p>
         </div>
         <div className="admin-page-header__actions">
@@ -212,25 +264,44 @@ export default async function AdminPage() {
             <span className="lang-en">Command center</span>
           </span>
           <h2>
-            <span className="lang-ar">المهام الأهم قبل تحديث بيانات الموقع</span>
-            <span className="lang-en">Priority checks before content updates</span>
+            <span className="lang-ar">
+              المهام الأهم قبل تحديث بيانات الموقع
+            </span>
+            <span className="lang-en">
+              Priority checks before content updates
+            </span>
           </h2>
           <p>
-            <span className="lang-ar">هذه اللوحة تجمع النقاط التي تؤثر على ظهور الخدمات والفورمات والربط بين الصفحات.</span>
-            <span className="lang-en">This panel highlights relationship and CRM gaps that affect the public site.</span>
+            <span className="lang-ar">
+              هذه اللوحة تجمع النقاط التي تؤثر على ظهور الخدمات والفورمات والربط
+              بين الصفحات.
+            </span>
+            <span className="lang-en">
+              This panel highlights relationship and CRM gaps that affect the
+              public site.
+            </span>
           </p>
         </div>
         <div className="admin-command-center__actions">
-          {(nextActions.length ? nextActions : contentIssues.slice(0, 2)).map((item) => (
-            <Link key={item.labelEn} href={item.href as Route} className="admin-command-action">
-              <strong>{item.count}</strong>
-              <span>
-                <span className="lang-ar">{item.labelAr}</span>
-                <span className="lang-en">{item.labelEn}</span>
-              </span>
-            </Link>
-          ))}
-          <Link href={"/admin/media" as Route} className="admin-command-action is-soft">
+          {(nextActions.length ? nextActions : contentIssues.slice(0, 2)).map(
+            (item) => (
+              <Link
+                key={item.labelEn}
+                href={item.href as Route}
+                className="admin-command-action"
+              >
+                <strong>{item.count}</strong>
+                <span>
+                  <span className="lang-ar">{item.labelAr}</span>
+                  <span className="lang-en">{item.labelEn}</span>
+                </span>
+              </Link>
+            ),
+          )}
+          <Link
+            href={"/admin/media" as Route}
+            className="admin-command-action is-soft"
+          >
             <strong>ICO</strong>
             <span>
               <span className="lang-ar">الفافيكون موحد</span>
@@ -242,8 +313,16 @@ export default async function AdminPage() {
 
       <section className="admin-grid-4">
         {kpis.map((kpi) => (
-          <Link key={kpi.label.ar} href={kpi.href as Route} className="admin-kpi">
-            <span className={`admin-kpi__icon ${("iconCls" in kpi && kpi.iconCls) || ""}`}>{kpi.icon}</span>
+          <Link
+            key={kpi.label.ar}
+            href={kpi.href as Route}
+            className="admin-kpi"
+          >
+            <span
+              className={`admin-kpi__icon ${("iconCls" in kpi && kpi.iconCls) || ""}`}
+            >
+              {kpi.icon}
+            </span>
             <span className="min-w-0">
               <span className="admin-kpi__value">{kpi.value}</span>
               <span className="admin-kpi__label">
@@ -281,14 +360,16 @@ export default async function AdminPage() {
                     background: "var(--admin-panel-soft)",
                   }}
                 >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--admin-text-faint)]">
+                  <p className="text-[10px] font-semibold tracking-[0.16em] text-[color:var(--admin-text-faint)] uppercase">
                     {status}
                   </p>
                   <p className="mt-1 text-[0.8rem] font-semibold text-[color:var(--admin-text-soft)]">
                     <span className="lang-ar">{pipelineLabelsAr[status]}</span>
                     <span className="lang-en">{pipelineLabelsEn[status]}</span>
                   </p>
-                  <p className="mt-2 text-2xl font-bold tabular-nums text-[color:var(--admin-text)]">{count}</p>
+                  <p className="mt-2 text-2xl font-bold text-[color:var(--admin-text)] tabular-nums">
+                    {count}
+                  </p>
                 </div>
               ))}
             </div>
@@ -300,7 +381,7 @@ export default async function AdminPage() {
                 ariaLabel="Daily lead volume"
               />
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-muted-foreground text-[11px]">
               <span className="lang-ar">حركة الطلبات خلال آخر 14 يوم</span>
               <span className="lang-en">Lead volume over the last 14 days</span>
             </p>
@@ -342,12 +423,20 @@ export default async function AdminPage() {
                 return (
                   <div key={lead.id} className="admin-data-row">
                     <div className="min-w-0">
-                      <p className="admin-data-row__title truncate">{lead.fullName}</p>
-                      <p className="admin-data-row__meta truncate" dir="ltr">{lead.phone}</p>
+                      <p className="admin-data-row__title truncate">
+                        {lead.fullName}
+                      </p>
+                      <p className="admin-data-row__meta truncate" dir="ltr">
+                        {lead.phone}
+                      </p>
                     </div>
                     <span className={`admin-status-badge ${cls}`}>
-                      <span className="lang-ar">{pipelineLabelsAr[lead.status]}</span>
-                      <span className="lang-en">{pipelineLabelsEn[lead.status]}</span>
+                      <span className="lang-ar">
+                        {pipelineLabelsAr[lead.status]}
+                      </span>
+                      <span className="lang-en">
+                        {pipelineLabelsEn[lead.status]}
+                      </span>
                     </span>
                   </div>
                 );
@@ -368,10 +457,7 @@ export default async function AdminPage() {
             />
           </div>
         </ChartCard>
-        <ChartCard
-          title="توزيع الطلبات حسب المرحلة"
-          subtitle="Pipeline"
-        >
+        <ChartCard title="توزيع الطلبات حسب المرحلة" subtitle="Pipeline">
           <BarChart
             data={pipelineCounts.map(({ status, count }) => ({
               label: pipelineLabelsEn[status],
@@ -397,7 +483,9 @@ export default async function AdminPage() {
               : ([["Direct", 0]] as Array<[string, number]>)
             ).map(([source, count]) => (
               <div key={source} className="admin-data-row">
-                <span className="admin-data-row__title truncate" dir="ltr">{source}</span>
+                <span className="admin-data-row__title truncate" dir="ltr">
+                  {source}
+                </span>
                 <span className="admin-data-row__value">{count}</span>
               </div>
             ))}
@@ -426,30 +514,35 @@ export default async function AdminPage() {
               : ([["/", 0]] as Array<[string, number]>)
             ).map(([path, count]) => (
               <div key={path} className="admin-data-row">
-                <span className="admin-data-row__title truncate" dir="ltr">{path}</span>
+                <span className="admin-data-row__title truncate" dir="ltr">
+                  {path}
+                </span>
                 <span className="admin-data-row__value">{count}</span>
               </div>
             ))}
           </div>
         </article>
 
-        <ChartCard
-          title="حالة المحتوى"
-          subtitle="Content"
-        >
+        <ChartCard title="حالة المحتوى" subtitle="Content">
           <BarChart
             data={[
               {
                 label: "Doctors PUB",
-                value: doctors.filter((d) => d.status === ContentStatus.PUBLISHED).length,
+                value: doctors.filter(
+                  (d) => d.status === ContentStatus.PUBLISHED,
+                ).length,
               },
               {
                 label: "Services PUB",
-                value: services.filter((s) => s.status === ContentStatus.PUBLISHED).length,
+                value: services.filter(
+                  (s) => s.status === ContentStatus.PUBLISHED,
+                ).length,
               },
               {
                 label: "Devices PUB",
-                value: devices.filter((d) => d.status === ContentStatus.PUBLISHED).length,
+                value: devices.filter(
+                  (d) => d.status === ContentStatus.PUBLISHED,
+                ).length,
               },
               {
                 label: "Journal",

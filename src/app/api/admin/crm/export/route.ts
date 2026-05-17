@@ -160,8 +160,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition":
-          'attachment; filename="rejuvera-crm-export.csv"',
+        "Content-Disposition": 'attachment; filename="rejuvera-crm-export.csv"',
       },
     });
   }

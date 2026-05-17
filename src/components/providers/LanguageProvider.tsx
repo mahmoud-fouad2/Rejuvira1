@@ -108,7 +108,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       html.classList.remove("rv-language-switching");
     }
 
-    await new Promise<void>((r) => setTimeout(r, motion ? TRANSITION_DURATION + 40 : 40));
+    await new Promise<void>((r) =>
+      setTimeout(r, motion ? TRANSITION_DURATION + 40 : 40),
+    );
     switching.current = false;
   }, [lang]);
 

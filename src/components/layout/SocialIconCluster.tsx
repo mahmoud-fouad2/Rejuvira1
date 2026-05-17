@@ -132,7 +132,11 @@ export function SocialIconCluster({
       ? "border border-white/15 bg-white/5 text-white hover:bg-white/10"
       : "border-line bg-surface text-ink-soft hover:border-accent/30 hover:text-ink-strong border";
   return (
-    <ul className={["flex flex-wrap items-center gap-2", className].filter(Boolean).join(" ")}>
+    <ul
+      className={["flex flex-wrap items-center gap-2", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {visibleChannels.map((channel) => {
         const url = normalizeSocialUrl(social[channel.key] ?? "");
         return (

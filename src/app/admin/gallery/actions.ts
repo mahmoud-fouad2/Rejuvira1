@@ -17,7 +17,10 @@ const galleryItemSchema = z.object({
   slug: z
     .string()
     .min(3, "الرابط قصير جدا")
-    .regex(/^[a-z0-9-]+$/, "الرابط يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطة فقط"),
+    .regex(
+      /^[a-z0-9-]+$/,
+      "الرابط يجب أن يحتوي على أحرف إنجليزية وأرقام وشرطة فقط",
+    ),
   title: z.string().min(3, "العنوان قصير جدا"),
   category: z.string().min(2, "التصنيف مطلوب"),
   description: z.string().min(10, "الوصف قصير جدا"),
@@ -27,16 +30,13 @@ const galleryItemSchema = z.object({
   afterImageAlt: z.string().min(3, "النص البديل لصورة بعد مطلوب"),
   status: z.nativeEnum(ContentStatus).optional(),
   initialSplitPercent: z
-    .preprocess(
-      (value) => {
-        if (typeof value === "string" && value.trim().length > 0) {
-          const parsed = Number(value);
-          return Number.isFinite(parsed) ? parsed : undefined;
-        }
-        return value;
-      },
-      z.number().int().min(0).max(100).optional(),
-    )
+    .preprocess((value) => {
+      if (typeof value === "string" && value.trim().length > 0) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : undefined;
+      }
+      return value;
+    }, z.number().int().min(0).max(100).optional())
     .default(50),
 });
 
@@ -103,6 +103,9 @@ export async function deleteGalleryItemAction(
     revalidate();
     return { success: true, message: "تم الحذف." };
   } catch (error) {
-    return { success: false, message: adminActionErrorMessage(error, "حدث خطأ أثناء الحذف.") };
+    return {
+      success: false,
+      message: adminActionErrorMessage(error, "حدث خطأ أثناء الحذف."),
+    };
   }
 }

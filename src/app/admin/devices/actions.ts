@@ -79,7 +79,9 @@ export async function createDeviceAction(
       excerpt: parsed.data.excerpt,
       ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
       description: parsed.data.description,
-      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      ...(parsed.data.descriptionEn
+        ? { descriptionEn: parsed.data.descriptionEn }
+        : {}),
       certifications: splitList(parsed.data.certifications),
       serviceSlugs: splitList(parsed.data.serviceSlugs),
       ...(parsed.data.imageUrl ? { imageUrl: parsed.data.imageUrl } : {}),
@@ -125,7 +127,9 @@ export async function updateDeviceAction(
       excerpt: parsed.data.excerpt,
       ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
       description: parsed.data.description,
-      ...(parsed.data.descriptionEn ? { descriptionEn: parsed.data.descriptionEn } : {}),
+      ...(parsed.data.descriptionEn
+        ? { descriptionEn: parsed.data.descriptionEn }
+        : {}),
       certifications: splitList(parsed.data.certifications),
       serviceSlugs: splitList(parsed.data.serviceSlugs),
       status: parsed.data.status,

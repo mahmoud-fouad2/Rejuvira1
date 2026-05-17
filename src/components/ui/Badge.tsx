@@ -6,16 +6,11 @@ type BadgeProps = {
 };
 
 const variantStyles = {
-  default:
-    "bg-ink-strong text-canvas",
-  gold:
-    "bg-gold-soft text-gold border border-gold-light",
-  violet:
-    "bg-violet-soft text-violet-mid",
-  emerald:
-    "bg-emerald/10 text-emerald border border-emerald/20",
-  outline:
-    "border border-line text-ink-soft",
+  default: "bg-ink-strong text-canvas",
+  gold: "bg-gold-soft text-gold border border-gold-light",
+  violet: "bg-violet-soft text-violet-mid",
+  emerald: "bg-emerald/10 text-emerald border border-emerald/20",
+  outline: "border border-line text-ink-soft",
 };
 
 const sizeStyles = {
@@ -31,12 +26,7 @@ export function Badge({
 }: BadgeProps) {
   return (
     <span
-      className={`
-        inline-flex items-center rounded-full font-medium
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${className}
-      `}
+      className={`inline-flex items-center rounded-full font-medium ${variantStyles[variant]} ${sizeStyles[size]} ${className} `}
     >
       {children}
     </span>

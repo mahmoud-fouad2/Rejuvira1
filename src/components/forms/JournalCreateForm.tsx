@@ -44,7 +44,12 @@ export function JournalCreateForm({
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">Slug</span>
-          <input name="slug" required dir="ltr" className="admin-input font-mono" />
+          <input
+            name="slug"
+            required
+            dir="ltr"
+            className="admin-input font-mono"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
@@ -68,7 +73,12 @@ export function JournalCreateForm({
             <span className="lang-ar">زمن القراءة</span>
             <span className="lang-en">Reading time</span>
           </span>
-          <input name="readingTime" defaultValue="4 دقائق" required className="admin-input" />
+          <input
+            name="readingTime"
+            defaultValue="4 دقائق"
+            required
+            className="admin-input"
+          />
         </label>
       </div>
       <ImagePicker
@@ -104,7 +114,9 @@ export function JournalCreateForm({
         />
       </div>
       {state.message ? (
-        <p className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}>
+        <p
+          className={`text-xs font-medium ${state.status === "error" ? "text-burgundy" : "text-emerald"}`}
+        >
           {state.message}
         </p>
       ) : null}

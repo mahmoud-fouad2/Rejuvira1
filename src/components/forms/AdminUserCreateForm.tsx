@@ -41,7 +41,13 @@ export function AdminUserCreateForm() {
             <span className="lang-ar">البريد</span>
             <span className="lang-en">Email</span>
           </span>
-          <input name="email" type="email" required dir="ltr" className="admin-input" />
+          <input
+            name="email"
+            type="email"
+            required
+            dir="ltr"
+            className="admin-input"
+          />
         </label>
       </div>
       <div className="grid gap-3 md:grid-cols-[1fr_0.8fr]">
@@ -50,14 +56,23 @@ export function AdminUserCreateForm() {
             <span className="lang-ar">كلمة المرور</span>
             <span className="lang-en">Password</span>
           </span>
-          <input name="password" type="password" required className="admin-input" />
+          <input
+            name="password"
+            type="password"
+            required
+            className="admin-input"
+          />
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">الدور</span>
             <span className="lang-en">Role</span>
           </span>
-          <select name="role" defaultValue={UserRole.VIEWER} className="admin-input">
+          <select
+            name="role"
+            defaultValue={UserRole.VIEWER}
+            className="admin-input"
+          >
             {roleOptions.map((role) => (
               <option key={role.value} value={role.value}>
                 {role.label}
@@ -67,7 +82,9 @@ export function AdminUserCreateForm() {
         </label>
       </div>
       {state.message ? (
-        <p className={`text-xs font-medium ${state.status === "success" ? "text-emerald" : "text-burgundy"}`}>
+        <p
+          className={`text-xs font-medium ${state.status === "success" ? "text-emerald" : "text-burgundy"}`}
+        >
           {state.message}
         </p>
       ) : null}
