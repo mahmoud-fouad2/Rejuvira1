@@ -274,6 +274,37 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
     grouped.set(groupKey, list);
   }
 
+  function renderNavItem(item: NavItem, compact = false) {
+    const active = navActive(pathname, item.href);
+    return (
+      <Link
+        key={item.href}
+        href={item.href as Route}
+        className={
+          compact
+            ? `admin-shell__nav-subitem ${active ? "is-active" : ""}`
+            : `admin-shell__nav-item ${active ? "is-active" : ""}`
+        }
+      >
+        <span className="admin-shell__nav-icon">{iconFor(item.href)}</span>
+        <span className="admin-shell__nav-copy">
+          <span className="admin-shell__nav-title">
+            <span className="lang-ar">{item.label}</span>
+            <span className="lang-en">{item.labelEn ?? item.label}</span>
+          </span>
+          {!compact ? (
+            <span className="admin-shell__nav-description">
+              <span className="lang-ar">{item.description}</span>
+              <span className="lang-en">
+                {item.descriptionEn ?? item.description}
+              </span>
+            </span>
+          ) : null}
+        </span>
+      </Link>
+    );
+  }
+
   return (
     <>
       {groupOrder.map((groupKey) => {
@@ -287,34 +318,20 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
               <span className="lang-ar">{groupMeta.label}</span>
               <span className="lang-en">{groupLabel.en}</span>
             </p>
-            {groupItems.map((item) => {
-              const active = navActive(pathname, item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href as Route}
-                  className={`admin-shell__nav-item ${active ? "is-active" : ""}`}
-                >
-                  <span className="admin-shell__nav-icon">
-                    {iconFor(item.href)}
-                  </span>
-                  <span className="admin-shell__nav-copy">
-                    <span className="admin-shell__nav-title">
-                      <span className="lang-ar">{item.label}</span>
-                      <span className="lang-en">
-                        {item.labelEn ?? item.label}
-                      </span>
-                    </span>
-                    <span className="admin-shell__nav-description">
-                      <span className="lang-ar">{item.description}</span>
-                      <span className="lang-en">
-                        {item.descriptionEn ?? item.description}
-                      </span>
-                    </span>
-                  </span>
-                </Link>
-              );
-            })}
+            {groupKey === "content" ? (
+              <>
+                {groupItems
+                  .filter((item) => item.href === "/admin/content")
+                  .map((item) => renderNavItem(item))}
+                <div className="admin-shell__nav-subgrid">
+                  {groupItems
+                    .filter((item) => item.href !== "/admin/content")
+                    .map((item) => renderNavItem(item, true))}
+                </div>
+              </>
+            ) : (
+              groupItems.map((item) => renderNavItem(item))
+            )}
           </div>
         );
       })}

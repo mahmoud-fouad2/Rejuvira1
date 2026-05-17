@@ -12508,6 +12508,46 @@ html[data-theme="dark"] .admin-shell {
 .admin-shell__nav-item.is-active .admin-shell__nav-description {
   color: rgba(255, 255, 255, 0.72);
 }
+.admin-shell__nav-subgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  padding: 0.35rem 0.1rem 0;
+}
+.admin-shell__nav-subitem {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 1.55rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.48rem 0.5rem;
+  border-radius: 0.65rem;
+  color: var(--admin-sidebar-text-soft);
+  text-decoration: none;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+.admin-shell__nav-subitem:hover,
+.admin-shell__nav-subitem.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.admin-shell__nav-subitem .admin-shell__nav-icon {
+  display: grid;
+  width: 1.55rem;
+  height: 1.55rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+}
+.admin-shell__nav-subitem .admin-shell__nav-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+}
 
 .admin-shell__sidebar-footer {
   margin: 0.8rem;
@@ -13689,6 +13729,51 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   font-size: 1.1rem;
   font-weight: 850;
 }
+.admin-relationship-card__description {
+  max-width: 32rem;
+  margin-top: 0.35rem;
+  color: var(--admin-text-faint);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.admin-relationship-card__media {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding: 0.85rem 1rem 0;
+}
+.admin-relation-cover {
+  position: relative;
+  min-height: 5.8rem;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.55rem;
+  background: var(--admin-panel-soft);
+}
+.admin-relation-cover.is-empty {
+  display: grid;
+  min-height: 5.8rem;
+  grid-column: 1 / -1;
+  place-items: center;
+  color: var(--admin-text-faint);
+  font-size: 0.78rem;
+}
+.admin-relation-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  padding: 0.85rem 1rem;
+}
+.admin-relation-summary span {
+  border: 1px solid var(--admin-border);
+  border-radius: 0.55rem;
+  background: var(--admin-panel-soft);
+  padding: 0.55rem;
+  color: var(--admin-text-soft);
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 750;
+}
 .admin-relationship-card__body {
   display: grid;
 }
@@ -13743,6 +13828,92 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+}
+.admin-linked-strip {
+  display: grid;
+  gap: 0.55rem;
+}
+@media (min-width: 768px) {
+  .admin-linked-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.admin-linked-strip__item {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.6rem;
+  background: var(--admin-panel-soft);
+  padding: 0.7rem 0.8rem;
+  color: var(--admin-text);
+  text-decoration: none;
+}
+.admin-linked-strip__item:hover {
+  border-color: rgba(138, 78, 193, 0.32);
+  background: var(--admin-row-hover);
+}
+.admin-linked-strip__item strong,
+.admin-linked-strip__item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.admin-linked-strip__item span {
+  color: var(--admin-text-faint);
+  font-size: 0.72rem;
+}
+.admin-service-groups,
+.admin-service-group,
+.admin-service-group__rows {
+  display: grid;
+  gap: 0.75rem;
+}
+.admin-service-group {
+  border: 1px solid var(--admin-border);
+  border-radius: 0.7rem;
+  background: var(--admin-panel-soft);
+  padding: 0.7rem;
+}
+.admin-service-group.is-warning {
+  border-color: rgba(192, 138, 42, 0.28);
+}
+.admin-service-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.25rem 0.25rem 0.7rem;
+}
+.admin-service-group__header div {
+  min-width: 0;
+}
+.admin-service-group__header strong,
+.admin-service-group__header span {
+  display: block;
+}
+.admin-service-group__header strong {
+  color: var(--admin-text);
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+.admin-service-group__header span {
+  margin-top: 0.15rem;
+  color: var(--admin-text-faint);
+  font-size: 0.72rem;
+}
+.admin-edit-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.admin-edit-context span {
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-panel-soft);
+  padding: 0.35rem 0.65rem;
+  color: var(--admin-text-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 /* ── Layout helpers ───────────────────────────────────── */

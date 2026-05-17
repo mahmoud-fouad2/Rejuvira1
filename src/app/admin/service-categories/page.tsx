@@ -1,24 +1,37 @@
 import { ContentStatus } from "@prisma/client";
+import Link from "next/link";
+import type { Route } from "next";
 
 import { deleteServiceCategoryAction } from "@/app/admin/service-categories/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { AdminListControls } from "@/components/admin/AdminListControls";
 import { ServiceCategoryForm } from "@/components/forms/ServiceCategoryForm";
-import { getServiceCategories } from "@/lib/content-repository";
+import { getServiceCategories, getServices } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
   switch (status) {
     case ContentStatus.PUBLISHED:
-      return { className: "is-published", label: "Published" };
+      return {
+        className: "is-published",
+        labelAr: "منشور",
+        labelEn: "Published",
+      };
     case ContentStatus.ARCHIVED:
-      return { className: "is-archived", label: "Archived" };
+      return {
+        className: "is-archived",
+        labelAr: "مؤرشف",
+        labelEn: "Archived",
+      };
     default:
-      return { className: "is-draft", label: "Draft" };
+      return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
   }
 }
 
 export default async function AdminServiceCategoriesPage() {
-  const categories = await getServiceCategories();
+  const [categories, services] = await Promise.all([
+    getServiceCategories(),
+    getServices(),
+  ]);
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: categories.length },
     {
@@ -56,11 +69,21 @@ export default async function AdminServiceCategoriesPage() {
             <span className="lang-en">Service categories</span>
           </h1>
           <p>
-            <span className="lang-ar">{categories.length} قسم</span>
-            <span className="lang-en">{categories.length} categories</span>
+            <span className="lang-ar">
+              تنظيم حقيقي للخدمات داخل أقسام تظهر في الموقع ولوحة التحكم.
+            </span>
+            <span className="lang-en">
+              Real service taxonomy used by the website and admin panel.
+            </span>
           </p>
         </div>
         <div className="admin-page-header__actions">
+          <Link
+            href={"/admin/content" as Route}
+            className="admin-btn-secondary"
+          >
+            مركز العلاقات
+          </Link>
           <AdminAddModal
             triggerArabic="إضافة قسم"
             triggerEnglish="Add category"
@@ -77,8 +100,8 @@ export default async function AdminServiceCategoriesPage() {
           <div>
             <div className="admin-card__subtitle">Taxonomy</div>
             <div className="admin-card__title">
-              <span className="lang-ar">تنظيم الخدمات داخل أقسام</span>
-              <span className="lang-en">Organize services into categories</span>
+              <span className="lang-ar">الأقسام وما بداخلها من خدمات</span>
+              <span className="lang-en">Categories and their services</span>
             </div>
           </div>
         </div>
@@ -89,6 +112,12 @@ export default async function AdminServiceCategoriesPage() {
         >
           {categories.map((category) => {
             const meta = statusMeta(category.status);
+            const categoryServices = services.filter(
+              (service) =>
+                service.categoryId === category.id ||
+                service.categorySlug === category.slug ||
+                service.category === category.name,
+            );
             return (
               <details
                 key={category.id}
@@ -100,7 +129,7 @@ export default async function AdminServiceCategoriesPage() {
                   category.nameEn,
                   category.slug,
                   category.description,
-                  category.descriptionEn,
+                  categoryServices.map((service) => service.name).join(" "),
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -111,11 +140,12 @@ export default async function AdminServiceCategoriesPage() {
                       {category.name}
                     </p>
                     <p className="admin-data-row__meta truncate">
-                      {category.slug} · {category.serviceCount} services
+                      {category.slug} · {categoryServices.length} خدمة
                     </p>
                   </div>
                   <span className={`admin-status-badge ${meta.className}`}>
-                    {meta.label}
+                    <span className="lang-ar">{meta.labelAr}</span>
+                    <span className="lang-en">{meta.labelEn}</span>
                   </span>
                 </summary>
 
@@ -123,19 +153,40 @@ export default async function AdminServiceCategoriesPage() {
                   className="mt-4 grid gap-4 border-t pt-4"
                   style={{ borderColor: "var(--admin-border)" }}
                 >
+                  {categoryServices.length ? (
+                    <div className="admin-linked-strip">
+                      {categoryServices.map((service) => (
+                        <Link
+                          key={service.id}
+                          href={"/admin/services" as Route}
+                          className="admin-linked-strip__item"
+                        >
+                          <strong>{service.name}</strong>
+                          <span>
+                            {service.doctorSlugs.length} أطباء مرتبطون
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="admin-empty-note">
+                      لا توجد خدمات داخل هذا القسم حتى الآن.
+                    </p>
+                  )}
+
                   <ServiceCategoryForm category={category} />
                   <form action={deleteServiceCategoryAction}>
                     <input type="hidden" name="id" value={category.id} />
                     <button
                       type="submit"
                       className="admin-btn-danger"
-                      disabled={category.serviceCount > 0}
+                      disabled={categoryServices.length > 0}
                     >
-                      Delete category
+                      حذف القسم
                     </button>
-                    {category.serviceCount > 0 ? (
+                    {categoryServices.length > 0 ? (
                       <p className="mt-2 text-xs text-[color:var(--admin-text-faint)]">
-                        Move services to another category before deleting.
+                        انقل الخدمات إلى قسم آخر قبل حذف هذا القسم.
                       </p>
                     ) : null}
                   </form>

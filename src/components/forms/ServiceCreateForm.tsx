@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 
 import {
   createServiceAction,
@@ -29,6 +29,11 @@ export function ServiceCreateForm({ categories = [] }: Props) {
     initialState,
   );
   const defaultCategory = categories[0];
+  const [categoryId, setCategoryId] = useState(defaultCategory?.id ?? "");
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id === categoryId),
+    [categories, categoryId],
+  );
 
   return (
     <form action={formAction} className="grid gap-3">
@@ -69,7 +74,8 @@ export function ServiceCreateForm({ categories = [] }: Props) {
                 name="categoryId"
                 required
                 className="admin-input"
-                defaultValue={defaultCategory?.id}
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
               >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -82,7 +88,7 @@ export function ServiceCreateForm({ categories = [] }: Props) {
               <input
                 type="hidden"
                 name="category"
-                value={defaultCategory?.name ?? "Services"}
+                value={selectedCategory?.name ?? defaultCategory?.name ?? ""}
               />
             </>
           ) : (

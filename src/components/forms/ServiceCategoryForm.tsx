@@ -37,7 +37,10 @@ export function ServiceCategoryForm({ category }: Props) {
       {category ? <input type="hidden" name="id" value={category.id} /> : null}
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">Arabic name</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">اسم القسم عربي</span>
+            <span className="lang-en">Arabic name</span>
+          </span>
           <input
             name="name"
             required
@@ -47,7 +50,10 @@ export function ServiceCategoryForm({ category }: Props) {
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">English name</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">اسم القسم إنجليزي</span>
+            <span className="lang-en">English name</span>
+          </span>
           <input
             name="nameEn"
             dir="ltr"
@@ -68,7 +74,10 @@ export function ServiceCategoryForm({ category }: Props) {
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">Sort order</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">ترتيب الظهور</span>
+            <span className="lang-en">Sort order</span>
+          </span>
           <input
             name="sortOrder"
             type="number"
@@ -80,7 +89,10 @@ export function ServiceCategoryForm({ category }: Props) {
       </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
-          <span className="admin-field-label">Arabic description</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">وصف عربي</span>
+            <span className="lang-en">Arabic description</span>
+          </span>
           <textarea
             name="description"
             rows={3}
@@ -90,7 +102,10 @@ export function ServiceCategoryForm({ category }: Props) {
           />
         </label>
         <label className="grid gap-1">
-          <span className="admin-field-label">English description</span>
+          <span className="admin-field-label">
+            <span className="lang-ar">وصف إنجليزي</span>
+            <span className="lang-en">English description</span>
+          </span>
           <textarea
             name="descriptionEn"
             rows={3}
@@ -101,7 +116,10 @@ export function ServiceCategoryForm({ category }: Props) {
         </label>
       </div>
       <label className="grid gap-1">
-        <span className="admin-field-label">Status</span>
+        <span className="admin-field-label">
+          <span className="lang-ar">الحالة</span>
+          <span className="lang-en">Status</span>
+        </span>
         <select
           name="status"
           defaultValue={category?.status ?? ContentStatus.PUBLISHED}
@@ -122,7 +140,22 @@ export function ServiceCategoryForm({ category }: Props) {
         </p>
       ) : null}
       <button type="submit" disabled={pending} className="admin-btn-primary">
-        {pending ? "Saving..." : category ? "Save category" : "Create category"}
+        {pending ? (
+          <>
+            <span className="lang-ar">جاري الحفظ...</span>
+            <span className="lang-en">Saving...</span>
+          </>
+        ) : category ? (
+          <>
+            <span className="lang-ar">حفظ القسم</span>
+            <span className="lang-en">Save category</span>
+          </>
+        ) : (
+          <>
+            <span className="lang-ar">إنشاء القسم</span>
+            <span className="lang-en">Create category</span>
+          </>
+        )}
       </button>
     </form>
   );

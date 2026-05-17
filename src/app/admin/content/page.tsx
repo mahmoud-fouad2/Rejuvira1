@@ -1,4 +1,5 @@
 import { ContentStatus } from "@prisma/client";
+import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -53,24 +54,30 @@ export default async function AdminContentHubPage() {
         }),
       );
 
-  const unlinkedServices = services.filter(
+  const linkedServiceCount = services.filter(
     (service) =>
-      service.doctorSlugs.length === 0 || service.deviceSlugs.length === 0,
+      service.categoryId &&
+      service.doctorSlugs.length > 0 &&
+      service.deviceSlugs.length > 0,
+  ).length;
+  const servicesNeedingAttention = services.filter(
+    (service) => !service.categoryId || service.doctorSlugs.length === 0,
   );
 
   return (
     <>
       <div className="admin-page-header">
         <div>
-          <h1>مركز المحتوى</h1>
+          <h1>مركز المحتوى والعلاقات</h1>
           <p>
-            ربط الأقسام بالخدمات، والخدمات بالأطباء والأجهزة والمقالات من مكان
-            واحد.
+            لوحة واحدة لمراجعة ربط الأقسام بالخدمات، والخدمات بالأطباء والأجهزة
+            والمقالات. البيانات المعروضة هنا تأتي من قاعدة البيانات مباشرة عند
+            توفرها.
           </p>
         </div>
         <div className="admin-page-header__actions">
           <Link href={"/admin/services" as Route} className="admin-btn-primary">
-            تعديل الخدمات
+            إدارة الخدمات
           </Link>
           <Link
             href={"/admin/service-categories" as Route}
@@ -83,33 +90,35 @@ export default async function AdminContentHubPage() {
 
       <section className="admin-grid-4">
         <div className="admin-kpi">
-          <span className="admin-kpi__icon">S</span>
+          <span className="admin-kpi__icon">C</span>
+          <span>
+            <strong className="admin-kpi__value">
+              {categoriesWithFallback.length}
+            </strong>
+            <span className="admin-kpi__label">قسم خدمات</span>
+          </span>
+        </div>
+        <div className="admin-kpi">
+          <span className="admin-kpi__icon is-success">S</span>
           <span>
             <strong className="admin-kpi__value">{services.length}</strong>
             <span className="admin-kpi__label">خدمة</span>
           </span>
         </div>
         <div className="admin-kpi">
-          <span className="admin-kpi__icon is-success">D</span>
+          <span className="admin-kpi__icon is-gold">✓</span>
           <span>
-            <strong className="admin-kpi__value">{doctors.length}</strong>
-            <span className="admin-kpi__label">طبيب</span>
-          </span>
-        </div>
-        <div className="admin-kpi">
-          <span className="admin-kpi__icon is-gold">M</span>
-          <span>
-            <strong className="admin-kpi__value">{devices.length}</strong>
-            <span className="admin-kpi__label">جهاز</span>
+            <strong className="admin-kpi__value">{linkedServiceCount}</strong>
+            <span className="admin-kpi__label">خدمة مربوطة جيدًا</span>
           </span>
         </div>
         <div className="admin-kpi">
           <span className="admin-kpi__icon is-danger">!</span>
           <span>
             <strong className="admin-kpi__value">
-              {unlinkedServices.length}
+              {servicesNeedingAttention.length}
             </strong>
-            <span className="admin-kpi__label">خدمات تحتاج ربط</span>
+            <span className="admin-kpi__label">تحتاج مراجعة</span>
           </span>
         </div>
       </section>
@@ -119,15 +128,36 @@ export default async function AdminContentHubPage() {
           const categoryServices = services.filter(
             (service) =>
               service.categoryId === category.id ||
+              service.categorySlug === category.slug ||
               service.category === category.name,
           );
+          const serviceSlugs = new Set(
+            categoryServices.map((service) => service.slug),
+          );
+          const linkedDoctors = doctors.filter((doctor) =>
+            doctor.serviceSlugs.some((slug) => serviceSlugs.has(slug)),
+          );
+          const linkedDevices = devices.filter((device) =>
+            device.serviceSlugs.some((slug) => serviceSlugs.has(slug)),
+          );
+          const linkedPosts = posts.filter((post) =>
+            post.relatedServiceSlugs.some((slug) => serviceSlugs.has(slug)),
+          );
+          const coverServices = categoryServices
+            .filter((service) => service.coverImageUrl)
+            .slice(0, 3);
 
           return (
             <article key={category.id} className="admin-relationship-card">
               <header>
                 <div>
-                  <span className="admin-card__subtitle">Category</span>
+                  <span className="admin-card__subtitle">{category.slug}</span>
                   <h2>{category.name}</h2>
+                  {category.description ? (
+                    <p className="admin-relationship-card__description">
+                      {category.description}
+                    </p>
+                  ) : null}
                 </div>
                 <span
                   className={`admin-status-badge ${statusClass(category.status)}`}
@@ -136,35 +166,68 @@ export default async function AdminContentHubPage() {
                 </span>
               </header>
 
+              <div className="admin-relationship-card__media">
+                {coverServices.length ? (
+                  coverServices.map((service) => (
+                    <div key={service.id} className="admin-relation-cover">
+                      <Image
+                        src={service.coverImageUrl}
+                        alt={service.name}
+                        fill
+                        sizes="160px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="admin-relation-cover is-empty">
+                    لا توجد صور خدمات
+                  </div>
+                )}
+              </div>
+
+              <div className="admin-relation-summary">
+                <span>{categoryServices.length} خدمة</span>
+                <span>{linkedDoctors.length} طبيب</span>
+                <span>{linkedDevices.length} جهاز</span>
+                <span>{linkedPosts.length} مقال</span>
+              </div>
+
               <div className="admin-relationship-card__body">
                 {categoryServices.length === 0 ? (
                   <p className="admin-empty-note">
-                    لا توجد خدمات داخل هذا القسم.
+                    لا توجد خدمات داخل هذا القسم. أضف خدمة أو انقل خدمة قائمة
+                    لهذا القسم من صفحة الخدمات.
                   </p>
                 ) : null}
 
                 {categoryServices.map((service) => {
-                  const linkedDoctors = doctors.filter((doctor) =>
+                  const serviceDoctors = doctors.filter((doctor) =>
                     service.doctorSlugs.includes(doctor.slug),
                   );
-                  const linkedDevices = devices.filter((device) =>
+                  const serviceDevices = devices.filter((device) =>
                     service.deviceSlugs.includes(device.slug),
                   );
-                  const linkedPosts = posts.filter((post) =>
+                  const servicePosts = posts.filter((post) =>
                     post.relatedServiceSlugs.includes(service.slug),
                   );
                   const needsLink =
-                    linkedDoctors.length === 0 || linkedDevices.length === 0;
+                    serviceDoctors.length === 0 || !service.categoryId;
 
                   return (
                     <details key={service.id} className="admin-relation-item">
                       <summary>
                         <span>
                           <strong>{service.name}</strong>
-                          <small>{service.slug}</small>
+                          <small>
+                            {service.slug} · {serviceDoctors.length} أطباء ·{" "}
+                            {serviceDevices.length} أجهزة
+                          </small>
                         </span>
                         <span
-                          className={`admin-status-badge ${needsLink ? "is-draft" : statusClass(service.status)}`}
+                          className={`admin-status-badge ${
+                            needsLink ? "is-draft" : statusClass(service.status)
+                          }`}
                         >
                           {needsLink
                             ? "يحتاج ربط"
@@ -173,42 +236,42 @@ export default async function AdminContentHubPage() {
                       </summary>
                       <div className="admin-relation-item__detail">
                         <div>
-                          <b>الأطباء</b>
+                          <b>الأطباء مقدمو الخدمة</b>
                           <div className="admin-relation-chips">
-                            {linkedDoctors.length ? (
-                              linkedDoctors.map((doctor) => (
+                            {serviceDoctors.length ? (
+                              serviceDoctors.map((doctor) => (
                                 <span key={doctor.id} className="admin-chip">
                                   {doctor.name}
                                 </span>
                               ))
                             ) : (
                               <span className="admin-chip is-warning">
-                                غير مرتبط
+                                غير مرتبط بطبيب
                               </span>
                             )}
                           </div>
                         </div>
                         <div>
-                          <b>الأجهزة</b>
+                          <b>الأجهزة الداعمة</b>
                           <div className="admin-relation-chips">
-                            {linkedDevices.length ? (
-                              linkedDevices.map((device) => (
+                            {serviceDevices.length ? (
+                              serviceDevices.map((device) => (
                                 <span key={device.id} className="admin-chip">
                                   {device.name}
                                 </span>
                               ))
                             ) : (
                               <span className="admin-chip is-warning">
-                                غير مرتبط
+                                لا يوجد جهاز مرتبط
                               </span>
                             )}
                           </div>
                         </div>
                         <div>
-                          <b>المقالات</b>
+                          <b>المقالات المرتبطة</b>
                           <div className="admin-relation-chips">
-                            {linkedPosts.length ? (
-                              linkedPosts.slice(0, 4).map((post) => (
+                            {servicePosts.length ? (
+                              servicePosts.slice(0, 4).map((post) => (
                                 <span key={post.id} className="admin-chip">
                                   {post.title}
                                 </span>
@@ -220,12 +283,20 @@ export default async function AdminContentHubPage() {
                             )}
                           </div>
                         </div>
-                        <Link
-                          href={"/admin/services" as Route}
-                          className="admin-btn-secondary"
-                        >
-                          تعديل الربط من الخدمة
-                        </Link>
+                        <div className="flex flex-wrap gap-2">
+                          <Link
+                            href={"/admin/services" as Route}
+                            className="admin-btn-secondary"
+                          >
+                            تعديل الخدمة والربط
+                          </Link>
+                          <Link
+                            href={`/services/${service.slug}` as Route}
+                            className="admin-btn-secondary"
+                          >
+                            عرض في الموقع
+                          </Link>
+                        </div>
                       </div>
                     </details>
                   );

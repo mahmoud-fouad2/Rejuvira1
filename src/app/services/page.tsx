@@ -6,7 +6,11 @@ import Script from "next/script";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
-import { getMediaSelections, getServices } from "@/lib/content-repository";
+import {
+  getMediaSelections,
+  getServiceCategories,
+  getServices,
+} from "@/lib/content-repository";
 import { buildCollectionPageJsonLd, buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,12 +18,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ServicesPage() {
-  const [services, mediaSelections] = await Promise.all([
+  const [services, categories, mediaSelections] = await Promise.all([
     getServices(),
+    getServiceCategories(),
     getMediaSelections(),
   ]);
-  const [featuredService, ...otherServices] = services;
+  const [featuredService] = services;
   const categoryCount = new Set(services.map((s) => s.category)).size;
+  const categoryGroups = categories
+    .map((category) => ({
+      category,
+      services: services.filter(
+        (service) =>
+          service.categoryId === category.id ||
+          service.categorySlug === category.slug ||
+          service.category === category.name,
+      ),
+    }))
+    .filter((group) => group.services.length > 0);
+  const groupedServiceIds = new Set(
+    categoryGroups.flatMap((group) =>
+      group.services.map((service) => service.id),
+    ),
+  );
+  const remainingServices = services.filter(
+    (service) => !groupedServiceIds.has(service.id),
+  );
 
   const collectionJsonLd = buildCollectionPageJsonLd({
     path: "/services",
@@ -155,59 +179,105 @@ export default async function ServicesPage() {
           ) : null}
         </section>
 
-        {/* ═══ SERVICES GRID ═══ */}
-        <section className="grid gap-6 xl:grid-cols-2">
-          {otherServices.map((service, i) => (
-            <article
-              key={service.id}
-              className="surface-panel overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] lg:grid lg:grid-cols-[0.9fr_1.1fr]"
-            >
-              <div
-                className="relative min-h-[22rem] overflow-hidden"
-                style={{ animationDelay: `${100 + 100 * i}ms` }}
-              >
-                <Image
-                  src={service.coverImageUrl}
-                  alt={service.name}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover transition-all duration-700 hover:scale-[1.05]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        {/* ═══ SERVICES BY CATEGORY ═══ */}
+        <section className="grid gap-10">
+          {[
+            ...categoryGroups,
+            ...(remainingServices.length
+              ? [
+                  {
+                    category: {
+                      id: "uncategorized",
+                      name: "خدمات إضافية",
+                      nameEn: "Additional services",
+                      description:
+                        "خدمات تحتاج إلى مراجعة التصنيف من لوحة التحكم.",
+                    },
+                    services: remainingServices,
+                  },
+                ]
+              : []),
+          ].map(({ category, services: categoryServices }) => (
+            <section key={category.id} className="grid gap-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="eyebrow">
+                    <span className="lang-ar">قسم خدمات</span>
+                    <span className="lang-en">Service category</span>
+                  </p>
+                  <h2 className="text-ink mt-4 font-serif text-4xl leading-tight">
+                    <span className="lang-ar">{category.name}</span>
+                    <span className="lang-en">
+                      {category.nameEn ?? category.name}
+                    </span>
+                  </h2>
+                  {category.description ? (
+                    <p className="text-ink-soft mt-3 max-w-3xl leading-8">
+                      {category.description}
+                    </p>
+                  ) : null}
+                </div>
+                <Badge variant="outline" size="md">
+                  {categoryServices.length} خدمات
+                </Badge>
               </div>
-              <div className="flex flex-col justify-center p-8 lg:p-10">
-                <p className="eyebrow text-ink-soft">{service.category}</p>
-                <h2 className="text-ink mt-4 font-serif text-3xl leading-[1.2] tracking-[-0.02em]">
-                  {service.name}
-                </h2>
-                <p className="text-ink-soft mt-4 text-base leading-7">
-                  {service.excerpt}
-                </p>
 
-                {/* Benefits */}
-                {service.benefits.length > 0 && (
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {service.benefits.slice(0, 3).map((benefit) => (
-                      <div
-                        key={benefit}
-                        className="border-line bg-surface text-ink-soft inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs"
+              <div className="grid gap-6 xl:grid-cols-2">
+                {categoryServices.map((service, i) => (
+                  <article
+                    key={service.id}
+                    className="surface-panel overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] lg:grid lg:grid-cols-[0.9fr_1.1fr]"
+                  >
+                    <div
+                      className="relative min-h-[22rem] overflow-hidden"
+                      style={{ animationDelay: `${100 + 100 * i}ms` }}
+                    >
+                      <Image
+                        src={service.coverImageUrl}
+                        alt={service.name}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 40vw"
+                        className="object-cover transition-all duration-700 hover:scale-[1.05]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    </div>
+                    <div className="flex flex-col justify-center p-8 lg:p-10">
+                      <p className="eyebrow text-ink-soft">
+                        {service.category}
+                      </p>
+                      <h3 className="text-ink mt-4 font-serif text-3xl leading-[1.2] tracking-[-0.02em]">
+                        {service.name}
+                      </h3>
+                      <p className="text-ink-soft mt-4 text-base leading-7">
+                        {service.excerpt}
+                      </p>
+
+                      {service.benefits.length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-2">
+                          {service.benefits.slice(0, 3).map((benefit) => (
+                            <div
+                              key={benefit}
+                              className="border-line bg-surface text-ink-soft inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs"
+                            >
+                              <span className="bg-gold h-1 w-1 rounded-full" />
+                              {benefit}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <Link
+                        href={`/services/${service.slug}`}
+                        className="btn-primary mt-8 self-start"
                       >
-                        <span className="bg-gold h-1 w-1 rounded-full" />
-                        {benefit}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <Link
-                  href={`/services/${service.slug}`}
-                  className="btn-primary mt-8 self-start"
-                >
-                  <span className="lang-ar">تفاصيل الخدمة</span>
-                  <span className="lang-en">Service details</span>
-                </Link>
+                        <span className="lang-ar">تفاصيل الخدمة</span>
+                        <span className="lang-en">Service details</span>
+                      </Link>
+                    </div>
+                  </article>
+                ))}
               </div>
-            </article>
+            </section>
           ))}
         </section>
       </main>
