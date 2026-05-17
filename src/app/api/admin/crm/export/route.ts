@@ -49,7 +49,7 @@ async function createPdfBuffer(
   let page = pdfDoc.addPage([595, 842]);
   let cursorY = 790;
 
-  page.drawText("Rejuvira CRM Export", {
+  page.drawText("Rejuvera CRM Export", {
     x: 40,
     y: cursorY,
     size: 18,
@@ -129,7 +129,7 @@ async function createPdfBuffer(
 export async function GET(request: NextRequest) {
   const session = await auth();
 
-  if (!session) {
+  if (!session?.user?.role) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
