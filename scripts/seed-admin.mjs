@@ -6,7 +6,7 @@ const { hash } = bcryptjs;
 const prisma = new PrismaClient();
 
 async function main() {
-  const name = process.env.ADMIN_SEED_NAME?.trim() || "Rejuvira Super Admin";
+  const name = process.env.ADMIN_SEED_NAME?.trim() || "Rejuvera Super Admin";
   const email = process.env.ADMIN_SEED_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_SEED_PASSWORD?.trim();
 

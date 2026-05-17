@@ -12,7 +12,7 @@ import { useEffect } from "react";
 
 const textMap: Record<string, string> = {
   "لوحة التحكم": "Admin",
-  "إدارة المعرض — Rejuvira Admin": "Gallery management — Rejuvira Admin",
+  "إدارة المعرض — Rejuvera Admin": "Gallery management — Rejuvera Admin",
   "+ إضافة حالة جديدة": "+ Add a new case",
   "تعديل البيانات": "Edit details",
   "لا توجد حالات بعد.": "No cases yet.",

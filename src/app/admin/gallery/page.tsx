@@ -7,7 +7,7 @@ import { AdminListControls } from "@/components/admin/AdminListControls";
 import { getGalleryItems } from "@/lib/content-repository";
 import { DeleteGalleryItemButton, GalleryItemForm } from "./GalleryAdminForms";
 
-export const metadata = { title: "إدارة المعرض — Rejuvira Admin" };
+export const metadata = { title: "إدارة المعرض — Rejuvera Admin" };
 
 const STATUS_AR: Record<ContentStatus, string> = {
   DRAFT: "مسودة",

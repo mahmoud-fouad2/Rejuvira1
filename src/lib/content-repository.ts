@@ -1810,12 +1810,12 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "siteName",
         label: "اسم العلامة الرئيسي",
-        value: "Rejuvira Center",
+        value: "Rejuvera Center",
       },
       {
         key: "shortName",
         label: "الاسم المختصر",
-        value: "Rejuvira",
+        value: "Rejuvera",
       },
       {
         key: "tagline",
@@ -1836,7 +1836,7 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "logoAlt",
         label: "النص البديل للشعار",
-        value: "شعار Rejuvira Center للتجميل الطبي والجراحات التجميلية والعناية بالبشرة",
+        value: "شعار Rejuvera Center للتجميل الطبي والجراحات التجميلية والعناية بالبشرة",
       },
     ],
   },
@@ -2798,8 +2798,8 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       ),
     },
     brand: {
-      siteName: getValue("brand", "siteName", "Rejuvira Center"),
-      shortName: getValue("brand", "shortName", "Rejuvira"),
+      siteName: getValue("brand", "siteName", "Rejuvera Center"),
+      shortName: getValue("brand", "shortName", "Rejuvera"),
       tagline: getValue(
         "brand",
         "tagline",
@@ -2818,7 +2818,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       logoAlt: getValue(
         "brand",
         "logoAlt",
-        "شعار Rejuvira Center للجلدية والتجميل الطبي",
+        "شعار Rejuvera Center للجلدية والتجميل الطبي",
       ),
     },
     ops: {

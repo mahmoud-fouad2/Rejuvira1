@@ -16,7 +16,8 @@
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:migrate:deploy:retry": "node scripts/render-migrate-deploy.mjs",
     "db:push": "prisma db push",
-    "seed:admin": "node scripts/seed-admin.mjs"
+    "seed:admin": "node scripts/seed-admin.mjs",
+    "seed:core": "node scripts/seed-core-content.mjs"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",

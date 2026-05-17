@@ -27,18 +27,18 @@ export default async function AdminLayout({
       <Link
         href={"/admin" as Route}
         className="admin-shell__brand"
-        aria-label="Rejuvira Admin"
+        aria-label="Rejuvera Admin"
       >
         <span className="admin-shell__brand-logo">
           <BrandLogo
-            alt="Rejuvira"
+            alt="Rejuvera"
             width={120}
             height={90}
             variant="header"
             sizes="56px"
           />
         </span>
-        <span className="admin-shell__brand-mark">Rejuvira</span>
+        <span className="admin-shell__brand-mark">Rejuvera</span>
       </Link>
 
       <nav className="admin-shell__nav" aria-label="Admin navigation">

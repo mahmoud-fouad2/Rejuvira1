@@ -29,7 +29,7 @@ function readBootstrapCredentials() {
     process.env.ADMIN_BOOTSTRAP_PASSWORD ?? process.env.ADMIN_SEED_PASSWORD ?? ""
   ).trim();
   const name = (
-    process.env.ADMIN_BOOTSTRAP_NAME ?? process.env.ADMIN_SEED_NAME ?? "Rejuvira Super Admin"
+    process.env.ADMIN_BOOTSTRAP_NAME ?? process.env.ADMIN_SEED_NAME ?? "Rejuvera Super Admin"
   ).trim();
 
   if (!email || !password) return null;
