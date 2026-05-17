@@ -4135,6 +4135,31 @@ export async function getCustomPageBySlug(
   }
 }
 
+export async function getCustomPageById(
+  id: string,
+): Promise<CustomPageRecord | null> {
+  if (!canUseDatabase()) return null;
+  try {
+    const p = await prisma.customPage.findUnique({ where: { id } });
+    if (!p) return null;
+    return {
+      id: p.id,
+      slug: p.slug,
+      titleAr: p.titleAr,
+      titleEn: p.titleEn,
+      htmlContent: p.htmlContent,
+      seoTitle: p.seoTitle,
+      seoDescription: p.seoDescription,
+      status: p.status,
+      noindex: p.noindex,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function createCustomPage(input: CreateCustomPageInput) {
   if (!canUseDatabase()) return { mode: "preview" as const, input };
   const item = await prisma.customPage.create({

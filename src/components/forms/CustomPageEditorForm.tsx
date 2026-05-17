@@ -23,6 +23,7 @@ const STATUS_OPTIONS: Array<{ value: ContentStatus; ar: string; en: string }> =
 
 export type CustomPageEditorFormProps = {
   mode: "create" | "edit";
+  previewHref?: string;
   initial?: {
     id: string;
     slug: string;
@@ -38,6 +39,7 @@ export type CustomPageEditorFormProps = {
 
 export function CustomPageEditorForm({
   mode,
+  previewHref,
   initial,
 }: CustomPageEditorFormProps) {
   const [state, formAction, pending] = useActionState(
@@ -46,10 +48,41 @@ export function CustomPageEditorForm({
   );
 
   return (
-    <form action={formAction} className="grid gap-3">
+    <form action={formAction} className="custom-page-editor-form">
       {mode === "edit" && initial ? (
-        <input type="hidden" name="id" value={initial.id} />
+        <>
+          <input type="hidden" name="id" value={initial.id} />
+          <input type="hidden" name="oldSlug" value={initial.slug} />
+        </>
       ) : null}
+
+      <div className="custom-page-editor-form__top">
+        <div>
+          <p className="custom-page-editor-form__eyebrow">
+            {mode === "create" ? "PageCraft" : `/p/${initial?.slug ?? ""}`}
+          </p>
+          <h2>
+            {mode === "create" ? "إنشاء Landing Page جديدة" : "تعديل الصفحة المخصصة"}
+          </h2>
+          <p>
+            حفظ هذه الصفحة يتم مباشرة في قاعدة البيانات، والمعاينة داخل البيلدر تتحدث فور تعديل المكونات.
+          </p>
+        </div>
+        <div className="custom-page-editor-form__actions">
+          {previewHref ? (
+            <a href={previewHref} target="_blank" rel="noreferrer" className="admin-btn-secondary">
+              معاينة الصفحة
+            </a>
+          ) : null}
+          <button type="submit" className="admin-btn-primary" disabled={pending}>
+            {pending
+              ? "جار الحفظ..."
+              : mode === "create"
+                ? "حفظ الصفحة"
+                : "حفظ التعديلات"}
+          </button>
+        </div>
+      </div>
 
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
@@ -144,7 +177,7 @@ export function CustomPageEditorForm({
         <span>منع الفهرسة (noindex)</span>
       </label>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+      <div className="custom-page-editor-form__savebar">
         <button type="submit" className="admin-btn-primary" disabled={pending}>
           {mode === "create" ? "إنشاء صفحة" : "حفظ التغييرات"}
         </button>

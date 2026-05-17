@@ -1,9 +1,9 @@
 import { ContentStatus } from "@prisma/client";
+import Link from "next/link";
+import type { Route } from "next";
 
 import { deleteCustomPageAction } from "@/app/admin/pages/actions";
-import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { AdminListControls } from "@/components/admin/AdminListControls";
-import { CustomPageEditorForm } from "@/components/forms/CustomPageEditorForm";
 import { getCustomPages } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
@@ -21,11 +21,17 @@ function statusMeta(status: ContentStatus) {
   }
 }
 
+function countBlocks(htmlContent: string) {
+  return (htmlContent.match(/rv-builder-section/g) ?? []).length;
+}
+
 export default async function AdminCustomPagesPage() {
   const pages = await getCustomPages();
   const published = pages.filter(
     (page) => page.status === ContentStatus.PUBLISHED,
   ).length;
+  const draft = pages.filter((page) => page.status === ContentStatus.DRAFT).length;
+  const totalBlocks = pages.reduce((sum, page) => sum + countBlocks(page.htmlContent), 0);
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: pages.length },
     {
@@ -50,58 +56,72 @@ export default async function AdminCustomPagesPage() {
       value: ContentStatus.DRAFT,
       labelAr: "مسودة",
       labelEn: "Draft",
-      count: pages.filter((page) => page.status === ContentStatus.DRAFT).length,
+      count: draft,
     },
   ];
 
   return (
     <>
-      <div className="admin-page-header">
+      <div className="admin-page-header admin-page-header--hero">
         <div>
+          <span className="admin-page-header__eyebrow">PageCraft CMS</span>
           <h1>
-            <span className="lang-ar">الصفحات المخصصة</span>
-            <span className="lang-en">Custom pages</span>
+            <span className="lang-ar">الصفحات المخصصة والـ Landing Pages</span>
+            <span className="lang-en">Custom pages and landing pages</span>
           </h1>
           <p>
             <span className="lang-ar">
-              {pages.length} صفحة · {published} منشورة
+              إدارة صفحات مستقلة للحملات والـ leads مع تعديل كامل في صفحة عمل مخصصة.
             </span>
             <span className="lang-en">
-              {pages.length} pages · {published} published
+              Manage campaign pages and lead pages in a dedicated editing workspace.
             </span>
           </p>
         </div>
         <div className="admin-page-header__actions">
-          <AdminAddModal
-            triggerArabic="إنشاء صفحة"
-            triggerEnglish="Create page"
-            titleArabic="منشئ صفحة مخصصة"
-            titleEnglish="Custom page builder"
-          >
-            <CustomPageEditorForm mode="create" />
-          </AdminAddModal>
+          <Link href={"/admin/pages/new" as Route} className="admin-btn-primary">
+            إنشاء صفحة جديدة
+          </Link>
         </div>
       </div>
 
+      <section className="admin-kpi-grid admin-kpi-grid--compact">
+        <article className="admin-kpi-card">
+          <span className="admin-kpi-card__label">الصفحات</span>
+          <strong>{pages.length}</strong>
+        </article>
+        <article className="admin-kpi-card">
+          <span className="admin-kpi-card__label">منشورة</span>
+          <strong>{published}</strong>
+        </article>
+        <article className="admin-kpi-card">
+          <span className="admin-kpi-card__label">مسودات</span>
+          <strong>{draft}</strong>
+        </article>
+        <article className="admin-kpi-card">
+          <span className="admin-kpi-card__label">مكونات مبنية</span>
+          <strong>{totalBlocks}</strong>
+        </article>
+      </section>
+
       <AdminListControls targetId="admin-pages-list" tabs={tabs} />
-      <section className="admin-editor-grid" data-admin-list="admin-pages-list">
+      <section className="custom-pages-list" data-admin-list="admin-pages-list">
         {pages.length === 0 ? (
           <article className="admin-card">
             <div className="admin-card__body text-sm text-[color:var(--admin-text-faint)]">
-              لا توجد صفحات بعد. أنشئ أول صفحة من زر إنشاء صفحة.
+              لا توجد صفحات بعد. ابدئي من زر إنشاء صفحة جديدة لبناء Landing Page كاملة.
             </div>
           </article>
         ) : null}
 
         {pages.map((page) => {
           const meta = statusMeta(page.status);
-          const blockCount = (page.htmlContent.match(/rv-builder-section/g) ?? [])
-            .length;
+          const blockCount = countBlocks(page.htmlContent);
 
           return (
-            <details
+            <article
               key={page.id}
-              className="admin-editor-card"
+              className="custom-page-list-card"
               data-admin-row
               data-admin-status={page.status}
               data-admin-search={[
@@ -114,67 +134,52 @@ export default async function AdminCustomPagesPage() {
                 .filter(Boolean)
                 .join(" ")}
             >
-              <summary className="admin-editor-card__summary">
-                <span className="admin-page-preview">
-                  <span>{blockCount || "HTML"}</span>
-                  <small>{blockCount ? "بلوك" : "محتوى"}</small>
-                </span>
-                <span className="admin-editor-card__content">
-                  <span className="admin-editor-card__kicker">
-                    /p/{page.slug}
-                  </span>
-                  <span className="admin-editor-card__title">
-                    {page.titleAr}
-                  </span>
-                  <span className="admin-editor-card__excerpt">
-                    {page.seoDescription ||
-                      page.seoTitle ||
-                      "صفحة مخصصة قابلة للبناء والتعديل من لوحة التحكم."}
-                  </span>
-                  <span className="admin-editor-card__chips">
-                    <a
-                      href={`/p/${page.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="admin-chip"
-                    >
-                      معاينة الصفحة
-                    </a>
-                    {page.noindex ? (
-                      <span className="admin-chip">Noindex</span>
-                    ) : null}
-                  </span>
-                </span>
-                <span className={`admin-status-badge ${meta.className}`}>
-                  <span className="lang-ar">{meta.labelAr}</span>
-                  <span className="lang-en">{meta.labelEn}</span>
-                </span>
-              </summary>
-
-              <div className="admin-editor-card__body">
-                <CustomPageEditorForm
-                  mode="edit"
-                  initial={{
-                    id: page.id,
-                    slug: page.slug,
-                    titleAr: page.titleAr,
-                    titleEn: page.titleEn ?? "",
-                    htmlContent: page.htmlContent,
-                    seoTitle: page.seoTitle ?? "",
-                    seoDescription: page.seoDescription ?? "",
-                    status: page.status,
-                    noindex: page.noindex,
-                  }}
-                />
-                <form action={deleteCustomPageAction} className="flex">
-                  <input type="hidden" name="id" value={page.id} />
-                  <input type="hidden" name="slug" value={page.slug} />
-                  <button type="submit" className="admin-btn-danger">
-                    حذف الصفحة
-                  </button>
-                </form>
+              <div className="custom-page-list-card__preview">
+                <span>{blockCount || "HTML"}</span>
+                <small>{blockCount ? "مكون" : "محتوى"}</small>
               </div>
-            </details>
+              <div className="custom-page-list-card__body">
+                <div className="custom-page-list-card__title-row">
+                  <div>
+                    <p className="custom-page-list-card__path">/p/{page.slug}</p>
+                    <h2>{page.titleAr}</h2>
+                  </div>
+                  <span className={`admin-status-badge ${meta.className}`}>
+                    <span className="lang-ar">{meta.labelAr}</span>
+                    <span className="lang-en">{meta.labelEn}</span>
+                  </span>
+                </div>
+                <p className="custom-page-list-card__excerpt">
+                  {page.seoDescription ||
+                    page.seoTitle ||
+                    "صفحة مخصصة قابلة للبناء والتعديل من PageCraft."}
+                </p>
+                <div className="custom-page-list-card__meta">
+                  <span>آخر تعديل: {new Date(page.updatedAt).toLocaleDateString("ar-SA")}</span>
+                  {page.noindex ? <span>Noindex</span> : null}
+                </div>
+                <div className="custom-page-list-card__actions">
+                  <Link href={`/admin/pages/${page.id}` as Route} className="admin-btn-primary">
+                    تعديل الصفحة
+                  </Link>
+                  <a
+                    href={`/p/${page.slug}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="admin-btn-secondary"
+                  >
+                    معاينة
+                  </a>
+                  <form action={deleteCustomPageAction}>
+                    <input type="hidden" name="id" value={page.id} />
+                    <input type="hidden" name="slug" value={page.slug} />
+                    <button type="submit" className="admin-btn-danger">
+                      حذف
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </article>
           );
         })}
       </section>

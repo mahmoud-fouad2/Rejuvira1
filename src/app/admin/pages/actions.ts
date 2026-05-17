@@ -33,12 +33,18 @@ const baseSchema = z.object({
 });
 
 const createSchema = baseSchema;
-const updateSchema = baseSchema.extend({ id: z.string().min(3) });
+const updateSchema = baseSchema.extend({
+  id: z.string().min(3),
+  oldSlug: z.string().optional().or(z.literal("")),
+});
 
-function revalidate(slug?: string) {
+function revalidate(slug?: string, oldSlug?: string) {
   revalidatePath("/admin/pages");
   if (slug) {
     revalidatePath(`/p/${slug}`);
+  }
+  if (oldSlug && oldSlug !== slug) {
+    revalidatePath(`/p/${oldSlug}`);
   }
   revalidatePath("/sitemap.xml");
 }
@@ -60,18 +66,28 @@ export async function createCustomPageAction(
   if (!parsed.success) {
     return { status: "error", message: "بيانات الصفحة غير صحيحة." };
   }
-  await createCustomPage({
-    slug: parsed.data.slug,
-    titleAr: parsed.data.titleAr,
-    ...(parsed.data.titleEn ? { titleEn: parsed.data.titleEn } : {}),
-    htmlContent: parsed.data.htmlContent,
-    ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
-    ...(parsed.data.seoDescription
-      ? { seoDescription: parsed.data.seoDescription }
-      : {}),
-    status: parsed.data.status,
-    noindex: parsed.data.noindex,
-  });
+  try {
+    await createCustomPage({
+      slug: parsed.data.slug,
+      titleAr: parsed.data.titleAr,
+      ...(parsed.data.titleEn ? { titleEn: parsed.data.titleEn } : {}),
+      htmlContent: parsed.data.htmlContent,
+      ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
+      ...(parsed.data.seoDescription
+        ? { seoDescription: parsed.data.seoDescription }
+        : {}),
+      status: parsed.data.status,
+      noindex: parsed.data.noindex,
+    });
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error && error.message.toLowerCase().includes("unique")
+          ? "هذا الرابط مستخدم بالفعل. اختاري رابطًا آخر."
+          : "تعذر إنشاء الصفحة. راجعي البيانات ثم حاولي مرة أخرى.",
+    };
+  }
   revalidate(parsed.data.slug);
   return { status: "success", message: "تم إنشاء الصفحة." };
 }
@@ -90,24 +106,35 @@ export async function updateCustomPageAction(
     seoDescription: formData.get("seoDescription"),
     status: formData.get("status") || ContentStatus.DRAFT,
     noindex: formData.get("noindex"),
+    oldSlug: formData.get("oldSlug"),
   });
   if (!parsed.success) {
     return { status: "error", message: "تعذّر تحديث الصفحة." };
   }
-  await updateCustomPage({
-    id: parsed.data.id,
-    slug: parsed.data.slug,
-    titleAr: parsed.data.titleAr,
-    ...(parsed.data.titleEn ? { titleEn: parsed.data.titleEn } : {}),
-    htmlContent: parsed.data.htmlContent,
-    ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
-    ...(parsed.data.seoDescription
-      ? { seoDescription: parsed.data.seoDescription }
-      : {}),
-    status: parsed.data.status,
-    noindex: parsed.data.noindex,
-  });
-  revalidate(parsed.data.slug);
+  try {
+    await updateCustomPage({
+      id: parsed.data.id,
+      slug: parsed.data.slug,
+      titleAr: parsed.data.titleAr,
+      ...(parsed.data.titleEn ? { titleEn: parsed.data.titleEn } : {}),
+      htmlContent: parsed.data.htmlContent,
+      ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
+      ...(parsed.data.seoDescription
+        ? { seoDescription: parsed.data.seoDescription }
+        : {}),
+      status: parsed.data.status,
+      noindex: parsed.data.noindex,
+    });
+  } catch (error) {
+    return {
+      status: "error",
+      message:
+        error instanceof Error && error.message.toLowerCase().includes("unique")
+          ? "هذا الرابط مستخدم بالفعل. اختاري رابطًا آخر."
+          : "تعذر حفظ التعديلات. تأكدي أن الصفحة ما زالت موجودة.",
+    };
+  }
+  revalidate(parsed.data.slug, parsed.data.oldSlug);
   return { status: "success", message: "تم حفظ التغييرات." };
 }
 

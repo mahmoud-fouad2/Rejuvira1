@@ -13,6 +13,11 @@ type BlockKind =
   | "doctors"
   | "gallery"
   | "faq"
+  | "steps"
+  | "offer"
+  | "testimonial"
+  | "video"
+  | "leadForm"
   | "contact"
   | "cta";
 
@@ -42,6 +47,11 @@ const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
   { kind: "doctors", label: "Doctors", hint: "أطباء أو فريق طبي" },
   { kind: "gallery", label: "Gallery", hint: "صور متعددة" },
   { kind: "faq", label: "FAQ", hint: "أسئلة شائعة" },
+  { kind: "steps", label: "Steps", hint: "مسار زيارة أو علاج" },
+  { kind: "offer", label: "Offer", hint: "عرض أو باقة للحملة" },
+  { kind: "testimonial", label: "Review", hint: "اقتباس وتجربة عميل" },
+  { kind: "video", label: "Video", hint: "فيديو أو صورة معاينة" },
+  { kind: "leadForm", label: "Lead Form", hint: "فورم يحفظ في CRM" },
   { kind: "contact", label: "Contact", hint: "بيانات تواصل" },
   { kind: "cta", label: "CTA", hint: "دعوة للحجز" },
 ];
@@ -108,6 +118,51 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     tone: "light",
     align: "right",
   },
+  steps: {
+    title: "مسار الزيارة",
+    body: "تقييم الحالة|نراجع الاحتياج والتوقعات قبل اختيار الخطة\nاختيار الإجراء|نقارن الخيارات المناسبة للحالة بوضوح\nالمتابعة|نوضح التعليمات والمتابعة بعد الزيارة",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
+  offer: {
+    title: "عرض الحملة",
+    subtitle: "مناسب لفترة محدودة",
+    body: "استشارة أولية|تقييم طبي وخطة مناسبة\nجلسة متابعة|مراجعة التعليمات والنتيجة\nأولوية حجز|تنسيق موعد مناسب مع الفريق",
+    buttonLabel: "احجزي العرض",
+    buttonHref: "#lead-form",
+    accent: "#4a2476",
+    tone: "soft",
+    align: "right",
+  },
+  testimonial: {
+    title: "تجربة مراجعة",
+    subtitle: "نورة",
+    body: "الشرح كان واضحًا قبل البدء، والفريق وضح لي الخيارات المناسبة دون استعجال.",
+    accent: "#4a2476",
+    tone: "light",
+    align: "center",
+  },
+  video: {
+    title: "فيديو تعريفي",
+    body: "استخدمي رابط صورة معاينة أو ارفعي صورة مؤقتة حتى إضافة الفيديو النهائي.",
+    imageUrl: "/media/curated/clinic-treatment-room.jpeg",
+    buttonLabel: "مشاهدة التفاصيل",
+    buttonHref: "/contact",
+    accent: "#4a2476",
+    tone: "dark",
+    align: "center",
+  },
+  leadForm: {
+    title: "احجزي استشارتك",
+    subtitle: "Lead form",
+    body: "املئي البيانات وسيصل الطلب مباشرة إلى CRM داخل لوحة التحكم.",
+    buttonLabel: "إرسال الطلب",
+    buttonHref: "/api/leads",
+    accent: "#4a2476",
+    tone: "soft",
+    align: "right",
+  },
   contact: {
     title: "ابدئي بخطوة واضحة",
     body: "الهاتف|0114999959\nواتساب|9200 17403\nالبريد|info@rejuveracenter.sa",
@@ -129,9 +184,10 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
 };
 
 const templates: Array<{ label: string; blocks: BlockKind[] }> = [
-  { label: "صفحة خدمة", blocks: ["hero", "stats", "text", "services", "doctors", "faq", "cta"] },
-  { label: "حملة حجز", blocks: ["hero", "text", "gallery", "contact", "faq"] },
-  { label: "تعريف طبي", blocks: ["hero", "text", "image", "services", "cta"] },
+  { label: "صفحة خدمة", blocks: ["hero", "stats", "steps", "services", "doctors", "faq", "leadForm", "cta"] },
+  { label: "Lead page", blocks: ["hero", "offer", "testimonial", "gallery", "leadForm", "faq"] },
+  { label: "حملة حجز", blocks: ["hero", "text", "gallery", "leadForm", "contact", "faq"] },
+  { label: "تعريف طبي", blocks: ["hero", "text", "video", "services", "cta"] },
 ];
 
 function uid() {
@@ -171,7 +227,7 @@ function classes(block: BuilderBlock, base: string) {
   return `${base} is-${block.tone ?? "light"} align-${block.align ?? "right"}`;
 }
 
-function renderBlock(block: BuilderBlock) {
+function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
   const accent = escapeHtml(block.accent || "#4a2476");
   const title = escapeHtml(block.title);
   const subtitle = escapeHtml(block.subtitle || "");
@@ -207,6 +263,28 @@ function renderBlock(block: BuilderBlock) {
     return `<section class="${classes(block, `rv-builder-section rv-builder-${block.kind}`)}" ${style}><h2>${title}</h2><div>${cards}</div></section>`;
   }
 
+  if (block.kind === "steps") {
+    const steps = parsePairs(body)
+      .map((item, index) => `<article><span>${index + 1}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`)
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-steps")}" ${style}><h2>${title}</h2><div>${steps}</div></section>`;
+  }
+
+  if (block.kind === "offer") {
+    const perks = parsePairs(body)
+      .map((item) => `<li><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.body)}</span></li>`)
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-offer")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2><ul>${perks}</ul></div><a href="${buttonHref}">${buttonLabel}</a></section>`;
+  }
+
+  if (block.kind === "testimonial") {
+    return `<section class="${classes(block, "rv-builder-section rv-builder-testimonial")}" ${style}><blockquote>${paragraphHtml(body)}</blockquote><strong>${title}</strong>${subtitle ? `<span>${subtitle}</span>` : ""}</section>`;
+  }
+
+  if (block.kind === "video") {
+    return `<section class="${classes(block, "rv-builder-section rv-builder-video")}" ${style}><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"><span>▶</span></figure><div><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></div></section>`;
+  }
+
   if (block.kind === "gallery") {
     const images = parsePairs(body)
       .map(
@@ -231,12 +309,30 @@ function renderBlock(block: BuilderBlock) {
     return `<section class="${classes(block, "rv-builder-section rv-builder-contact")}" ${style}><h2>${title}</h2><ul>${rows}</ul><a href="${buttonHref}">${buttonLabel}</a></section>`;
   }
 
+  if (block.kind === "leadForm") {
+    const tag = mode === "preview" ? "div" : "form";
+    const attrs =
+      mode === "preview"
+        ? `class="rv-builder-lead-form-fields" aria-label="Lead form preview"`
+        : `class="rv-builder-lead-form-fields" action="/api/leads" method="post"`;
+    const disabled = mode === "preview" ? " disabled" : "";
+    const required = mode === "preview" ? "" : " required";
+    const controls =
+      (mode === "preview" ? "" : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">`) +
+      `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
+      `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
+      `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${disabled} placeholder="name@example.com"></label>` +
+      `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو الموعد المناسب"></textarea></label>` +
+      `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
+    return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
+  }
+
   return `<section class="${classes(block, "rv-builder-section rv-builder-cta")}" ${style}><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
 }
 
 function renderPage(blocks: BuilderBlock[]) {
   const encodedBlocks = encodeURIComponent(JSON.stringify(blocks));
-  return `<div class="rv-builder-page" data-blocks="${encodedBlocks}">${blocks.map(renderBlock).join("")}</div>`;
+  return `<div class="rv-builder-page" data-blocks="${encodedBlocks}">${blocks.map((block) => renderBlock(block)).join("")}</div>`;
 }
 
 function createBlock(kind: BlockKind): BuilderBlock {
@@ -259,7 +355,7 @@ function initialBlocks(html?: string): BuilderBlock[] {
         return createTemplate(["hero", "text", "cta"]);
       }
     }
-    return createTemplate(["hero", "text", "cta"]);
+    return createTemplate(["hero", "text", "leadForm", "cta"]);
   }
   if (html?.trim()) {
     return [
@@ -270,7 +366,7 @@ function initialBlocks(html?: string): BuilderBlock[] {
       },
     ];
   }
-  return createTemplate(["hero", "stats", "services", "faq", "cta"]);
+  return createTemplate(["hero", "stats", "steps", "services", "faq", "leadForm", "cta"]);
 }
 
 export function CustomPageBuilder({
@@ -437,7 +533,7 @@ export function CustomPageBuilder({
                     حذف
                   </button>
                 </div>
-                <div dangerouslySetInnerHTML={{ __html: renderBlock(block) }} />
+                <div dangerouslySetInnerHTML={{ __html: renderBlock(block, "preview") }} />
               </section>
             ))}
           </div>
@@ -470,18 +566,20 @@ export function CustomPageBuilder({
                 selected.kind === "stats" ||
                 selected.kind === "gallery" ||
                 selected.kind === "faq" ||
+                selected.kind === "steps" ||
+                selected.kind === "offer" ||
                 selected.kind === "contact"
                   ? " (سطر لكل عنصر: عنوان|وصف)"
                   : ""}
               </span>
               <textarea
                 value={selected.body ?? ""}
-                rows={["services", "doctors", "stats", "gallery", "faq", "contact"].includes(selected.kind) ? 8 : 5}
+                rows={["services", "doctors", "stats", "gallery", "faq", "steps", "offer", "contact"].includes(selected.kind) ? 8 : 5}
                 onChange={(event) => update(selected.id, { body: event.target.value })}
               />
             </label>
 
-            {selected.kind === "hero" || selected.kind === "image" ? (
+            {selected.kind === "hero" || selected.kind === "image" || selected.kind === "video" ? (
               <ImagePicker
                 name={`builder-${selected.id}-image`}
                 label="الصورة"
@@ -494,7 +592,10 @@ export function CustomPageBuilder({
 
             {selected.kind === "hero" ||
             selected.kind === "cta" ||
-            selected.kind === "contact" ? (
+            selected.kind === "contact" ||
+            selected.kind === "offer" ||
+            selected.kind === "video" ||
+            selected.kind === "leadForm" ? (
               <div className="grid gap-2">
                 <label>
                   <span>نص الزر</span>

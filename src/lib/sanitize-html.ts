@@ -29,6 +29,7 @@ const ALLOWED_TAGS = new Set([
   "figcaption",
   "figure",
   "footer",
+  "form",
   "h1",
   "h2",
   "h3",
@@ -39,6 +40,7 @@ const ALLOWED_TAGS = new Set([
   "hr",
   "i",
   "img",
+  "input",
   "label",
   "li",
   "main",
@@ -49,6 +51,7 @@ const ALLOWED_TAGS = new Set([
   "picture",
   "pre",
   "section",
+  "select",
   "small",
   "source",
   "span",
@@ -64,6 +67,7 @@ const ALLOWED_TAGS = new Set([
   "thead",
   "time",
   "tr",
+  "textarea",
   "u",
   "ul",
   "video",
@@ -98,6 +102,15 @@ const ALLOWED_ATTR = new Set([
   "name",
   "type",
   "value",
+  "action",
+  "method",
+  "placeholder",
+  "required",
+  "autocomplete",
+  "inputmode",
+  "rows",
+  "selected",
+  "disabled",
   "for",
   "datetime",
   "colspan",
@@ -146,7 +159,7 @@ export function sanitizeHtml(input: string): string {
 
   // Remove <script>, <style>, <iframe>, <object>, <embed>, <link>, <meta>
   html = html.replace(
-    /<\/?(?:script|style|iframe|object|embed|link|meta|base|form|input|textarea|select|template)\b[^>]*>/gi,
+    /<\/?(?:script|style|iframe|object|embed|link|meta|base|template)\b[^>]*>/gi,
     "",
   );
   // Remove HTML comments (which can hide payloads in some sniffers).
@@ -175,7 +188,7 @@ export function sanitizeHtml(input: string): string {
         if (name === "style") {
           value = sanitizeStyle(value);
           if (!value) continue;
-        } else if (name === "href" || name === "src") {
+        } else if (name === "href" || name === "src" || name === "action") {
           value = sanitizeUrl(value, name);
           if (!value) continue;
         }
