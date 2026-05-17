@@ -2250,6 +2250,19 @@ function toStringList(value: unknown): string[] {
 }
 
 const imageFallbackMap: Record<string, string> = {
+  "/media/reference/legacy/56549.png": "/media/reference/legacy/56549.webp",
+  "/media/reference/legacy/88985959.png": "/media/reference/legacy/88985959.webp",
+  "/media/curated/doctor-candidate-3.jpg": "/media/curated/doctor-candidate-3.webp",
+  "/media/doctors/loai-alsalmi.png": "/media/doctors/loai-alsalmi.webp",
+  "/media/doctors/maher-alahdab.png": "/media/doctors/maher-alahdab.webp",
+  "/media/doctors/saham-arfaj.png": "/media/doctors/saham-arfaj.webp",
+  "/media/doctors/sabah-alrashid.png": "/media/doctors/sabah-alrashid.webp",
+  "/media/doctors/karima-jamjoom.png": "/media/doctors/karima-jamjoom.webp",
+  "/media/doctors/najwa-batarfi.png": "/media/doctors/najwa-batarfi.webp",
+  "/media/doctors/natali-domloj.png": "/media/doctors/natali-domloj.webp",
+  "/media/doctors/falwah-aljanoubi.png": "/media/doctors/falwah-aljanoubi.webp",
+  "/media/doctors/bandar-alharthi.png": "/media/doctors/bandar-alharthi.webp",
+  "/media/doctors/ahmed-eldesouki.png": "/media/doctors/ahmed-eldesouki.webp",
   "/media/curated/service-skin-rejuvenation.jpg": serviceImages.skinCare,
   "/media/curated/brand-logo.jpg": "/media/brand-logo-main.png",
   "/media/curated/service-laser-hair-removal.jpg": serviceImages.laser,
@@ -2282,7 +2295,7 @@ function toDoctorAsset(slug: string, value: string | null | undefined): string {
   if (!source || source.includes("images.unsplash.com") || source === "/media/curated/doctor-profile.svg") {
     return fallback;
   }
-  return source;
+  return imageFallbackMap[source] ?? source;
 }
 
 function serviceImageForSlug(slug: string): string {

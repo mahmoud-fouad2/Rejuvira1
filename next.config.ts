@@ -4,10 +4,13 @@ import type { NextConfig } from "next";
  * Security & performance configuration.
  *
  * Image optimization can be force-disabled by setting `IMAGE_UNOPTIMIZED=1`
- * in environments where the platform doesn't ship `sharp` reliably (e.g. some
- * minimal containers). Default is to optimize, which gives a large LCP/FCP win.
+ * in environments where the platform doesn't ship `sharp` reliably or where
+ * server memory is constrained. Set `NEXT_IMAGE_OPTIMIZATION=1` and remove
+ * `IMAGE_UNOPTIMIZED` to re-enable the Next image optimizer later.
  */
-const imageUnoptimized = process.env.NEXT_IMAGE_OPTIMIZATION !== "1";
+const imageUnoptimized =
+  process.env.IMAGE_UNOPTIMIZED === "1" ||
+  process.env.NEXT_IMAGE_OPTIMIZATION !== "1";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -104,15 +107,6 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: securityHeaders,
-      },
-      {
-        source: "/_next/static/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
       },
       {
         source: "/assets/:path*",

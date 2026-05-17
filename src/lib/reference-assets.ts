@@ -44,7 +44,7 @@ const assetMetadata: Record<
     label: "Body care technology visual",
     category: "Devices",
   },
-  "service-skin-rejuvenation.jpg": {
+  "service-skin-rejuvenation.webp": {
     label: "Skin rejuvenation visual",
     category: "Services",
   },
@@ -56,7 +56,7 @@ const assetMetadata: Record<
     label: "Laser service visual",
     category: "Services",
   },
-  "service-injectables.png": {
+  "service-injectables.webp": {
     label: "Injectables visual",
     category: "Services",
   },
@@ -64,47 +64,47 @@ const assetMetadata: Record<
     label: "Device hero visual",
     category: "Devices",
   },
-  "device-laser-platform.png": {
+  "device-laser-platform.webp": {
     label: "Laser platform visual",
     category: "Devices",
   },
-  "loai-alsalmi.png": {
+  "loai-alsalmi.webp": {
     label: "د. لؤي السالمي",
     category: "Doctors",
   },
-  "maher-alahdab.png": {
+  "maher-alahdab.webp": {
     label: "د. ماهر الأحدب",
     category: "Doctors",
   },
-  "saham-arfaj.png": {
+  "saham-arfaj.webp": {
     label: "د. سهام العرفج",
     category: "Doctors",
   },
-  "sabah-alrashid.png": {
+  "sabah-alrashid.webp": {
     label: "د. صباح الراشد",
     category: "Doctors",
   },
-  "karima-jamjoom.png": {
+  "karima-jamjoom.webp": {
     label: "د. كريمة جمجوم",
     category: "Doctors",
   },
-  "najwa-batarfi.png": {
+  "najwa-batarfi.webp": {
     label: "د. نجوى باطرفي",
     category: "Doctors",
   },
-  "natali-domloj.png": {
+  "natali-domloj.webp": {
     label: "د. ناتالي دوملوج",
     category: "Doctors",
   },
-  "falwah-aljanoubi.png": {
+  "falwah-aljanoubi.webp": {
     label: "د. فلوة الجنوبي",
     category: "Doctors",
   },
-  "bandar-alharthi.png": {
+  "bandar-alharthi.webp": {
     label: "البروفيسور بندر الحارثي",
     category: "Doctors",
   },
-  "ahmed-eldesouki.png": {
+  "ahmed-eldesouki.webp": {
     label: "د. أحمد الدسوقي",
     category: "Doctors",
   },
@@ -116,11 +116,11 @@ const assetMetadata: Record<
     label: "Legacy brand mark",
     category: "Brand",
   },
-  "56549.png": {
+  "56549.webp": {
     label: "Doctor reference portrait",
     category: "Doctors",
   },
-  "88985959.png": {
+  "88985959.webp": {
     label: "Doctor reference portrait",
     category: "Doctors",
   },

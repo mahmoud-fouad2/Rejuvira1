@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import { buildCsv } from "@/lib/backup";
 import { getCrmSubmissions } from "@/lib/content-repository";
 
 function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
@@ -137,25 +138,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
-  const format = request.nextUrl.searchParams.get("format") ?? "xlsx";
+  const format = request.nextUrl.searchParams.get("format") ?? "csv";
   const submissions = await getCrmSubmissions();
 
-  if (format === "xlsx") {
-    const XLSX = await import("xlsx");
+  if (format === "csv" || format === "xlsx") {
     const rows = buildRows(submissions);
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, "CRM");
-
-    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    const csv = buildCsv(rows, [
+      { key: "Name", label: "Name" },
+      { key: "Phone", label: "Phone" },
+      { key: "Email", label: "Email" },
+      { key: "Service", label: "Service" },
+      { key: "Status", label: "Status" },
+      { key: "Source", label: "Source" },
+      { key: "PreferredAppointment", label: "Preferred appointment" },
+      { key: "AppointmentNotes", label: "Appointment notes" },
+      { key: "Notes", label: "Notes" },
+      { key: "CreatedAt", label: "Created at" },
+    ]);
+    const buffer = Buffer.from(`\uFEFF${csv}`, "utf8");
 
     return new NextResponse(buffer, {
       headers: {
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition":
-          'attachment; filename="rejuvira-crm-export.xlsx"',
+          'attachment; filename="rejuvera-crm-export.csv"',
       },
     });
   }

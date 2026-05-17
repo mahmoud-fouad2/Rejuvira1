@@ -42,11 +42,11 @@ export default async function AdminCrmPage() {
         </div>
         <div className="admin-page-header__actions">
           <a
-            href="/api/admin/crm/export?format=xlsx"
+            href="/api/admin/crm/export?format=csv"
             className="admin-btn-primary"
           >
-            <span className="lang-ar">تصدير Excel</span>
-            <span className="lang-en">Export Excel</span>
+            <span className="lang-ar">تصدير CSV</span>
+            <span className="lang-en">Export CSV</span>
           </a>
           <a
             href="/api/admin/crm/export?format=pdf"
