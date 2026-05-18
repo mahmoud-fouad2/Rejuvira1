@@ -74,6 +74,7 @@ export type DeviceRecord = {
   certifications: readonly string[];
   serviceSlugs: readonly string[];
   status: ContentStatus;
+  featured?: boolean;
 };
 
 export type GalleryRecord = {
@@ -2684,6 +2685,7 @@ export const getDevices = cache(async () => {
       certifications: toStringList(device.certifications),
       serviceSlugs: device.services.map((service) => service.slug),
       status: device.status,
+      featured: device.isFeatured,
     }));
   } catch {
     return [...seedDevices];

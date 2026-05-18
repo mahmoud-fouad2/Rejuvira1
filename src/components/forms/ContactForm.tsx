@@ -112,6 +112,7 @@ export function ContactForm({
     async (event: FormEvent<HTMLFormElement>) => {
       if (isPending) return;
       event.preventDefault();
+      const form = event.currentTarget;
       setIsPending(true);
       setState(initialState);
       try {
@@ -135,7 +136,7 @@ export function ContactForm({
           accept: "application/json",
           "x-requested-with": "fetch",
         },
-        body: new FormData(event.currentTarget),
+        body: new FormData(form),
       }).catch(() => null);
       if (!response) {
         setState({
@@ -149,7 +150,7 @@ export function ContactForm({
       const data = (await response.json()) as ContactActionState;
       setState(data);
       if (response.ok && data.status === "success") {
-        event.currentTarget.reset();
+        form.reset();
         if (tokenInputRef.current) tokenInputRef.current.value = "";
       }
       setIsPending(false);

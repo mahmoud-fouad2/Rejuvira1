@@ -157,12 +157,16 @@ export default async function AdminDevicesPage() {
                         id: device.id,
                         slug: device.slug,
                         name: device.name,
+                        nameEn: device.nameEn ?? null,
                         excerpt: device.excerpt,
+                        excerptEn: device.excerptEn ?? null,
                         description: device.description,
+                        descriptionEn: device.descriptionEn ?? null,
                         certifications: [...device.certifications],
                         serviceSlugs: [...device.serviceSlugs],
                         imageUrl: device.imageUrl,
                         status: device.status,
+                        featured: device.featured ?? false,
                       }}
                       serviceOptions={serviceOptions}
                     />

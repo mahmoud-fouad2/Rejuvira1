@@ -1,17 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
-import {
-  updateDoctorAction,
-  type DoctorActionState,
-} from "@/app/admin/doctors/actions";
 import type { DoctorRecord } from "@/lib/content-repository";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import {
   MultiSelectChips,
   type ChipOption,
 } from "@/components/admin/MultiSelectChips";
+
+type DoctorActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const initialState: DoctorActionState = {
   status: "idle",
@@ -25,13 +27,37 @@ export function DoctorEditorForm({
   doctor: DoctorRecord;
   serviceOptions?: ChipOption[];
 }) {
-  const [state, formAction, isPending] = useActionState(
-    updateDoctorAction,
-    initialState,
-  );
+  const router = useRouter();
+  const [state, setState] = useState<DoctorActionState>(initialState);
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsPending(true);
+    setState(initialState);
+
+    try {
+      const response = await fetch("/api/admin/doctors", {
+        method: "PUT",
+        body: new FormData(event.currentTarget),
+      });
+      const data = (await response.json()) as DoctorActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        router.refresh();
+      }
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذر الاتصال بالخادم. راجع البيانات ثم حاول مرة أخرى.",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="grid gap-3">
+    <form onSubmit={handleSubmit} className="grid gap-3">
       <input type="hidden" name="id" value={doctor.id} />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
@@ -57,6 +83,15 @@ export function DoctorEditorForm({
           />
         </label>
         <label className="grid gap-1">
+          <span className="admin-field-label">Name (English)</span>
+          <input
+            name="nameEn"
+            defaultValue={doctor.nameEn ?? ""}
+            dir="ltr"
+            className="admin-input"
+          />
+        </label>
+        <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">المسمى</span>
             <span className="lang-en">Title</span>
@@ -69,6 +104,15 @@ export function DoctorEditorForm({
           />
         </label>
         <label className="grid gap-1">
+          <span className="admin-field-label">Title (English)</span>
+          <input
+            name="titleEn"
+            defaultValue={doctor.titleEn ?? ""}
+            dir="ltr"
+            className="admin-input"
+          />
+        </label>
+        <label className="grid gap-1">
           <span className="admin-field-label">
             <span className="lang-ar">التخصص</span>
             <span className="lang-en">Specialty</span>
@@ -77,6 +121,15 @@ export function DoctorEditorForm({
             name="specialty"
             defaultValue={doctor.specialty}
             required
+            className="admin-input"
+          />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">Specialty (English)</span>
+          <input
+            name="specialtyEn"
+            defaultValue={doctor.specialtyEn ?? ""}
+            dir="ltr"
             className="admin-input"
           />
         </label>
@@ -151,6 +204,16 @@ export function DoctorEditorForm({
           defaultValue={doctor.bio}
           rows={4}
           required
+          className="admin-input"
+        />
+      </label>
+      <label className="grid gap-1">
+        <span className="admin-field-label">Bio (English)</span>
+        <textarea
+          name="bioEn"
+          defaultValue={doctor.bioEn ?? ""}
+          rows={4}
+          dir="ltr"
           className="admin-input"
         />
       </label>

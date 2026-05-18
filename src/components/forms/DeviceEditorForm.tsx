@@ -1,17 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
 import { ContentStatus } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
-import {
-  updateDeviceAction,
-  type DeviceActionState,
-} from "@/app/admin/devices/actions";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import {
   MultiSelectChips,
   type ChipOption,
 } from "@/components/admin/MultiSelectChips";
+
+type DeviceActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const initial: DeviceActionState = { status: "idle", message: "" };
 
@@ -29,6 +31,7 @@ type Props = {
     serviceSlugs: string[];
     imageUrl: string;
     status: ContentStatus;
+    featured: boolean;
   };
 };
 
@@ -36,10 +39,37 @@ export function DeviceEditorForm({
   device,
   serviceOptions = [],
 }: Props & { serviceOptions?: ChipOption[] }) {
-  const [state, action, pending] = useActionState(updateDeviceAction, initial);
+  const router = useRouter();
+  const [state, setState] = useState<DeviceActionState>(initial);
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setState(initial);
+
+    try {
+      const response = await fetch("/api/admin/devices", {
+        method: "PUT",
+        body: new FormData(event.currentTarget),
+      });
+      const data = (await response.json()) as DeviceActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        router.refresh();
+      }
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذر الاتصال بالخادم. راجع البيانات ثم حاول مرة أخرى.",
+      });
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
-    <form action={action} className="grid gap-3">
+    <form onSubmit={handleSubmit} className="grid gap-3">
       <input type="hidden" name="id" value={device.id} />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
@@ -183,7 +213,12 @@ export function DeviceEditorForm({
           </select>
         </label>
         <label className="admin-input flex items-center gap-3">
-          <input type="checkbox" name="featured" value="true" />
+          <input
+            type="checkbox"
+            name="featured"
+            value="true"
+            defaultChecked={device.featured}
+          />
           <span className="text-sm">
             <span className="lang-ar">جهاز مميز</span>
             <span className="lang-en">Featured device</span>

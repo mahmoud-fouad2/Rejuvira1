@@ -1,12 +1,9 @@
 "use client";
 
 import { ContentStatus } from "@prisma/client";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
-import {
-  updateJournalPostAction,
-  type JournalActionState,
-} from "@/app/admin/journal/actions";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import {
   MultiSelectChips,
@@ -14,6 +11,11 @@ import {
 } from "@/components/admin/MultiSelectChips";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import type { JournalPostRecord } from "@/lib/content-repository";
+
+type JournalActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const initialState: JournalActionState = {
   status: "idle",
@@ -33,13 +35,37 @@ export function JournalEditorForm({
   serviceOptions = [],
   doctorOptions = [],
 }: JournalEditorFormProps) {
-  const [state, formAction, isPending] = useActionState(
-    updateJournalPostAction,
-    initialState,
-  );
+  const router = useRouter();
+  const [state, setState] = useState<JournalActionState>(initialState);
+  const [isPending, setIsPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsPending(true);
+    setState(initialState);
+
+    try {
+      const response = await fetch("/api/admin/journal", {
+        method: "PUT",
+        body: new FormData(event.currentTarget),
+      });
+      const data = (await response.json()) as JournalActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        router.refresh();
+      }
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذر الاتصال بالخادم. راجع البيانات ثم حاول مرة أخرى.",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="admin-editor-form">
+    <form onSubmit={handleSubmit} className="admin-editor-form">
       <input type="hidden" name="id" value={post.id} />
 
       <div className="admin-form-section">
@@ -61,6 +87,15 @@ export function JournalEditorForm({
               dir="ltr"
               className="admin-input font-mono"
               defaultValue={post.slug}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">Title (English)</span>
+            <input
+              name="titleEn"
+              dir="ltr"
+              className="admin-input"
+              defaultValue={post.titleEn ?? ""}
             />
           </label>
           <label className="grid gap-1">
@@ -120,6 +155,17 @@ export function JournalEditorForm({
           required
           className="admin-input"
           defaultValue={post.excerpt}
+        />
+      </label>
+
+      <label className="grid gap-1">
+        <span className="admin-field-label">Excerpt (English)</span>
+        <textarea
+          name="excerptEn"
+          rows={3}
+          dir="ltr"
+          className="admin-input"
+          defaultValue={post.excerptEn ?? ""}
         />
       </label>
 
