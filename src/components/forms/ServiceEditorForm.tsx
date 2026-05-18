@@ -1,18 +1,20 @@
 "use client";
 
 import { ContentStatus } from "@prisma/client";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
-import {
-  updateServiceAction,
-  type ServiceActionState,
-} from "@/app/admin/services/actions";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import {
   MultiSelectChips,
   type ChipOption,
 } from "@/components/admin/MultiSelectChips";
 import type { ServiceCategoryOption } from "@/components/forms/ServiceCreateForm";
+
+type ServiceActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const initial: ServiceActionState = { status: "idle", message: "" };
 
@@ -45,10 +47,37 @@ export function ServiceEditorForm({
   deviceOptions = [],
   categories = [],
 }: Props) {
-  const [state, action, pending] = useActionState(updateServiceAction, initial);
+  const router = useRouter();
+  const [state, setState] = useState<ServiceActionState>(initial);
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setState(initial);
+
+    try {
+      const response = await fetch("/api/admin/services", {
+        method: "PUT",
+        body: new FormData(event.currentTarget),
+      });
+      const data = (await response.json()) as ServiceActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        router.refresh();
+      }
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذّر الاتصال بالخادم. راجع البيانات ثم حاول مرة أخرى.",
+      });
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
-    <form action={action} className="grid gap-3">
+    <form onSubmit={handleSubmit} className="grid gap-3">
       <input type="hidden" name="id" value={service.id} />
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">

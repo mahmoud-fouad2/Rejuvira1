@@ -1,14 +1,16 @@
 "use client";
 
 import { ContentStatus } from "@prisma/client";
-import { useActionState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
-import {
-  createCustomPageAction,
-  updateCustomPageAction,
-  type CustomPageActionState,
-} from "@/app/admin/pages/actions";
 import { CustomPageBuilder } from "@/components/forms/CustomPageBuilder";
+
+type CustomPageActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+  id?: string | null;
+};
 
 const initialState: CustomPageActionState = { status: "idle", message: "" };
 
@@ -42,13 +44,41 @@ export function CustomPageEditorForm({
   previewHref,
   initial,
 }: CustomPageEditorFormProps) {
-  const [state, formAction, pending] = useActionState(
-    mode === "create" ? createCustomPageAction : updateCustomPageAction,
-    initialState,
-  );
+  const router = useRouter();
+  const [state, setState] = useState<CustomPageActionState>(initialState);
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setPending(true);
+    setState(initialState);
+
+    try {
+      const response = await fetch("/api/admin/custom-pages", {
+        method: mode === "create" ? "POST" : "PUT",
+        body: new FormData(event.currentTarget),
+      });
+      const data = (await response.json()) as CustomPageActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        if (mode === "create" && data.id) {
+          router.push(`/admin/pages/${data.id}`);
+        } else {
+          router.refresh();
+        }
+      }
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذّر الاتصال بالخادم. احفظي عملك ثم حاولي مرة أخرى.",
+      });
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
-    <form action={formAction} className="custom-page-editor-form">
+    <form onSubmit={handleSubmit} className="custom-page-editor-form">
       {mode === "edit" && initial ? (
         <>
           <input type="hidden" name="id" value={initial.id} />
@@ -102,10 +132,12 @@ export function CustomPageEditorForm({
           <input
             name="slug"
             required
+            minLength={2}
+            maxLength={80}
             defaultValue={initial?.slug ?? ""}
             placeholder="about-us"
             className="admin-input"
-            pattern="[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"
+            pattern="[a-z0-9]+(-[a-z0-9]+)*"
             title="slug must be lowercase letters/numbers/hyphens"
           />
           <span className="text-muted-foreground text-[11px]">

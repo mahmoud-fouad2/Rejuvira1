@@ -12,6 +12,9 @@ import { auth } from "@/auth";
 import { canAccessAdminRoute, getRoleLabel } from "@/lib/admin-permissions";
 import { adminNavigation } from "@/lib/site-content";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminLayout({
   children,
 }: Readonly<{

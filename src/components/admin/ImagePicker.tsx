@@ -37,6 +37,7 @@ type ImagePickerProps = {
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
 const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
 const MAX_OUTPUT_SIDE = 1920;
+const ADMIN_MEDIA_PROXY = "/api/admin/media-proxy";
 
 const ASPECT_PRESETS: Array<{
   id: string;
@@ -116,11 +117,22 @@ async function renderCroppedBlob(
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
-    img.crossOrigin = "anonymous";
+    if (isRemoteUrl(src)) {
+      img.crossOrigin = "anonymous";
+    }
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error("Could not load image"));
     img.src = src;
   });
+}
+
+function isRemoteUrl(src: string) {
+  return /^https?:\/\//i.test(src);
+}
+
+function adminReadableImageUrl(src: string) {
+  if (!isRemoteUrl(src)) return src;
+  return `${ADMIN_MEDIA_PROXY}?url=${encodeURIComponent(src)}`;
 }
 
 export function ImagePicker({
@@ -228,11 +240,15 @@ export function ImagePicker({
     setBusy(true);
     setError(null);
     try {
+      const readableSource = adminReadableImageUrl(editorSource);
       const area = croppedArea ?? { x: 0, y: 0, width: 0, height: 0 };
       const blob =
         area.width > 0 && area.height > 0
-          ? await renderCroppedBlob(editorSource, area, rotation)
-          : await fetch(editorSource).then((r) => r.blob());
+          ? await renderCroppedBlob(readableSource, area, rotation)
+          : await fetch(readableSource).then((r) => {
+              if (!r.ok) throw new Error("Could not read image");
+              return r.blob();
+            });
       const url = await uploadBlob(blob, `image-${Date.now()}.webp`);
       updateValue(url);
       setEditorOpen(false);
@@ -392,7 +408,7 @@ export function ImagePicker({
 
             <div className="rv-image-picker__stage">
               <Cropper
-                image={editorSource}
+                image={adminReadableImageUrl(editorSource)}
                 crop={crop}
                 zoom={zoom}
                 rotation={rotation}

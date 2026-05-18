@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useMemo, useState } from "react";
 
-import {
-  createServiceAction,
-  type ServiceActionState,
-} from "@/app/admin/services/actions";
 import { ImagePicker } from "@/components/admin/ImagePicker";
+
+type ServiceActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const initialState: ServiceActionState = {
   status: "idle",
@@ -24,10 +26,10 @@ type Props = {
 };
 
 export function ServiceCreateForm({ categories = [] }: Props) {
-  const [state, formAction, isPending] = useActionState(
-    createServiceAction,
-    initialState,
-  );
+  const router = useRouter();
+  const [state, setState] = useState<ServiceActionState>(initialState);
+  const [isPending, setIsPending] = useState(false);
+  const [formKey, setFormKey] = useState(0);
   const defaultCategory = categories[0];
   const [categoryId, setCategoryId] = useState(defaultCategory?.id ?? "");
   const selectedCategory = useMemo(
@@ -35,8 +37,35 @@ export function ServiceCreateForm({ categories = [] }: Props) {
     [categories, categoryId],
   );
 
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsPending(true);
+    setState(initialState);
+
+    try {
+      const response = await fetch("/api/admin/services", {
+        method: "POST",
+        body: new FormData(event.currentTarget),
+      });
+      const data = (await response.json()) as ServiceActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        setFormKey((key) => key + 1);
+        setCategoryId(defaultCategory?.id ?? "");
+        router.refresh();
+      }
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذّر الاتصال بالخادم. راجع البيانات ثم حاول مرة أخرى.",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  }
+
   return (
-    <form action={formAction} className="grid gap-3">
+    <form key={formKey} onSubmit={handleSubmit} className="grid gap-3">
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">
