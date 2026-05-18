@@ -1,7 +1,7 @@
 import { ContentStatus, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const CORE_SEED_VERSION = "2026-05-17-rejuvera-core-v1";
+const CORE_SEED_VERSION = "2026-05-18-rejuvera-domain-hours-v2";
 
 const images = {
   surgery:
@@ -778,6 +778,65 @@ async function updateBrandDefaults() {
   }
 }
 
+async function updateContactDefaults() {
+  const contactSettings = [
+    {
+      groupKey: "contact",
+      itemKey: "email",
+      label: "البريد الرسمي",
+      value: "info@rejuvera.sa",
+    },
+    {
+      groupKey: "contact",
+      itemKey: "emailSecondary",
+      label: "البريد البديل",
+      value: "info@rejuvera.sa",
+    },
+    {
+      groupKey: "contact",
+      itemKey: "domain",
+      label: "النطاق الرسمي",
+      value: "rejuvera.sa",
+    },
+    {
+      groupKey: "contact",
+      itemKey: "hoursWeekdays",
+      label: "ساعات العمل (السبت — الخميس)",
+      value: "السبت إلى الخميس: 2:00 م - 10:00 م",
+    },
+    {
+      groupKey: "contact",
+      itemKey: "hoursWeekend",
+      label: "اليوم المغلق",
+      value: "الجمعة: مغلق",
+    },
+    {
+      groupKey: "contact",
+      itemKey: "hoursWeekdaysEn",
+      label: "Working hours (Sat – Thu, English)",
+      value: "Saturday to Thursday: 2:00 PM - 10:00 PM",
+    },
+    {
+      groupKey: "contact",
+      itemKey: "hoursWeekendEn",
+      label: "Closed day (English)",
+      value: "Friday: Closed",
+    },
+  ];
+
+  for (const setting of contactSettings) {
+    await prisma.siteSetting.upsert({
+      where: { key: `${setting.groupKey}.${setting.itemKey}` },
+      update: { value: setting.value, groupName: setting.groupKey },
+      create: {
+        key: `${setting.groupKey}.${setting.itemKey}`,
+        groupName: setting.groupKey,
+        value: setting.value,
+      },
+    });
+  }
+}
+
 async function main() {
   if (!process.env.DATABASE_URL) {
     console.log("[seed-core-content] DATABASE_URL is not set; skipping.");
@@ -799,6 +858,7 @@ async function main() {
   await upsertDoctors();
   await upsertServices();
   await updateBrandDefaults();
+  await updateContactDefaults();
   await prisma.siteSetting.upsert({
     where: { key: "system.coreContentSeedVersion" },
     update: { value: CORE_SEED_VERSION, groupName: "system" },

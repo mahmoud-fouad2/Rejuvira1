@@ -11,6 +11,7 @@ import {
   deleteCrmSubmission,
   updateCrmSubmission,
 } from "@/lib/content-repository";
+import { isValidAppointmentSlot } from "@/lib/appointment-slots";
 
 export type CrmActionState = {
   status: "idle" | "success" | "error";
@@ -50,6 +51,34 @@ function revalidate() {
   revalidatePath("/admin");
 }
 
+function isValidAdminAppointment(value?: string) {
+  if (!value) return true;
+  const localMatch = value.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
+  if (localMatch) {
+    return isValidAppointmentSlot(localMatch[1], localMatch[2]);
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return false;
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Riyadh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+    .formatToParts(parsed)
+    .reduce<Record<string, string>>((acc, part) => {
+      if (part.type !== "literal") acc[part.type] = part.value;
+      return acc;
+    }, {});
+  return isValidAppointmentSlot(
+    `${parts.year}-${parts.month}-${parts.day}`,
+    `${parts.hour}:${parts.minute}`,
+  );
+}
+
 export async function updateCrmSubmissionAction(
   _previousState: CrmActionState,
   formData: FormData,
@@ -74,6 +103,14 @@ export async function updateCrmSubmissionAction(
     return {
       status: "error",
       message: "بيانات المتابعة غير مكتملة أو غير صحيحة.",
+    };
+  }
+
+  if (!isValidAdminAppointment(parsed.data.preferredAppointmentAt || "")) {
+    return {
+      status: "error",
+      message:
+        "الموعد يجب أن يكون من السبت إلى الخميس بين 2:00 مساءً و10:00 مساءً.",
     };
   }
 

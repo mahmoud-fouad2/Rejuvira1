@@ -288,7 +288,7 @@ export default async function GalleryPage() {
             <div className="relative h-full min-h-[18rem] overflow-hidden rounded-[2rem]">
               <Image
                 src="/media/curated/device-laser-platform.webp"
-                alt="Rejuvira Center"
+                alt="Rejuvera Center"
                 fill
                 sizes="(max-width: 1024px) 100vw, 54vw"
                 className="object-cover"

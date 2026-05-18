@@ -7,6 +7,10 @@ import {
   type ContactActionState,
 } from "@/app/contact/actions";
 import { useLanguage } from "@/components/providers/LanguageProvider";
+import {
+  APPOINTMENT_TIME_OPTIONS,
+  buildAppointmentDateOptions,
+} from "@/lib/appointment-slots";
 import type { ServiceRecord } from "@/lib/content-repository";
 
 const initialState: ContactActionState = {
@@ -30,7 +34,7 @@ function loadRecaptchaScript(siteKey: string): Promise<void> {
   if (window.grecaptcha) return Promise.resolve();
   return new Promise((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>(
-      "script[data-rejuvira-recaptcha]",
+      "script[data-rejuvera-recaptcha]",
     );
     if (existing) {
       existing.addEventListener("load", () => resolve(), { once: true });
@@ -45,7 +49,7 @@ function loadRecaptchaScript(siteKey: string): Promise<void> {
     script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(siteKey)}`;
     script.async = true;
     script.defer = true;
-    script.dataset.rejuviraRecaptcha = "1";
+    script.dataset.rejuveraRecaptcha = "1";
     script.addEventListener("load", () => resolve(), { once: true });
     script.addEventListener("error", () => reject(new Error("script error")), {
       once: true,
@@ -80,7 +84,7 @@ export function ContactForm({
   const tokenInputRef = useRef<HTMLInputElement | null>(null);
   const tokenInjectedRef = useRef(false);
   const siteKey = recaptchaSiteKey ?? "";
-  const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const appointmentDates = useMemo(() => buildAppointmentDateOptions(), []);
 
   useEffect(() => {
     if (!siteKey) return;
@@ -193,24 +197,52 @@ export function ContactForm({
             <span className="lang-ar">تاريخ الموعد المفضل</span>
             <span className="lang-en">Preferred date</span>
           </span>
-          <input
+          <select
             name="preferredDate"
-            type="date"
-            className="field-public"
-            min={today}
-          />
+            className="field-public cursor-pointer"
+            defaultValue=""
+          >
+            <option value="">
+              {lang === "ar" ? "اختاري اليوم" : "Select a day"}
+            </option>
+            {appointmentDates.map((date) => (
+              <option key={date.value} value={date.value}>
+                {lang === "ar" ? date.labelAr : date.labelEn}
+              </option>
+            ))}
+          </select>
+          <span className="text-ink-faint text-xs">
+            <span className="lang-ar">
+              الجمعة إجازة. الحجز متاح السبت إلى الخميس.
+            </span>
+            <span className="lang-en">
+              Friday is closed. Booking is Sat-Thu.
+            </span>
+          </span>
         </label>
         <label className="grid gap-2">
           <span className="text-ink-strong text-sm font-semibold tracking-tight">
             <span className="lang-ar">الوقت المفضل</span>
             <span className="lang-en">Preferred time</span>
           </span>
-          <input
+          <select
             name="preferredTime"
-            type="time"
-            className="field-public"
-            step={900}
-          />
+            className="field-public cursor-pointer"
+            defaultValue=""
+          >
+            <option value="">
+              {lang === "ar" ? "اختاري الوقت" : "Select a time"}
+            </option>
+            {APPOINTMENT_TIME_OPTIONS.map((slot) => (
+              <option key={slot.value} value={slot.value}>
+                {lang === "ar" ? slot.labelAr : slot.labelEn}
+              </option>
+            ))}
+          </select>
+          <span className="text-ink-faint text-xs">
+            <span className="lang-ar">ساعات العمل: 2:00 م إلى 10:00 م.</span>
+            <span className="lang-en">Working hours: 2:00 PM to 10:00 PM.</span>
+          </span>
         </label>
       </div>
       {compact ? null : (

@@ -34,14 +34,14 @@ const sections = [
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getRuntimeSettings();
-  const url = `https://${settings.contact.domain || "rejuveracenter.sa"}/terms`;
+  const url = `https://${settings.contact.domain || "rejuvera.sa"}/terms`;
   return {
     title: "الشروط والأحكام | Terms & Conditions",
     description:
       "الشروط والأحكام الخاصة باستخدام موقع مركز ريجوفيرا وحجز الخدمات، بما في ذلك الإخلاء الطبي وحقوق الملكية الفكرية والنظام الحاكم.",
     alternates: { canonical: url },
     openGraph: {
-      title: "الشروط والأحكام — Rejuvira Center",
+      title: "الشروط والأحكام — Rejuvera Center",
       description:
         "الإطار التعاقدي لاستخدام الموقع وحجز الخدمات داخل مركز ريجوفيرا.",
       url,
@@ -50,7 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary",
-      title: "الشروط والأحكام — Rejuvira Center",
+      title: "الشروط والأحكام — Rejuvera Center",
       description: "الإطار التعاقدي لاستخدام الموقع والخدمات.",
     },
   };
@@ -123,7 +123,7 @@ export default async function TermsPage() {
                   تحكم هذه الشروط استخدامك لجميع صفحات الموقع، النماذج، قنوات
                   الحجز، والمحتوى المقدم على{" "}
                   <span dir="ltr">
-                    {settings.contact.domain || "rejuveracenter.sa"}
+                    {settings.contact.domain || "rejuvera.sa"}
                   </span>
                   . إذا لم توافقي على أي جزء منها، يرجى عدم استخدام الموقع أو
                   إرسال طلب حجز.
@@ -132,7 +132,7 @@ export default async function TermsPage() {
                   These terms govern your use of all pages, forms, booking
                   channels, and content provided on{" "}
                   <span dir="ltr">
-                    {settings.contact.domain || "rejuveracenter.sa"}
+                    {settings.contact.domain || "rejuvera.sa"}
                   </span>
                   . If you do not agree to any part of these terms, please
                   refrain from using the site or submitting a booking request.
@@ -153,7 +153,7 @@ export default async function TermsPage() {
                   لتقييم سريري مستقل قبل اعتماد أي خطة علاجية.
                 </span>
                 <span className="lang-en">
-                  Rejuvira provides dermatology and aesthetic medical services
+                  Rejuvera provides dermatology and aesthetic medical services
                   under qualified medical supervision. Information about
                   services, devices, and physicians on this site is presented
                   for informational purposes only and does not constitute a

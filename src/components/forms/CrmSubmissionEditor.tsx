@@ -11,6 +11,10 @@ import {
   type CrmActionState,
 } from "@/app/admin/crm/actions";
 import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
+import {
+  APPOINTMENT_TIME_OPTIONS,
+  buildAppointmentDateOptions,
+} from "@/lib/appointment-slots";
 import type { CrmRecord } from "@/lib/content-repository";
 
 const initialState: CrmActionState = { status: "idle", message: "" };
@@ -41,12 +45,29 @@ function formatDate(iso: string) {
   }
 }
 
-function toDateTimeLocal(iso?: string) {
-  if (!iso) return "";
+function splitAppointment(iso?: string) {
+  if (!iso) return null;
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  const pad = (value: number) => String(value).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  if (Number.isNaN(date.getTime())) return null;
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Riyadh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+    .formatToParts(date)
+    .reduce<Record<string, string>>((acc, part) => {
+      if (part.type !== "literal") acc[part.type] = part.value;
+      return acc;
+    }, {});
+
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour}:${parts.minute}`,
+  };
 }
 
 export type CrmSubmissionEditorProps = {
@@ -77,6 +98,41 @@ export function CrmSubmissionEditor({
   );
   const [tags, setTags] = useState<string[]>(initialTags);
   const [tagInput, setTagInput] = useState("");
+  const initialAppointment = useMemo(
+    () => splitAppointment(submission.preferredAppointmentAt),
+    [submission.preferredAppointmentAt],
+  );
+  const appointmentDateOptions = useMemo(() => {
+    const options = buildAppointmentDateOptions(60);
+    if (
+      initialAppointment &&
+      !options.some((option) => option.value === initialAppointment.date)
+    ) {
+      return [
+        {
+          value: initialAppointment.date,
+          labelAr: initialAppointment.date,
+          labelEn: initialAppointment.date,
+        },
+        ...options,
+      ];
+    }
+    return options;
+  }, [initialAppointment]);
+  const [appointmentDate, setAppointmentDate] = useState(
+    initialAppointment ? initialAppointment.date : "",
+  );
+  const [appointmentTime, setAppointmentTime] = useState(
+    initialAppointment &&
+      APPOINTMENT_TIME_OPTIONS.some(
+        (option) => option.value === initialAppointment.time,
+      )
+      ? initialAppointment.time
+      : "14:00",
+  );
+  const appointmentValue = appointmentDate
+    ? `${appointmentDate}T${appointmentTime || "14:00"}`
+    : "";
 
   const addTag = (raw: string) => {
     const value = raw.trim();
@@ -93,6 +149,11 @@ export function CrmSubmissionEditor({
       <form action={formAction} className="grid gap-3">
         <input type="hidden" name="id" value={submission.id} />
         <input type="hidden" name="tagsCsv" value={tags.join(",")} />
+        <input
+          type="hidden"
+          name="preferredAppointmentAt"
+          value={appointmentValue}
+        />
 
         <div className="grid gap-3 md:grid-cols-3">
           <label className="grid gap-1">
@@ -131,18 +192,42 @@ export function CrmSubmissionEditor({
           </label>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-[1fr_2fr]">
+        <div className="grid gap-3 md:grid-cols-[1.3fr_0.9fr_2fr]">
           <label className="grid gap-1">
             <span className="admin-field-label">
-              <span className="lang-ar">الموعد المفضل</span>
-              <span className="lang-en">Preferred appointment</span>
+              <span className="lang-ar">تاريخ الموعد</span>
+              <span className="lang-en">Appointment date</span>
             </span>
-            <input
-              name="preferredAppointmentAt"
-              type="datetime-local"
-              defaultValue={toDateTimeLocal(submission.preferredAppointmentAt)}
+            <select
+              value={appointmentDate}
+              onChange={(event) => setAppointmentDate(event.target.value)}
               className="admin-input"
-            />
+            >
+              <option value="">بدون موعد · No date</option>
+              {appointmentDateOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.labelAr} · {option.labelEn}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">
+              <span className="lang-ar">الوقت</span>
+              <span className="lang-en">Time</span>
+            </span>
+            <select
+              value={appointmentTime}
+              onChange={(event) => setAppointmentTime(event.target.value)}
+              className="admin-input"
+              disabled={!appointmentDate}
+            >
+              {APPOINTMENT_TIME_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.labelAr} · {option.labelEn}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="grid gap-1">
             <span className="admin-field-label">

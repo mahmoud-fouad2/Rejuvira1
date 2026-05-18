@@ -11,6 +11,7 @@ import {
   getDevices,
   getServiceBySlug,
 } from "@/lib/content-repository";
+import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -33,7 +34,7 @@ export async function generateMetadata({
       service.name,
       service.category,
       "ريجوفيرا",
-      "Rejuvira Medical Center",
+      "Rejuvera Medical Center",
       "مركز تجميل الرياض",
       "Aesthetic clinic Riyadh",
       ...service.doctorSlugs,
@@ -82,7 +83,7 @@ export default async function ServiceDetailPage({
             name: service.name,
             description: service.excerpt,
             image: service.coverImageUrl,
-            url: `https://rejuveracenter.sa/services/${service.slug}`,
+            url: `${getSiteUrl()}/services/${service.slug}`,
             procedureType: service.category,
           }),
         }}

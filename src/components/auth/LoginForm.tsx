@@ -57,10 +57,10 @@ export function LoginForm() {
       <div className="flex justify-end">
         <LanguageToggle />
       </div>
-      <Link href="/" className="rv-login-brand" aria-label="Rejuvira Center">
+      <Link href="/" className="rv-login-brand" aria-label="Rejuvera Center">
         <Image
           src="/media/brand/logo-light.png"
-          alt="Rejuvira Center"
+          alt="Rejuvera Center"
           width={560}
           height={560}
           className="rv-login-brand-light"
@@ -92,7 +92,7 @@ export function LoginForm() {
           name="email"
           autoComplete="email"
           required
-          placeholder="admin@rejuveracenter.sa"
+          placeholder="admin@rejuvera.sa"
           dir="ltr"
         />
       </label>

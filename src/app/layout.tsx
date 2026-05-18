@@ -64,6 +64,7 @@ const rejuviraSans = localFont({
   ],
   variable: "--font-rejuvira-sans",
   display: "swap",
+  preload: false,
 });
 
 const rejuviraDisplay = localFont({
@@ -86,6 +87,7 @@ const rejuviraDisplay = localFont({
   ],
   variable: "--font-rejuvira-display",
   display: "swap",
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {

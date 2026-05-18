@@ -261,7 +261,7 @@ export function HomeContactSection({
               <span className="lang-ar">
                 الوصول إلى ريجوفيرا بسهولة داخل الرياض
               </span>
-              <span className="lang-en">Reach Rejuvira easily in Riyadh</span>
+              <span className="lang-en">Reach Rejuvera easily in Riyadh</span>
             </h3>
             <p>
               <span className="lang-ar">
@@ -276,7 +276,7 @@ export function HomeContactSection({
           <GoogleMapsEmbed
             src={settings.contact.mapsEmbedUrl}
             shape={settings.contact.mapsShape}
-            title="Rejuvira Center location"
+            title="Rejuvera Center location"
             className="rv-v0-home-map-embed"
           />
         </div>

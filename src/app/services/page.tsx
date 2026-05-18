@@ -47,7 +47,7 @@ export default async function ServicesPage() {
 
   const collectionJsonLd = buildCollectionPageJsonLd({
     path: "/services",
-    name: "خدمات Rejuvira Center الطبية والتجميلية",
+    name: "خدمات Rejuvera Center الطبية والتجميلية",
     description:
       "خدمات معتمدة في الجلدية والتجميل الطبي بإشراف أطباء داخل مركز ريجوفيرا في الرياض.",
   });

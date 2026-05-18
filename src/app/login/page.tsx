@@ -4,7 +4,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
   title: "تسجيل الدخول",
-  description: "صفحة دخول الإدارة في Rejuvira Center.",
+  description: "صفحة دخول الإدارة في Rejuvera Center.",
   robots: { index: false, follow: false },
 };
 

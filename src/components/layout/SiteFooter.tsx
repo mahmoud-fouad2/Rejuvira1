@@ -380,7 +380,7 @@ export async function SiteFooter() {
             <Link
               href="/"
               className="inline-block"
-              aria-label="Rejuvira Center"
+              aria-label="Rejuvera Center"
             >
               <BrandLogo
                 alt={runtimeSettings.brand.logoAlt}
@@ -397,7 +397,7 @@ export async function SiteFooter() {
                 التقنيات الحديثة، وخطة واضحة تناسب كل حالة.
               </span>
               <span className="lang-en">
-                Rejuvira Center — a full-service medical aesthetic center in
+                Rejuvera Center — a full-service medical aesthetic center in
                 Riyadh, offering advanced dermatology, cosmetic treatments, and
                 body care.
               </span>
@@ -663,7 +663,7 @@ export async function SiteFooter() {
               ريجوفيرا مركز طبي متخصص. جميع الحقوق محفوظة.
             </span>
             <span className="lang-en">
-              Rejuvira Center. All rights reserved.
+              Rejuvera Center. All rights reserved.
             </span>
           </p>
         </div>

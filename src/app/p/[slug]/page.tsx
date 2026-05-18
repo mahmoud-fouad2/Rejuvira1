@@ -17,7 +17,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const page = await getCustomPageBySlug(slug);
   if (!page || page.status !== ContentStatus.PUBLISHED) {
-    return { title: "Rejuvira" };
+    return { title: "Rejuvera" };
   }
   const robots = page.noindex ? "noindex,nofollow" : undefined;
   return {

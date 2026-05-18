@@ -20,7 +20,7 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     status: "ok",
-    service: "rejuvira-center-web",
+    service: "rejuvera-center-web",
     runtime: "next-app-router",
     hasDatabaseUrl,
     dbReachable,

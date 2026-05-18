@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="rejuvira-crm-export.pdf"',
+        "Content-Disposition": 'attachment; filename="rejuvera-crm-export.pdf"',
       },
     });
   }

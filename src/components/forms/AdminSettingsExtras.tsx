@@ -198,7 +198,7 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
             defaultValue={settings.integrations.formWebhookUrl}
             dir="ltr"
             className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
-            placeholder="https://hooks.example.com/rejuvira"
+            placeholder="https://hooks.example.com/rejuvera"
           />
           <span className="text-ink-faint text-[11px] leading-6">
             Payload: event, source, submittedAt, submissionId, fullName, phone,
@@ -214,7 +214,7 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
             defaultValue={settings.integrations.formWebhookSecret}
             dir="ltr"
             className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
-            placeholder="اختياري: يرسل في x-rejuvira-webhook-secret"
+            placeholder="اختياري: يرسل في x-rejuvera-webhook-secret"
           />
         </label>
         <SubmitMessage pending={pending} state={state} label="حفظ التكاملات" />

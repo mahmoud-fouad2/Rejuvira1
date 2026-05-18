@@ -1,6 +1,6 @@
-# Rejuvira Center — Web Platform
+﻿# Rejuvera Center — Web Platform
 
-Production website for Rejuvira Center (`rejuveracenter.sa`) — a
+Production website for Rejuvera Center (`rejuvera.sa`) — a
 medical dermatology and aesthetic clinic in Riyadh. Built on
 **Next.js 16 (App Router)**, **React 19**, **Tailwind v4**, \*\*Prisma
 

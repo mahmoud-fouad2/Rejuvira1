@@ -1700,15 +1700,15 @@ const seedSettings: SettingsGroup[] = [
       {
         key: "email",
         label: "البريد الرسمي",
-        value: "info@rejuveracenter.sa",
+        value: "info@rejuvera.sa",
       },
       {
         key: "emailSecondary",
         label: "البريد البديل",
-        value: "info@rejuveracenter.sa",
+        value: "info@rejuvera.sa",
       },
       { key: "whatsapp", label: "واتساب", value: "0114999959" },
-      { key: "domain", label: "النطاق الرسمي", value: "rejuveracenter.sa" },
+      { key: "domain", label: "النطاق الرسمي", value: "rejuvera.sa" },
       {
         key: "addressAr",
         label: "العنوان بالعربية",
@@ -2265,7 +2265,7 @@ const seedAdminUsers: AdminUserRecord[] = [
   {
     id: "user-super-admin",
     name: "مدير المنصة",
-    email: "admin@rejuveracenter.sa",
+    email: "admin@rejuvera.sa",
     role: UserRole.SUPER_ADMIN,
     leadCount: 12,
     lastLoginAt: "2026-05-12T08:00:00.000Z",
@@ -2274,7 +2274,7 @@ const seedAdminUsers: AdminUserRecord[] = [
   {
     id: "user-operations-admin",
     name: "مسؤول التشغيل",
-    email: "operations@rejuveracenter.sa",
+    email: "operations@rejuvera.sa",
     role: UserRole.ADMIN,
     leadCount: 31,
     lastLoginAt: "2026-05-11T14:40:00.000Z",
@@ -2283,7 +2283,7 @@ const seedAdminUsers: AdminUserRecord[] = [
   {
     id: "user-content-editor",
     name: "مسؤول المحتوى",
-    email: "content@rejuveracenter.sa",
+    email: "content@rejuvera.sa",
     role: UserRole.EDITOR,
     leadCount: 0,
     createdAt: "2026-05-01T10:15:00.000Z",
@@ -2488,37 +2488,41 @@ export const getDoctors = cache(async () => {
       return sortFeaturedFirst([...seedDoctors]);
     }
 
-    return sortFeaturedFirst(
-      doctors.map((doctor) => ({
-        id: doctor.id,
-        slug: doctor.slug,
-        name: doctor.nameAr,
-        nameEn: doctor.nameEn,
-        title: doctor.titleAr,
-        titleEn: doctor.titleEn,
-        specialty: doctor.specialtyAr,
-        specialtyEn: doctor.specialtyEn,
-        summary: toDoctorSummary(doctor.publications, doctor.bioAr),
-        summaryEn: doctor.bioEn
-          ? toDoctorSummary(doctor.publications, doctor.bioEn)
-          : null,
-        bio: doctor.bioAr,
-        bioEn: doctor.bioEn,
-        photoUrl: toDoctorAsset(doctor.slug, doctor.photoUrl),
-        coverImageUrl: toDoctorAsset(
-          doctor.slug,
-          doctor.coverImageUrl ?? doctor.photoUrl,
-        ),
-        yearsExperience: doctor.yearsExperience ?? 0,
-        languages: doctor.languages,
-        education: toStringList(doctor.education),
-        achievements: toStringList(doctor.achievements),
-        publications: toStringList(doctor.publications),
-        status: doctor.status,
-        featured: doctor.isFeatured,
-        serviceSlugs: doctor.services.map((service) => service.slug),
-      })),
+    const databaseDoctors = doctors.map((doctor) => ({
+      id: doctor.id,
+      slug: doctor.slug,
+      name: doctor.nameAr,
+      nameEn: doctor.nameEn,
+      title: doctor.titleAr,
+      titleEn: doctor.titleEn,
+      specialty: doctor.specialtyAr,
+      specialtyEn: doctor.specialtyEn,
+      summary: toDoctorSummary(doctor.publications, doctor.bioAr),
+      summaryEn: doctor.bioEn
+        ? toDoctorSummary(doctor.publications, doctor.bioEn)
+        : null,
+      bio: doctor.bioAr,
+      bioEn: doctor.bioEn,
+      photoUrl: toDoctorAsset(doctor.slug, doctor.photoUrl),
+      coverImageUrl: toDoctorAsset(
+        doctor.slug,
+        doctor.coverImageUrl ?? doctor.photoUrl,
+      ),
+      yearsExperience: doctor.yearsExperience ?? 0,
+      languages: doctor.languages,
+      education: toStringList(doctor.education),
+      achievements: toStringList(doctor.achievements),
+      publications: toStringList(doctor.publications),
+      status: doctor.status,
+      featured: doctor.isFeatured,
+      serviceSlugs: doctor.services.map((service) => service.slug),
+    }));
+    const databaseSlugs = new Set(databaseDoctors.map((doctor) => doctor.slug));
+    const missingSeedDoctors = seedDoctors.filter(
+      (doctor) => !databaseSlugs.has(doctor.slug),
     );
+
+    return sortFeaturedFirst([...databaseDoctors, ...missingSeedDoctors]);
   } catch {
     return sortFeaturedFirst([...seedDoctors]);
   }
@@ -2893,10 +2897,30 @@ export async function getSettingsGroups() {
  */
 export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
   const groups = await getSettingsGroups();
-  const getValue = (groupKey: string, fieldKey: string, fallback: string) =>
-    groups
-      .find((group) => group.key === groupKey)
-      ?.fields.find((field) => field.key === fieldKey)?.value ?? fallback;
+  const normalizeLegacyValue = (fieldKey: string, value: string) => {
+    if (
+      fieldKey === "email" ||
+      fieldKey === "emailSecondary" ||
+      fieldKey === "domain"
+    ) {
+      return value
+        .replaceAll("info@rejuveracenter.sa", "info@rejuvera.sa")
+        .replaceAll("info@rejuveracenter.com.sa", "info@rejuvera.sa")
+        .replaceAll("rejuveracenter.sa", "rejuvera.sa")
+        .replaceAll("rejuveracenter.com.sa", "rejuvera.sa");
+    }
+    if (fieldKey === "siteName") {
+      return value.replaceAll("Rejuvira", "Rejuvera");
+    }
+    return value;
+  };
+  const getValue = (groupKey: string, fieldKey: string, fallback: string) => {
+    const value =
+      groups
+        .find((group) => group.key === groupKey)
+        ?.fields.find((field) => field.key === fieldKey)?.value ?? fallback;
+    return normalizeLegacyValue(fieldKey, value);
+  };
 
   return {
     contact: {
@@ -2913,15 +2937,15 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       email: getValue(
         "contact",
         "email",
-        process.env.CONTACT_EMAIL_PRIMARY || "info@rejuveracenter.sa",
+        process.env.CONTACT_EMAIL_PRIMARY || "info@rejuvera.sa",
       ),
       emailSecondary: getValue(
         "contact",
         "emailSecondary",
-        process.env.CONTACT_EMAIL_SECONDARY || "info@rejuveracenter.sa",
+        process.env.CONTACT_EMAIL_SECONDARY || "info@rejuvera.sa",
       ),
       whatsapp: getValue("contact", "whatsapp", "0114999959"),
-      domain: getValue("contact", "domain", "rejuveracenter.sa"),
+      domain: getValue("contact", "domain", "rejuvera.sa"),
       mapsEmbedUrl: getValue(
         "contact",
         "mapsEmbedUrl",
@@ -3109,7 +3133,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       heroTitleAccentEn: getValue(
         "homepage",
         "heroTitleAccentEn",
-        "at Rejuvira",
+        "at Rejuvera",
       ),
       heroDescriptionEn: getValue(
         "homepage",
@@ -3119,7 +3143,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       heroPillLabelEn: getValue(
         "homepage",
         "heroPillLabelEn",
-        "Rejuvira Aesthetic Medical Center",
+        "Rejuvera Aesthetic Medical Center",
       ),
       heroCtaPrimaryEn: getValue(
         "homepage",
@@ -3349,25 +3373,25 @@ function buildSeoSettings(
   const defaults: Record<keyof SeoSettings, SeoPageDefaults> = {
     home: {
       titleAr:
-        "Rejuvira Center — جراحات تجميلية وطب جلدية وعناية بالبشرة في الرياض",
+        "Rejuvera Center — جراحات تجميلية وطب جلدية وعناية بالبشرة في الرياض",
       titleEn:
-        "Rejuvira Center — Aesthetic Surgery, Dermatology & Skin Care in Riyadh",
+        "Rejuvera Center — Aesthetic Surgery, Dermatology & Skin Care in Riyadh",
       descriptionAr:
         "مركز ريجوفيرا الطبي في الرياض: استشارات جلدية، خدمات تجميل، أجهزة معتمدة وأطباء متخصصون. خطة علاجية واضحة من أول زيارة.",
       descriptionEn:
-        "Rejuvira Center in Riyadh: dermatology consultations, aesthetic services, certified devices, and board-specialised doctors. A clear treatment plan from your first visit.",
+        "Rejuvera Center in Riyadh: dermatology consultations, aesthetic services, certified devices, and board-specialised doctors. A clear treatment plan from your first visit.",
       keywordsAr:
         "ريجوفيرا، عيادة جلدية، تجميل طبي، الرياض، علاج البشرة، حقن، ليزر، استشارة جلدية",
       keywordsEn:
-        "Rejuvira, dermatology Riyadh, aesthetic clinic, medical aesthetics, laser, injectables, skin treatments",
+        "Rejuvera, dermatology Riyadh, aesthetic clinic, medical aesthetics, laser, injectables, skin treatments",
     },
     services: {
       titleAr: "خدمات المركز الطبية والتجميلية",
       titleEn: "Medical & Aesthetic Services",
       descriptionAr:
-        "اطلعي على الخدمات المعتمدة في Rejuvira Center: جلسات بشرة، حقن، ليزر، وعناية متخصصة بإشراف أطباء.",
+        "اطلعي على الخدمات المعتمدة في Rejuvera Center: جلسات بشرة، حقن، ليزر، وعناية متخصصة بإشراف أطباء.",
       descriptionEn:
-        "Explore Rejuvira Center's approved services: skin care, injectables, laser, and specialised treatments under medical supervision.",
+        "Explore Rejuvera Center's approved services: skin care, injectables, laser, and specialised treatments under medical supervision.",
       keywordsAr: "خدمات تجميل، عناية بالبشرة، حقن، ليزر، الرياض",
       keywordsEn: "aesthetic services, skin care, injectables, laser, Riyadh",
     },
@@ -3375,9 +3399,9 @@ function buildSeoSettings(
       titleAr: "الأطباء — تخصصات وخبرات معتمدة",
       titleEn: "Our Doctors — Certified Specialists",
       descriptionAr:
-        "تعرّفي على فريق الأطباء في Rejuvira Center: تخصصات واضحة، شهادات معتمدة، وخبرة في الجلدية والتجميل الطبي.",
+        "تعرّفي على فريق الأطباء في Rejuvera Center: تخصصات واضحة، شهادات معتمدة، وخبرة في الجلدية والتجميل الطبي.",
       descriptionEn:
-        "Meet the medical team at Rejuvira Center — board-specialised dermatologists and aesthetic physicians with verified credentials.",
+        "Meet the medical team at Rejuvera Center — board-specialised dermatologists and aesthetic physicians with verified credentials.",
       keywordsAr: "أطباء جلدية، استشاري، تجميل، الرياض",
       keywordsEn: "dermatologists, aesthetic physicians, Riyadh",
     },
@@ -3387,7 +3411,7 @@ function buildSeoSettings(
       descriptionAr:
         "أجهزة معتمدة دوليًا تستخدم في الخدمات العلاجية داخل المركز، مع توضيح لكل تقنية ودورها.",
       descriptionEn:
-        "FDA/CE-cleared devices used in treatments at Rejuvira Center, with a clear explanation of each technology.",
+        "FDA/CE-cleared devices used in treatments at Rejuvera Center, with a clear explanation of each technology.",
       keywordsAr: "أجهزة طبية، ليزر، تقنيات تجميل، الرياض",
       keywordsEn: "medical devices, laser, aesthetic technologies",
     },
@@ -3395,9 +3419,9 @@ function buildSeoSettings(
       titleAr: "نتائج وقصص العناية — المعرض",
       titleEn: "Results & Care Stories — Gallery",
       descriptionAr:
-        "مشاهد من الخدمات والنتائج داخل Rejuvira Center، بتوضيح الحالة قبل وبعد ضمن خطة علاجية واضحة.",
+        "مشاهد من الخدمات والنتائج داخل Rejuvera Center، بتوضيح الحالة قبل وبعد ضمن خطة علاجية واضحة.",
       descriptionEn:
-        "Curated before-and-after visuals from Rejuvira Center's treatments, presented within a transparent clinical plan.",
+        "Curated before-and-after visuals from Rejuvera Center's treatments, presented within a transparent clinical plan.",
       keywordsAr: "نتائج تجميل، قبل وبعد، عناية بالبشرة",
       keywordsEn: "before after, aesthetic results, skin care",
     },
@@ -3412,22 +3436,22 @@ function buildSeoSettings(
       keywordsEn: "medical articles, aesthetics, dermatology",
     },
     about: {
-      titleAr: "عن Rejuvira Center",
-      titleEn: "About Rejuvira Center",
+      titleAr: "عن Rejuvera Center",
+      titleEn: "About Rejuvera Center",
       descriptionAr:
         "تعرّفي على رؤية مركز طبي تجميلي متكامل يقدم خدمات البشرة والجسم والتجميل بخطط واضحة ومتابعة منظمة.",
       descriptionEn:
-        "Learn about Rejuvira Center's philosophy: dermatology and aesthetic care guided by clear diagnosis and thoughtful planning.",
+        "Learn about Rejuvera Center's philosophy: dermatology and aesthetic care guided by clear diagnosis and thoughtful planning.",
       keywordsAr: "عن المركز، فريق طبي، رؤية",
       keywordsEn: "about the clinic, medical team, philosophy",
     },
     contact: {
-      titleAr: "التواصل والحجز — Rejuvira Center",
-      titleEn: "Contact & Booking — Rejuvira Center",
+      titleAr: "التواصل والحجز — Rejuvera Center",
+      titleEn: "Contact & Booking — Rejuvera Center",
       descriptionAr:
-        "احجزي استشارتك في Rejuvira Center الرياض. واتساب، هاتف، بريد إلكتروني، وخرائط الموقع.",
+        "احجزي استشارتك في Rejuvera Center الرياض. واتساب، هاتف، بريد إلكتروني، وخرائط الموقع.",
       descriptionEn:
-        "Book your consultation at Rejuvira Center in Riyadh. WhatsApp, phone, email, and map.",
+        "Book your consultation at Rejuvera Center in Riyadh. WhatsApp, phone, email, and map.",
       keywordsAr: "تواصل، حجز، الرياض، استشارة",
       keywordsEn: "contact, booking, Riyadh, consultation",
     },

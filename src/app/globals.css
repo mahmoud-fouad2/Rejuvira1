@@ -23,7 +23,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   REJUVIRA · Precision Luxury Design System 2027
+   REJUVERA · Precision Luxury Design System 2027
    OKLCH Color Space · Multi-Layer Architecture
    ═══════════════════════════════════════════════════════════ */
 
@@ -1053,7 +1053,7 @@ html[data-theme="dark"] .admin-app {
     );
 }
 
-/* REJUVIRA V0 DESIGN TRANSFER */
+/* REJUVERA V0 DESIGN TRANSFER */
 .gradient-primary {
   background: linear-gradient(
     135deg,
@@ -1231,9 +1231,9 @@ html[data-theme="dark"] .gradient-hero {
     rotate: 360deg;
   }
 }
-/* END REJUVIRA V0 DESIGN TRANSFER */
+/* END REJUVERA V0 DESIGN TRANSFER */
 
-/* REJUVIRA UI POLISH 2026 */
+/* REJUVERA UI POLISH 2026 */
 html {
   background: var(--background);
 }
@@ -1562,9 +1562,9 @@ html[data-theme="dark"] .public-page-atmosphere {
     animation: none !important;
   }
 }
-/* END REJUVIRA UI POLISH 2026 */
+/* END REJUVERA UI POLISH 2026 */
 
-/* REJUVIRA LOGO AND VISUAL CONTRAST */
+/* REJUVERA LOGO AND VISUAL CONTRAST */
 .rv-brand-logo-link {
   display: inline-flex;
   align-items: center;
@@ -1643,9 +1643,9 @@ html[data-theme="dark"] .text-gradient {
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-/* END REJUVIRA LOGO AND VISUAL CONTRAST */
+/* END REJUVERA LOGO AND VISUAL CONTRAST */
 
-/* REJUVIRA V0 FINAL TRANSFER */
+/* REJUVERA V0 FINAL TRANSFER */
 :root {
   --rv-purple: #4a2476;
   --rv-purple-strong: #341456;
@@ -2921,7 +2921,7 @@ img {
   }
 }
 
-/* REJUVIRA EMERGENCY LAYOUT FIX */
+/* REJUVERA EMERGENCY LAYOUT FIX */
 .section-shell,
 .rv-v0-home,
 .rv-v0-section,
@@ -3051,7 +3051,7 @@ html[data-theme="dark"] .rv-v0-nav-shell {
   }
 }
 
-/* REJUVIRA HERO STABILITY FIX */
+/* REJUVERA HERO STABILITY FIX */
 .rv-v0-hero-visual {
   display: grid !important;
   place-items: center !important;
@@ -3115,7 +3115,7 @@ html[data-theme="dark"] .rv-v0-nav-shell {
   }
 }
 
-/* REJUVIRA POLISH V2 */
+/* REJUVERA POLISH V2 */
 :root {
   --rv-radius-sm: 0.85rem;
   --rv-radius-md: 1.15rem;
@@ -3475,7 +3475,7 @@ select:focus {
   }
 }
 
-/* REJUVIRA POLISH V3 */
+/* REJUVERA POLISH V3 */
 @keyframes rv-rise-in {
   from {
     opacity: 0;
@@ -3684,7 +3684,7 @@ html[data-theme="dark"] select {
   }
 }
 
-/* REJUVIRA LOGO RATIO FIX */
+/* REJUVERA LOGO RATIO FIX */
 .rv-v0-logo {
   width: auto !important;
   height: auto !important;
@@ -3703,7 +3703,7 @@ html[data-theme="dark"] select {
   max-width: 11.5rem !important;
 }
 
-/* REJUVIRA IBM FONT + NAV REALIGN */
+/* REJUVERA IBM FONT + NAV REALIGN */
 html,
 body,
 button,
@@ -3993,7 +3993,7 @@ html[data-theme="dark"] main p {
   }
 }
 
-/* REJUVIRA CONSISTENCY V4 */
+/* REJUVERA CONSISTENCY V4 */
 .rv-v0-contact-section {
   padding-top: clamp(3rem, 6vw, 5.5rem) !important;
 }
@@ -5028,7 +5028,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   REJUVIRA 2026 · Modern Polish Layer
+   REJUVERA 2026 · Modern Polish Layer
    Tones down the chunky 2018-feel of the homepage and side pages
    without rewriting the entire system. Applied last so it wins.
    ═══════════════════════════════════════════════════════════ */
@@ -7375,7 +7375,7 @@ html[data-theme="dark"] .rv-v0-home-journal-body small {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   REJUVIRA 2026 — Polish Layer (subagent #3)
+   REJUVERA 2026 — Polish Layer (subagent #3)
    Brand logo swap · hero refinement · footer hours · trust/payment sizing
    Before/After CMS · mega-menu lift · testimonials split rail
    ───────────────────────────────────────────────────────────────── */
@@ -8257,7 +8257,7 @@ html[lang="en"] .rv-legal-prose {
   line-height: 1.7;
 }
 
-/* End REJUVIRA 2026 — Polish Layer (subagent #3) ─────────────── */
+/* End REJUVERA 2026 — Polish Layer (subagent #3) ─────────────── */
 
 /* ── Home contact section hours (subagent #3) ───────────────────── */
 .rv-v0-home-contact-hours {
@@ -8634,7 +8634,7 @@ html[data-theme="dark"] .admin-app aside {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   REJUVIRA · Comprehensive Mobile-First Responsive Overhaul
+   REJUVERA · Comprehensive Mobile-First Responsive Overhaul
    All public-facing pages: header, footer, hero, sections, cards
    ═══════════════════════════════════════════════════════════════ */
 
@@ -9260,7 +9260,7 @@ select:focus-visible {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   REJUVIRA · Visual Design Polish — Professional Medical Aesthetic
+   REJUVERA · Visual Design Polish — Professional Medical Aesthetic
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── 42. Header: refined sticky bar with subtle border ─────── */
@@ -9573,7 +9573,7 @@ html[data-theme="dark"] ::selection {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   REJUVIRA · Final Polish — Logo, Footer, Content fixes
+   REJUVERA · Final Polish — Logo, Footer, Content fixes
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Logo: remove all backgrounds + borders from container ─── */
@@ -9742,7 +9742,7 @@ html[data-theme="dark"] .rv-v0-partners > span {
 }
 
 /* ═══════════════════════════════════════════════════════
-   REJUVIRA · Logo Fix + Dark Mode Complete + Mobile Polish
+   REJUVERA · Logo Fix + Dark Mode Complete + Mobile Polish
    ═══════════════════════════════════════════════════════ */
 
 /* ── LOGO: definitive transparent container fix ─────── */
@@ -10404,7 +10404,7 @@ html[data-theme="dark"] .public-page-atmosphere {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   REJUVIRA · May polish: mobile hero, static reviews, nav, doctors
+   REJUVERA · May polish: mobile hero, static reviews, nav, doctors
    ───────────────────────────────────────────────────────────────── */
 
 html:not([data-lang="en"]) .lang-en,
@@ -12199,7 +12199,7 @@ html[data-theme="dark"] .rv-v0-hero-copy .rv-v0-stats span {
 }
 
 /* =================================================================
-   Admin Shell v2 — Tabler/Adminator-inspired, with Rejuvira accents.
+   Admin Shell v2 — Tabler/Adminator-inspired, with Rejuvera accents.
 
    These custom properties are exposed at :root level so portaled UI
    (dialogs, popovers) injected anywhere in <body> can still resolve

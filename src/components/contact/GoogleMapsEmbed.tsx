@@ -31,7 +31,7 @@ function toEmbedUrl(rawSrc: string): string {
 export function GoogleMapsEmbed({
   src,
   shape = "rounded",
-  title = "خريطة موقع Rejuvira Center",
+  title = "خريطة موقع Rejuvera Center",
   className,
   height = "100%",
 }: GoogleMapsEmbedProps) {

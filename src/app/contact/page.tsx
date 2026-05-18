@@ -181,7 +181,7 @@ export default async function ContactPage() {
               <div className="relative min-h-[26rem] overflow-hidden rounded-[2rem]">
                 <Image
                   src={runtimeSettings.media.doctorsHero}
-                  alt="Rejuvira Center استقبال"
+                  alt="Rejuvera Center استقبال"
                   fill
                   sizes="(max-width: 1024px) 100vw, 40vw"
                   className="relative z-0 object-cover"
@@ -243,7 +243,7 @@ export default async function ContactPage() {
           <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-12">
             <p className="eyebrow text-ink-soft">
               <span className="lang-ar">لماذا المركز</span>
-              <span className="lang-en">Why Rejuvira</span>
+              <span className="lang-en">Why Rejuvera</span>
             </p>
             <h2 className="balanced-text text-ink-strong mt-5 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
               <span className="lang-ar">
@@ -364,7 +364,7 @@ export default async function ContactPage() {
               <GoogleMapsEmbed
                 src={runtimeSettings.contact.mapsEmbedUrl}
                 shape={runtimeSettings.contact.mapsShape}
-                title="Rejuvira Center — موقع المركز"
+                title="Rejuvera Center — موقع المركز"
               />
             </div>
           </article>

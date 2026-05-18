@@ -6,6 +6,10 @@ import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
 import {
+  isValidAppointmentSlot,
+  parsePreferredAppointment,
+} from "@/lib/appointment-slots";
+import {
   createContactLead,
   getRuntimeSettings,
 } from "@/lib/content-repository";
@@ -36,14 +40,6 @@ function formString(formData: FormData, key: string) {
   return typeof value === "string" ? value : "";
 }
 
-function parsePreferredAppointment(date?: string, time?: string) {
-  if (!date) return undefined;
-  const normalizedTime = time || "09:00";
-  const parsed = new Date(`${date}T${normalizedTime}:00+03:00`);
-  if (Number.isNaN(parsed.getTime())) return undefined;
-  return parsed.toISOString();
-}
-
 async function dispatchFormWebhook({
   settings,
   payload,
@@ -63,6 +59,8 @@ async function dispatchFormWebhook({
         "content-type": "application/json",
         ...(settings.integrations.formWebhookSecret
           ? {
+              "x-rejuvera-webhook-secret":
+                settings.integrations.formWebhookSecret,
               "x-rejuvira-webhook-secret":
                 settings.integrations.formWebhookSecret,
             }
@@ -153,14 +151,30 @@ export async function submitContactAction(
           score: verification.score,
           action: verification.action,
           errors: verification.errors,
+          hostname: verification.hostname,
         },
       });
-      return {
-        status: "error",
-        message:
-          "تعذّر التحقّق من الطلب لأسباب أمنية. الرجاء المحاولة مرة أخرى. / Could not verify your request for security reasons. Please try again.",
-      };
+      if (process.env.RECAPTCHA_STRICT === "1") {
+        return {
+          status: "error",
+          message:
+            "تعذّر التحقّق من الطلب لأسباب أمنية. الرجاء المحاولة مرة أخرى. / Could not verify your request for security reasons. Please try again.",
+        };
+      }
     }
+  }
+
+  if (
+    !isValidAppointmentSlot(
+      parsed.data.preferredDate,
+      parsed.data.preferredTime,
+    )
+  ) {
+    return {
+      status: "error",
+      message:
+        "يرجى اختيار موعد من السبت إلى الخميس بين 2:00 م و10:00 م. / Please choose Sat-Thu between 2:00 PM and 10:00 PM.",
+    };
   }
 
   const preferredAppointmentAt = parsePreferredAppointment(

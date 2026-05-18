@@ -94,12 +94,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
       { protocol: "https", hostname: "*.cloudflarestorage.com" },
+      { protocol: "https", hostname: "rejuvera.sa" },
+      { protocol: "https", hostname: "www.rejuvera.sa" },
+      { protocol: "https", hostname: "cdn.rejuvera.sa" },
       { protocol: "https", hostname: "rejuveracenter.sa" },
       { protocol: "https", hostname: "cdn.rejuveracenter.sa" },
     ],
   },
   env: {
-    NEXT_PUBLIC_SITE_URL: process.env.SITE_URL || "https://rejuveracenter.sa",
+    NEXT_PUBLIC_SITE_URL: process.env.SITE_URL || "https://rejuvera.sa",
   },
   async headers() {
     return [

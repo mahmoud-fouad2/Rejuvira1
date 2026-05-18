@@ -24,9 +24,9 @@ export default async function DoctorsPage() {
   const heroImage = mediaSelections.doctorsHero;
   const doctorsJsonLd = buildCollectionPageJsonLd({
     path: "/doctors",
-    name: "فريق الأطباء في Rejuvira Center",
+    name: "فريق الأطباء في Rejuvera Center",
     description:
-      "ملفات أطباء بتخصصات الجلدية والتجميل الطبي داخل Rejuvira Center في الرياض.",
+      "ملفات أطباء بتخصصات الجلدية والتجميل الطبي داخل Rejuvera Center في الرياض.",
   });
 
   return (
@@ -101,7 +101,7 @@ export default async function DoctorsPage() {
             <div className="relative min-h-[30rem] overflow-hidden rounded-[2rem]">
               <Image
                 src={heroImage}
-                alt="Rejuvira medical team"
+                alt="Rejuvera medical team"
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 42vw"

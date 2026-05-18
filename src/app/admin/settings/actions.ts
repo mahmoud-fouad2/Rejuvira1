@@ -20,7 +20,7 @@ const settingsSchema = z.object({
     .min(4)
     .regex(
       /^[a-z0-9.-]+\.[a-z]{2,}$/i,
-      "النطاق غير صالح، يجب أن يكون مثل rejuveracenter.sa",
+      "النطاق غير صالح، يجب أن يكون مثل rejuvera.sa",
     ),
   whatsapp: z.string().min(5),
   addressAr: z.string().min(5),

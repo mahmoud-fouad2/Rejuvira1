@@ -1,7 +1,7 @@
-/**
+﻿/**
  * Lightweight server-side HTML sanitizer for admin-authored custom pages.
  *
- * The clinic admins paste curated marketing pages from Rejuvira's design team.
+ * The clinic admins paste curated marketing pages from Rejuvera's design team.
  * We still strip the obvious script-injection vectors so a hostile
  * paste from a compromised admin device cannot run arbitrary JavaScript on
  * visitors' browsers.
@@ -47,6 +47,7 @@ const ALLOWED_TAGS = new Set([
   "mark",
   "nav",
   "ol",
+  "option",
   "p",
   "picture",
   "pre",

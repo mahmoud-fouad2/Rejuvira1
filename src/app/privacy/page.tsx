@@ -70,14 +70,14 @@ const sections = [
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getRuntimeSettings();
-  const url = `https://${settings.contact.domain || "rejuveracenter.sa"}/privacy`;
+  const url = `https://${settings.contact.domain || "rejuvera.sa"}/privacy`;
   return {
     title: "سياسة الخصوصية | Privacy Policy",
     description:
       "سياسة الخصوصية لمركز ريجوفيرا تشرح كيف نجمع البيانات ونعالجها ونحميها، وحقوقك بموجب نظام حماية البيانات الشخصية في المملكة العربية السعودية.",
     alternates: { canonical: url },
     openGraph: {
-      title: "سياسة الخصوصية — Rejuvira Center",
+      title: "سياسة الخصوصية — Rejuvera Center",
       description:
         "كيف يجمع مركز ريجوفيرا البيانات، ولماذا، ولكم من الوقت، والإطار النظامي الذي يحكم ذلك.",
       url,
@@ -86,7 +86,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: "summary",
-      title: "سياسة الخصوصية — Rejuvira Center",
+      title: "سياسة الخصوصية — Rejuvera Center",
       description: "بيانات الزائر، الكوكيز، ومزودو الخدمة المعتمدون.",
     },
   };
@@ -158,16 +158,15 @@ export default async function PrivacyPage() {
               <p>
                 <span className="lang-ar">
                   تنطبق هذه السياسة على جميع البيانات الشخصية التي يتم جمعها أو
-                  معالجتها عبر موقع{" "}
-                  {settings.contact.domain || "rejuveracenter.sa"}، النماذج
-                  الإلكترونية، قنوات الحجز، وأنظمة المتابعة السرّية التي يُدار
-                  بها المركز بتشفير وفصل الصلاحيات.
+                  معالجتها عبر موقع {settings.contact.domain || "rejuvera.sa"}،
+                  النماذج الإلكترونية، قنوات الحجز، وأنظمة المتابعة السرّية التي
+                  يُدار بها المركز بتشفير وفصل الصلاحيات.
                 </span>
                 <span className="lang-en">
                   This policy covers personal data gathered through{" "}
-                  {settings.contact.domain || "rejuveracenter.sa"}, our digital
-                  intake forms, booking channels, and the secure coordination
-                  workflows our clinical team relies on.
+                  {settings.contact.domain || "rejuvera.sa"}, our digital intake
+                  forms, booking channels, and the secure coordination workflows
+                  our clinical team relies on.
                 </span>
               </p>
             </section>

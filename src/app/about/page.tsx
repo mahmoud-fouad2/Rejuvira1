@@ -151,7 +151,7 @@ export default async function AboutPage() {
           <div className="surface-panel relative min-h-[38rem] overflow-hidden rounded-[2.5rem] shadow-sm">
             <Image
               src={runtimeSettings.media.aboutHero}
-              alt="Rejuvira Center Aesthetic"
+              alt="Rejuvera Center Aesthetic"
               fill
               sizes="(max-width: 1024px) 100vw, 46vw"
               className="object-cover"

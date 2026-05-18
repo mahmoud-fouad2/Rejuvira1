@@ -3,6 +3,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
+  isValidAppointmentSlot,
+  parsePreferredAppointment as parseAppointmentSlot,
+} from "@/lib/appointment-slots";
+import {
   createContactLead,
   getWebhookByToken,
   recordWebhookEvent,
@@ -129,10 +133,9 @@ function parsePreferredAppointment(data: Record<string, unknown>) {
   const date = pickFirst(data, ["preferredDate", "appointmentDate", "date"]);
   if (!date) return undefined;
   const time =
-    pickFirst(data, ["preferredTime", "appointmentTime", "time"]) ?? "09:00";
-  const parsed = new Date(`${date}T${time}:00+03:00`);
-  if (Number.isNaN(parsed.getTime())) return undefined;
-  return parsed.toISOString();
+    pickFirst(data, ["preferredTime", "appointmentTime", "time"]) ?? "14:00";
+  if (!isValidAppointmentSlot(date, time)) return undefined;
+  return parseAppointmentSlot(date, time);
 }
 
 type RouteContext = {

@@ -11,6 +11,7 @@ import {
   getJournalPostBySlug,
   getServices,
 } from "@/lib/content-repository";
+import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -82,10 +83,10 @@ export default async function JournalDetailPage({
             description: post.excerpt,
             image: post.coverImageUrl,
             datePublished: post.publishedAt,
-            url: `https://rejuveracenter.sa/journal/${post.slug}`,
+            url: `${getSiteUrl()}/journal/${post.slug}`,
             publisher: {
               "@type": "Organization",
-              name: "Rejuvira Center",
+              name: "Rejuvera Center",
             },
           }),
         }}

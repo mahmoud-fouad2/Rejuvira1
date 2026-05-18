@@ -122,7 +122,7 @@ export function V0JournalCarousel({ posts, fallbackImage }: Props) {
                     <span className="lang-ar">{post.excerpt}</span>
                     <span className="lang-en">
                       {post.excerptEn ??
-                        "A short clinical read from Rejuvira Center."}
+                        "A short clinical read from Rejuvera Center."}
                     </span>
                   </span>
                   <em>

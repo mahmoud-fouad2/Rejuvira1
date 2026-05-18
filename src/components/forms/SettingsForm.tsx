@@ -179,7 +179,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           name="email"
           type="email"
           defaultValue={getFieldValue(groups, "contact", "email")}
-          placeholder="البريد الرسمي (info@rejuveracenter.sa)"
+          placeholder="البريد الرسمي (info@rejuvera.sa)"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
           dir="ltr"
@@ -188,7 +188,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           name="emailSecondary"
           type="email"
           defaultValue={getFieldValue(groups, "contact", "emailSecondary")}
-          placeholder="البريد البديل (info@rejuveracenter.sa)"
+          placeholder="البريد البديل (info@rejuvera.sa)"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
           dir="ltr"
@@ -198,7 +198,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         <input
           name="domain"
           defaultValue={getFieldValue(groups, "contact", "domain")}
-          placeholder="النطاق الرسمي (rejuveracenter.sa)"
+          placeholder="النطاق الرسمي (rejuvera.sa)"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
           dir="ltr"

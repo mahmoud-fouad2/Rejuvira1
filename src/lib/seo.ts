@@ -12,7 +12,7 @@ export function getSiteUrl(): string {
   const raw =
     process.env.SITE_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://rejuveracenter.sa";
+    "https://rejuvera.sa";
   return raw.replace(/\/+$/, "");
 }
 
@@ -141,7 +141,7 @@ export function buildLocalBusinessJsonLd(settings: {
     "@type": "MedicalBusiness",
     "@id": `${baseUrl}#organization`,
     name: settings.brand.siteName,
-    alternateName: "Rejuvira",
+    alternateName: "Rejuvera",
     description: settings.brand.seoDescription,
     url: baseUrl,
     telephone: [settings.contact.phone, settings.contact.phoneSecondary].filter(

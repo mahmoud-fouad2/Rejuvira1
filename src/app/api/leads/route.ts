@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
+import {
+  isValidAppointmentSlot,
+  parsePreferredAppointment,
+} from "@/lib/appointment-slots";
 import { createContactLead } from "@/lib/content-repository";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 
@@ -22,13 +26,6 @@ const leadSchema = z.object({
 function formString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value : "";
-}
-
-function parsePreferredAppointment(date?: string, time?: string) {
-  if (!date) return undefined;
-  const parsed = new Date(`${date}T${time || "09:00"}:00+03:00`);
-  if (Number.isNaN(parsed.getTime())) return undefined;
-  return parsed.toISOString();
 }
 
 function redirectBack(request: Request, status: "success" | "error") {
@@ -75,6 +72,15 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (
+      !isValidAppointmentSlot(
+        parsed.data.preferredDate,
+        parsed.data.preferredTime,
+      )
+    ) {
+      return redirectBack(request, "error");
+    }
+
     const preferredAppointmentAt = parsePreferredAppointment(
       parsed.data.preferredDate,
       parsed.data.preferredTime,

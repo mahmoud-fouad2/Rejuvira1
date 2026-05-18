@@ -247,13 +247,13 @@ export function V0InspiredHome({
   const heroTitleAccentEn =
     hp.heroTitleAccentEn.includes("clinician-led") ||
     hp.heroTitleAccentEn.includes("clear treatment")
-      ? "at Rejuvira"
+      ? "at Rejuvera"
       : hp.heroTitleAccentEn;
   const heroDescriptionAr = hp.heroDescription.includes("يعرض الموقع")
     ? "نقدم لكِ أحدث التقنيات في الجراحات التجميلية والعناية بالبشرة، بأيدي نخبة من الأطباء المتخصصين وضمن خطة واضحة تناسب حالتكِ."
     : hp.heroDescription;
   const heroPillAr = "ريجوفيرا للتجميل الطبي";
-  const heroPillEn = "Rejuvira Aesthetic Medical Center";
+  const heroPillEn = "Rejuvera Aesthetic Medical Center";
 
   return (
     <main className="rv-v0-home">
@@ -356,7 +356,7 @@ export function V0InspiredHome({
             <div className="rv-v0-orbit" />
             <div
               className="rv-v0-hero-card-stack"
-              aria-label="Rejuvira visual highlights"
+              aria-label="Rejuvera visual highlights"
             >
               {heroCards.map((src, index) => (
                 <div

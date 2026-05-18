@@ -69,7 +69,7 @@ export async function runBackup(): Promise<BackupResult> {
     const payload = {
       version: 1,
       generatedAt: new Date().toISOString(),
-      app: "rejuvira-center-web",
+      app: "rejuvera-center-web",
       counts: {
         settings: settings.length,
         doctors: doctors.length,

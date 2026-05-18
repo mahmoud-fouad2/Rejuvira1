@@ -1,5 +1,5 @@
-/**
- * Rejuvira Center — bilingual text dictionary
+﻿/**
+ * Rejuvera Center — bilingual text dictionary
  * AR is the primary language; EN is the secondary language.
  *
  * Usage in components:
