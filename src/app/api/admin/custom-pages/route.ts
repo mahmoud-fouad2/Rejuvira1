@@ -77,12 +77,10 @@ export async function POST(request: Request) {
     const result = await createCustomPage({
       slug: parsed.data.slug,
       titleAr: parsed.data.titleAr,
-      ...(parsed.data.titleEn ? { titleEn: parsed.data.titleEn } : {}),
+      titleEn: parsed.data.titleEn,
       htmlContent: parsed.data.htmlContent,
-      ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
-      ...(parsed.data.seoDescription
-        ? { seoDescription: parsed.data.seoDescription }
-        : {}),
+      seoTitle: parsed.data.seoTitle,
+      seoDescription: parsed.data.seoDescription,
       status: parsed.data.status,
       noindex: parsed.data.noindex,
     });
@@ -125,12 +123,10 @@ export async function PUT(request: Request) {
       id: parsed.data.id,
       slug: parsed.data.slug,
       titleAr: parsed.data.titleAr,
-      ...(parsed.data.titleEn ? { titleEn: parsed.data.titleEn } : {}),
+      titleEn: parsed.data.titleEn,
       htmlContent: parsed.data.htmlContent,
-      ...(parsed.data.seoTitle ? { seoTitle: parsed.data.seoTitle } : {}),
-      ...(parsed.data.seoDescription
-        ? { seoDescription: parsed.data.seoDescription }
-        : {}),
+      seoTitle: parsed.data.seoTitle,
+      seoDescription: parsed.data.seoDescription,
       status: parsed.data.status,
       noindex: parsed.data.noindex,
     });

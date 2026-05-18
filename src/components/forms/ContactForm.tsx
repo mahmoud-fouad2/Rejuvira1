@@ -1,17 +1,24 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useMemo, useRef } from "react";
-
 import {
-  submitContactAction,
-  type ContactActionState,
-} from "@/app/contact/actions";
+  type FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import {
   APPOINTMENT_TIME_OPTIONS,
   buildAppointmentDateOptions,
 } from "@/lib/appointment-slots";
 import type { ServiceRecord } from "@/lib/content-repository";
+
+type ContactActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const initialState: ContactActionState = {
   status: "idle",
@@ -76,13 +83,10 @@ export function ContactForm({
   submitLabelEn?: string;
 }) {
   const { lang } = useLanguage();
-  const [state, formAction, isPending] = useActionState(
-    submitContactAction,
-    initialState,
-  );
+  const [state, setState] = useState<ContactActionState>(initialState);
+  const [isPending, setIsPending] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const tokenInputRef = useRef<HTMLInputElement | null>(null);
-  const tokenInjectedRef = useRef(false);
   const siteKey = recaptchaSiteKey ?? "";
   const appointmentDates = useMemo(() => buildAppointmentDateOptions(), []);
 
@@ -104,40 +108,61 @@ export function ContactForm({
     };
   }, [siteKey]);
 
-  useEffect(() => {
-    if (!isPending) {
-      tokenInjectedRef.current = false;
-    }
-  }, [isPending, state.status]);
-
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      if (!siteKey || tokenInjectedRef.current) return;
+    async (event: FormEvent<HTMLFormElement>) => {
+      if (isPending) return;
       event.preventDefault();
+      setIsPending(true);
+      setState(initialState);
       try {
-        if (!window.grecaptcha) {
+        if (siteKey && !window.grecaptcha) {
           await loadRecaptchaScript(siteKey);
         }
-        const token =
-          (await window.grecaptcha?.execute(siteKey, { action: "contact" })) ??
-          "";
+        const token = siteKey
+          ? ((await window.grecaptcha?.execute(siteKey, {
+              action: "contact",
+            })) ?? "")
+          : "";
         if (tokenInputRef.current) {
           tokenInputRef.current.value = token;
         }
       } catch {
         /* token stays empty — server falls back to error */
       }
-      tokenInjectedRef.current = true;
-      formRef.current?.requestSubmit();
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "x-requested-with": "fetch",
+        },
+        body: new FormData(event.currentTarget),
+      }).catch(() => null);
+      if (!response) {
+        setState({
+          status: "error",
+          message:
+            "تعذّر الاتصال بالخادم. الرجاء المحاولة مرة أخرى. / Could not reach the server. Please try again.",
+        });
+        setIsPending(false);
+        return;
+      }
+      const data = (await response.json()) as ContactActionState;
+      setState(data);
+      if (response.ok && data.status === "success") {
+        event.currentTarget.reset();
+        if (tokenInputRef.current) tokenInputRef.current.value = "";
+      }
+      setIsPending(false);
     },
-    [siteKey],
+    [isPending, siteKey],
   );
 
   return (
     <form
       ref={formRef}
-      action={formAction}
-      onSubmit={siteKey ? handleSubmit : undefined}
+      action="/api/contact"
+      method="post"
+      onSubmit={handleSubmit}
       className={["grid gap-5", formClassName].filter(Boolean).join(" ")}
     >
       <div className="grid gap-5 md:grid-cols-2">

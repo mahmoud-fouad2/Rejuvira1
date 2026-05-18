@@ -91,15 +91,13 @@ export async function POST(request: Request) {
     await createServiceDraft({
       slug: parsed.data.slug,
       name: parsed.data.name,
-      ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
+      nameEn: parsed.data.nameEn,
       category: parsed.data.category,
       ...(parsed.data.categoryId ? { categoryId: parsed.data.categoryId } : {}),
       excerpt: parsed.data.excerpt,
-      ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
+      excerptEn: parsed.data.excerptEn,
       description: parsed.data.description,
-      ...(parsed.data.descriptionEn
-        ? { descriptionEn: parsed.data.descriptionEn }
-        : {}),
+      descriptionEn: parsed.data.descriptionEn,
       ...(parsed.data.coverImageUrl
         ? { coverImageUrl: parsed.data.coverImageUrl }
         : {}),
@@ -144,15 +142,13 @@ export async function PUT(request: Request) {
       id: parsed.data.id,
       slug: parsed.data.slug,
       name: parsed.data.name,
-      ...(parsed.data.nameEn ? { nameEn: parsed.data.nameEn } : {}),
+      nameEn: parsed.data.nameEn,
       category: parsed.data.category,
       ...(parsed.data.categoryId ? { categoryId: parsed.data.categoryId } : {}),
       excerpt: parsed.data.excerpt,
-      ...(parsed.data.excerptEn ? { excerptEn: parsed.data.excerptEn } : {}),
+      excerptEn: parsed.data.excerptEn,
       description: parsed.data.description,
-      ...(parsed.data.descriptionEn
-        ? { descriptionEn: parsed.data.descriptionEn }
-        : {}),
+      descriptionEn: parsed.data.descriptionEn,
       status: parsed.data.status,
       featured: parsed.data.featured,
       doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
