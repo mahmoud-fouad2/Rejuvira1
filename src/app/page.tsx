@@ -1,7 +1,6 @@
 import { randomInt } from "node:crypto";
 
 import { HomeContactSection } from "@/components/home/HomeContactSection";
-import { CinematicIntro } from "@/components/home/CinematicIntro";
 import { V0InspiredHome } from "@/components/home/V0InspiredHome";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -33,10 +32,6 @@ export default async function HomePage() {
 
   return (
     <div className="bg-background text-foreground relative min-h-screen max-w-full min-w-0 overflow-x-clip">
-      <CinematicIntro
-        logoSrc="/media/brand/intro-logo.png"
-        logoAlt={settings.brand.logoAlt}
-      />
       <SiteHeader />
       <V0InspiredHome
         settings={settings}

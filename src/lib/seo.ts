@@ -8,12 +8,25 @@ import {
 
 export type SeoPageKey = keyof SeoSettings;
 
+const DEFAULT_SITE_URL = "https://rejuvera.sa";
+const SITE_URL_BY_HOST = new Map([
+  ["rejuvera.sa", "https://rejuvera.sa"],
+  ["www.rejuvera.sa", "https://rejuvera.sa"],
+  ["rejuveracenter.sa", "https://rejuveracenter.sa"],
+  ["www.rejuveracenter.sa", "https://rejuveracenter.sa"],
+]);
+
 export function getSiteUrl(): string {
   const raw =
     process.env.SITE_URL ||
     process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://rejuvera.sa";
+    DEFAULT_SITE_URL;
   return raw.replace(/\/+$/, "");
+}
+
+export function getSiteUrlForHost(host?: string | null): string {
+  const normalizedHost = host?.split(",")[0]?.trim().toLowerCase() ?? "";
+  return SITE_URL_BY_HOST.get(normalizedHost) ?? getSiteUrl();
 }
 
 export function getCanonicalPath(path: string): string {

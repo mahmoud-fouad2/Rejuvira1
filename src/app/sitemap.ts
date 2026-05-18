@@ -1,5 +1,6 @@
 ﻿import type { MetadataRoute } from "next";
 import { ContentStatus } from "@prisma/client";
+import { headers } from "next/headers";
 
 import {
   getCustomPages,
@@ -9,14 +10,21 @@ import {
   getJournalPosts,
   getServices,
 } from "@/lib/content-repository";
-import { getSiteUrl } from "@/lib/seo";
+import { getSiteUrlForHost } from "@/lib/seo";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+
+async function getSitemapBaseUrl() {
+  const headerStore = await headers();
+  return getSiteUrlForHost(
+    headerStore.get("x-forwarded-host") ?? headerStore.get("host"),
+  );
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = getSiteUrl();
+  const baseUrl = await getSitemapBaseUrl();
   const [doctors, services, journalPosts, devices, gallery, customPages] =
     await Promise.all([
       getDoctors(),

@@ -279,6 +279,19 @@ function socialIcon(kind: string) {
       </svg>
     );
   }
+  if (kind === "whatsapp") {
+    return (
+      <svg
+        viewBox="0 0 24 24"
+        width="19"
+        height="19"
+        fill="currentColor"
+        aria-hidden
+      >
+        <path d="M12.04 2a9.87 9.87 0 0 0-8.43 15.04L2.45 21.3a.55.55 0 0 0 .67.67l4.38-1.15A9.89 9.89 0 1 0 12.04 2Zm0 1.8a8.09 8.09 0 1 1-3.98 15.14.9.9 0 0 0-.68-.08l-2.76.72.73-2.67a.9.9 0 0 0-.1-.72A8.08 8.08 0 0 1 12.04 3.8Zm-3.4 4.18c-.18 0-.46.07-.7.34-.24.26-.92.9-.92 2.2 0 1.3.94 2.55 1.07 2.73.13.18 1.84 2.95 4.56 4.02 2.26.9 2.72.72 3.2.68.5-.04 1.6-.65 1.82-1.28.23-.63.23-1.17.16-1.28-.06-.12-.25-.18-.52-.32-.27-.13-1.6-.78-1.84-.87-.25-.09-.43-.13-.61.14-.18.27-.7.87-.86 1.05-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.15-1.33-.8-.71-1.33-1.58-1.49-1.85-.15-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.13-.6-1.45-.83-1.99-.22-.52-.44-.45-.61-.46h-.52Z" />
+      </svg>
+    );
+  }
   return (
     <svg
       viewBox="0 0 24 24"
@@ -335,6 +348,11 @@ export async function SiteFooter() {
   const visibility = runtimeSettings.socialVisibility;
   const socialRows = [
     {
+      kind: "whatsapp" as const,
+      url: runtimeSettings.social.whatsappBusiness || waHref || "",
+      label: "WhatsApp",
+    },
+    {
       kind: "instagram" as const,
       url: runtimeSettings.social.instagram,
       label: "Instagram",
@@ -366,6 +384,9 @@ export async function SiteFooter() {
     },
   ].filter((row) => {
     if (!row.url.trim().length) return false;
+    if (row.kind === "whatsapp") {
+      return visibility.whatsappBusiness !== false;
+    }
     return visibility[row.kind] !== false;
   });
 
@@ -429,6 +450,7 @@ export async function SiteFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rv-v0-footer-social-btn"
+                    data-social={row.kind}
                     aria-label={row.label}
                   >
                     {socialIcon(row.kind)}
