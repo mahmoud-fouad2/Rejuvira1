@@ -50,6 +50,30 @@ export function AdminUserCreateForm() {
           />
         </label>
       </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">المسمى الوظيفي</span>
+            <span className="lang-en">Position</span>
+          </span>
+          <input
+            name="positionTitle"
+            className="admin-input"
+            placeholder="CRM Manager / Content lead"
+          />
+        </label>
+        <label className="grid gap-1">
+          <span className="admin-field-label">
+            <span className="lang-ar">القسم</span>
+            <span className="lang-en">Department</span>
+          </span>
+          <input
+            name="department"
+            className="admin-input"
+            placeholder="Operations / Marketing"
+          />
+        </label>
+      </div>
       <div className="grid gap-3 md:grid-cols-[1fr_0.8fr]">
         <label className="grid gap-1">
           <span className="admin-field-label">

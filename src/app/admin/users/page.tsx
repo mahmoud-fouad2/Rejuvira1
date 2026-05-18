@@ -1,4 +1,4 @@
-import { UserRole } from "@prisma/client";
+﻿import { UserRole } from "@prisma/client";
 
 import { deleteAdminUserAction } from "@/app/admin/users/actions";
 import { auth } from "@/auth";
@@ -29,13 +29,19 @@ export default async function AdminUsersPage() {
   }));
   const canManage = session?.user?.role === UserRole.SUPER_ADMIN;
   const tabs = [
-    { value: "all", labelAr: "الكل", labelEn: "All", count: users.length },
+    { value: "all", labelAr: "Ø§Ù„ÙƒÙ„", labelEn: "All", count: users.length },
     ...groupedUsers.map((group) => ({
       value: group.role,
       labelAr: roleLabels[group.role],
       labelEn: group.role.replace("_", " "),
       count: group.users.length,
     })),
+    {
+      value: "inactive",
+      labelAr: "ØºÙŠØ± Ù†Ø´Ø·",
+      labelEn: "Inactive",
+      count: users.filter((user) => user.isActive === false).length,
+    },
   ];
 
   return (
@@ -43,20 +49,22 @@ export default async function AdminUsersPage() {
       <div className="admin-page-header">
         <div>
           <h1>
-            <span className="lang-ar">المستخدمون والصلاحيات</span>
+            <span className="lang-ar">
+              Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª
+            </span>
             <span className="lang-en">Users & permissions</span>
           </h1>
           <p>
-            <span className="lang-ar">{users.length} حساب</span>
+            <span className="lang-ar">{users.length} Ø­Ø³Ø§Ø¨</span>
             <span className="lang-en">{users.length} accounts</span>
           </p>
         </div>
         {canManage ? (
           <div className="admin-page-header__actions">
             <AdminAddModal
-              triggerArabic="إضافة حساب"
+              triggerArabic="Ø¥Ø¶Ø§ÙØ© Ø­Ø³Ø§Ø¨"
               triggerEnglish="Add user"
-              titleArabic="إضافة حساب جديد"
+              titleArabic="Ø¥Ø¶Ø§ÙØ© Ø­Ø³Ø§Ø¨ Ø¬Ø¯ÙŠØ¯"
               titleEnglish="New user"
             >
               <AdminUserCreateForm />
@@ -70,7 +78,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="admin-card__subtitle">By role</div>
             <div className="admin-card__title">
-              <span className="lang-ar">توزيع الحسابات</span>
+              <span className="lang-ar">ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
               <span className="lang-en">Accounts by role</span>
             </div>
           </div>
@@ -99,7 +107,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="admin-card__subtitle">Accounts</div>
             <div className="admin-card__title">
-              <span className="lang-ar">الحسابات</span>
+              <span className="lang-ar">Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
               <span className="lang-en">Accounts</span>
             </div>
           </div>
@@ -111,11 +119,15 @@ export default async function AdminUsersPage() {
               key={user.id}
               className="admin-data-row grid-cols-[1fr_auto] !items-start"
               data-admin-row
-              data-admin-status={user.role}
+              data-admin-status={
+                user.isActive === false ? "inactive" : user.role
+              }
               data-admin-search={[
                 user.name,
                 user.email,
                 user.role,
+                user.positionTitle,
+                user.department,
                 getRoleLabel(user.role),
               ].join(" ")}
             >
@@ -126,20 +138,47 @@ export default async function AdminUsersPage() {
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   <span className="admin-chip">{getRoleLabel(user.role)}</span>
+                  {user.positionTitle ? (
+                    <span className="admin-chip">{user.positionTitle}</span>
+                  ) : null}
+                  {user.department ? (
+                    <span className="admin-chip">{user.department}</span>
+                  ) : null}
+                  <span
+                    className={`admin-chip ${user.isActive === false ? "!border-burgundy/30 !text-burgundy" : ""}`}
+                  >
+                    <span className="lang-ar">
+                      {user.isActive === false ? "ØºÙŠØ± Ù†Ø´Ø·" : "Ù†Ø´Ø·"}
+                    </span>
+                    <span className="lang-en">
+                      {user.isActive === false ? "Inactive" : "Active"}
+                    </span>
+                  </span>
                   <span className="admin-chip">
-                    <span className="lang-ar">طلبات: {user.leadCount}</span>
+                    <span className="lang-ar">
+                      Ø·Ù„Ø¨Ø§Øª: {user.leadCount}
+                    </span>
                     <span className="lang-en">Leads: {user.leadCount}</span>
                   </span>
                 </div>
               </div>
               <div className="grid justify-items-end gap-2">
-                <AdminUserRoleForm userId={user.id} currentRole={user.role} />
+                {canManage ? (
+                  <AdminUserRoleForm
+                    userId={user.id}
+                    currentRole={user.role}
+                    positionTitle={user.positionTitle}
+                    department={user.department}
+                    isActive={user.isActive !== false}
+                    canDeactivate={session?.user?.id !== user.id}
+                  />
+                ) : null}
                 {canManage && session?.user?.id !== user.id ? (
                   <form action={deleteAdminUserAction}>
                     <input type="hidden" name="id" value={user.id} />
                     <button type="submit" className="admin-btn-danger">
-                      <span className="lang-ar">حذف الحساب</span>
-                      <span className="lang-en">Delete</span>
+                      <span className="lang-ar">تعطيل الحساب</span>
+                      <span className="lang-en">Disable</span>
                     </button>
                   </form>
                 ) : null}
@@ -154,7 +193,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="admin-card__subtitle">Matrix</div>
             <div className="admin-card__title">
-              <span className="lang-ar">مصفوفة الصلاحيات</span>
+              <span className="lang-ar">Ù…ØµÙÙˆÙØ© Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª</span>
               <span className="lang-en">Permission matrix</span>
             </div>
           </div>

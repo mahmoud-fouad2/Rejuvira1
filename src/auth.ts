@@ -187,6 +187,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
 
           if (user) {
+            if (!user.isActive) {
+              await recordAppLog({
+                level: "warn",
+                kind: "auth.inactive-user",
+                message: "Inactive admin login blocked",
+                meta: { email },
+              });
+              return null;
+            }
+
             const isValidPassword = await compare(
               password,
               user.hashedPassword,

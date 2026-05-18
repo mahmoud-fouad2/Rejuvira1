@@ -21,11 +21,16 @@ const initialUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   role: z.nativeEnum(UserRole),
+  positionTitle: z.string().max(120).optional().or(z.literal("")),
+  department: z.string().max(120).optional().or(z.literal("")),
 });
 
 const roleUpdateSchema = z.object({
   id: z.string().min(3),
   role: z.nativeEnum(UserRole),
+  positionTitle: z.string().max(120).optional().or(z.literal("")),
+  department: z.string().max(120).optional().or(z.literal("")),
+  isActive: z.string().optional(),
 });
 
 async function ensureSuperAdmin() {
@@ -56,6 +61,8 @@ export async function createAdminUserAction(
     email: formData.get("email"),
     password: formData.get("password"),
     role: formData.get("role"),
+    positionTitle: formData.get("positionTitle"),
+    department: formData.get("department"),
   });
 
   if (!parsed.success) {
@@ -66,7 +73,12 @@ export async function createAdminUserAction(
   }
 
   try {
-    await createAdminUser(parsed.data);
+    await createAdminUser({
+      ...parsed.data,
+      positionTitle: parsed.data.positionTitle || undefined,
+      department: parsed.data.department || undefined,
+      isActive: true,
+    });
   } catch {
     return {
       status: "error",
@@ -101,6 +113,9 @@ export async function updateAdminUserRoleAction(
   const parsed = roleUpdateSchema.safeParse({
     id: formData.get("id"),
     role: formData.get("role"),
+    positionTitle: formData.get("positionTitle"),
+    department: formData.get("department"),
+    isActive: formData.get("isActive"),
   });
 
   if (!parsed.success) {
@@ -112,7 +127,7 @@ export async function updateAdminUserRoleAction(
 
   if (
     session.user.id === parsed.data.id &&
-    parsed.data.role !== UserRole.SUPER_ADMIN
+    (parsed.data.role !== UserRole.SUPER_ADMIN || parsed.data.isActive !== "on")
   ) {
     return {
       status: "error",
@@ -122,7 +137,13 @@ export async function updateAdminUserRoleAction(
   }
 
   try {
-    await updateAdminUserRole(parsed.data);
+    await updateAdminUserRole({
+      id: parsed.data.id,
+      role: parsed.data.role,
+      positionTitle: parsed.data.positionTitle || undefined,
+      department: parsed.data.department || undefined,
+      isActive: parsed.data.isActive === "on",
+    });
   } catch {
     return {
       status: "error",

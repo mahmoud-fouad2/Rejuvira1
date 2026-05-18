@@ -376,6 +376,9 @@ export type AdminUserRecord = {
   name: string;
   email: string;
   role: UserRole;
+  positionTitle?: string | undefined;
+  department?: string | undefined;
+  isActive?: boolean | undefined;
   leadCount: number;
   lastLoginAt?: string | undefined;
   createdAt: string;
@@ -538,11 +541,17 @@ export type CreateAdminUserInput = {
   email: string;
   password: string;
   role: UserRole;
+  positionTitle?: string | undefined;
+  department?: string | undefined;
+  isActive?: boolean | undefined;
 };
 
 export type UpdateAdminUserRoleInput = {
   id: string;
   role: UserRole;
+  positionTitle?: string | undefined;
+  department?: string | undefined;
+  isActive?: boolean | undefined;
 };
 
 export type UpdateServiceInput = {
@@ -2267,6 +2276,9 @@ const seedAdminUsers: AdminUserRecord[] = [
     name: "مدير المنصة",
     email: "admin@rejuvera.sa",
     role: UserRole.SUPER_ADMIN,
+    positionTitle: "Platform owner",
+    department: "Leadership",
+    isActive: true,
     leadCount: 12,
     lastLoginAt: "2026-05-12T08:00:00.000Z",
     createdAt: "2026-04-28T09:00:00.000Z",
@@ -2276,6 +2288,9 @@ const seedAdminUsers: AdminUserRecord[] = [
     name: "مسؤول التشغيل",
     email: "operations@rejuvera.sa",
     role: UserRole.ADMIN,
+    positionTitle: "Operations manager",
+    department: "Operations",
+    isActive: true,
     leadCount: 31,
     lastLoginAt: "2026-05-11T14:40:00.000Z",
     createdAt: "2026-04-29T08:30:00.000Z",
@@ -2285,6 +2300,9 @@ const seedAdminUsers: AdminUserRecord[] = [
     name: "مسؤول المحتوى",
     email: "content@rejuvera.sa",
     role: UserRole.EDITOR,
+    positionTitle: "Content editor",
+    department: "Marketing",
+    isActive: true,
     leadCount: 0,
     createdAt: "2026-05-01T10:15:00.000Z",
   },
@@ -3545,6 +3563,9 @@ export async function getAdminUsers() {
       name: user.name,
       email: user.email,
       role: user.role,
+      positionTitle: user.positionTitle ?? undefined,
+      department: user.department ?? undefined,
+      isActive: user.isActive,
       leadCount: user._count.assignedLeads,
       lastLoginAt: user.lastLoginAt?.toISOString(),
       createdAt: user.createdAt.toISOString(),
@@ -3691,6 +3712,9 @@ export async function createAdminUser(input: CreateAdminUserInput) {
       email: input.email.toLowerCase(),
       hashedPassword,
       role: input.role,
+      positionTitle: input.positionTitle || null,
+      department: input.department || null,
+      isActive: input.isActive ?? true,
     },
   });
 
@@ -3704,7 +3728,14 @@ export async function updateAdminUserRole(input: UpdateAdminUserRoleInput) {
 
   const user = await prisma.user.update({
     where: { id: input.id },
-    data: { role: input.role },
+    data: {
+      role: input.role,
+      positionTitle: input.positionTitle || null,
+      department: input.department || null,
+      ...(typeof input.isActive === "boolean"
+        ? { isActive: input.isActive }
+        : {}),
+    },
   });
 
   return { mode: "database" as const, item: user };
@@ -4929,6 +4960,9 @@ export async function deleteAdminUser(id: string) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, id };
   }
-  const item = await prisma.user.delete({ where: { id } });
+  const item = await prisma.user.update({
+    where: { id },
+    data: { isActive: false },
+  });
   return { mode: "database" as const, item };
 }
