@@ -19,7 +19,7 @@ services:
         value: "1"
       - key: MAX_OLD_SPACE_SIZE
         value: "384"
-      # ── Database (Neon Postgres) ──────────────────────────────
+      # Database
       - key: PRISMA_MIGRATE_DEPLOY_RETRIES
         value: 10
       - key: PRISMA_MIGRATE_DEPLOY_RETRY_DELAY_MS
@@ -28,20 +28,18 @@ services:
         sync: false
       - key: DIRECT_URL
         sync: false
-      # ── NextAuth ──────────────────────────────────────────────
-      - key: NEXTAUTH_URL
-        value: https://rejuvera.sa
+      # Auth.js / NextAuth: trust the current request host. Do not pin
+      # NEXTAUTH_URL/AUTH_URL because this app serves multiple domains.
+      - key: AUTH_TRUST_HOST
+        value: "true"
       - key: NEXTAUTH_SECRET
         generateValue: true
-      # Mirrors used by NextAuth v5 internals when AUTH_* not set.
-      - key: AUTH_URL
-        value: https://rejuvera.sa
       - key: AUTH_SECRET
         sync: false
-      # ── Canonical site URL ───────────────────────────────────
+      # Canonical site URL for SEO, sitemap, robots, and OG.
       - key: SITE_URL
         value: https://rejuvera.sa
-      # ── Cloudflare R2 ────────────────────────────────────────
+      # Cloudflare R2
       - key: R2_ACCOUNT_ID
         sync: false
       - key: R2_ENDPOINT
@@ -54,7 +52,7 @@ services:
         sync: false
       - key: R2_PUBLIC_BASE_URL
         sync: false
-      # ── reCAPTCHA v3 ─────────────────────────────────────────
+      # reCAPTCHA v3
       - key: RECAPTCHA_SITE_KEY
         sync: false
       - key: RECAPTCHA_SECRET_KEY
@@ -63,7 +61,7 @@ services:
         sync: false
       - key: RECAPTCHA_STRICT
         value: "0"
-      # ── Optional contact seeds ───────────────────────────────
+      # Optional contact seeds
       - key: CONTACT_PHONE_PRIMARY
         sync: false
       - key: CONTACT_PHONE_SECONDARY
@@ -72,7 +70,7 @@ services:
         sync: false
       - key: CONTACT_EMAIL_SECONDARY
         sync: false
-      # ── Optional maps embed seed ─────────────────────────────
+      # Optional maps embed seed
       - key: GOOGLE_MAPS_EMBED_URL
         sync: false
 

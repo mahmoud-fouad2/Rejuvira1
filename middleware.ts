@@ -20,21 +20,46 @@ function generateRequestId() {
   return Math.random().toString(36).slice(2);
 }
 
+function firstHeaderValue(value: string | null) {
+  return value?.split(",")[0]?.trim() || "";
+}
+
+function getRequestOrigin(request: Request, fallbackUrl: URL) {
+  const host =
+    firstHeaderValue(request.headers.get("x-forwarded-host")) ||
+    firstHeaderValue(request.headers.get("host")) ||
+    fallbackUrl.host;
+  const proto =
+    firstHeaderValue(request.headers.get("x-forwarded-proto")) ||
+    fallbackUrl.protocol.replace(/:$/, "") ||
+    "https";
+  return `${proto}://${host}`;
+}
+
+function localUrl(request: Request, fallbackUrl: URL, path: string) {
+  return new URL(path, getRequestOrigin(request, fallbackUrl));
+}
+
 export default auth((request) => {
   const { nextUrl, auth: session } = request;
   const requestId = request.headers.get("x-request-id") ?? generateRequestId();
+  const currentOrigin = getRequestOrigin(request, nextUrl);
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", nextUrl.pathname);
-  requestHeaders.set("x-url", nextUrl.href);
+  requestHeaders.set(
+    "x-url",
+    `${currentOrigin}${nextUrl.pathname}${nextUrl.search}`,
+  );
   requestHeaders.set("x-request-id", requestId);
 
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isLoginRoute = nextUrl.pathname.startsWith("/login");
   const isApiAdminRoute = nextUrl.pathname.startsWith("/api/admin");
+  const hasAuthenticatedUser = Boolean(session?.user?.id);
 
-  if (isAdminRoute && !session) {
-    const url = new URL("/login", nextUrl);
+  if (isAdminRoute && !hasAuthenticatedUser) {
+    const url = localUrl(request, nextUrl, "/login");
     url.searchParams.set("redirect", nextUrl.pathname + nextUrl.search);
     return NextResponse.redirect(url);
   }
@@ -43,11 +68,11 @@ export default auth((request) => {
     isAdminRoute &&
     !canAccessAdminRoute(nextUrl.pathname, session?.user?.role)
   ) {
-    return NextResponse.redirect(new URL("/forbidden", nextUrl));
+    return NextResponse.redirect(localUrl(request, nextUrl, "/forbidden"));
   }
 
-  if (isLoginRoute && session) {
-    return NextResponse.redirect(new URL("/admin", nextUrl));
+  if (isLoginRoute && hasAuthenticatedUser) {
+    return NextResponse.redirect(localUrl(request, nextUrl, "/admin"));
   }
 
   const response = NextResponse.next({

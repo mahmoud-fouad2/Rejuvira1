@@ -1,7 +1,8 @@
 ﻿# Rejuvera Center — Web Platform
 
-Production website for Rejuvera Center (`rejuvera.sa`) — a
-medical dermatology and aesthetic clinic in Riyadh. Built on
+Production website for Rejuvera Center (`rejuvera.sa`, with
+`rejuveracenter.sa` supported as a secondary domain) — a medical
+dermatology and aesthetic clinic in Riyadh. Built on
 **Next.js 16 (App Router)**, **React 19**, **Tailwind v4**, \*\*Prisma
 
 - Neon Postgres**, and **NextAuth v5\*\*. The Arabic experience is
@@ -12,6 +13,7 @@ medical dermatology and aesthetic clinic in Riyadh. Built on
 ```bash
 cp .env.example .env
 # Fill DATABASE_URL, DIRECT_URL, NEXTAUTH_SECRET, R2_*, RECAPTCHA_*.
+# For multi-domain auth, keep AUTH_TRUST_HOST=true and leave AUTH_URL/NEXTAUTH_URL empty.
 
 npm ci
 npx prisma generate
