@@ -10867,40 +10867,7 @@ html[data-theme="dark"] ::selection {
   }
 }
 
-@media (max-width: 1180px) {
-  .rv-v0-nav {
-    grid-template-columns: auto minmax(0, 1fr) auto !important;
-  }
-
-  .rv-mobile-inline-actions {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.38rem;
-    min-width: 0;
-    direction: rtl;
-  }
-
-  .rv-mobile-inline-actions .rv-v0-book {
-    min-height: 2.55rem !important;
-    padding-inline: 0.68rem !important;
-    border-radius: 999px !important;
-    font-size: 0.78rem !important;
-    white-space: nowrap;
-  }
-
-  .rv-mobile-inline-actions .rv-v0-book svg {
-    display: none;
-  }
-
-  .rv-mobile-inline-actions button,
-  .rv-mobile-inline-actions .relative.flex {
-    min-width: 2.45rem !important;
-    min-height: 2.45rem !important;
-  }
-}
+/* superseded by end-of-file mobile header overrides */
 
 @media (max-width: 900px) {
   .rv-split-grid {
@@ -15801,34 +15768,39 @@ html[dir="rtl"] .doctor-card__cta:hover svg {
    Must stay at the very end to win the cascade.
    ═══════════════════════════════════════════════════════════ */
 
-/* 1. Logo: remove the scale-and-clip pattern that cuts the logo */
+/* 1. Logo: give wrapper a fixed box, let img fill it, no clipping */
 header .rv-brand-logo,
 header .rv-brand-logo-header,
-header .rv-v0-logo {
-  overflow: visible !important;
-}
-
-header .rv-brand-logo-img,
-header .rv-v0-logo img,
-.rv-v0-brand .rv-brand-logo-img {
-  transform: none !important;
-  width: auto !important;
-  height: auto !important;
-  max-width: 9.5rem !important;
-  max-height: 3.75rem !important;
-  object-fit: contain !important;
-  display: block !important;
-}
-
-/* Ensure the span wrapper doesn't clip or over-constrain */
-header .rv-brand-logo,
-header .rv-brand-logo-header {
+.rv-v0-brand .rv-brand-logo,
+.rv-v0-brand .rv-brand-logo-header,
+header .rv-v0-logo,
+.rv-v0-brand .rv-v0-logo {
   display: inline-flex !important;
   align-items: center !important;
-  width: auto !important;
-  height: auto !important;
+  justify-content: center !important;
+  width: clamp(8rem, 12vw, 11rem) !important;
+  height: clamp(2.8rem, 5vw, 3.8rem) !important;
   max-width: none !important;
   max-height: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  flex-shrink: 0;
+  position: relative;
+}
+
+header .rv-brand-logo .rv-brand-logo-img,
+header .rv-v0-brand .rv-brand-logo-img,
+.rv-v0-brand .rv-brand-logo-img {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform: none !important;
+  display: block !important;
+  grid-area: auto !important;
 }
 
 /* 2. Nav direction: inherit from html[dir] so LTR works in English */
@@ -15840,9 +15812,131 @@ html[dir="ltr"] .rv-v0-nav {
   direction: ltr !important;
 }
 
-/* In LTR the mobile hamburger comes first (left), brand center, actions right */
+/* 3. Mobile header: single-row, balanced, no overlap */
 @media (max-width: 1180px) {
+  .rv-v0-nav {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    grid-template-rows: auto !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    min-height: 4.5rem !important;
+    padding-block: 0.45rem !important;
+  }
+
   html[dir="ltr"] .rv-v0-nav {
     direction: ltr !important;
+  }
+
+  .rv-mobile-details {
+    display: flex !important;
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    justify-self: start !important;
+    min-width: 0 !important;
+  }
+
+  .rv-nav-brand-wrap {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    justify-self: center !important;
+    min-width: 0 !important;
+  }
+
+  .rv-mobile-inline-actions {
+    display: flex !important;
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+    gap: 0.3rem !important;
+    min-width: 0 !important;
+    direction: inherit !important;
+  }
+
+  .rv-nav-menu,
+  .rv-nav-actions {
+    display: none !important;
+  }
+
+  /* Logo sized to fit mobile single row */
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width: clamp(6.5rem, 22vw, 9rem) !important;
+    height: clamp(2.4rem, 7vw, 3.2rem) !important;
+  }
+
+  /* Compact action pills */
+  .rv-mobile-inline-actions .rv-v0-book {
+    min-height: 2.35rem !important;
+    height: 2.35rem !important;
+    padding-inline: 0.75rem !important;
+    font-size: 0.78rem !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+    box-shadow: 0 8px 18px rgba(74, 36, 118, 0.18) !important;
+  }
+
+  .rv-mobile-inline-actions .rv-v0-book svg {
+    display: none !important;
+  }
+
+  .rv-mobile-inline-actions button,
+  .rv-mobile-inline-actions .relative {
+    min-width: 2.35rem !important;
+    min-height: 2.35rem !important;
+    height: 2.35rem !important;
+  }
+
+  .rv-mobile-inline-actions .relative.flex {
+    padding: 0.15rem !important;
+  }
+
+  .rv-mobile-inline-actions .rv-lang-option {
+    width: 1.8rem !important;
+    height: 1.8rem !important;
+    font-size: 0.62rem !important;
+  }
+
+  /* Mobile hamburger button */
+  .rv-mobile-details > summary,
+  .rv-v0-menu-button {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    border-radius: 999px !important;
+    background: color-mix(in oklch, var(--surface-0) 70%, transparent) !important;
+    border: 1px solid color-mix(in oklch, var(--border-line) 60%, transparent) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rv-v0-nav {
+    gap: 0.3rem !important;
+    padding-inline: 0.6rem !important;
+  }
+
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width: clamp(5.5rem, 26vw, 7.5rem) !important;
+    height: clamp(2.1rem, 8vw, 2.8rem) !important;
+  }
+
+  .rv-mobile-inline-actions {
+    gap: 0.22rem !important;
+  }
+
+  .rv-mobile-inline-actions .rv-v0-book {
+    padding-inline: 0.6rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .rv-mobile-inline-actions button,
+  .rv-mobile-inline-actions .relative {
+    min-width: 2.2rem !important;
+    min-height: 2.2rem !important;
+    height: 2.2rem !important;
   }
 }

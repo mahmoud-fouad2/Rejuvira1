@@ -23,6 +23,7 @@ const localMoodImages = [
 
 export default async function GalleryPage() {
   const items = await getGalleryItems();
+  const categories = Array.from(new Set(items.map((item) => item.category)));
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
