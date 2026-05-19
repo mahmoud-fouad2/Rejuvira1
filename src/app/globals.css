@@ -15795,3 +15795,54 @@ html[dir="rtl"] .service-card__cta:hover .service-card__cta-arrow {
 html[dir="rtl"] .doctor-card__cta:hover svg {
   transform: translateX(-2px);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   CRITICAL FIXES — Header logo clip + LTR direction
+   Must stay at the very end to win the cascade.
+   ═══════════════════════════════════════════════════════════ */
+
+/* 1. Logo: remove the scale-and-clip pattern that cuts the logo */
+header .rv-brand-logo,
+header .rv-brand-logo-header,
+header .rv-v0-logo {
+  overflow: visible !important;
+}
+
+header .rv-brand-logo-img,
+header .rv-v0-logo img,
+.rv-v0-brand .rv-brand-logo-img {
+  transform: none !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 9.5rem !important;
+  max-height: 3.75rem !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* Ensure the span wrapper doesn't clip or over-constrain */
+header .rv-brand-logo,
+header .rv-brand-logo-header {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* 2. Nav direction: inherit from html[dir] so LTR works in English */
+.rv-v0-nav {
+  direction: rtl !important;
+}
+
+html[dir="ltr"] .rv-v0-nav {
+  direction: ltr !important;
+}
+
+/* In LTR the mobile hamburger comes first (left), brand center, actions right */
+@media (max-width: 1180px) {
+  html[dir="ltr"] .rv-v0-nav {
+    direction: ltr !important;
+  }
+}
