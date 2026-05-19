@@ -2,8 +2,8 @@ import { ContentStatus } from "@prisma/client";
 import Link from "next/link";
 import type { Route } from "next";
 
-import { deleteCustomPageAction } from "@/app/admin/pages/actions";
 import { AdminListControls } from "@/components/admin/AdminListControls";
+import { CustomPageDeleteForm } from "@/components/admin/CustomPageDeleteForm";
 import { getCustomPages } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
@@ -203,13 +203,7 @@ export default async function AdminCustomPagesPage() {
                   >
                     معاينة
                   </a>
-                  <form action={deleteCustomPageAction}>
-                    <input type="hidden" name="id" value={page.id} />
-                    <input type="hidden" name="slug" value={page.slug} />
-                    <button type="submit" className="admin-btn-danger">
-                      حذف
-                    </button>
-                  </form>
+                  <CustomPageDeleteForm id={page.id} slug={page.slug} />
                 </div>
               </div>
             </article>

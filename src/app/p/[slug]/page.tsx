@@ -29,10 +29,13 @@ export async function generateMetadata({
 
 export default async function CustomPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ lead?: string }>;
 }) {
   const { slug } = await params;
+  const query = searchParams ? await searchParams : {};
   const page = await getCustomPageBySlug(slug);
   if (!page) notFound();
   if (page.status !== ContentStatus.PUBLISHED) {
@@ -45,6 +48,19 @@ export default async function CustomPage({
     <>
       <SiteHeader />
       <main className="rv-custom-page">
+        {query.lead === "success" || query.lead === "error" ? (
+          <div
+            className={`mx-auto mt-6 max-w-4xl rounded-2xl border px-5 py-3 text-center text-sm font-semibold ${
+              query.lead === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                : "border-red-200 bg-red-50 text-red-800"
+            }`}
+          >
+            {query.lead === "success"
+              ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريباً."
+              : "تعذر إرسال الطلب. يرجى مراجعة البيانات واختيار موعد من السبت إلى الخميس بين 2:00 م و10:00 م."}
+          </div>
+        ) : null}
         <article
           className="rv-custom-page__content"
           dir="auto"

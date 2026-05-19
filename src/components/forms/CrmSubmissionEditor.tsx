@@ -1,15 +1,9 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useMemo, useState } from "react";
 import { SubmissionStatus } from "@prisma/client";
 
-import {
-  addCrmCommentAction,
-  deleteCrmCommentAction,
-  deleteCrmSubmissionAction,
-  updateCrmSubmissionAction,
-  type CrmActionState,
-} from "@/app/admin/crm/actions";
 import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import {
   APPOINTMENT_TIME_OPTIONS,
@@ -18,6 +12,11 @@ import {
 import type { CrmRecord } from "@/lib/content-repository";
 
 const initialState: CrmActionState = { status: "idle", message: "" };
+
+type CrmActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+};
 
 const STATUS_OPTIONS: Array<{
   value: SubmissionStatus;
@@ -83,14 +82,13 @@ export function CrmSubmissionEditor({
   staff,
   currentServiceSlug,
 }: CrmSubmissionEditorProps) {
-  const [state, formAction, isPending] = useActionState(
-    updateCrmSubmissionAction,
-    initialState,
-  );
-  const [commentState, commentAction, commentPending] = useActionState(
-    addCrmCommentAction,
-    initialState,
-  );
+  const router = useRouter();
+  const [state, setState] = useState<CrmActionState>(initialState);
+  const [commentState, setCommentState] =
+    useState<CrmActionState>(initialState);
+  const [isPending, setIsPending] = useState(false);
+  const [commentPending, setCommentPending] = useState(false);
+  const [deletePendingId, setDeletePendingId] = useState<string | null>(null);
 
   const initialTags = useMemo(
     () => [...(submission.tags ?? [])],
@@ -144,9 +142,109 @@ export function CrmSubmissionEditor({
     setTags(tags.filter((tag) => tag !== value));
   };
 
+  const parseApiMessage = async (response: Response, fallback: string) => {
+    try {
+      const payload = (await response.json()) as { message?: string };
+      return payload.message || fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setIsPending(true);
+    setState(initialState);
+    try {
+      const response = await fetch("/api/admin/crm", {
+        method: "PUT",
+        body: formData,
+        headers: { accept: "application/json", "x-requested-with": "fetch" },
+      });
+      const message = await parseApiMessage(
+        response,
+        response.ok ? "Lead updated." : "Could not update lead.",
+      );
+      setState({ status: response.ok ? "success" : "error", message });
+      if (response.ok) router.refresh();
+    } catch {
+      setState({
+        status: "error",
+        message: "تعذر الاتصال بالخادم. / Could not reach the server.",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  const handleCommentSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    setCommentPending(true);
+    setCommentState(initialState);
+    try {
+      const response = await fetch("/api/admin/crm", {
+        method: "POST",
+        body: formData,
+        headers: { accept: "application/json", "x-requested-with": "fetch" },
+      });
+      const message = await parseApiMessage(
+        response,
+        response.ok ? "Note added." : "Could not add note.",
+      );
+      setCommentState({ status: response.ok ? "success" : "error", message });
+      if (response.ok) {
+        form.reset();
+        router.refresh();
+      }
+    } catch {
+      setCommentState({
+        status: "error",
+        message: "تعذر الاتصال بالخادم. / Could not reach the server.",
+      });
+    } finally {
+      setCommentPending(false);
+    }
+  };
+
+  const handleDelete = async (id: string, type: "lead" | "comment") => {
+    setDeletePendingId(id);
+    try {
+      const response = await fetch(
+        `/api/admin/crm?id=${encodeURIComponent(id)}&type=${type}`,
+        {
+          method: "DELETE",
+          headers: { accept: "application/json", "x-requested-with": "fetch" },
+        },
+      );
+      const message = await parseApiMessage(
+        response,
+        response.ok ? "Deleted." : "Could not delete.",
+      );
+      const nextState = {
+        status: response.ok ? ("success" as const) : ("error" as const),
+        message,
+      };
+      if (type === "comment") setCommentState(nextState);
+      else setState(nextState);
+      if (response.ok) router.refresh();
+    } catch {
+      const nextState = {
+        status: "error" as const,
+        message: "تعذر الاتصال بالخادم. / Could not reach the server.",
+      };
+      if (type === "comment") setCommentState(nextState);
+      else setState(nextState);
+    } finally {
+      setDeletePendingId(null);
+    }
+  };
+
   return (
     <div className="grid gap-4">
-      <form action={formAction} className="grid gap-3">
+      <form onSubmit={handleSubmit} className="grid gap-3">
         <input type="hidden" name="id" value={submission.id} />
         <input type="hidden" name="tagsCsv" value={tags.join(",")} />
         <input
@@ -399,7 +497,7 @@ export function CrmSubmissionEditor({
           </div>
         </div>
         <div className="admin-card__body grid gap-3">
-          <form action={commentAction} className="grid gap-2">
+          <form onSubmit={handleCommentSubmit} className="grid gap-2">
             <input type="hidden" name="submissionId" value={submission.id} />
             <textarea
               name="body"
@@ -452,16 +550,17 @@ export function CrmSubmissionEditor({
                         {formatDate(comment.createdAt)}
                       </p>
                     </div>
-                    <form action={deleteCrmCommentAction}>
-                      <input type="hidden" name="id" value={comment.id} />
+                    <div>
                       <button
-                        type="submit"
+                        type="button"
+                        disabled={deletePendingId === comment.id}
+                        onClick={() => void handleDelete(comment.id, "comment")}
                         className="text-[11px] text-red-500 hover:underline"
                       >
                         <span className="lang-ar">حذف</span>
                         <span className="lang-en">Delete</span>
                       </button>
-                    </form>
+                    </div>
                   </div>
                   <p className="mt-1 text-[13px] leading-relaxed whitespace-pre-wrap">
                     {comment.body}
@@ -473,10 +572,16 @@ export function CrmSubmissionEditor({
         </div>
       </div>
 
-      <form action={deleteCrmSubmissionAction} className="flex">
-        <input type="hidden" name="id" value={submission.id} />
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleDelete(submission.id, "lead");
+        }}
+        className="flex"
+      >
         <AdminConfirmSubmitButton
           className="admin-btn-danger text-xs"
+          disabled={deletePendingId === submission.id}
           titleArabic="حذف الطلب"
           titleEnglish="Delete lead"
           messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."

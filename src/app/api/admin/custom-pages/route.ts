@@ -6,7 +6,11 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { adminActionErrorMessage } from "@/lib/admin-action-errors";
-import { createCustomPage, updateCustomPage } from "@/lib/content-repository";
+import {
+  createCustomPage,
+  deleteCustomPage,
+  updateCustomPage,
+} from "@/lib/content-repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,6 +136,27 @@ export async function PUT(request: Request) {
     });
     revalidate(parsed.data.slug, parsed.data.oldSlug);
     return json("success", "تم حفظ التغييرات.");
+  } catch (error) {
+    return json("error", adminActionErrorMessage(error), { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  if (!(await requireAdmin())) {
+    return json("error", "Unauthorized", { status: 401 });
+  }
+
+  const url = new URL(request.url);
+  const id = url.searchParams.get("id");
+  const slug = url.searchParams.get("slug") || undefined;
+  if (!id) {
+    return json("error", "طلب الحذف غير صالح.", { status: 400 });
+  }
+
+  try {
+    await deleteCustomPage(id);
+    revalidate(slug, slug);
+    return json("success", "تم حذف الصفحة.");
   } catch (error) {
     return json("error", adminActionErrorMessage(error), { status: 500 });
   }

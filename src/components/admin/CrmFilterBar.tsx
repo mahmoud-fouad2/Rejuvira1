@@ -1,15 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { SubmissionStatus } from "@prisma/client";
 
 import type { CrmRecord } from "@/lib/content-repository";
 import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import { CrmSubmissionEditor } from "@/components/forms/CrmSubmissionEditor";
-import {
-  deleteCrmSubmissionAction,
-  setCrmStatusAction,
-} from "@/app/admin/crm/actions";
 
 const STATUS_AR: Record<SubmissionStatus, string> = {
   NEW: "جديد",
@@ -59,6 +56,7 @@ export function CrmFilterBar({
   services: ReadonlyArray<{ slug: string; name: string }>;
   staff: ReadonlyArray<{ id: string; name: string }>;
 }) {
+  const router = useRouter();
   const [status, setStatus] = useState<FilterStatus>("ALL");
   const [search, setSearch] = useState("");
   const [source, setSource] = useState<string>("ALL");
@@ -66,6 +64,10 @@ export function CrmFilterBar({
   const [owner, setOwner] = useState<string>("ALL");
   const [appointment, setAppointment] = useState<AppointmentFilter>("ALL");
   const [range, setRange] = useState<"7d" | "30d" | "90d" | "all">("all");
+  const [pendingQuickAction, setPendingQuickAction] = useState<string | null>(
+    null,
+  );
+  const [actionMessage, setActionMessage] = useState("");
 
   const allSources = useMemo(() => {
     const set = new Set<string>();
@@ -156,6 +158,81 @@ export function CrmFilterBar({
     search,
     nowSnapshot,
   ]);
+
+  const parseApiMessage = async (response: Response, fallback: string) => {
+    try {
+      const payload = (await response.json()) as { message?: string };
+      return payload.message || fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  const updateStatus = async (
+    submission: CrmRecord,
+    nextStatus: SubmissionStatus,
+  ) => {
+    const actionKey = `${submission.id}:${nextStatus}`;
+    setPendingQuickAction(actionKey);
+    setActionMessage("");
+    try {
+      const formData = new FormData();
+      formData.set("id", submission.id);
+      formData.set("status", nextStatus);
+      formData.set("notes", submission.notes ?? "");
+      formData.set("fullName", submission.fullName);
+      formData.set("phone", submission.phone);
+      formData.set("email", submission.email ?? "");
+      formData.set(
+        "preferredAppointmentAt",
+        submission.preferredAppointmentAt ?? "",
+      );
+      formData.set("appointmentNotes", submission.appointmentNotes ?? "");
+      formData.set("serviceSlug", submission.serviceSlug ?? "");
+      formData.set("assignedToId", submission.assignedToId ?? "");
+      formData.set("tagsCsv", (submission.tags ?? []).join(","));
+
+      const response = await fetch("/api/admin/crm", {
+        method: "PUT",
+        body: formData,
+        headers: { accept: "application/json", "x-requested-with": "fetch" },
+      });
+      const message = await parseApiMessage(
+        response,
+        response.ok ? "Status updated." : "Could not update status.",
+      );
+      setActionMessage(message);
+      if (response.ok) router.refresh();
+    } catch {
+      setActionMessage("تعذر الاتصال بالخادم. / Could not reach the server.");
+    } finally {
+      setPendingQuickAction(null);
+    }
+  };
+
+  const deleteLead = async (id: string) => {
+    setPendingQuickAction(`${id}:delete`);
+    setActionMessage("");
+    try {
+      const response = await fetch(
+        `/api/admin/crm?id=${encodeURIComponent(id)}&type=lead`,
+        {
+          method: "DELETE",
+          headers: { accept: "application/json", "x-requested-with": "fetch" },
+        },
+      );
+      const message = await parseApiMessage(
+        response,
+        response.ok ? "Lead deleted." : "Could not delete lead.",
+      );
+      setActionMessage(message);
+      if (response.ok) router.refresh();
+    } catch {
+      setActionMessage("تعذر الاتصال بالخادم. / Could not reach the server.");
+    } finally {
+      setPendingQuickAction(null);
+    }
+  };
 
   return (
     <div className="grid gap-4">
@@ -298,6 +375,9 @@ export function CrmFilterBar({
       </div>
 
       <section className="grid gap-3">
+        {actionMessage ? (
+          <p className="text-muted-foreground px-2 text-xs">{actionMessage}</p>
+        ) : null}
         {filtered.length === 0 ? (
           <p className="text-muted-foreground px-2 py-6 text-sm">
             <span className="lang-ar">لا توجد طلبات تطابق الفلاتر.</span>
@@ -353,23 +433,29 @@ export function CrmFilterBar({
                 <div className="flex flex-wrap gap-2">
                   {(Object.keys(STATUS_AR) as SubmissionStatus[]).map(
                     (value) => (
-                      <form key={value} action={setCrmStatusAction}>
-                        <input type="hidden" name="id" value={submission.id} />
-                        <input type="hidden" name="status" value={value} />
-                        <button
-                          type="submit"
-                          className={`admin-btn-secondary text-xs ${submission.status === value ? "border-[color:var(--admin-accent)] text-[color:var(--admin-accent)]" : ""}`}
-                        >
-                          {STATUS_EN[value]}
-                        </button>
-                      </form>
+                      <button
+                        key={value}
+                        type="button"
+                        disabled={
+                          pendingQuickAction === `${submission.id}:${value}`
+                        }
+                        onClick={() => void updateStatus(submission, value)}
+                        className={`admin-btn-secondary text-xs ${submission.status === value ? "border-[color:var(--admin-accent)] text-[color:var(--admin-accent)]" : ""}`}
+                      >
+                        {STATUS_EN[value]}
+                      </button>
                     ),
                   )}
                 </div>
-                <form action={deleteCrmSubmissionAction}>
-                  <input type="hidden" name="id" value={submission.id} />
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    void deleteLead(submission.id);
+                  }}
+                >
                   <AdminConfirmSubmitButton
                     className="admin-btn-danger text-xs"
+                    disabled={pendingQuickAction === `${submission.id}:delete`}
                     titleArabic="حذف الطلب"
                     titleEnglish="Delete lead"
                     messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."

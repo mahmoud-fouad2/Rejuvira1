@@ -50,6 +50,11 @@ export const permissionMatrix: readonly PermissionRule[] = [
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
   },
   {
+    prefix: "/admin/pages",
+    label: "الصفحات المخصصة",
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
+  },
+  {
     prefix: "/admin/service-categories",
     label: "أقسام الخدمات",
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.EDITOR],
