@@ -100,6 +100,16 @@ export default auth((request) => {
       "no-store, no-cache, must-revalidate, max-age=0",
     );
     response.headers.set("Pragma", "no-cache");
+  } else {
+    // Public pages: allow short CDN caching and stay crawlable for Googlebot.
+    // Overrides the `Cache-Control: private` that NextAuth injects whenever
+    // it issues a CSRF cookie — that header made GSC flag the page as
+    // un-indexable even though the meta robots tag said "index, follow".
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=0, s-maxage=60, must-revalidate",
+    );
+    response.headers.set("X-Robots-Tag", "all");
   }
 
   return response;
@@ -107,6 +117,6 @@ export default auth((request) => {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|xml|webmanifest)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|sitemap2.xml|sitemap-index.xml|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|xml|webmanifest)$).*)",
   ],
 };

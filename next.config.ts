@@ -110,6 +110,47 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      // Explicit allow-indexing signal for every public page.
+      // This is a defensive double-down on the homepage <meta name="robots">
+      // and catches cases where Cloudflare/Render might strip the meta tag.
+      {
+        source: "/",
+        headers: [{ key: "X-Robots-Tag", value: "all" }],
+      },
+      {
+        source:
+          "/((?!admin|api/admin|api/auth|forbidden|login)(?:.*))",
+        headers: [{ key: "X-Robots-Tag", value: "all" }],
+      },
+      // robots.txt + sitemap files: short cache, plus permissive indexing.
+      {
+        source: "/robots.txt",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+        ],
+      },
+      {
+        source: "/sitemap.xml",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+        ],
+      },
+      {
+        source: "/sitemap2.xml",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+        ],
+      },
+      {
+        source: "/sitemap-index.xml",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+        ],
+      },
       {
         source: "/assets/:path*",
         headers: [

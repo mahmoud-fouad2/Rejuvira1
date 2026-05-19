@@ -135,7 +135,8 @@ ${Array.from(urls.entries())
       status: 200,
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, max-age=0, s-maxage=3600",
+        "Cache-Control": "public, max-age=300, s-maxage=3600, must-revalidate",
+        "X-Robots-Tag": "all",
       },
     });
   } catch (error) {
@@ -154,7 +155,8 @@ ${Array.from(urls.entries())
       status: 200,
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "public, max-age=0, s-maxage=300",
+        "Cache-Control": "public, max-age=300, s-maxage=300, must-revalidate",
+        "X-Robots-Tag": "all",
       },
     });
   }
