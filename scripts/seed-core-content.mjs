@@ -1,7 +1,7 @@
 import { ContentStatus, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const CORE_SEED_VERSION = "2026-05-19-service-tree-v1";
+const CORE_SEED_VERSION = "2026-05-19-service-tree-v2";
 
 const images = {
   surgery:
@@ -1252,48 +1252,54 @@ async function main() {
     return;
   }
 
-  const currentSeed = await prisma.siteSetting.findUnique({
-    where: { key: "system.coreContentSeedVersion" },
-    select: { value: true },
-  });
-  if (currentSeed?.value === CORE_SEED_VERSION) {
-    const [
-      existingCategories,
-      existingServices,
-      existingDoctors,
-      existingDevices,
-    ] = await Promise.all([
-      prisma.serviceCategory.count({
-        where: { slug: { in: requestedCategorySlugs } },
-      }),
-      prisma.service.count({
-        where: {
-          slug: {
-            in: requestedServiceTree.map((service) => service.slug),
-          },
-        },
-      }),
-      prisma.doctor.count({
-        where: { slug: { in: doctors.map((doctor) => doctor.slug) } },
-      }),
-      prisma.device.count({
-        where: { slug: { in: deviceCatalog.map((device) => device.slug) } },
-      }),
-    ]);
-    if (
-      existingCategories === requestedCategorySlugs.length &&
-      existingServices === requestedServiceTree.length &&
-      existingDoctors === doctors.length &&
-      existingDevices === deviceCatalog.length
-    ) {
-      console.log(
-        `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
-      );
-      return;
-    }
+  if (process.env.SEED_CORE_FORCE === "1") {
     console.log(
-      `[seed-core-content] Core content ${CORE_SEED_VERSION} is marked applied, but records are missing; reconciling.`,
+      `[seed-core-content] SEED_CORE_FORCE=1 — reconciling ${CORE_SEED_VERSION}.`,
     );
+  } else {
+    const currentSeed = await prisma.siteSetting.findUnique({
+      where: { key: "system.coreContentSeedVersion" },
+      select: { value: true },
+    });
+    if (currentSeed?.value === CORE_SEED_VERSION) {
+      const [
+        existingCategories,
+        existingServices,
+        existingDoctors,
+        existingDevices,
+      ] = await Promise.all([
+        prisma.serviceCategory.count({
+          where: { slug: { in: requestedCategorySlugs } },
+        }),
+        prisma.service.count({
+          where: {
+            slug: {
+              in: requestedServiceTree.map((service) => service.slug),
+            },
+          },
+        }),
+        prisma.doctor.count({
+          where: { slug: { in: doctors.map((doctor) => doctor.slug) } },
+        }),
+        prisma.device.count({
+          where: { slug: { in: deviceCatalog.map((device) => device.slug) } },
+        }),
+      ]);
+      if (
+        existingCategories === requestedCategorySlugs.length &&
+        existingServices === requestedServiceTree.length &&
+        existingDoctors === doctors.length &&
+        existingDevices === deviceCatalog.length
+      ) {
+        console.log(
+          `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
+        );
+        return;
+      }
+      console.log(
+        `[seed-core-content] Core content ${CORE_SEED_VERSION} is marked applied, but records are missing; reconciling.`,
+      );
+    }
   }
 
   await upsertCategories();

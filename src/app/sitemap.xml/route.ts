@@ -1,5 +1,4 @@
 import { ContentStatus } from "@prisma/client";
-import { headers } from "next/headers";
 
 import {
   getCustomPages,
@@ -9,7 +8,7 @@ import {
   getJournalPosts,
   getServices,
 } from "@/lib/content-repository";
-import { getSiteUrlForHost } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,82 +40,83 @@ function normalizeUrl(baseUrl: string, path: string) {
   return `${baseUrl}${normalizedPath === "/" ? "/" : normalizedPath}`;
 }
 
-async function getSitemapBaseUrl() {
-  const headerStore = await headers();
-  return getSiteUrlForHost(
-    headerStore.get("x-forwarded-host") ?? headerStore.get("host"),
-  );
+function isPublished<T extends { status?: ContentStatus | null }>(
+  item: T,
+): boolean {
+  return (item.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED;
 }
 
 export async function GET() {
-  const baseUrl = await getSitemapBaseUrl();
+  const baseUrl = getSiteUrl();
   const now = new Date().toISOString();
-  const [doctors, services, journalPosts, devices, gallery, customPages] =
-    await Promise.all([
-      getDoctors(),
-      getServices(),
-      getJournalPosts(),
-      getDevices(),
-      getGalleryItems(),
-      getCustomPages(),
-    ]);
 
-  const staticPaths: SitemapItem[] = [
-    { path: "", priority: 1, changeFrequency: "weekly" },
-    { path: "/about", priority: 0.8, changeFrequency: "monthly" },
-    { path: "/contact", priority: 0.9, changeFrequency: "monthly" },
-    { path: "/services", priority: 0.9, changeFrequency: "weekly" },
-    { path: "/doctors", priority: 0.9, changeFrequency: "weekly" },
-    { path: "/devices", priority: 0.7, changeFrequency: "monthly" },
-    { path: "/gallery", priority: 0.7, changeFrequency: "weekly" },
-    { path: "/journal", priority: 0.8, changeFrequency: "weekly" },
-    { path: "/privacy", priority: 0.4, changeFrequency: "yearly" },
-    { path: "/terms", priority: 0.4, changeFrequency: "yearly" },
-  ];
+  try {
+    const [doctors, services, journalPosts, devices, gallery, customPages] =
+      await Promise.all([
+        getDoctors(),
+        getServices(),
+        getJournalPosts(),
+        getDevices(),
+        getGalleryItems(),
+        getCustomPages(),
+      ]);
 
-  const dynamicPaths: SitemapItem[] = [
-    ...doctors.map((doctor) => ({
-      path: `/doctors/${doctor.slug}`,
-      priority: 0.7,
-      changeFrequency: "monthly" as const,
-    })),
-    ...services.map((service) => ({
-      path: `/services/${service.slug}`,
-      priority: 0.7,
-      changeFrequency: "monthly" as const,
-    })),
-    ...devices.map((device) => ({
-      path: `/devices/${device.slug}`,
-      priority: 0.5,
-      changeFrequency: "monthly" as const,
-    })),
-    ...gallery.map((item) => ({
-      path: `/gallery/${item.slug}`,
-      priority: 0.5,
-      changeFrequency: "monthly" as const,
-    })),
-    ...journalPosts.map((post) => ({
-      path: `/journal/${post.slug}`,
-      priority: 0.6,
-      changeFrequency: "monthly" as const,
-    })),
-    ...customPages
-      .filter(
-        (page) => page.status === ContentStatus.PUBLISHED && !page.noindex,
-      )
-      .map((page) => ({
-        path: `/p/${page.slug}`,
+    const staticPaths: SitemapItem[] = [
+      { path: "", priority: 1, changeFrequency: "weekly" },
+      { path: "/about", priority: 0.8, changeFrequency: "monthly" },
+      { path: "/contact", priority: 0.9, changeFrequency: "monthly" },
+      { path: "/services", priority: 0.9, changeFrequency: "weekly" },
+      { path: "/doctors", priority: 0.9, changeFrequency: "weekly" },
+      { path: "/devices", priority: 0.7, changeFrequency: "monthly" },
+      { path: "/gallery", priority: 0.7, changeFrequency: "weekly" },
+      { path: "/journal", priority: 0.8, changeFrequency: "weekly" },
+      { path: "/privacy", priority: 0.4, changeFrequency: "yearly" },
+      { path: "/terms", priority: 0.4, changeFrequency: "yearly" },
+    ];
+
+    const dynamicPaths: SitemapItem[] = [
+      ...doctors.filter(isPublished).map((doctor) => ({
+        path: `/doctors/${doctor.slug}`,
+        priority: 0.7,
+        changeFrequency: "monthly" as const,
+      })),
+      ...services.filter(isPublished).map((service) => ({
+        path: `/services/${service.slug}`,
+        priority: 0.7,
+        changeFrequency: "monthly" as const,
+      })),
+      ...devices.filter(isPublished).map((device) => ({
+        path: `/devices/${device.slug}`,
         priority: 0.5,
         changeFrequency: "monthly" as const,
       })),
-  ];
+      ...gallery.filter(isPublished).map((item) => ({
+        path: `/gallery/${item.slug}`,
+        priority: 0.5,
+        changeFrequency: "monthly" as const,
+      })),
+      ...journalPosts.filter(isPublished).map((post) => ({
+        path: `/journal/${post.slug}`,
+        priority: 0.6,
+        changeFrequency: "monthly" as const,
+      })),
+      ...customPages
+        .filter(
+          (page) => page.status === ContentStatus.PUBLISHED && !page.noindex,
+        )
+        .map((page) => ({
+          path: `/p/${page.slug}`,
+          priority: 0.5,
+          changeFrequency: "monthly" as const,
+        })),
+    ];
 
-  const urls = new Map<string, SitemapItem>();
-  for (const item of [...staticPaths, ...dynamicPaths]) {
-    urls.set(normalizeUrl(baseUrl, item.path), item);
-  }
+    const urls = new Map<string, SitemapItem>();
+    for (const item of [...staticPaths, ...dynamicPaths]) {
+      urls.set(normalizeUrl(baseUrl, item.path), item);
+    }
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${Array.from(urls.entries())
   .map(
@@ -131,11 +131,31 @@ ${Array.from(urls.entries())
 </urlset>
 `;
 
-  return new Response(xml, {
-    status: 200,
-    headers: {
-      "Content-Type": "application/xml; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=3600",
-    },
-  });
+    return new Response(xml, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=0, s-maxage=3600",
+      },
+    });
+  } catch (error) {
+    console.error("[sitemap] Failed to build sitemap:", error);
+    const fallbackXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${escapeXml(normalizeUrl(baseUrl, ""))}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
+`;
+    return new Response(fallbackXml, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=0, s-maxage=300",
+      },
+    });
+  }
 }

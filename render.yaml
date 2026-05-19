@@ -7,7 +7,7 @@ services:
     autoDeploy: true
     healthCheckPath: /api/health
     buildCommand: npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run seed:core && npm run build
-    startCommand: npm run start:standalone
+    startCommand: npm run seed:core && npm run start:standalone
     envVars:
       - key: NODE_VERSION
         value: 22.19.0

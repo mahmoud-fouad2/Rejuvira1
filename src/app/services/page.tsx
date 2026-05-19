@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { ContentStatus } from "@prisma/client";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -18,11 +19,17 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ServicesPage() {
-  const [services, categories, mediaSelections] = await Promise.all([
+  const [allServices, allCategories, mediaSelections] = await Promise.all([
     getServices(),
     getServiceCategories(),
     getMediaSelections(),
   ]);
+  const services = allServices.filter(
+    (service) => service.status === ContentStatus.PUBLISHED,
+  );
+  const categories = allCategories.filter(
+    (category) => category.status === ContentStatus.PUBLISHED,
+  );
   const [featuredService] = services;
   const categoryCount = new Set(services.map((s) => s.category)).size;
   const categoryGroups = categories

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { getCanonicalOrigin } from "@/lib/canonical-host";
 import {
   getRuntimeSettings,
   type SeoPageDefaults,
@@ -8,25 +9,12 @@ import {
 
 export type SeoPageKey = keyof SeoSettings;
 
-const DEFAULT_SITE_URL = "https://rejuvera.sa";
-const SITE_URL_BY_HOST = new Map([
-  ["rejuvera.sa", "https://rejuvera.sa"],
-  ["www.rejuvera.sa", "https://rejuvera.sa"],
-  ["rejuveracenter.sa", "https://rejuveracenter.sa"],
-  ["www.rejuveracenter.sa", "https://rejuveracenter.sa"],
-]);
-
 export function getSiteUrl(): string {
-  const raw =
-    process.env.SITE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    DEFAULT_SITE_URL;
-  return raw.replace(/\/+$/, "");
+  return getCanonicalOrigin();
 }
 
-export function getSiteUrlForHost(host?: string | null): string {
-  const normalizedHost = host?.split(",")[0]?.trim().toLowerCase() ?? "";
-  return SITE_URL_BY_HOST.get(normalizedHost) ?? getSiteUrl();
+export function getSiteUrlForHost(_host?: string | null): string {
+  return getSiteUrl();
 }
 
 export function getCanonicalPath(path: string): string {

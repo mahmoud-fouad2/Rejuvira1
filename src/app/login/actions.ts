@@ -3,6 +3,7 @@
 import { AuthError } from "next-auth";
 
 import { signIn } from "@/auth";
+import { getSiteUrl } from "@/lib/seo";
 
 export type LoginActionState = {
   message: string;
@@ -25,7 +26,7 @@ export async function authenticate(
     await signIn("credentials", {
       email: email.trim(),
       password,
-      redirectTo: "/admin",
+      redirectTo: `${getSiteUrl()}/admin`,
     });
 
     return {

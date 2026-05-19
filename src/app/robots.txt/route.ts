@@ -1,19 +1,12 @@
 import { headers } from "next/headers";
 
-import { getSiteUrlForHost } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-async function getRobotsBaseUrl() {
-  const headerStore = await headers();
-  return getSiteUrlForHost(
-    headerStore.get("x-forwarded-host") ?? headerStore.get("host"),
-  );
-}
-
 export async function GET() {
-  const baseUrl = await getRobotsBaseUrl();
+  const baseUrl = getSiteUrl();
   const body = [
     "User-agent: *",
     "Allow: /",
@@ -26,6 +19,18 @@ export async function GET() {
     "Disallow: /forbidden",
     "Disallow: /login",
     "",
+    "User-agent: Googlebot",
+    "Allow: /",
+    "Disallow: /admin",
+    "Disallow: /admin/",
+    "Disallow: /api/admin",
+    "Disallow: /api/admin/",
+    "Disallow: /api/auth",
+    "Disallow: /api/auth/",
+    "Disallow: /forbidden",
+    "Disallow: /login",
+    "",
+    `Host: ${baseUrl.replace(/^https?:\/\//, "")}`,
     `Sitemap: ${baseUrl}/sitemap.xml`,
     "",
   ].join("\n");

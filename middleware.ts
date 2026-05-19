@@ -2,15 +2,20 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import {
+  buildCanonicalUrl,
+  shouldRedirectToCanonicalHost,
+} from "@/lib/canonical-host";
 
 /**
  * Edge middleware:
- * 1. Auth gate for `/admin/*` (redirect anon -> /login).
- * 2. Role-based gate for protected admin routes.
- * 3. Redirect already-authenticated users away from /login.
- * 4. Forward `x-pathname` / `x-url` for server components.
- * 5. Stamp a unique `x-request-id` for log correlation.
- * 6. For admin and authenticated areas, force `no-store` so sensitive data is
+ * 1. Canonical host redirect (legacy domains -> SITE_URL).
+ * 2. Auth gate for `/admin/*` (redirect anon -> /login).
+ * 3. Role-based gate for protected admin routes.
+ * 4. Redirect already-authenticated users away from /login.
+ * 5. Forward `x-pathname` / `x-url` for server components.
+ * 6. Stamp a unique `x-request-id` for log correlation.
+ * 7. For admin and authenticated areas, force `no-store` so sensitive data is
  *    never cached by intermediaries.
  */
 function generateRequestId() {
@@ -36,12 +41,19 @@ function getRequestOrigin(request: Request, fallbackUrl: URL) {
   return `${proto}://${host}`;
 }
 
-function localUrl(request: Request, fallbackUrl: URL, path: string) {
-  return new URL(path, getRequestOrigin(request, fallbackUrl));
-}
-
 export default auth((request) => {
   const { nextUrl, auth: session } = request;
+  const requestHost =
+    firstHeaderValue(request.headers.get("x-forwarded-host")) ||
+    firstHeaderValue(request.headers.get("host"));
+
+  if (shouldRedirectToCanonicalHost(requestHost)) {
+    return NextResponse.redirect(
+      buildCanonicalUrl(nextUrl.pathname, nextUrl.search),
+      308,
+    );
+  }
+
   const requestId = request.headers.get("x-request-id") ?? generateRequestId();
   const currentOrigin = getRequestOrigin(request, nextUrl);
 
@@ -59,7 +71,7 @@ export default auth((request) => {
   const hasAuthenticatedUser = Boolean(session?.user?.id);
 
   if (isAdminRoute && !hasAuthenticatedUser) {
-    const url = localUrl(request, nextUrl, "/login");
+    const url = buildCanonicalUrl("/login");
     url.searchParams.set("redirect", nextUrl.pathname + nextUrl.search);
     return NextResponse.redirect(url);
   }
@@ -68,11 +80,11 @@ export default auth((request) => {
     isAdminRoute &&
     !canAccessAdminRoute(nextUrl.pathname, session?.user?.role)
   ) {
-    return NextResponse.redirect(localUrl(request, nextUrl, "/forbidden"));
+    return NextResponse.redirect(buildCanonicalUrl("/forbidden"));
   }
 
   if (isLoginRoute && hasAuthenticatedUser) {
-    return NextResponse.redirect(localUrl(request, nextUrl, "/admin"));
+    return NextResponse.redirect(buildCanonicalUrl("/admin"));
   }
 
   const response = NextResponse.next({
@@ -94,5 +106,7 @@ export default auth((request) => {
 });
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/login"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)",
+  ],
 };
