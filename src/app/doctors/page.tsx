@@ -5,7 +5,6 @@ import Script from "next/script";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { Badge } from "@/components/ui/Badge";
 import { getDoctors, getMediaSelections } from "@/lib/content-repository";
 import { buildCollectionPageJsonLd, buildPageMetadata } from "@/lib/seo";
 
@@ -134,57 +133,64 @@ export default async function DoctorsPage() {
           </article>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
+        <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {doctors.map((doctor) => (
-            <article
-              key={doctor.id}
-              className="surface-panel overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
-            >
-              <div className="group relative h-80 overflow-hidden">
+            <article key={doctor.id} className="doctor-card">
+              {/* Photo */}
+              <div className="doctor-card__photo">
                 <Image
                   src={doctor.photoUrl || doctor.coverImageUrl}
                   alt={doctor.name}
                   fill
-                  sizes="(max-width: 1280px) 50vw, 30vw"
-                  className="object-cover object-top transition-all duration-700 group-hover:scale-[1.06]"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  className="object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="doctor-card__overlay" />
                 {doctor.featured ? (
-                  <span className="absolute end-5 top-5 z-20 inline-flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-[#9a6a12] shadow-lg">
+                  <span className="doctor-card__featured-badge">
                     <span aria-hidden>★</span>
                     <span className="lang-ar">مميز</span>
                     <span className="lang-en">Featured</span>
                   </span>
                 ) : null}
-                <div className="absolute inset-x-0 bottom-0 z-10 p-8">
-                  <p className="text-sm text-white/80">{doctor.specialty}</p>
-                  <h2 className="mt-2 font-serif text-3xl tracking-[-0.02em] text-white">
-                    {doctor.name}
-                  </h2>
+                <div className="doctor-card__name-wrap">
+                  <p className="doctor-card__specialty">{doctor.specialty}</p>
+                  <h2 className="doctor-card__name">{doctor.name}</h2>
                 </div>
               </div>
-              <div className="p-8">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" size="md">
+
+              {/* Body */}
+              <div className="doctor-card__body">
+                <div className="doctor-card__tags">
+                  <span className="doctor-card__tag">
                     {doctor.yearsExperience}{" "}
                     <span className="lang-ar">سنوات خبرة</span>
-                    <span className="lang-en">years</span>
-                  </Badge>
-                  {doctor.languages.length > 0 ? (
-                    <Badge variant="outline" size="md">
-                      {doctor.languages.join(" / ")}
-                    </Badge>
-                  ) : null}
+                    <span className="lang-en">yrs exp.</span>
+                  </span>
+                  {doctor.languages.map((lang) => (
+                    <span key={lang} className="doctor-card__tag">
+                      {lang}
+                    </span>
+                  ))}
                 </div>
-                <p className="text-ink-soft mt-5 text-base leading-7">
-                  {doctor.summary}
-                </p>
+
+                <p className="doctor-card__summary">{doctor.summary}</p>
+
                 <Link
                   href={`/doctors/${doctor.slug}`}
-                  className="btn-secondary mt-8 inline-flex"
+                  className="doctor-card__cta"
                 >
-                  <span className="lang-ar">افتحي ملف الطبيب</span>
-                  <span className="lang-en">View doctor profile</span>
+                  <span className="lang-ar">عرض الملف الطبي</span>
+                  <span className="lang-en">View profile</span>
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path
+                      d="M3 8h10M9 4l4 4-4 4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </Link>
               </div>
             </article>

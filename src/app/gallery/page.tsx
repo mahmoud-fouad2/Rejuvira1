@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { GalleryGrid } from "@/components/public/GalleryGrid";
 import { getGalleryItems } from "@/lib/content-repository";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -22,7 +23,6 @@ const localMoodImages = [
 
 export default async function GalleryPage() {
   const items = await getGalleryItems();
-  const categories = Array.from(new Set(items.map((item) => item.category)));
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
@@ -137,26 +137,7 @@ export default async function GalleryPage() {
           </div>
         </section>
 
-        {/* ── CATEGORIES FILTER STRIP ─────────────────────── */}
-        {categories.length > 1 ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-ink-soft text-sm">
-              <span className="lang-ar">التصفية:</span>
-              <span className="lang-en">Filter:</span>
-            </span>
-            {categories.map((cat) => (
-              <span
-                key={cat}
-                className="border-line bg-surface text-ink-soft rounded-full border px-4 py-1.5 text-sm"
-              >
-                <span className="lang-ar">{cat}</span>
-                <span className="lang-en">Gallery category</span>
-              </span>
-            ))}
-          </div>
-        ) : null}
-
-        {/* ── BEFORE / AFTER GRID ───────────────────────── */}
+        {/* ── BEFORE / AFTER GRID (interactive) ───────────── */}
         <section>
           <div className="mb-8">
             <p className="eyebrow">
@@ -172,73 +153,7 @@ export default async function GalleryPage() {
               </span>
             </h2>
           </div>
-          <div className="grid gap-6 lg:grid-cols-2">
-            {items.map((item) => (
-              <article
-                key={item.id}
-                className="surface-panel overflow-hidden rounded-[2.5rem] transition-all duration-500 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
-              >
-                <div className="grid grid-cols-2 gap-3 p-4">
-                  <div className="relative overflow-hidden rounded-[1.75rem]">
-                    <div className="relative h-64">
-                      <Image
-                        src={item.beforeImageUrl}
-                        alt={`${item.title} — قبل`}
-                        fill
-                        sizes="(max-width: 1024px) 50vw, 24vw"
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                      <span className="absolute right-3 bottom-3 rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                        <span className="lang-ar">قبل</span>
-                        <span className="lang-en">Before</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="relative overflow-hidden rounded-[1.75rem]">
-                    <div className="relative h-64">
-                      <Image
-                        src={item.afterImageUrl}
-                        alt={`${item.title} — بعد`}
-                        fill
-                        sizes="(max-width: 1024px) 50vw, 24vw"
-                        className="object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                      <span className="bg-emerald/80 absolute bottom-3 left-3 rounded-full px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
-                        <span className="lang-ar">بعد</span>
-                        <span className="lang-en">After</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="px-5 pb-6">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="eyebrow">
-                      <span className="lang-ar">{item.category}</span>
-                      <span className="lang-en">
-                        {item.categoryEn ?? "Before and after"}
-                      </span>
-                    </span>
-                    <div className="h-px flex-1 bg-[linear-gradient(to_right,transparent,var(--line-subtle),transparent)]" />
-                  </div>
-                  <h3 className="text-ink mt-3 font-serif text-3xl tracking-[-0.04em]">
-                    <span className="lang-ar">{item.title}</span>
-                    <span className="lang-en">
-                      {item.titleEn ?? "Treatment result preview"}
-                    </span>
-                  </h3>
-                  <p className="text-ink-soft mt-2 text-sm leading-7">
-                    <span className="lang-ar">{item.description}</span>
-                    <span className="lang-en">
-                      {item.descriptionEn ??
-                        "A visual comparison connected to a defined service and clear treatment plan."}
-                    </span>
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
+          <GalleryGrid items={items} />
         </section>
 
         {/* ── CTA ────────────────────────────────────────── */}
