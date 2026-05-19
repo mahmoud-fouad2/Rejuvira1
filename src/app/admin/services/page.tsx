@@ -303,7 +303,7 @@ export default async function AdminServicesPage() {
                     تعديل القسم
                   </Link>
                 </header>
-                <div className="admin-service-group__rows admin-entity-grid">
+                <div className="admin-service-group__rows">
                   {categoryServices.map(renderServiceRow)}
                 </div>
               </section>
@@ -317,7 +317,7 @@ export default async function AdminServicesPage() {
                     <span>{uncategorizedServices.length} تحتاج تصنيف</span>
                   </div>
                 </header>
-                <div className="admin-service-group__rows admin-entity-grid">
+                <div className="admin-service-group__rows">
                   {uncategorizedServices.map(renderServiceRow)}
                 </div>
               </section>

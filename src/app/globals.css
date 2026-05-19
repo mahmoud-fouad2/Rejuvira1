@@ -15715,7 +15715,7 @@ html[dir="rtl"] .doctor-card__cta:hover svg {
    Must stay at the very end to win the cascade.
    ═══════════════════════════════════════════════════════════ */
 
-/* 1. Logo wrapper — square container matching the actual 1:1 logo image */
+/* 1. Logo wrapper — compact square, fits the slim nav bar */
 header .rv-brand-logo,
 header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo,
@@ -15725,9 +15725,9 @@ header .rv-v0-logo,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  /* Square container — logo is 564×564 (1:1 ratio) */
-  width: clamp(4rem, 5.5vw, 5.5rem) !important;
-  height: clamp(4rem, 5.5vw, 5.5rem) !important;
+  /* 1:1 ratio — logo image is 564×564 px */
+  width: clamp(3rem, 4.2vw, 4rem) !important;
+  height: clamp(3rem, 4.2vw, 4rem) !important;
   max-width: none !important;
   max-height: none !important;
   overflow: visible !important;
@@ -15784,9 +15784,9 @@ html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
   padding-inline: 0.65rem !important;
 }
 
-/* Desktop nav row — enough height for 5.5rem logo + padding */
+/* Desktop nav row — compact to keep header slim */
 .rv-v0-nav {
-  min-height: 6rem !important;
+  min-height: 4rem !important;
   align-items: center !important;
 }
 
@@ -15903,68 +15903,57 @@ html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
    Replaces the flat list with rich clickable card items.
    ═══════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════
+   ADMIN ENTITY GRID — used for Doctors only (expandable cards).
+   Service categories stay as a flat list to avoid form-layout issues.
+   ═══════════════════════════════════════════════════════════ */
+
 .admin-entity-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 0.85rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem;
 }
 
 /* Each details element becomes a standalone card */
-.admin-entity-grid details.admin-data-row,
-.admin-entity-grid details {
-  border-radius: 1.1rem !important;
+.admin-entity-grid details.admin-data-row {
+  border-radius: 1rem !important;
   border: 1px solid var(--admin-border) !important;
   background: var(--admin-panel-soft, var(--admin-panel-bg)) !important;
   padding: 0 !important;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05) !important;
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04) !important;
+  transition: box-shadow 0.2s, border-color 0.2s !important;
   overflow: hidden !important;
 }
 
-.admin-entity-grid details.admin-data-row:hover,
-.admin-entity-grid details:hover {
-  box-shadow: 0 6px 24px rgba(0,0,0,0.1) !important;
-  transform: translateY(-2px) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 35%, var(--admin-border)) !important;
+.admin-entity-grid details.admin-data-row:not([open]):hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.09) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 30%, var(--admin-border)) !important;
 }
 
-/* Card summary header */
-.admin-entity-grid details.admin-data-row > summary,
-.admin-entity-grid details > summary {
-  padding: 0.95rem 1rem !important;
-  border-radius: 1.1rem !important;
-  grid-template-columns: 3.6rem 1fr auto !important;
+/* Summary inside card */
+.admin-entity-grid details.admin-data-row > summary {
+  padding: 0.9rem 1rem !important;
+  grid-template-columns: 3.2rem 1fr auto !important;
   gap: 0.8rem !important;
   align-items: center !important;
 }
 
-.admin-entity-grid details.admin-data-row[open] > summary,
-.admin-entity-grid details[open] > summary {
+.admin-entity-grid details.admin-data-row[open] > summary {
   border-bottom: 1px solid var(--admin-border) !important;
-  border-radius: 1.1rem 1.1rem 0 0 !important;
 }
 
-/* Thumbnail/Avatar in card - square for services, circle for doctors */
+/* Circle avatar for doctors */
 .admin-entity-grid details.admin-data-row summary .relative.h-12.w-12 {
   width: 3rem !important;
   height: 3rem !important;
   border-radius: 50% !important;
 }
 
-.admin-entity-grid details.admin-data-row summary .relative.h-14.w-16 {
-  width: 3.6rem !important;
-  height: 3.2rem !important;
-  border-radius: 0.55rem !important;
-}
-
-/* Card edit panel */
-.admin-entity-grid details.admin-data-row > div.mt-4,
-.admin-entity-grid details > div.mt-4 {
-  padding: 1rem !important;
-  border-radius: 0 0 1.1rem 1.1rem !important;
+/* Edit panel inside open card */
+.admin-entity-grid details.admin-data-row > div.mt-4 {
+  padding: 0.9rem 1rem !important;
   margin-top: 0 !important;
-  border-top: none !important;
 }
 
 @media (max-width: 768px) {
@@ -16025,12 +16014,12 @@ html[dir="ltr"] .rv-v0-nav {
     display: none !important;
   }
 
-  /* Mobile logo — square container sized to fit in the mobile header bar */
+  /* Mobile logo — square, fits the slim mobile header */
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width: clamp(3.4rem, 12vw, 4.4rem) !important;
-    height: clamp(3.4rem, 12vw, 4.4rem) !important;
+    width: clamp(2.8rem, 10vw, 3.4rem) !important;
+    height: clamp(2.8rem, 10vw, 3.4rem) !important;
   }
 
   /* Compact action pills */
@@ -16085,8 +16074,8 @@ html[dir="ltr"] .rv-v0-nav {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width: clamp(3rem, 11vw, 4rem) !important;
-    height: clamp(3rem, 11vw, 4rem) !important;
+    width: clamp(2.6rem, 9vw, 3.2rem) !important;
+    height: clamp(2.6rem, 9vw, 3.2rem) !important;
   }
 
   .rv-mobile-inline-actions {
@@ -16103,5 +16092,212 @@ html[dir="ltr"] .rv-v0-nav {
     min-width: 2.2rem !important;
     min-height: 2.2rem !important;
     height: 2.2rem !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN PANEL — COMPREHENSIVE VISUAL POLISH
+   Better buttons, inputs, hover effects, transitions, sidebar accents
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Admin buttons: primary (accent) ── */
+.admin-btn,
+button.admin-btn {
+  background: linear-gradient(135deg, var(--admin-accent), color-mix(in oklch, var(--admin-accent) 80%, #000)) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.6rem !important;
+  padding: 0.5rem 1.1rem !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s !important;
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+}
+
+.admin-btn:hover {
+  opacity: 0.92 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px color-mix(in oklch, var(--admin-accent) 35%, transparent) !important;
+}
+
+.admin-btn:active { transform: translateY(0) !important; opacity: 1 !important; }
+
+/* ── Admin buttons: secondary ── */
+.admin-btn-secondary {
+  border-radius: 0.6rem !important;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s !important;
+}
+
+.admin-btn-secondary:hover {
+  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 40%, transparent) !important;
+  color: var(--admin-accent) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── Admin buttons: danger ── */
+.admin-btn-danger {
+  border-radius: 0.6rem !important;
+  transition: background 0.15s, color 0.15s, transform 0.15s !important;
+}
+
+.admin-btn-danger:hover {
+  background: #dc2626 !important;
+  color: #fff !important;
+  border-color: #dc2626 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── Admin inputs: sharper focus ring ── */
+.admin-app input[type="text"],
+.admin-app input[type="email"],
+.admin-app input[type="url"],
+.admin-app input[type="number"],
+.admin-app input[type="password"],
+.admin-app textarea,
+.admin-app select {
+  border-radius: 0.55rem !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.admin-app input:focus,
+.admin-app textarea:focus,
+.admin-app select:focus {
+  outline: none !important;
+  border-color: var(--admin-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
+}
+
+/* ── Admin card: hover lift ── */
+.admin-card {
+  transition: box-shadow 0.2s !important;
+}
+
+/* ── Admin data row: hover highlight ── */
+.admin-data-row:not(details) {
+  border-radius: 0.65rem !important;
+  transition: background 0.15s !important;
+}
+
+.admin-data-row:not(details):hover {
+  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel-bg)) !important;
+}
+
+/* ── Admin status badge: refined pills ── */
+.admin-status-badge {
+  border-radius: 999px !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  padding: 0.22rem 0.65rem !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* ── Admin chip ── */
+.admin-chip {
+  border-radius: 0.4rem !important;
+  font-size: 0.72rem !important;
+  padding: 0.18rem 0.5rem !important;
+  transition: background 0.12s !important;
+}
+
+/* ── Admin page header ── */
+.admin-page-header {
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding-bottom: 1rem !important;
+  margin-bottom: 1.2rem !important;
+}
+
+.admin-page-header h1 {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+/* ── Admin sidebar: active item polish ── */
+.admin-shell__nav-item.is-active,
+.admin-shell__nav-subitem.is-active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--admin-accent) 15%, transparent),
+    color-mix(in oklch, var(--admin-accent) 8%, transparent)
+  ) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+}
+
+/* ── Admin nav group label ── */
+.admin-shell__nav-group-label {
+  font-size: 0.65rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  opacity: 0.45 !important;
+  margin-bottom: 0.3rem !important;
+  margin-top: 0.85rem !important;
+  padding-inline-start: 0.5rem !important;
+}
+
+/* ── Admin nav item hover ── */
+.admin-shell__nav-item:not(.is-active):hover,
+.admin-shell__nav-subitem:not(.is-active):hover {
+  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  transform: translateX(-2px) !important;
+}
+
+html[dir="ltr"] .admin-shell__nav-item:not(.is-active):hover,
+html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
+  transform: translateX(2px) !important;
+}
+
+/* ── Admin list controls: filter tabs ── */
+.admin-list-tab {
+  border-radius: 999px !important;
+  transition: background 0.15s, color 0.15s !important;
+}
+
+.admin-list-tab.is-active {
+  background: var(--admin-accent) !important;
+  color: #fff !important;
+}
+
+/* ── Admin data list: divider refinement ── */
+.admin-data-list > *:not(:last-child) {
+  border-bottom: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
+}
+
+.admin-entity-grid > *:not(:last-child) {
+  border-bottom: none !important;
+}
+
+/* ── Admin service group header ── */
+.admin-service-group__header {
+  background: color-mix(in oklch, var(--admin-accent) 6%, var(--admin-panel-bg)) !important;
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+
+/* ── Search field in admin ── */
+.admin-search-field {
+  border-radius: 999px !important;
+  transition: box-shadow 0.15s, border-color 0.15s !important;
+}
+
+.admin-search-field:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
+  border-color: var(--admin-accent) !important;
+}
+
+/* Admin stats charts grid */
+@media (max-width: 768px) {
+  .admin-stats-charts-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-stats-charts-2col {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }

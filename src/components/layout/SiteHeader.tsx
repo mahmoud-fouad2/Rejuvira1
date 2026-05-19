@@ -113,7 +113,7 @@ export async function SiteHeader() {
       </div>
 
       <div className="rv-v0-nav-shell">
-        <div className="rv-v0-nav mx-auto max-w-[var(--max-width)] px-4 py-3 sm:px-6 lg:px-8">
+        <div className="rv-v0-nav mx-auto max-w-[var(--max-width)] px-4 py-1.5 sm:px-6 lg:px-8">
           <details className="rv-mobile-details group">
             <summary className="rv-v0-menu-button flex h-11 w-11 cursor-pointer list-none items-center justify-center">
               <MenuIcon />
