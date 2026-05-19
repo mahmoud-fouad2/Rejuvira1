@@ -14172,6 +14172,64 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+.html-upload-card {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 1rem;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--admin-panel) 94%, transparent),
+    color-mix(in srgb, var(--admin-panel-soft) 92%, transparent)
+  );
+  padding: clamp(1rem, 2vw, 1.35rem);
+  box-shadow: var(--admin-shadow-soft);
+}
+.html-upload-card h2 {
+  color: var(--admin-text);
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+.html-upload-card p {
+  max-width: 58rem;
+  color: var(--admin-text-soft);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
+.html-upload-card__drop {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 0.35rem;
+  min-height: 8rem;
+  border: 1px dashed
+    color-mix(in srgb, var(--admin-accent) 60%, var(--admin-border));
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--admin-accent) 7%, var(--admin-panel));
+  color: var(--admin-text);
+  text-align: center;
+  cursor: pointer;
+}
+.html-upload-card__drop input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.html-upload-card__drop strong {
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+.html-upload-card__drop span {
+  color: var(--admin-text-soft);
+  font-size: 0.78rem;
+}
+.html-upload-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
 .pagecraft-admin {
   display: grid;
   grid-template-columns: minmax(12rem, 0.72fr) minmax(0, 2.45fr) minmax(
@@ -14845,11 +14903,28 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   background: var(--background);
   color: var(--foreground);
 }
+.rv-custom-page--uploaded {
+  padding-inline: 0;
+}
 .rv-custom-page__content {
   max-width: 1080px;
   margin-inline: auto;
   font-size: clamp(0.95rem, 1vw, 1.05rem);
   line-height: 1.85;
+}
+.rv-custom-page__content--uploaded {
+  max-width: none;
+  width: 100%;
+  font-size: inherit;
+  line-height: normal;
+}
+.rv-custom-page__content--uploaded .rv-uploaded-html-page {
+  width: 100%;
+}
+.rv-custom-page__content--uploaded img,
+.rv-custom-page__content--uploaded video {
+  border-radius: inherit;
+  margin: initial;
 }
 .rv-custom-page__content h1,
 .rv-custom-page__content h2,

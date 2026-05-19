@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { CustomPageEditorForm } from "@/components/forms/CustomPageEditorForm";
+import { HtmlLandingPageUploadForm } from "@/components/forms/HtmlLandingPageUploadForm";
 
 export default function NewCustomPagePage() {
   return (
@@ -22,6 +23,7 @@ export default function NewCustomPagePage() {
         </div>
       </div>
 
+      <HtmlLandingPageUploadForm />
       <CustomPageEditorForm mode="create" />
     </>
   );

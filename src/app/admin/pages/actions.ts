@@ -25,7 +25,7 @@ const baseSchema = z.object({
     .regex(slugRegex, { message: "Slug غير صالح" }),
   titleAr: z.string().min(2).max(160),
   titleEn: z.string().max(160).optional().or(z.literal("")),
-  htmlContent: z.string().min(1).max(200_000),
+  htmlContent: z.string().min(1).max(1_000_000),
   seoTitle: z.string().max(160).optional().or(z.literal("")),
   seoDescription: z.string().max(360).optional().or(z.literal("")),
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),

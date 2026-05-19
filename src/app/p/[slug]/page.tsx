@@ -42,12 +42,17 @@ export default async function CustomPage({
     notFound();
   }
 
+  const isUploadedHtml = page.htmlContent.includes("data-uploaded-html");
   const safeHtml = sanitizeHtml(page.htmlContent);
 
   return (
     <>
       <SiteHeader />
-      <main className="rv-custom-page">
+      <main
+        className={`rv-custom-page ${
+          isUploadedHtml ? "rv-custom-page--uploaded" : ""
+        }`}
+      >
         {query.lead === "success" || query.lead === "error" ? (
           <div
             className={`mx-auto mt-6 max-w-4xl rounded-2xl border px-5 py-3 text-center text-sm font-semibold ${
@@ -62,7 +67,9 @@ export default async function CustomPage({
           </div>
         ) : null}
         <article
-          className="rv-custom-page__content"
+          className={`rv-custom-page__content ${
+            isUploadedHtml ? "rv-custom-page__content--uploaded" : ""
+          }`}
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />

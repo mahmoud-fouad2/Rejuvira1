@@ -47,6 +47,11 @@ export function CustomPageEditorForm({
   const router = useRouter();
   const [state, setState] = useState<CustomPageActionState>(initialState);
   const [pending, setPending] = useState(false);
+  const [editorMode, setEditorMode] = useState<"builder" | "html">(() =>
+    initial?.htmlContent && !initial.htmlContent.includes("rv-builder-page")
+      ? "html"
+      : "builder",
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -200,13 +205,45 @@ export function CustomPageEditorForm({
       </div>
 
       <section className="grid gap-1">
-        <span className="admin-field-label">منشئ الصفحة</span>
-        <CustomPageBuilder
-          name="htmlContent"
-          defaultValue={initial?.htmlContent ?? ""}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="admin-field-label">محتوى الصفحة</span>
+          <div className="admin-segmented">
+            <button
+              type="button"
+              className={editorMode === "builder" ? "is-active" : ""}
+              onClick={() => setEditorMode("builder")}
+            >
+              PageCraft
+            </button>
+            <button
+              type="button"
+              className={editorMode === "html" ? "is-active" : ""}
+              onClick={() => setEditorMode("html")}
+            >
+              HTML
+            </button>
+          </div>
+        </div>
+        {editorMode === "builder" ? (
+          <CustomPageBuilder
+            name="htmlContent"
+            defaultValue={initial?.htmlContent ?? ""}
+          />
+        ) : (
+          <textarea
+            name="htmlContent"
+            required
+            rows={22}
+            dir="ltr"
+            defaultValue={initial?.htmlContent ?? ""}
+            className="admin-input font-mono text-xs leading-relaxed"
+            placeholder="<section>...</section>"
+          />
+        )}
         <span className="text-muted-foreground text-[11px]">
-          يتم حفظ الصفحة كـ HTML آمن بعد ترتيب البلوكات وتعديل خصائصها.
+          {editorMode === "builder"
+            ? "يتم حفظ الصفحة كـ HTML آمن بعد ترتيب البلوكات وتعديل خصائصها."
+            : "محرر HTML يحافظ على الصفحات المستوردة. يتم تنظيف السكربتات الخطرة عند العرض العام."}
         </span>
       </section>
 

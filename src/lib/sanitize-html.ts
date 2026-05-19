@@ -4,7 +4,8 @@
  * The clinic admins paste curated marketing pages from Rejuvera's design team.
  * We still strip the obvious script-injection vectors so a hostile
  * paste from a compromised admin device cannot run arbitrary JavaScript on
- * visitors' browsers.
+ * visitors' browsers. Uploaded landing pages may include inline CSS, so safe
+ * <style> blocks are preserved after rejecting obvious CSS injection vectors.
  *
  * This is intentionally conservative: anything we are not sure about is
  * removed. If admins need richer markup (custom embeds, etc.) we should
@@ -133,6 +134,15 @@ function sanitizeStyle(value: string): string {
   return value.replace(/\\/g, "").trim();
 }
 
+function sanitizeStyleBlock(value: string): string {
+  if (
+    /(javascript:|expression\(|@import|behavior\s*:|<\/?script\b)/i.test(value)
+  ) {
+    return "";
+  }
+  return value.replace(/\\/g, "").trim();
+}
+
 function sanitizeUrl(value: string, attr: string): string {
   const trimmed = value.trim();
   if (!trimmed) return "";
@@ -151,16 +161,34 @@ function sanitizeUrl(value: string, attr: string): string {
 }
 
 /**
- * Strip script/style/iframe blocks and event handlers. Returns sanitized HTML.
+ * Strip script/iframe/embed blocks and event handlers. Returns sanitized HTML.
  */
 export function sanitizeHtml(input: string): string {
   if (!input) return "";
 
   let html = input;
+  const styleBlocks: string[] = [];
 
-  // Remove <script>, <style>, <iframe>, <object>, <embed>, <link>, <meta>
   html = html.replace(
-    /<\/?(?:script|style|iframe|object|embed|link|meta|base|template)\b[^>]*>/gi,
+    /<style\b[^>]*>([\s\S]*?)<\/style>/gi,
+    (_match, css: string) => {
+      const cleanCss = sanitizeStyleBlock(css);
+      if (!cleanCss) return "";
+      const token = `___REJUVERA_STYLE_${styleBlocks.length}___`;
+      styleBlocks.push(`<style>${cleanCss}</style>`);
+      return token;
+    },
+  );
+
+  // Remove blocks that can execute code or load untrusted embeds.
+  html = html.replace(
+    /<(?:script|iframe|object|embed|template)\b[^>]*>[\s\S]*?<\/(?:script|iframe|object|embed|template)>/gi,
+    "",
+  );
+
+  // Remove standalone tags that can import remote behavior or affect the page head.
+  html = html.replace(
+    /<\/?(?:script|iframe|object|embed|link|meta|base|template)\b[^>]*>/gi,
     "",
   );
   // Remove HTML comments (which can hide payloads in some sniffers).
@@ -212,6 +240,10 @@ export function sanitizeHtml(input: string): string {
       return `</${tag}>`;
     },
   );
+
+  styleBlocks.forEach((block, index) => {
+    html = html.replace(`___REJUVERA_STYLE_${index}___`, block);
+  });
 
   return html;
 }
