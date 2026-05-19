@@ -4904,91 +4904,38 @@ html[data-theme="dark"] .rv-v0-footer-cta.is-secondary {
   border-color: rgba(255, 255, 255, 0.22);
 }
 
+/* Social icon buttons — icons carry their own brand colors */
 .rv-v0-footer-social-btn {
-  --social-color: #4a2476;
-  --social-bg: color-mix(in oklch, var(--social-color) 10%, transparent);
-  --social-border: color-mix(in oklch, var(--social-color) 26%, transparent);
   display: grid;
   place-items: center;
-  width: 2.65rem;
-  height: 2.65rem;
-  border-radius: 999px;
-  border: 1px solid var(--social-border);
-  background:
-    radial-gradient(
-      circle at 30% 18%,
-      rgba(255, 255, 255, 0.75),
-      transparent 34%
-    ),
-    var(--social-bg);
-  color: var(--social-color);
-  box-shadow: 0 12px 28px
-    color-mix(in oklch, var(--social-color) 12%, transparent);
-  transition:
-    background 0.2s,
-    transform 0.2s,
-    border-color 0.2s,
-    box-shadow 0.2s,
-    color 0.2s;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.75rem;
+  border: none;
+  background: transparent;
+  padding: 0;
+  transition: transform 0.2s, filter 0.2s, opacity 0.2s;
+  flex-shrink: 0;
 }
 
 .rv-v0-footer-social-btn svg {
-  width: 1.15rem;
-  height: 1.15rem;
-}
-
-.rv-v0-footer-social-btn[data-social="instagram"] {
-  --social-color: #e4405f;
-}
-
-.rv-v0-footer-social-btn[data-social="twitter"] {
-  --social-color: #111827;
-}
-
-.rv-v0-footer-social-btn[data-social="youtube"] {
-  --social-color: #ff0033;
-}
-
-.rv-v0-footer-social-btn[data-social="linkedin"] {
-  --social-color: #0a66c2;
-}
-
-.rv-v0-footer-social-btn[data-social="tiktok"] {
-  --social-color: #111827;
-}
-
-.rv-v0-footer-social-btn[data-social="snapchat"] {
-  --social-color: #d6a900;
-}
-
-.rv-v0-footer-social-btn[data-social="whatsapp"] {
-  --social-color: #25d366;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.6rem;
 }
 
 .rv-v0-footer-social-btn:hover {
-  background: var(--social-color);
-  color: #fff;
-  border-color: var(--social-color);
-  box-shadow: 0 16px 36px
-    color-mix(in oklch, var(--social-color) 28%, transparent);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.1);
+  filter: brightness(1.1) drop-shadow(0 6px 14px rgba(0,0,0,0.22));
 }
 
 html[data-theme="dark"] .rv-v0-footer-social-btn {
-  border-color: rgba(255, 255, 255, 0.12);
-  background:
-    radial-gradient(
-      circle at 30% 18%,
-      rgba(255, 255, 255, 0.16),
-      transparent 34%
-    ),
-    color-mix(in oklch, var(--social-color) 22%, transparent);
-  color: color-mix(in oklch, var(--social-color) 72%, white);
+  opacity: 0.88;
 }
 
 html[data-theme="dark"] .rv-v0-footer-social-btn:hover {
-  background: var(--social-color);
-  color: #fff;
+  opacity: 1;
+  filter: brightness(1.15) drop-shadow(0 6px 14px rgba(0,0,0,0.4));
 }
 
 /* ── Scroll to top (v0-style) ───────────────────────────── */
@@ -15768,7 +15715,7 @@ html[dir="rtl"] .doctor-card__cta:hover svg {
    Must stay at the very end to win the cascade.
    ═══════════════════════════════════════════════════════════ */
 
-/* 1. Logo: give wrapper a fixed box, let img fill it, no clipping */
+/* 1. Logo: correct sizing for desktop and mobile */
 header .rv-brand-logo,
 header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo,
@@ -15778,13 +15725,14 @@ header .rv-v0-logo,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: clamp(8rem, 12vw, 11rem) !important;
-  height: clamp(2.8rem, 5vw, 3.8rem) !important;
+  /* Desktop: prominent logo that doesn't crowd the nav */
+  width: clamp(9.5rem, 14vw, 13rem) !important;
+  height: clamp(3.4rem, 5.5vw, 4.6rem) !important;
   max-width: none !important;
   max-height: none !important;
   overflow: visible !important;
   padding: 0 !important;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
   position: relative;
 }
 
@@ -15803,9 +15751,153 @@ header .rv-v0-brand .rv-brand-logo-img,
   grid-area: auto !important;
 }
 
+/* Desktop nav: slightly reduce font so logo breathes */
+.rv-v0-nav-link,
+.rv-mega-trigger {
+  font-size: 0.85rem !important;
+  padding-inline: 0.65rem !important;
+}
+
+/* Desktop nav row min-height */
+.rv-v0-nav {
+  min-height: 5rem !important;
+}
+
 /* 2. Nav direction: inherit from html[dir] so LTR works in English */
 .rv-v0-nav {
   direction: rtl !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN STATS PAGE
+   ═══════════════════════════════════════════════════════════ */
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.admin-stat-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 1.1rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklch, var(--stat-color, #7c3aed) 18%, transparent);
+  background: color-mix(in oklch, var(--stat-color, #7c3aed) 5%, var(--admin-panel-bg, #fff));
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px color-mix(in oklch, var(--stat-color, #7c3aed) 14%, transparent);
+}
+
+.admin-stat-card__icon {
+  flex-shrink: 0;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.65rem;
+  background: color-mix(in oklch, var(--stat-color, #7c3aed) 12%, transparent);
+  color: var(--stat-color, #7c3aed);
+}
+
+.admin-stat-card__body {
+  min-width: 0;
+}
+
+.admin-stat-card__value {
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--stat-color, #7c3aed);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.2rem;
+}
+
+.admin-stat-card__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--admin-text, #1e1b3a);
+  opacity: 0.75;
+}
+
+.admin-stat-card__sub {
+  font-size: 0.72rem;
+  color: var(--admin-muted, #6b7280);
+  margin-top: 0.2rem;
+}
+
+/* Progress bar inside data rows */
+.admin-stat-bar-wrap {
+  width: 100px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--admin-border, #e5e7eb);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.admin-stat-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  min-width: 3px;
+}
+
+.admin-stat-pct {
+  font-size: 0.72rem;
+  opacity: 0.6;
+  font-weight: 400;
+}
+
+@media (max-width: 640px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+
+  .admin-stat-card__value {
+    font-size: 1.35rem;
+  }
+
+  .admin-stat-bar-wrap {
+    width: 60px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN ENTITY LIST — enhanced card grid on large screens
+   Makes doctors/services/categories feel like visual cards.
+   ═══════════════════════════════════════════════════════════ */
+
+/* On screens ≥1024px show a 2-column card grid for admin lists */
+@media (min-width: 1024px) {
+  .admin-data-list.is-card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+
+  .admin-data-list.is-card-grid .admin-data-row {
+    border-radius: 0.85rem;
+    border: 1px solid var(--admin-border);
+    background: var(--admin-panel-bg);
+    padding: 1rem 1.1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+
+  .admin-data-list.is-card-grid .admin-data-row:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    transform: translateY(-1px);
+  }
 }
 
 html[dir="ltr"] .rv-v0-nav {
@@ -15860,12 +15952,12 @@ html[dir="ltr"] .rv-v0-nav {
     display: none !important;
   }
 
-  /* Logo sized to fit mobile single row */
+  /* Logo sized to fit mobile single row — readable but not cramped */
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width: clamp(6.5rem, 22vw, 9rem) !important;
-    height: clamp(2.4rem, 7vw, 3.2rem) !important;
+    width: clamp(8rem, 28vw, 11rem) !important;
+    height: clamp(3rem, 9vw, 4rem) !important;
   }
 
   /* Compact action pills */
@@ -15920,8 +16012,8 @@ html[dir="ltr"] .rv-v0-nav {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width: clamp(5.5rem, 26vw, 7.5rem) !important;
-    height: clamp(2.1rem, 8vw, 2.8rem) !important;
+    width: clamp(7rem, 30vw, 9rem) !important;
+    height: clamp(2.6rem, 9vw, 3.4rem) !important;
   }
 
   .rv-mobile-inline-actions {

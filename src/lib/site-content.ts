@@ -462,6 +462,14 @@ export const adminNavigation = [
     group: "content" as AdminNavGroupKey,
   },
   {
+    label: "الإحصائيات",
+    labelEn: "Analytics",
+    href: "/admin/stats",
+    description: "إحصائيات الموقع والزوار",
+    descriptionEn: "Site stats and visitors",
+    group: "ops" as AdminNavGroupKey,
+  },
+  {
     label: "الطلبات",
     labelEn: "CRM",
     href: "/admin/crm",

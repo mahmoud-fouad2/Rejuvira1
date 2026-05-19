@@ -115,6 +115,20 @@ function iconFor(href: string) {
           <path d="m21 15-5-5L5 21" />
         </svg>
       );
+    case "/admin/stats":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          aria-hidden
+        >
+          <path d="M3 3v18h18" strokeLinecap="round" />
+          <path d="M7 16l4-6 4 4 4-8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
     case "/admin/crm":
       return (
         <svg

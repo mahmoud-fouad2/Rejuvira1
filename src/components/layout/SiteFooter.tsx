@@ -174,142 +174,97 @@ function ClockIcon({ className }: { className?: string }) {
 }
 
 function socialIcon(kind: string) {
+  const S = 20;
   if (kind === "instagram") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        aria-hidden
-      >
-        <rect
-          x="2"
-          y="2"
-          width="20"
-          height="20"
-          rx="5"
-          ry="5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37zM17.5 6.5h.01"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <defs>
+          <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#f09433" />
+            <stop offset="25%" stopColor="#e6683c" />
+            <stop offset="50%" stopColor="#dc2743" />
+            <stop offset="75%" stopColor="#cc2366" />
+            <stop offset="100%" stopColor="#bc1888" />
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#ig-grad)" />
+        <circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" strokeWidth="1.6" />
+        <circle cx="17.5" cy="6.5" r="1.1" fill="#fff" />
       </svg>
     );
   }
   if (kind === "twitter") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <rect width="24" height="24" rx="5.5" fill="#000" />
+        <path
+          d="M13.545 10.239 18.44 4.5h-1.17l-4.25 4.957L9.38 4.5H5.25l5.13 7.473L5.25 18.5h1.17l4.486-5.232 3.584 5.232H18.75zM7.5 5.5h1.91l7.07 10.03H14.57z"
+          fill="#fff"
+        />
       </svg>
     );
   }
   if (kind === "youtube") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        aria-hidden
-      >
-        <path
-          d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="m9.75 15.02 5.75-3.27-5.75-3.27v6.54z"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <rect width="24" height="24" rx="5.5" fill="#FF0000" />
+        <path d="m10 15.5 5-3.5-5-3.5v7z" fill="#fff" />
       </svg>
     );
   }
   if (kind === "linkedin") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <rect width="24" height="24" rx="5.5" fill="#0077B5" />
+        <path
+          d="M7 9.5h2v8H7v-8zm1-2.8a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM10.5 9.5H12v1.1c.4-.7 1.2-1.2 2.2-1.2 2 0 2.8 1.3 2.8 3.2v4.9H15v-4.5c0-.9-.3-1.7-1.3-1.7s-1.7.8-1.7 2v4.2h-1.5v-8z"
+          fill="#fff"
+        />
       </svg>
     );
   }
   if (kind === "tiktok") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <rect width="24" height="24" rx="5.5" fill="#010101" />
+        <path
+          d="M17 8.5a4 4 0 0 1-2.2-.7v5.4a3.8 3.8 0 1 1-3.1-3.74v2.1a1.7 1.7 0 1 0 1.1 1.6V4.5H15a2.5 2.5 0 0 0 2 2.45V8.5z"
+          fill="#fff"
+        />
+        <path
+          d="M16.8 7.1A4.05 4.05 0 0 1 14.85 4.5H15a2.5 2.5 0 0 0 2.45 2.45v.15z"
+          fill="#69C9D0"
+        />
       </svg>
     );
   }
   if (kind === "snapchat") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="18"
-        height="18"
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M12.206.793c.99 0 4.347.276 5.802 3.996 0 0 1.593 4.29 1.593 7.584 0 1.02-.16 2.01-.48 2.96-.32.95-.79 1.84-1.39 2.65-.6.81-1.32 1.54-2.14 2.17-.82.63-1.73 1.15-2.71 1.54-.98.39-2.02.65-3.09.77-1.07.12-2.15.1-3.21-.06-1.06-.16-2.09-.45-3.06-.86-.97-.41-1.87-.94-2.67-1.57-.8-.63-1.5-1.36-2.08-2.17-.58-.81-1.04-1.7-1.36-2.65-.32-.95-.48-1.94-.48-2.96 0-3.294 1.593-7.584 1.593-7.584C7.859 1.069 11.216.793 12.206.793z" />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <rect width="24" height="24" rx="5.5" fill="#FFFC00" />
+        <path
+          d="M12 4c-1.7 0-3.3.8-4 2.2-.4.8-.3 1.8-.3 2.7 0 .1-.1.2-.2.3-.3.1-.7 0-.9.2-.2.3 0 .6.3.7.4.1.7.3.6.7-.2.6-.8 1.1-1.2 1.6-.1.1.1.4.3.4.2 0 .3.1.3.3 0 .5-.6.8-.9.9-.3.1-.2.5.1.6.3.1 1.2.4 1.5 1.2.1.2.3.1.4 0 .4-.3.9-.3 1.3-.1.7.4 1.3.5 1.8.5s1.1-.1 1.8-.5c.4-.2.9-.2 1.3.1.1.1.3.2.4 0 .3-.8 1.2-1.1 1.5-1.2.3-.1.4-.5.1-.6-.3-.1-.9-.4-.9-.9 0-.2.1-.3.3-.3.2 0 .4-.3.3-.4-.4-.5-1-.9-1.2-1.6-.1-.4.2-.6.6-.7.3-.1.5-.4.3-.7-.2-.2-.6-.1-.9-.2-.1-.1-.2-.2-.2-.3 0-.9.1-1.9-.3-2.7C15.3 4.8 13.7 4 12 4z"
+          fill="#000"
+        />
       </svg>
     );
   }
   if (kind === "whatsapp") {
     return (
-      <svg
-        viewBox="0 0 24 24"
-        width="19"
-        height="19"
-        fill="currentColor"
-        aria-hidden
-      >
-        <path d="M12.04 2a9.87 9.87 0 0 0-8.43 15.04L2.45 21.3a.55.55 0 0 0 .67.67l4.38-1.15A9.89 9.89 0 1 0 12.04 2Zm0 1.8a8.09 8.09 0 1 1-3.98 15.14.9.9 0 0 0-.68-.08l-2.76.72.73-2.67a.9.9 0 0 0-.1-.72A8.08 8.08 0 0 1 12.04 3.8Zm-3.4 4.18c-.18 0-.46.07-.7.34-.24.26-.92.9-.92 2.2 0 1.3.94 2.55 1.07 2.73.13.18 1.84 2.95 4.56 4.02 2.26.9 2.72.72 3.2.68.5-.04 1.6-.65 1.82-1.28.23-.63.23-1.17.16-1.28-.06-.12-.25-.18-.52-.32-.27-.13-1.6-.78-1.84-.87-.25-.09-.43-.13-.61.14-.18.27-.7.87-.86 1.05-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.15-1.33-.8-.71-1.33-1.58-1.49-1.85-.15-.27-.02-.42.12-.55.12-.12.27-.32.4-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.02-.48-.07-.13-.6-1.45-.83-1.99-.22-.52-.44-.45-.61-.46h-.52Z" />
+      <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+        <rect width="24" height="24" rx="5.5" fill="#25D366" />
+        <path
+          d="M12 4.5a7.5 7.5 0 0 0-6.41 11.39L4.5 19.5l3.73-1.08A7.5 7.5 0 1 0 12 4.5zm4.44 10.6c-.19.53-.97 1-1.34 1.05-.35.05-.77.07-1.25-.08-.29-.09-.65-.22-1.12-.43-1.97-.85-3.25-2.85-3.35-2.98-.1-.13-.83-1.1-.83-2.1 0-1 .52-1.49.71-1.7.18-.2.4-.25.53-.25h.38c.12 0 .28-.04.44.34l.6 1.47c.06.13.1.27.02.43l-.22.42-.3.31c-.1.1-.22.2-.1.41.13.2.57.93 1.21 1.5.83.74 1.53.98 1.75 1.09.22.11.34.09.47-.06l.48-.57c.13-.17.26-.14.44-.08l1.36.64c.2.1.33.14.38.22.05.1 0 .5-.21 1.03z"
+          fill="#fff"
+        />
       </svg>
     );
   }
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="18"
-      height="18"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      aria-hidden
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="10"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path d="M2 12h20" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 24 24" width={S} height={S} aria-hidden>
+      <rect width="24" height="24" rx="5.5" fill="#6366f1" />
+      <circle cx="12" cy="12" r="5" fill="none" stroke="#fff" strokeWidth="1.6" />
+      <path d="M2 12h3M19 12h3M12 2v3M12 19v3" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }

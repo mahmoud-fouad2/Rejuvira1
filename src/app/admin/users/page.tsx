@@ -29,7 +29,7 @@ export default async function AdminUsersPage() {
   }));
   const canManage = session?.user?.role === UserRole.SUPER_ADMIN;
   const tabs = [
-    { value: "all", labelAr: "Ø§Ù„ÙƒÙ„", labelEn: "All", count: users.length },
+    { value: "all", labelAr: "الكل", labelEn: "All", count: users.length },
     ...groupedUsers.map((group) => ({
       value: group.role,
       labelAr: roleLabels[group.role],
@@ -38,7 +38,7 @@ export default async function AdminUsersPage() {
     })),
     {
       value: "inactive",
-      labelAr: "ØºÙŠØ± Ù†Ø´Ø·",
+      labelAr: "غير نشط",
       labelEn: "Inactive",
       count: users.filter((user) => user.isActive === false).length,
     },
@@ -49,22 +49,20 @@ export default async function AdminUsersPage() {
       <div className="admin-page-header">
         <div>
           <h1>
-            <span className="lang-ar">
-              Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª
-            </span>
-            <span className="lang-en">Users & permissions</span>
+            <span className="lang-ar">المستخدمون والصلاحيات</span>
+            <span className="lang-en">Users &amp; permissions</span>
           </h1>
           <p>
-            <span className="lang-ar">{users.length} Ø­Ø³Ø§Ø¨</span>
+            <span className="lang-ar">{users.length} حساب</span>
             <span className="lang-en">{users.length} accounts</span>
           </p>
         </div>
         {canManage ? (
           <div className="admin-page-header__actions">
             <AdminAddModal
-              triggerArabic="Ø¥Ø¶Ø§ÙØ© Ø­Ø³Ø§Ø¨"
+              triggerArabic="إضافة حساب"
               triggerEnglish="Add user"
-              titleArabic="Ø¥Ø¶Ø§ÙØ© Ø­Ø³Ø§Ø¨ Ø¬Ø¯ÙŠØ¯"
+              titleArabic="إضافة حساب جديد"
               titleEnglish="New user"
             >
               <AdminUserCreateForm />
@@ -78,7 +76,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="admin-card__subtitle">By role</div>
             <div className="admin-card__title">
-              <span className="lang-ar">ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
+              <span className="lang-ar">توزيع الحسابات</span>
               <span className="lang-en">Accounts by role</span>
             </div>
           </div>
@@ -107,7 +105,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="admin-card__subtitle">Accounts</div>
             <div className="admin-card__title">
-              <span className="lang-ar">Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
+              <span className="lang-ar">الحسابات</span>
               <span className="lang-en">Accounts</span>
             </div>
           </div>
@@ -148,16 +146,14 @@ export default async function AdminUsersPage() {
                     className={`admin-chip ${user.isActive === false ? "!border-burgundy/30 !text-burgundy" : ""}`}
                   >
                     <span className="lang-ar">
-                      {user.isActive === false ? "ØºÙŠØ± Ù†Ø´Ø·" : "Ù†Ø´Ø·"}
+                      {user.isActive === false ? "غير نشط" : "نشط"}
                     </span>
                     <span className="lang-en">
                       {user.isActive === false ? "Inactive" : "Active"}
                     </span>
                   </span>
                   <span className="admin-chip">
-                    <span className="lang-ar">
-                      Ø·Ù„Ø¨Ø§Øª: {user.leadCount}
-                    </span>
+                    <span className="lang-ar">طلبات: {user.leadCount}</span>
                     <span className="lang-en">Leads: {user.leadCount}</span>
                   </span>
                 </div>
@@ -193,7 +189,7 @@ export default async function AdminUsersPage() {
           <div>
             <div className="admin-card__subtitle">Matrix</div>
             <div className="admin-card__title">
-              <span className="lang-ar">Ù…ØµÙÙˆÙØ© Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª</span>
+              <span className="lang-ar">مصفوفة الصلاحيات</span>
               <span className="lang-en">Permission matrix</span>
             </div>
           </div>
