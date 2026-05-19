@@ -111,31 +111,8 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        source: "/robots.txt",
+        source: "/assets/:path*",
         headers: [
-          {
-            key: "Content-Type",
-            value: "text/plain; charset=utf-8",
-          },
-          {
-            key: "Cache-Control",
-            value: "public, max-age=0, s-maxage=300",
-          },
-        ],
-      },
-      {
-        source: "/sitemap.xml",
-        headers: [
-          {
-            key: "Content-Type",
-            value: "application/xml; charset=utf-8",
-          },
-          {
-            key: "Cache-Control",
-            value: "public, max-age=0, s-maxage=3600",
-          },
-        ],
-      },
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
