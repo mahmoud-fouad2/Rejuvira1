@@ -17107,3 +17107,64 @@ html[data-theme="dark"] .admin-service-group {
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
   gap: 0.6rem !important;
 }
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  LOGO SIZE FINAL FIX — overrides all previous rules             ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+
+/* Desktop logo container — bigger */
+header .rv-brand-logo,
+header .rv-brand-logo-header,
+.rv-v0-brand .rv-brand-logo,
+.rv-v0-brand .rv-brand-logo-header,
+header .rv-v0-logo,
+.rv-v0-brand .rv-v0-logo {
+  width:  clamp(5rem, 6.5vw, 7rem) !important;
+  height: clamp(5rem, 6.5vw, 7rem) !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+}
+
+/* Nav bar taller to fit bigger logo */
+.rv-v0-nav {
+  min-height: 5.5rem !important;
+}
+
+/* ── Tablet (max 1023px) ── */
+@media (max-width: 1023px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(4rem, 11vw, 5.5rem) !important;
+    height: clamp(4rem, 11vw, 5.5rem) !important;
+  }
+  .rv-v0-nav {
+    min-height: 5rem !important;
+  }
+}
+
+/* ── Mobile (max 767px) ── */
+@media (max-width: 767px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(4rem, 14vw, 5.5rem) !important;
+    height: clamp(4rem, 14vw, 5.5rem) !important;
+  }
+  .rv-v0-nav {
+    min-height: 4.8rem !important;
+  }
+}
+
+/* ── Small mobile (max 480px) ── */
+@media (max-width: 480px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(3.8rem, 15vw, 5rem) !important;
+    height: clamp(3.8rem, 15vw, 5rem) !important;
+  }
+  .rv-v0-nav {
+    min-height: 4.5rem !important;
+  }
+}
