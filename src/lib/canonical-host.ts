@@ -1,50 +1,10 @@
-const DEFAULT_CANONICAL_ORIGIN = "https://rejuvera.sa";
-const CANONICAL_HOST = "rejuvera.sa";
-
-function isLegacyOrigin(value: string): boolean {
-  try {
-    const host = new URL(value).hostname.toLowerCase();
-    return (
-      host === "rejuveracenter.sa" ||
-      host === "www.rejuveracenter.sa" ||
-      host === "rejuveracenter.com.sa" ||
-      host === "www.rejuveracenter.com.sa"
-    );
-  } catch {
-    return /rejuveracenter/i.test(value);
-  }
-}
-
-export function getCanonicalOrigin(): string {
-  const raw = (
-    process.env.SITE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    DEFAULT_CANONICAL_ORIGIN
-  ).replace(/\/+$/, "");
-
-  if (!raw || isLegacyOrigin(raw)) {
-    return DEFAULT_CANONICAL_ORIGIN;
-  }
-
-  try {
-    const host = new URL(raw).hostname.toLowerCase();
-    if (host === CANONICAL_HOST || host === `www.${CANONICAL_HOST}`) {
-      return DEFAULT_CANONICAL_ORIGIN;
-    }
-  } catch {
-    return DEFAULT_CANONICAL_ORIGIN;
-  }
-
-  return raw;
-}
-
-export function getCanonicalHost(): string {
-  try {
-    return new URL(getCanonicalOrigin()).host.toLowerCase();
-  } catch {
-    return "rejuvera.sa";
-  }
-}
+/**
+ * Canonical domain for rejuvera.sa — hardcoded so it never
+ * drifts regardless of which SITE_URL / NEXTAUTH_URL env var
+ * is set on Render or any other platform.
+ */
+export const CANONICAL_ORIGIN = "https://rejuvera.sa" as const;
+export const CANONICAL_HOST = "rejuvera.sa" as const;
 
 const LEGACY_HOSTS = new Set([
   "rejuveracenter.sa",
@@ -52,6 +12,15 @@ const LEGACY_HOSTS = new Set([
   "rejuveracenter.com.sa",
   "www.rejuveracenter.com.sa",
 ]);
+
+/** Always returns https://rejuvera.sa */
+export function getCanonicalOrigin(): string {
+  return CANONICAL_ORIGIN;
+}
+
+export function getCanonicalHost(): string {
+  return CANONICAL_HOST;
+}
 
 export function normalizeHost(host?: string | null): string {
   return host?.split(",")[0]?.trim().toLowerCase().split(":")[0] ?? "";
@@ -63,17 +32,16 @@ export function isLegacyHost(host?: string | null): boolean {
 
 export function shouldRedirectToCanonicalHost(host?: string | null): boolean {
   const normalized = normalizeHost(host);
-  if (!normalized || normalized === getCanonicalHost()) {
+  if (!normalized || normalized === CANONICAL_HOST) {
     return false;
   }
-
   return (
     isLegacyHost(normalized) ||
-    normalized === `www.${getCanonicalHost()}`
+    normalized === `www.${CANONICAL_HOST}`
   );
 }
 
 export function buildCanonicalUrl(pathname: string, search = ""): URL {
   const path = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  return new URL(`${path}${search}`, `${getCanonicalOrigin()}/`);
+  return new URL(`${path}${search}`, `${CANONICAL_ORIGIN}/`);
 }

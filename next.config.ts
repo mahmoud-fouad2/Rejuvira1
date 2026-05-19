@@ -102,7 +102,7 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_SITE_URL: process.env.SITE_URL || "https://rejuvera.sa",
+    NEXT_PUBLIC_SITE_URL: "https://rejuvera.sa",
   },
   async headers() {
     return [
