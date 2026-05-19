@@ -17168,3 +17168,268 @@ header .rv-v0-logo,
     min-height: 4.5rem !important;
   }
 }
+
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║  ADMIN SIDENAV — accordion redesign                                 ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
+
+.admin-snav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.55rem 1rem;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--admin-accent) 20%, transparent) transparent;
+}
+
+/* ── Section wrapper ── */
+.admin-snav__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+.admin-snav__section + .admin-snav__section {
+  margin-top: 0.25rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent);
+}
+
+/* ── Accordion group toggle button ── */
+.admin-snav__group-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.65rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+  color: var(--admin-text-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+}
+.admin-snav__group-btn:hover {
+  background: color-mix(in oklch, var(--admin-accent) 8%, transparent);
+  color: var(--admin-text);
+}
+.admin-snav__group-btn.has-active {
+  color: var(--admin-text);
+}
+.admin-snav__group-btn.is-open {
+  color: var(--admin-accent);
+}
+
+.admin-snav__group-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 0.4rem;
+  background: color-mix(in oklch, var(--admin-accent) 10%, transparent);
+  color: var(--admin-accent);
+  flex-shrink: 0;
+}
+
+.admin-snav__group-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-snav__group-active-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--admin-accent);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* ── Items container ── */
+.admin-snav__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  padding: 0.2rem 0 0.3rem 0.35rem;
+  border-inline-start: 1.5px solid color-mix(in oklch, var(--admin-border) 80%, transparent);
+  margin-inline-start: 1.15rem;
+}
+
+/* ── Individual nav item ── */
+.admin-snav__item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.6rem;
+  text-decoration: none;
+  color: var(--admin-text-soft);
+  font-size: 0.78rem;
+  font-weight: 500;
+  transition: background 0.13s, color 0.13s, padding-inline-start 0.13s;
+  position: relative;
+}
+.admin-snav__item:hover {
+  background: color-mix(in oklch, var(--admin-accent) 7%, transparent);
+  color: var(--admin-text);
+  padding-inline-start: 0.85rem;
+}
+.admin-snav__item.is-active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--admin-accent) 16%, transparent),
+    color-mix(in oklch, var(--admin-accent) 8%, transparent)
+  );
+  color: var(--admin-accent);
+  font-weight: 700;
+}
+
+/* Primary (top-level) items — slightly larger */
+.admin-snav__item--primary {
+  padding: 0.65rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.admin-snav__item--primary .admin-snav__item-icon {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+
+/* Sub items (inside accordion) */
+.admin-snav__item--sub .admin-snav__item-icon {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.admin-snav__item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 0.4rem;
+  background: color-mix(in oklch, var(--admin-text) 6%, transparent);
+  transition: background 0.13s, color 0.13s;
+}
+.admin-snav__item.is-active .admin-snav__item-icon {
+  background: color-mix(in oklch, var(--admin-accent) 15%, transparent);
+  color: var(--admin-accent);
+}
+
+.admin-snav__item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Active indicator dot */
+.admin-snav__active-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--admin-accent);
+  flex-shrink: 0;
+}
+
+/* ── Mobile: touch targets ── */
+@media (max-width: 1023px) {
+  .admin-snav__item {
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+  .admin-snav__group-btn {
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ── Dark mode adjustments ── */
+html[data-theme="dark"] .admin-snav__item-icon {
+  background: color-mix(in oklch, var(--admin-text) 8%, transparent);
+}
+html[data-theme="dark"] .admin-snav__group-icon {
+  background: color-mix(in oklch, var(--admin-accent) 15%, transparent);
+}
+
+/* ── admin-shell__nav: let new .admin-snav control its own layout ── */
+.admin-shell__nav {
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+.admin-shell__nav > .admin-snav {
+  flex: 1 1 auto !important;
+}
+
+/* ── Kill old nav-item/subitem rules from shell inside admin-shell__nav ── */
+.admin-shell__nav .admin-shell__nav-item,
+.admin-shell__nav .admin-shell__nav-subitem,
+.admin-shell__nav .admin-shell__nav-group,
+.admin-shell__nav .admin-shell__nav-subgrid {
+  /* These old classes should not conflict — new sidebar uses .admin-snav__* */
+  all: unset;
+}
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  LOGO BIGGER — FINAL OVERRIDE (v3)                              ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+header .rv-brand-logo,
+header .rv-brand-logo-header,
+.rv-v0-brand .rv-brand-logo,
+.rv-v0-brand .rv-brand-logo-header,
+header .rv-v0-logo,
+.rv-v0-brand .rv-v0-logo {
+  width:  clamp(6rem, 8vw, 9rem) !important;
+  height: clamp(6rem, 8vw, 9rem) !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+}
+.rv-v0-nav {
+  min-height: 6.5rem !important;
+}
+
+@media (max-width: 1023px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(5rem, 13vw, 7rem) !important;
+    height: clamp(5rem, 13vw, 7rem) !important;
+  }
+  .rv-v0-nav { min-height: 6rem !important; }
+}
+
+@media (max-width: 767px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(5rem, 16vw, 6.5rem) !important;
+    height: clamp(5rem, 16vw, 6.5rem) !important;
+  }
+  .rv-v0-nav { min-height: 5.8rem !important; }
+}
+
+@media (max-width: 480px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(4.8rem, 18vw, 6rem) !important;
+    height: clamp(4.8rem, 18vw, 6rem) !important;
+  }
+  .rv-v0-nav { min-height: 5.5rem !important; }
+}
