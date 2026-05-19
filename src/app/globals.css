@@ -17433,3 +17433,728 @@ header .rv-v0-logo,
   }
   .rv-v0-nav { min-height: 5.5rem !important; }
 }
+
+/* ╔══════════════════════════════════════════════════════════════════════════╗
+   ║  ADMIN PANEL — FULL THEME REFRESH v4                                    ║
+   ║  Better palette, sharper contrast, richer cards, polished topbar/cards  ║
+   ║  Date: 2026-05-19                                                       ║
+   ╚══════════════════════════════════════════════════════════════════════════╝ */
+
+/* ── New refined color palette ── */
+:root {
+  --admin-accent: #7c3aed !important;
+  --admin-accent-2: #a855f7 !important;
+  --admin-accent-soft: rgba(124, 58, 237, 0.12) !important;
+  --admin-accent-glow: rgba(168, 85, 247, 0.28) !important;
+  --admin-gold: #d4a373 !important;
+  --admin-emerald: #10b981 !important;
+  --admin-rose: #f43f5e !important;
+  --admin-amber: #f59e0b !important;
+
+  --admin-bg: #f5f3ee !important;
+  --admin-bg-soft: #fbf9f4 !important;
+  --admin-panel: #ffffff !important;
+  --admin-panel-soft: #faf9f5 !important;
+  --admin-border: rgba(31, 16, 64, 0.09) !important;
+  --admin-border-strong: rgba(31, 16, 64, 0.16) !important;
+  --admin-text: #1a0f33 !important;
+  --admin-text-soft: #4b3b73 !important;
+  --admin-text-faint: #7a6b96 !important;
+
+  --admin-sidebar-bg: #2a0e4d !important;
+  --admin-sidebar-bg-2: #1e0a3a !important;
+  --admin-sidebar-text: #efe7ff !important;
+  --admin-sidebar-text-soft: #c2b5e8 !important;
+  --admin-sidebar-text-faint: #8d7cb8 !important;
+  --admin-sidebar-border: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] {
+  --admin-bg: #08041a !important;
+  --admin-bg-soft: #100728 !important;
+  --admin-panel: #160a2c !important;
+  --admin-panel-soft: #1c0f37 !important;
+  --admin-border: rgba(217, 197, 255, 0.11) !important;
+  --admin-border-strong: rgba(217, 197, 255, 0.2) !important;
+  --admin-text: #f4ecff !important;
+  --admin-text-soft: #c6b8e3 !important;
+  --admin-text-faint: #8a7bb0 !important;
+  --admin-sidebar-bg: #0d0521 !important;
+  --admin-sidebar-bg-2: #06021a !important;
+}
+
+/* ── Sidebar: richer gradient background ── */
+.admin-shell__sidebar {
+  background:
+    linear-gradient(160deg, var(--admin-sidebar-bg) 0%, var(--admin-sidebar-bg-2) 100%) !important;
+  background-image:
+    radial-gradient(circle at 22% 8%, rgba(168, 85, 247, 0.32), transparent 22rem),
+    radial-gradient(circle at 78% 92%, rgba(212, 163, 115, 0.14), transparent 20rem),
+    linear-gradient(165deg, var(--admin-sidebar-bg) 0%, var(--admin-sidebar-bg-2) 100%) !important;
+  border-inline-end: 1px solid var(--admin-sidebar-border) !important;
+  box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Improve sidebar text contrast inside the new accordion nav */
+.admin-shell__sidebar .admin-snav__item {
+  color: var(--admin-sidebar-text-soft) !important;
+}
+.admin-shell__sidebar .admin-snav__item:hover {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+.admin-shell__sidebar .admin-snav__item.is-active {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.30),
+    rgba(124, 58, 237, 0.16)
+  ) !important;
+  color: #fff !important;
+  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.35), 0 4px 12px rgba(168, 85, 247, 0.18) !important;
+}
+.admin-shell__sidebar .admin-snav__item-icon {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: var(--admin-sidebar-text-soft) !important;
+}
+.admin-shell__sidebar .admin-snav__item.is-active .admin-snav__item-icon {
+  background: rgba(168, 85, 247, 0.32) !important;
+  color: #fff !important;
+}
+
+.admin-shell__sidebar .admin-snav__group-btn {
+  color: var(--admin-sidebar-text-soft) !important;
+  letter-spacing: 0.035em !important;
+}
+.admin-shell__sidebar .admin-snav__group-btn:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+}
+.admin-shell__sidebar .admin-snav__group-btn.has-active,
+.admin-shell__sidebar .admin-snav__group-btn.is-open {
+  color: #fff !important;
+}
+.admin-shell__sidebar .admin-snav__group-icon {
+  background: rgba(168, 85, 247, 0.18) !important;
+  color: #d8baff !important;
+}
+
+.admin-shell__sidebar .admin-snav__items {
+  border-inline-start-color: rgba(255, 255, 255, 0.10) !important;
+}
+.admin-shell__sidebar .admin-snav__section + .admin-snav__section {
+  border-top-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Sidebar footer link */
+.admin-shell__sidebar-footer {
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+  padding: 0.85rem 1rem 1rem !important;
+}
+.admin-shell__sidebar-link {
+  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.7rem !important;
+  padding: 0.7rem 1rem !important;
+  text-align: center !important;
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35) !important;
+  transition: transform 0.15s, box-shadow 0.15s !important;
+  width: 100% !important;
+}
+.admin-shell__sidebar-link:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.45) !important;
+}
+
+/* ── Brand area: enlarge logo dramatically ── */
+.admin-shell__brand {
+  padding: 1.5rem 1rem 1.2rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  gap: 0.4rem !important;
+}
+.admin-shell__brand-logo {
+  height: 5.5rem !important;
+  width: 5.5rem !important;
+  border-radius: 1.4rem !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(168, 85, 247, 0.18)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+.admin-shell__brand-logo .rv-brand-logo,
+.admin-shell__brand-logo .rv-brand-logo-header {
+  width: 4.5rem !important;
+  height: 4.5rem !important;
+}
+.admin-shell__brand-logo .rv-brand-logo-img {
+  transform: scale(1.7) !important;
+  filter: brightness(0) invert(1) !important;
+}
+.admin-shell__brand-mark {
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.32em !important;
+  color: #fff !important;
+  opacity: 0.95 !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ── Topbar: cleaner glass + subtle accent line ── */
+.admin-shell__topbar {
+  background: color-mix(in oklch, var(--admin-panel) 86%, transparent) !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  box-shadow: 0 1px 0 rgba(124, 58, 237, 0.08), 0 4px 12px rgba(31, 16, 64, 0.05) !important;
+  padding-block: 0.85rem !important;
+}
+html[data-theme="dark"] .admin-shell__topbar {
+  background: color-mix(in oklch, var(--admin-panel) 82%, transparent) !important;
+}
+
+/* ── Page header titles: stronger gradient ── */
+.admin-page-header h1 {
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem) !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, var(--admin-text) 30%, var(--admin-accent-2) 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.15 !important;
+}
+.admin-page-header p {
+  color: var(--admin-text-soft) !important;
+  font-size: 0.85rem !important;
+  margin-top: 0.35rem !important;
+}
+
+/* ── Admin cards: more depth ── */
+.admin-card {
+  border-radius: 1.15rem !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 4px 16px rgba(31, 16, 64, 0.06),
+    0 1px 3px rgba(31, 16, 64, 0.04) !important;
+  overflow: hidden !important;
+  transition: box-shadow 0.18s, border-color 0.18s !important;
+}
+.admin-card:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 12px 32px rgba(124, 58, 237, 0.10),
+    0 2px 6px rgba(31, 16, 64, 0.05) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 18%, var(--admin-border)) !important;
+}
+.admin-card__header {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--admin-accent) 3.5%, var(--admin-panel)),
+    var(--admin-panel)
+  ) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  padding: 0.95rem 1.2rem !important;
+}
+.admin-card__title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--admin-text) !important;
+}
+.admin-card__subtitle {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--admin-accent) !important;
+  margin-bottom: 0.18rem !important;
+}
+
+html[data-theme="dark"] .admin-card {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ── KPI cards: top accent strip + cleaner ── */
+.admin-kpi {
+  position: relative !important;
+  border-radius: 1.05rem !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel) !important;
+  padding: 1rem 1.1rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.85rem !important;
+  text-decoration: none !important;
+  color: var(--admin-text) !important;
+  overflow: hidden !important;
+  transition: transform 0.15s, box-shadow 0.18s, border-color 0.18s !important;
+  box-shadow: 0 2px 8px rgba(31, 16, 64, 0.05) !important;
+}
+.admin-kpi::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-2));
+  opacity: 0.85;
+}
+.admin-kpi:hover {
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 25%, var(--admin-border)) !important;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.14) !important;
+}
+.admin-kpi__icon {
+  width: 2.6rem !important;
+  height: 2.6rem !important;
+  border-radius: 0.85rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, var(--admin-accent-soft), color-mix(in oklch, var(--admin-accent) 6%, transparent)) !important;
+  color: var(--admin-accent) !important;
+  flex-shrink: 0 !important;
+}
+.admin-kpi__icon.is-success {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.07)) !important;
+  color: var(--admin-emerald) !important;
+}
+.admin-kpi__icon.is-gold {
+  background: linear-gradient(135deg, rgba(212, 163, 115, 0.22), rgba(212, 163, 115, 0.08)) !important;
+  color: var(--admin-gold) !important;
+}
+.admin-kpi__value {
+  display: block !important;
+  font-size: 1.85rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  background: linear-gradient(135deg, var(--admin-text), var(--admin-accent-2)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.admin-kpi__label {
+  display: block !important;
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: var(--admin-text-faint) !important;
+  margin-top: 0.2rem !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* ── Command center: vibrant gradient banner ── */
+.admin-command-center {
+  border-radius: 1.4rem !important;
+  border: 1px solid color-mix(in oklch, var(--admin-accent) 22%, var(--admin-border)) !important;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.16), transparent 28rem),
+    linear-gradient(140deg, var(--admin-panel) 60%, color-mix(in oklch, var(--admin-accent) 7%, var(--admin-panel))) !important;
+  padding: 1.4rem 1.6rem !important;
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.10) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.admin-command-center::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-2), var(--admin-gold));
+}
+.admin-command-center__eyebrow {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.admin-command-center h2 {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  margin-top: 0.3rem !important;
+  color: var(--admin-text) !important;
+}
+.admin-command-center p {
+  color: var(--admin-text-soft) !important;
+  font-size: 0.83rem !important;
+  margin-top: 0.35rem !important;
+  max-width: 50ch !important;
+}
+.admin-command-action {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.6rem !important;
+  padding: 0.7rem 1rem !important;
+  border-radius: 0.85rem !important;
+  background: var(--admin-panel) !important;
+  border: 1px solid var(--admin-border) !important;
+  text-decoration: none !important;
+  color: var(--admin-text) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  transition: all 0.15s !important;
+  box-shadow: 0 2px 6px rgba(31, 16, 64, 0.05) !important;
+}
+.admin-command-action:hover {
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.18) !important;
+}
+.admin-command-action strong {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 2rem !important;
+  height: 2rem !important;
+  padding: 0 0.45rem !important;
+  border-radius: 0.55rem !important;
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  color: #fff !important;
+  font-size: 0.85rem !important;
+  font-weight: 800 !important;
+}
+
+/* ── Status badges: vivid ── */
+.admin-status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.32rem !important;
+  padding: 0.25rem 0.65rem !important;
+  border-radius: 999px !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  border: 1px solid transparent !important;
+  letter-spacing: 0.01em !important;
+}
+.admin-status-badge.is-published {
+  background: rgba(16, 185, 129, 0.13) !important;
+  color: #047857 !important;
+  border-color: rgba(16, 185, 129, 0.32) !important;
+}
+.admin-status-badge.is-draft {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #b45309 !important;
+  border-color: rgba(245, 158, 11, 0.32) !important;
+}
+.admin-status-badge.is-review {
+  background: rgba(59, 130, 246, 0.13) !important;
+  color: #1d4ed8 !important;
+  border-color: rgba(59, 130, 246, 0.32) !important;
+}
+.admin-status-badge.is-archived {
+  background: rgba(107, 114, 128, 0.16) !important;
+  color: #374151 !important;
+  border-color: rgba(107, 114, 128, 0.32) !important;
+}
+html[data-theme="dark"] .admin-status-badge.is-published { color: #6ee7b7 !important; }
+html[data-theme="dark"] .admin-status-badge.is-draft { color: #fcd34d !important; }
+html[data-theme="dark"] .admin-status-badge.is-review { color: #93c5fd !important; }
+html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !important; }
+
+/* ── Buttons: refined primary ── */
+.admin-btn-primary {
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.7rem !important;
+  padding: 0.55rem 1.15rem !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.4rem !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.32) !important;
+  transition: transform 0.13s, box-shadow 0.15s !important;
+}
+.admin-btn-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.45) !important;
+}
+
+.admin-btn-secondary {
+  background: var(--admin-panel) !important;
+  color: var(--admin-text) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  border-radius: 0.7rem !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem !important;
+  transition: all 0.13s !important;
+}
+.admin-btn-secondary:hover {
+  border-color: var(--admin-accent) !important;
+  color: var(--admin-accent) !important;
+  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel)) !important;
+}
+
+.admin-btn-danger {
+  background: linear-gradient(135deg, #ef4444, #f43f5e) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.7rem !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.30) !important;
+  transition: transform 0.13s, box-shadow 0.15s !important;
+}
+.admin-btn-danger:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.42) !important;
+}
+
+.admin-btn-ghost {
+  background: transparent !important;
+  color: var(--admin-text-soft) !important;
+  border: none !important;
+  padding: 0.45rem 0.8rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  border-radius: 0.55rem !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: background 0.13s, color 0.13s !important;
+}
+.admin-btn-ghost:hover {
+  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  color: var(--admin-accent) !important;
+}
+
+/* ── Data rows: cleaner zebra + hover ── */
+.admin-data-list {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  background: var(--admin-panel) !important;
+}
+.admin-data-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.85rem !important;
+  padding: 0.85rem 1.2rem !important;
+  border-top: 1px solid var(--admin-border) !important;
+  transition: background 0.13s !important;
+}
+.admin-data-row:first-child { border-top: none !important; }
+.admin-data-row:nth-child(even) {
+  background: color-mix(in oklch, var(--admin-accent) 1.5%, var(--admin-panel)) !important;
+}
+.admin-data-row:hover {
+  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel)) !important;
+}
+.admin-data-row__title {
+  font-weight: 600 !important;
+  font-size: 0.86rem !important;
+  color: var(--admin-text) !important;
+}
+.admin-data-row__meta {
+  font-size: 0.73rem !important;
+  color: var(--admin-text-faint) !important;
+  margin-top: 0.15rem !important;
+}
+
+/* ── Quick search + Tabs in list controls ── */
+.admin-list-controls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  flex-wrap: wrap !important;
+  padding: 0.7rem 1.2rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+  background: color-mix(in oklch, var(--admin-accent) 1.2%, var(--admin-panel)) !important;
+}
+
+/* ── Pills (health, status indicators) ── */
+.admin-shell__pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.32rem !important;
+  padding: 0.32rem 0.75rem !important;
+  border-radius: 999px !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel) !important;
+}
+.admin-shell__pill.is-success {
+  background: rgba(16, 185, 129, 0.13) !important;
+  color: #047857 !important;
+  border-color: rgba(16, 185, 129, 0.32) !important;
+}
+.admin-shell__pill.is-danger {
+  background: rgba(244, 63, 94, 0.13) !important;
+  color: #be123c !important;
+  border-color: rgba(244, 63, 94, 0.32) !important;
+}
+.admin-shell__pill.is-success::before,
+.admin-shell__pill.is-danger::before {
+  content: "";
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+html[data-theme="dark"] .admin-shell__pill.is-success { color: #6ee7b7 !important; }
+html[data-theme="dark"] .admin-shell__pill.is-danger  { color: #fda4af !important; }
+
+/* ── Inputs: refined ── */
+.admin-input,
+input.admin-input,
+select.admin-input,
+textarea.admin-input {
+  background: var(--admin-bg-soft) !important;
+  border: 1px solid var(--admin-border-strong) !important;
+  border-radius: 0.65rem !important;
+  padding: 0.55rem 0.85rem !important;
+  font-size: 0.85rem !important;
+  color: var(--admin-text) !important;
+  transition: border-color 0.13s, box-shadow 0.15s, background 0.13s !important;
+  width: 100% !important;
+}
+.admin-input:focus,
+input.admin-input:focus,
+select.admin-input:focus,
+textarea.admin-input:focus {
+  outline: none !important;
+  background: var(--admin-panel) !important;
+  border-color: var(--admin-accent) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.16) !important;
+}
+
+/* ── Tabs (status filter) ── */
+.admin-tab,
+button.admin-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.35rem 0.85rem !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel) !important;
+  color: var(--admin-text-soft) !important;
+  font-size: 0.76rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.13s !important;
+}
+.admin-tab:hover {
+  color: var(--admin-accent) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 32%, transparent) !important;
+}
+.admin-tab.is-active,
+.admin-tab[data-active="true"] {
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28) !important;
+}
+
+/* ── Generic links inside admin ── */
+.admin-shell__content a:not(.admin-btn-primary):not(.admin-btn-secondary):not(.admin-btn-ghost):not(.admin-btn-danger):not(.admin-kpi):not(.admin-command-action):not(.admin-snav__item) {
+  color: var(--admin-accent) !important;
+  text-decoration: none !important;
+}
+.admin-shell__content a:not(.admin-btn-primary):not(.admin-btn-secondary):not(.admin-btn-ghost):not(.admin-btn-danger):hover {
+  text-decoration: underline !important;
+}
+
+/* ── Content shell spacing ── */
+.admin-shell__content {
+  padding: 1.4rem 1.6rem !important;
+  gap: 1.2rem !important;
+  background: var(--admin-bg) !important;
+}
+@media (max-width: 1023px) {
+  .admin-shell__content {
+    padding: 1rem 0.9rem !important;
+    gap: 0.95rem !important;
+  }
+}
+
+/* ── Scrollbar (admin only) ── */
+.admin-shell__sidebar ::-webkit-scrollbar,
+.admin-shell__content ::-webkit-scrollbar,
+.admin-snav::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.admin-shell__sidebar ::-webkit-scrollbar-thumb,
+.admin-snav::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.4);
+  border-radius: 999px;
+}
+.admin-shell__content ::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--admin-accent) 35%, transparent);
+  border-radius: 999px;
+}
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  PUBLIC HEADER LOGO — even bigger v4                            ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+header .rv-brand-logo,
+header .rv-brand-logo-header,
+.rv-v0-brand .rv-brand-logo,
+.rv-v0-brand .rv-brand-logo-header,
+header .rv-v0-logo,
+.rv-v0-brand .rv-v0-logo {
+  width:  clamp(7rem, 10vw, 11rem) !important;
+  height: clamp(7rem, 10vw, 11rem) !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+}
+.rv-v0-nav {
+  min-height: 7.5rem !important;
+}
+@media (max-width: 1023px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(6rem, 17vw, 9rem) !important;
+    height: clamp(6rem, 17vw, 9rem) !important;
+  }
+  .rv-v0-nav { min-height: 7rem !important; }
+}
+@media (max-width: 767px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(6rem, 19vw, 8rem) !important;
+    height: clamp(6rem, 19vw, 8rem) !important;
+  }
+  .rv-v0-nav { min-height: 6.8rem !important; }
+}
+@media (max-width: 480px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(5.5rem, 22vw, 7.5rem) !important;
+    height: clamp(5.5rem, 22vw, 7.5rem) !important;
+  }
+  .rv-v0-nav { min-height: 6.5rem !important; }
+}
