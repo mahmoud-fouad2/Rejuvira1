@@ -848,10 +848,31 @@ async function main() {
     select: { value: true },
   });
   if (currentSeed?.value === CORE_SEED_VERSION) {
+    const [existingCategories, existingServices, existingDoctors] =
+      await Promise.all([
+        prisma.serviceCategory.count({
+          where: { slug: { in: categories.map((category) => category.slug) } },
+        }),
+        prisma.service.count({
+          where: { slug: { in: services.map((service) => service.slug) } },
+        }),
+        prisma.doctor.count({
+          where: { slug: { in: doctors.map((doctor) => doctor.slug) } },
+        }),
+      ]);
+    if (
+      existingCategories === categories.length &&
+      existingServices === services.length &&
+      existingDoctors === doctors.length
+    ) {
+      console.log(
+        `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
+      );
+      return;
+    }
     console.log(
-      `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
+      `[seed-core-content] Core content ${CORE_SEED_VERSION} is marked applied, but records are missing; reconciling.`,
     );
-    return;
   }
 
   await upsertCategories();

@@ -30,7 +30,7 @@ Use these **exact** strings in Render â†’ Settings â†’ Build & Deploy:
 ```bash
 # Build command (--include=dev: Render sets NODE_ENV=production; without this,
 # devDependencies like Prisma CLI / Tailwind tooling may be skipped and the build fails.)
-npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run build
+npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run seed:core && npm run build
 ```
 
 ```bash
@@ -50,6 +50,10 @@ Notes:
   `npm run prisma:migrate:deploy:retry`) so schema stays in sync before
   rollout. The wrapper retries on transient **P1002** advisory-lock timeouts
   (common with Neon cold starts or overlapping Render builds).
+- `npm run seed:core` runs after migrations and before the build. It upserts
+  the core departments, services, doctors, and brand/contact defaults. The seed
+  is idempotent and also reconciles missing core records if the saved seed
+  version exists but records were removed later.
 - `npm ci` (not `npm install`) is used so the build is reproducible
   from `package-lock.json`.
 - The Next.js build is `next build` (with `output: "standalone"` set
