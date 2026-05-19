@@ -1,0 +1,22 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/auth/
+Disallow: /forbidden/
+Disallow: /login/
+
+User-agent: Googlebot
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/auth/
+Disallow: /forbidden/
+Disallow: /login/
+
+User-agent: Google-InspectionTool
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/auth/
+Disallow: /forbidden/
+Disallow: /login/
+
+Sitemap: https://rejuvera.sa/sitemap.xml
