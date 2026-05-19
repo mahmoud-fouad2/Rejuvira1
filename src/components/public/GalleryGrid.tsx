@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 
 import type { GalleryRecord } from "@/lib/content-repository";
@@ -115,32 +114,15 @@ function GalleryCard({ item }: { item: GalleryRecord }) {
 
       {/* Info */}
       <div className="gallery-card__body">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="eyebrow">
-              <span className="lang-ar">{item.category}</span>
-              <span className="lang-en">{item.categoryEn ?? item.category}</span>
-            </p>
-            <h3 className="text-ink mt-1.5 font-serif text-xl leading-snug tracking-[-0.015em]">
-              <span className="lang-ar">{item.title}</span>
-              <span className="lang-en">{item.titleEn ?? item.title}</span>
-            </h3>
-          </div>
-          <Link
-            href={`/gallery/${item.slug}`}
-            className="gallery-card__link-btn"
-            aria-label={`مشاهدة نتيجة ${item.title}`}
-          >
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden className="h-4 w-4">
-              <path
-                d="M3 8h10M9 4l4 4-4 4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </Link>
+        <div>
+          <p className="eyebrow">
+            <span className="lang-ar">{item.category}</span>
+            <span className="lang-en">{item.categoryEn ?? item.category}</span>
+          </p>
+          <h3 className="text-ink mt-1.5 font-serif text-xl leading-snug tracking-[-0.015em]">
+            <span className="lang-ar">{item.title}</span>
+            <span className="lang-en">{item.titleEn ?? item.title}</span>
+          </h3>
         </div>
         <p className="text-ink-soft mt-2 line-clamp-2 text-sm leading-6">
           <span className="lang-ar">{item.description}</span>
