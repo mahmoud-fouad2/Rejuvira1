@@ -16643,3 +16643,467 @@ html[data-theme="dark"] .admin-shell__topbar {
   flex-direction: column !important;
   gap: 1.1rem !important;
 }
+
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║  ADMIN COMPLETE PLAN — Phase 2                                      ║
+   ║  Services rows, CRM cards, mobile touch, dashboard depth            ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
+
+/* ─── Services / Categories list rows — refined horizontal cards ──── */
+.admin-service-group {
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 1.1rem !important;
+  overflow: hidden !important;
+  background: var(--admin-panel) !important;
+  box-shadow: 0 2px 10px rgba(31,16,64,0.05) !important;
+  margin-bottom: 0 !important;
+}
+html[data-theme="dark"] .admin-service-group {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.22) !important;
+}
+.admin-service-group__header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.85rem 1.1rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+.admin-service-group__header strong {
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  color: var(--admin-text) !important;
+}
+.admin-service-group__header span {
+  font-size: 0.72rem !important;
+  color: var(--admin-text-faint) !important;
+  margin-top: 0.1rem !important;
+  display: block !important;
+}
+
+/* Each service row within a group — picture-card strip */
+.admin-service-group .admin-data-row {
+  padding: 0.8rem 1.1rem !important;
+  border-top: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
+  transition: background 0.15s !important;
+}
+.admin-service-group .admin-data-row:first-child {
+  border-top: none !important;
+}
+.admin-service-group .admin-data-row summary {
+  grid-template-columns: 4.5rem 1fr auto !important;
+  gap: 0.85rem !important;
+}
+
+/* Service thumbnail — aspect-ratio */
+.admin-service-group .admin-data-row summary .relative.h-14.w-16 {
+  width: 4.5rem !important;
+  height: 3.4rem !important;
+  border-radius: 0.65rem !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+/* Category section — warning color */
+.admin-service-group.is-warning {
+  border-color: rgba(202,138,4,0.3) !important;
+}
+.admin-service-group.is-warning .admin-service-group__header {
+  background: rgba(202,138,4,0.06) !important;
+}
+
+/* ─── Admin data list gaps between groups ──── */
+.admin-service-groups {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.85rem !important;
+  padding: 0.85rem !important;
+}
+
+/* ─── CRM / Lead rows — richer display ──── */
+.admin-crm-row {
+  border-radius: 0.85rem;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-panel);
+  padding: 0.85rem 1.1rem;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.admin-crm-row:hover {
+  box-shadow: 0 4px 16px rgba(138,78,193,0.1);
+  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent);
+}
+
+/* ─── Dashboard KPI grid — 4 columns with gap ──── */
+.admin-grid-4 {
+  gap: 0.85rem !important;
+}
+.admin-grid-4 .admin-kpi {
+  background: linear-gradient(
+    160deg,
+    var(--admin-panel) 70%,
+    color-mix(in oklch, var(--admin-accent) 3%, var(--admin-panel))
+  ) !important;
+}
+
+/* ─── Pipeline stage mini-cards ──── */
+.admin-pipeline-stage {
+  border-radius: 0.85rem;
+  border: 1px solid var(--admin-border);
+  padding: 0.8rem 1rem;
+  background: var(--admin-panel-soft);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.admin-pipeline-stage:hover {
+  border-color: color-mix(in oklch, var(--admin-accent) 35%, transparent);
+  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel));
+}
+
+/* ─── Admin form field labels — better legibility ──── */
+.admin-field-label {
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  color: var(--admin-text-soft) !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+}
+
+/* ─── Admin input fields — better depth ──── */
+.admin-input {
+  border-radius: 0.75rem !important;
+  background: var(--admin-bg-soft) !important;
+  border-color: var(--admin-border) !important;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
+}
+.admin-input:focus {
+  background: var(--admin-panel) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 55%, transparent) !important;
+  box-shadow: 0 0 0 3.5px color-mix(in oklch, var(--admin-accent) 14%, transparent) !important;
+}
+
+/* ─── Mobile touch targets — 44px minimum ──── */
+@media (max-width: 1023px) {
+  .admin-btn-primary,
+  .admin-btn-secondary,
+  .admin-btn-danger,
+  .admin-btn-ghost,
+  .admin-shell__nav-item,
+  .admin-shell__nav-subitem {
+    min-height: 44px !important;
+  }
+  .admin-data-row {
+    padding: 1rem 1rem !important;
+  }
+  .admin-card__header {
+    padding: 0.85rem 1rem !important;
+  }
+  .admin-shell__content {
+    padding: 1rem !important;
+    gap: 0.85rem !important;
+  }
+}
+
+/* ─── Admin page header actions spacing ──── */
+.admin-page-header__actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  flex-wrap: wrap !important;
+}
+
+/* ─── Admin card body padding ──── */
+.admin-card__body {
+  padding: 1rem 1.2rem !important;
+}
+
+/* ─── Admin list controls tabs ──── */
+.admin-tabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.35rem !important;
+  padding: 0.65rem 1rem !important;
+  border-bottom: 1px solid var(--admin-border) !important;
+}
+.admin-tab {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  padding: 0.32rem 0.75rem !important;
+  border-radius: 999px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  border: 1px solid transparent !important;
+  color: var(--admin-text-soft) !important;
+  transition: all 0.15s !important;
+}
+.admin-tab:hover {
+  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  color: var(--admin-accent) !important;
+}
+.admin-tab.is-active {
+  background: var(--admin-accent) !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+}
+.admin-tab__count {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 1.3rem !important;
+  height: 1.3rem !important;
+  padding: 0 0.3rem !important;
+  border-radius: 999px !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  background: rgba(255,255,255,0.18) !important;
+}
+.admin-tab:not(.is-active) .admin-tab__count {
+  background: var(--admin-border) !important;
+  color: var(--admin-text-faint) !important;
+}
+
+/* ─── Quick search bar styling ──── */
+.admin-search-wrap {
+  position: relative !important;
+}
+.admin-search-wrap input {
+  padding-inline-start: 2.2rem !important;
+  border-radius: 999px !important;
+  font-size: 0.8rem !important;
+}
+.admin-search-wrap svg {
+  position: absolute !important;
+  inset-inline-start: 0.7rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: var(--admin-text-faint) !important;
+  pointer-events: none !important;
+}
+
+/* ─── Dashboard grid section headings ──── */
+.admin-section-title {
+  font-size: 0.65rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--admin-accent) !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.6rem !important;
+  padding-inline: 0.1rem !important;
+}
+
+/* ─── Chart cards ──── */
+.admin-chart-card {
+  border-radius: 1.2rem !important;
+  overflow: hidden !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel) !important;
+  box-shadow: 0 2px 12px rgba(31,16,64,0.07) !important;
+}
+
+/* ─── Admin content area gap ──── */
+.admin-shell__content > section,
+.admin-shell__content > article,
+.admin-shell__content > div {
+  animation: admin-slide-up 0.22s ease-out both !important;
+}
+@keyframes admin-slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.admin-shell__content > *:nth-child(2) { animation-delay: 0.04s !important; }
+.admin-shell__content > *:nth-child(3) { animation-delay: 0.08s !important; }
+.admin-shell__content > *:nth-child(4) { animation-delay: 0.12s !important; }
+.admin-shell__content > *:nth-child(5) { animation-delay: 0.16s !important; }
+
+/* ─── Entity grid (doctors) — hover shadow only, no translate ──── */
+.admin-entity-grid details.admin-data-row:not([open]):hover {
+  box-shadow: 0 6px 22px rgba(138,78,193,0.12) !important;
+  transform: none !important;
+}
+
+/* ─── Sidebar brand logo — ensure it's visible ──── */
+.admin-shell__brand-logo .rv-brand-logo-img {
+  transform: scale(1.65) !important;
+  filter: brightness(0) invert(1) !important;
+}
+
+/* ─── Admin quick-action navigation shortcut bar ──── */
+.admin-quick-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+.admin-quick-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text-soft);
+  text-decoration: none;
+  background: var(--admin-panel);
+  transition: all 0.15s;
+}
+.admin-quick-nav a:hover {
+  border-color: color-mix(in oklch, var(--admin-accent) 40%, transparent);
+  color: var(--admin-accent);
+  background: color-mix(in oklch, var(--admin-accent) 5%, var(--admin-panel));
+  transform: translateY(-1px);
+}
+
+/* ─── Override admin-data-list base padding when it's service-groups ──── */
+.admin-data-list.admin-service-groups {
+  padding: 0.85rem !important;
+  gap: 0.85rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.admin-data-list.admin-service-groups .admin-data-row {
+  padding: 0.7rem 1rem !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.admin-data-list.admin-service-groups .admin-data-row + .admin-data-row {
+  border-top: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
+}
+
+/* ─── Dashboard pipeline stage cards — bolder micro-cards ──── */
+.admin-card__body .grid.grid-cols-2.gap-3 > div,
+.admin-card__body .grid.md\:grid-cols-5 > div {
+  border-radius: 0.9rem !important;
+  padding: 0.85rem 1rem !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel-soft) !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.admin-card__body .grid.grid-cols-2.gap-3 > div:hover,
+.admin-card__body .grid.md\:grid-cols-5 > div:hover {
+  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+  box-shadow: 0 3px 12px color-mix(in oklch, var(--admin-accent) 10%, transparent) !important;
+}
+.admin-card__body .grid.grid-cols-2.gap-3 > div p:last-child,
+.admin-card__body .grid.md\:grid-cols-5 > div p:last-child {
+  font-size: 1.6rem !important;
+  font-weight: 800 !important;
+  background: linear-gradient(135deg, var(--admin-text) 40%, var(--admin-accent));
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  margin-top: 0.35rem !important;
+}
+
+/* ─── Admin KPI grid — force responsive auto-fit ──── */
+.admin-grid-4 {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+  gap: 0.75rem !important;
+}
+@media (max-width: 640px) {
+  .admin-grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ─── KPI card icon — color variant ──── */
+.admin-kpi__icon.is-success {
+  color: oklch(60% 0.18 145) !important;
+}
+.admin-kpi__icon.is-gold {
+  color: oklch(74% 0.16 85) !important;
+}
+
+/* ─── Recent leads in dashboard — name prominence ──── */
+.admin-data-list .admin-data-row .admin-data-row__title {
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+}
+.admin-data-list .admin-data-row .admin-data-row__meta {
+  font-size: 0.73rem !important;
+  color: var(--admin-text-faint) !important;
+  margin-top: 0.12rem !important;
+}
+
+/* ─── Admin card body ──── */
+.admin-card > .admin-card__body {
+  padding: 1.1rem 1.25rem !important;
+  gap: 1rem !important;
+}
+
+/* ─── Page-level section gap ──── */
+.admin-shell__content {
+  gap: 1.1rem !important;
+}
+
+/* ─── Sidebar nav-group spacing ──── */
+.admin-shell__nav-group {
+  padding: 0.5rem 0 !important;
+}
+.admin-shell__nav-group + .admin-shell__nav-group {
+  border-top: 1px solid color-mix(in oklch, var(--admin-border) 70%, transparent) !important;
+  margin-top: 0.1rem !important;
+  padding-top: 0.65rem !important;
+}
+.admin-shell__nav-group-label {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.14em !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  padding: 0.15rem 1.1rem 0.55rem !important;
+  color: var(--admin-accent) !important;
+  opacity: 0.7 !important;
+}
+
+/* ─── Sidebar nav item — cleaner compact form ──── */
+.admin-shell__nav-item {
+  margin: 0.1rem 0.55rem !important;
+  border-radius: 0.7rem !important;
+  padding: 0.6rem 0.75rem !important;
+  transition: background 0.13s, color 0.13s !important;
+}
+.admin-shell__nav-item.is-active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--admin-accent) 18%, transparent),
+    color-mix(in oklch, var(--admin-accent) 8%, transparent)
+  ) !important;
+  color: var(--admin-accent) !important;
+}
+.admin-shell__nav-subitem {
+  padding: 0.4rem 0.7rem !important;
+  border-radius: 0.6rem !important;
+  font-size: 0.75rem !important;
+  margin: 0.05rem 0.4rem !important;
+}
+.admin-shell__nav-subgrid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.1rem !important;
+  padding: 0.1rem 0 !important;
+}
+.admin-shell__nav-icon {
+  opacity: 0.75 !important;
+}
+.admin-shell__nav-item.is-active .admin-shell__nav-icon,
+.admin-shell__nav-subitem.is-active .admin-shell__nav-icon {
+  opacity: 1 !important;
+}
+
+/* ─── Top analytics section — top pages / referrers inline tables ──── */
+.admin-data-row.is-compact {
+  padding: 0.5rem 0.9rem !important;
+}
+
+/* ─── Content health section ──── */
+.admin-health-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+  gap: 0.6rem !important;
+}
