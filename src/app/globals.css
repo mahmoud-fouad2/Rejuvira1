@@ -18456,3 +18456,91 @@ html[lang="en"] .admin-cards-grid > details.admin-data-row[open] > summary::afte
     padding: 0.75rem !important;
   }
 }
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  ADMIN PAGINATION                                                ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.8rem 1.2rem;
+  border-top: 1px solid var(--admin-border);
+  background: var(--admin-panel-soft);
+  flex-wrap: wrap;
+}
+
+.admin-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-panel);
+  color: var(--admin-text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.13s;
+}
+.admin-pagination__btn:hover:not(:disabled) {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  background: color-mix(in oklch, var(--admin-accent) 5%, var(--admin-panel));
+}
+.admin-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.admin-pagination__pages {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.admin-pagination__page {
+  min-width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-panel);
+  color: var(--admin-text-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.13s;
+}
+.admin-pagination__page:hover {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+}
+.admin-pagination__page.is-active {
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 3px 8px rgba(124, 58, 237, 0.32) !important;
+}
+.admin-pagination__dots {
+  color: var(--admin-text-faint);
+  font-size: 1rem;
+  padding: 0 0.2rem;
+}
+
+@media (max-width: 560px) {
+  .admin-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .admin-pagination__pages {
+    order: -1;
+  }
+}
