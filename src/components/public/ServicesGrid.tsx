@@ -4,35 +4,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-type Service = {
-  id: string;
-  name: string;
-  slug: string;
-  category: string;
-  categoryId?: string | null;
-  categorySlug?: string | null;
-  excerpt: string;
-  description: string;
-  coverImageUrl: string;
-  benefits: string[];
-};
+import type {
+  ServiceCategoryRecord,
+  ServiceRecord,
+} from "@/lib/content-repository";
 
-type Category = {
+type CategoryLike = {
   id: string;
   name: string;
   nameEn?: string | null;
-  slug?: string;
-  description?: string | null;
 };
 
 type CategoryGroup = {
-  category: Category;
-  services: Service[];
+  category: CategoryLike;
+  services: readonly ServiceRecord[];
 };
 
 type Props = {
-  categoryGroups: CategoryGroup[];
-  remainingServices: Service[];
+  categoryGroups: ReadonlyArray<{
+    category: ServiceCategoryRecord;
+    services: readonly ServiceRecord[];
+  }>;
+  remainingServices: readonly ServiceRecord[];
 };
 
 const ALL_KEY = "__all__";
@@ -41,7 +34,14 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
   const [activeTab, setActiveTab] = useState<string>(ALL_KEY);
 
   const allGroups: CategoryGroup[] = [
-    ...categoryGroups,
+    ...categoryGroups.map((g) => ({
+      category: {
+        id: g.category.id,
+        name: g.category.name,
+        nameEn: g.category.nameEn ?? null,
+      } satisfies CategoryLike,
+      services: g.services,
+    })),
     ...(remainingServices.length > 0
       ? [
           {
@@ -49,7 +49,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
               id: "uncategorized",
               name: "خدمات أخرى",
               nameEn: "Other services",
-            },
+            } satisfies CategoryLike,
             services: remainingServices,
           },
         ]
@@ -66,8 +66,13 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
   return (
     <div className="flex flex-col gap-10">
       {/* ── Tab strip ─────────────────────────────────── */}
-      <div className="services-tab-strip" role="tablist" aria-label="أقسام الخدمات">
+      <div
+        className="services-tab-strip"
+        role="tablist"
+        aria-label="أقسام الخدمات"
+      >
         <button
+          type="button"
           role="tab"
           aria-selected={activeTab === ALL_KEY}
           className={`services-tab ${activeTab === ALL_KEY ? "services-tab--active" : ""}`}
@@ -80,6 +85,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
 
         {allGroups.map(({ category }) => (
           <button
+            type="button"
             key={category.id}
             role="tab"
             aria-selected={activeTab === category.id}
@@ -87,7 +93,9 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
             onClick={() => setActiveTab(category.id)}
           >
             <span className="lang-ar">{category.name}</span>
-            <span className="lang-en">{category.nameEn ?? category.name}</span>
+            <span className="lang-en">
+              {category.nameEn ?? category.name}
+            </span>
           </button>
         ))}
       </div>
@@ -96,7 +104,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
       <div className="flex flex-col gap-16">
         {visibleGroups.map(({ category, services }) => (
           <section key={category.id}>
-            {activeTab === ALL_KEY && (
+            {activeTab === ALL_KEY ? (
               <div className="mb-6 flex items-center gap-4">
                 <div>
                   <p className="eyebrow">
@@ -105,7 +113,9 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
                   </p>
                   <h2 className="text-ink mt-1.5 font-serif text-3xl leading-tight tracking-[-0.02em]">
                     <span className="lang-ar">{category.name}</span>
-                    <span className="lang-en">{category.nameEn ?? category.name}</span>
+                    <span className="lang-en">
+                      {category.nameEn ?? category.name}
+                    </span>
                   </h2>
                 </div>
                 <div className="border-line h-px flex-1 border-t" />
@@ -113,7 +123,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
                   {services.length}
                 </span>
               </div>
-            )}
+            ) : null}
 
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {services.map((service) => (
@@ -127,7 +137,9 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
   );
 }
 
-function ServiceCard({ service }: { service: Service }) {
+function ServiceCard({ service }: { service: ServiceRecord }) {
+  const benefits = service.benefits.slice(0, 3);
+
   return (
     <article className="service-card group">
       {/* Image */}
@@ -140,9 +152,7 @@ function ServiceCard({ service }: { service: Service }) {
           className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-        <span className="service-card__category-chip">
-          {service.category}
-        </span>
+        <span className="service-card__category-chip">{service.category}</span>
       </div>
 
       {/* Body */}
@@ -154,19 +164,19 @@ function ServiceCard({ service }: { service: Service }) {
           {service.excerpt}
         </p>
 
-        {service.benefits.length > 0 && (
+        {benefits.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {service.benefits.slice(0, 3).map((b) => (
+            {benefits.map((benefit) => (
               <span
-                key={b}
+                key={benefit}
                 className="border-line bg-canvas text-ink-faint inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px]"
               >
                 <span className="bg-gold inline-block h-1 w-1 rounded-full" />
-                {b}
+                {benefit}
               </span>
             ))}
           </div>
-        )}
+        ) : null}
 
         <Link
           href={`/services/${service.slug}`}

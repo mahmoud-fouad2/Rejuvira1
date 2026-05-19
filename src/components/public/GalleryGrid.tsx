@@ -4,21 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-type GalleryItem = {
-  id: string;
-  slug: string;
-  title: string;
-  titleEn?: string | null;
-  description: string;
-  descriptionEn?: string | null;
-  category: string;
-  categoryEn?: string | null;
-  beforeImageUrl: string;
-  afterImageUrl: string;
-};
+import type { GalleryRecord } from "@/lib/content-repository";
 
 type Props = {
-  items: GalleryItem[];
+  items: readonly GalleryRecord[];
 };
 
 const ALL_KEY = "__all__";
@@ -35,13 +24,14 @@ export function GalleryGrid({ items }: Props) {
   return (
     <div className="flex flex-col gap-8">
       {/* ── Filter tabs ───────────────────────────────── */}
-      {categories.length > 1 && (
+      {categories.length > 1 ? (
         <div
           className="services-tab-strip"
           role="tablist"
           aria-label="تصفية المعرض"
         >
           <button
+            type="button"
             role="tab"
             aria-selected={activeCategory === ALL_KEY}
             className={`services-tab ${activeCategory === ALL_KEY ? "services-tab--active" : ""}`}
@@ -53,6 +43,7 @@ export function GalleryGrid({ items }: Props) {
           </button>
           {categories.map((cat) => (
             <button
+              type="button"
               key={cat}
               role="tab"
               aria-selected={activeCategory === cat}
@@ -63,7 +54,7 @@ export function GalleryGrid({ items }: Props) {
             </button>
           ))}
         </div>
-      )}
+      ) : null}
 
       {/* ── Grid ─────────────────────────────────────── */}
       {visible.length > 0 ? (
@@ -82,7 +73,7 @@ export function GalleryGrid({ items }: Props) {
   );
 }
 
-function GalleryCard({ item }: { item: GalleryItem }) {
+function GalleryCard({ item }: { item: GalleryRecord }) {
   return (
     <article className="gallery-card group">
       {/* Before / After images */}
