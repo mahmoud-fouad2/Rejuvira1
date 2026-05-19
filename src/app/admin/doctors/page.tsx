@@ -102,7 +102,7 @@ export default async function AdminDoctorsPage() {
             </div>
           </div>
           <AdminListControls targetId="admin-doctors-list" tabs={tabs} />
-          <div className="admin-data-list" data-admin-list="admin-doctors-list">
+          <div className="admin-data-list admin-entity-grid" data-admin-list="admin-doctors-list">
             {doctors.map((doctor) => {
               const meta = statusMeta(doctor.status);
               return (

@@ -15715,7 +15715,7 @@ html[dir="rtl"] .doctor-card__cta:hover svg {
    Must stay at the very end to win the cascade.
    ═══════════════════════════════════════════════════════════ */
 
-/* 1. Logo: correct sizing for desktop and mobile */
+/* 1. Logo wrapper — square container matching the actual 1:1 logo image */
 header .rv-brand-logo,
 header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo,
@@ -15725,9 +15725,9 @@ header .rv-v0-logo,
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  /* Desktop: prominent logo that doesn't crowd the nav */
-  width: clamp(9.5rem, 14vw, 13rem) !important;
-  height: clamp(3.4rem, 5.5vw, 4.6rem) !important;
+  /* Square container — logo is 564×564 (1:1 ratio) */
+  width: clamp(4rem, 5.5vw, 5.5rem) !important;
+  height: clamp(4rem, 5.5vw, 5.5rem) !important;
   max-width: none !important;
   max-height: none !important;
   overflow: visible !important;
@@ -15736,9 +15736,10 @@ header .rv-v0-logo,
   position: relative;
 }
 
-header .rv-brand-logo .rv-brand-logo-img,
-header .rv-v0-brand .rv-brand-logo-img,
-.rv-v0-brand .rv-brand-logo-img {
+/* Light logo: always visible by default */
+header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+.rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light {
+  display: block !important;
   position: relative !important;
   inset: auto !important;
   width: 100% !important;
@@ -15747,8 +15748,33 @@ header .rv-v0-brand .rv-brand-logo-img,
   max-height: none !important;
   object-fit: contain !important;
   transform: none !important;
-  display: block !important;
   grid-area: auto !important;
+}
+
+/* Dark logo: hidden in light mode */
+header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+.rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
+  display: none !important;
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform: none !important;
+  grid-area: auto !important;
+}
+
+/* Dark mode: swap which logo shows */
+html[data-theme="dark"] header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light {
+  display: none !important;
+}
+
+html[data-theme="dark"] header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
+  display: block !important;
 }
 
 /* Desktop nav: slightly reduce font so logo breathes */
@@ -15758,9 +15784,10 @@ header .rv-v0-brand .rv-brand-logo-img,
   padding-inline: 0.65rem !important;
 }
 
-/* Desktop nav row min-height */
+/* Desktop nav row — enough height for 5.5rem logo + padding */
 .rv-v0-nav {
-  min-height: 5rem !important;
+  min-height: 6rem !important;
+  align-items: center !important;
 }
 
 /* 2. Nav direction: inherit from html[dir] so LTR works in English */
@@ -15872,31 +15899,77 @@ header .rv-v0-brand .rv-brand-logo-img,
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ADMIN ENTITY LIST — enhanced card grid on large screens
-   Makes doctors/services/categories feel like visual cards.
+   ADMIN ENTITY GRID — visual card grid for doctors/services
+   Replaces the flat list with rich clickable card items.
    ═══════════════════════════════════════════════════════════ */
 
-/* On screens ≥1024px show a 2-column card grid for admin lists */
-@media (min-width: 1024px) {
-  .admin-data-list.is-card-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.85rem;
-    padding: 1rem;
-  }
+.admin-entity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 0.85rem;
+  padding: 1rem;
+}
 
-  .admin-data-list.is-card-grid .admin-data-row {
-    border-radius: 0.85rem;
-    border: 1px solid var(--admin-border);
-    background: var(--admin-panel-bg);
-    padding: 1rem 1.1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    transition: box-shadow 0.18s, transform 0.18s;
-  }
+/* Each details element becomes a standalone card */
+.admin-entity-grid details.admin-data-row,
+.admin-entity-grid details {
+  border-radius: 1.1rem !important;
+  border: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel-soft, var(--admin-panel-bg)) !important;
+  padding: 0 !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05) !important;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s !important;
+  overflow: hidden !important;
+}
 
-  .admin-data-list.is-card-grid .admin-data-row:hover {
-    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
-    transform: translateY(-1px);
+.admin-entity-grid details.admin-data-row:hover,
+.admin-entity-grid details:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.1) !important;
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 35%, var(--admin-border)) !important;
+}
+
+/* Card summary header */
+.admin-entity-grid details.admin-data-row > summary,
+.admin-entity-grid details > summary {
+  padding: 0.95rem 1rem !important;
+  border-radius: 1.1rem !important;
+  grid-template-columns: 3.6rem 1fr auto !important;
+  gap: 0.8rem !important;
+  align-items: center !important;
+}
+
+.admin-entity-grid details.admin-data-row[open] > summary,
+.admin-entity-grid details[open] > summary {
+  border-bottom: 1px solid var(--admin-border) !important;
+  border-radius: 1.1rem 1.1rem 0 0 !important;
+}
+
+/* Thumbnail/Avatar in card - square for services, circle for doctors */
+.admin-entity-grid details.admin-data-row summary .relative.h-12.w-12 {
+  width: 3rem !important;
+  height: 3rem !important;
+  border-radius: 50% !important;
+}
+
+.admin-entity-grid details.admin-data-row summary .relative.h-14.w-16 {
+  width: 3.6rem !important;
+  height: 3.2rem !important;
+  border-radius: 0.55rem !important;
+}
+
+/* Card edit panel */
+.admin-entity-grid details.admin-data-row > div.mt-4,
+.admin-entity-grid details > div.mt-4 {
+  padding: 1rem !important;
+  border-radius: 0 0 1.1rem 1.1rem !important;
+  margin-top: 0 !important;
+  border-top: none !important;
+}
+
+@media (max-width: 768px) {
+  .admin-entity-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -15952,12 +16025,12 @@ html[dir="ltr"] .rv-v0-nav {
     display: none !important;
   }
 
-  /* Logo sized to fit mobile single row — readable but not cramped */
+  /* Mobile logo — square container sized to fit in the mobile header bar */
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width: clamp(8rem, 28vw, 11rem) !important;
-    height: clamp(3rem, 9vw, 4rem) !important;
+    width: clamp(3.4rem, 12vw, 4.4rem) !important;
+    height: clamp(3.4rem, 12vw, 4.4rem) !important;
   }
 
   /* Compact action pills */
@@ -16012,8 +16085,8 @@ html[dir="ltr"] .rv-v0-nav {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width: clamp(7rem, 30vw, 9rem) !important;
-    height: clamp(2.6rem, 9vw, 3.4rem) !important;
+    width: clamp(3rem, 11vw, 4rem) !important;
+    height: clamp(3rem, 11vw, 4rem) !important;
   }
 
   .rv-mobile-inline-actions {
