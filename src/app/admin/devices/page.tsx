@@ -102,7 +102,7 @@ export default async function AdminDevicesPage() {
             </div>
           </div>
           <AdminListControls targetId="admin-devices-list" tabs={tabs} />
-          <div className="admin-data-list" data-admin-list="admin-devices-list">
+          <div className="admin-data-list admin-cards-grid" data-admin-list="admin-devices-list">
             {devices.map((device) => {
               const meta = statusMeta(device.status);
               return (

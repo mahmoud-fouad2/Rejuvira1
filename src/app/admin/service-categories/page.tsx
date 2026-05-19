@@ -109,7 +109,7 @@ export default async function AdminServiceCategoriesPage() {
         </div>
         <AdminListControls targetId="admin-categories-list" tabs={tabs} />
         <div
-          className="admin-data-list"
+          className="admin-data-list admin-cards-grid"
           data-admin-list="admin-categories-list"
         >
           {categories.map((category) => {

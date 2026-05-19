@@ -18158,3 +18158,301 @@ header .rv-v0-logo,
   }
   .rv-v0-nav { min-height: 6.5rem !important; }
 }
+
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║  HEADER FIX FINAL — slim nav bar + visually prominent logo         ║
+   ║  Logo overflows its slim container so it looks tall without        ║
+   ║  inflating the entire nav row.                                     ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
+
+/* Nav bar: slim row */
+.rv-v0-nav {
+  min-height: 4.2rem !important;
+  align-items: center !important;
+  padding-block: 0.35rem !important;
+}
+
+/* Logo container: compact square that fits the slim bar */
+header .rv-brand-logo,
+header .rv-brand-logo-header,
+.rv-v0-brand .rv-brand-logo,
+.rv-v0-brand .rv-brand-logo-header,
+header .rv-v0-logo,
+.rv-v0-brand .rv-v0-logo {
+  width:  clamp(3.4rem, 4.5vw, 4.4rem) !important;
+  height: clamp(3.4rem, 4.5vw, 4.4rem) !important;
+  overflow: visible !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+}
+
+/* Logo image: scale up inside the slim container so it looks bigger */
+header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+.rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+.rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  transform: scale(1.5) !important;
+  transform-origin: center !important;
+}
+
+/* Brand link */
+.rv-v0-brand,
+header .rv-brand-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+}
+
+/* ── Tablet ── */
+@media (max-width: 1023px) {
+  .rv-v0-nav {
+    min-height: 4rem !important;
+  }
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(3rem, 9vw, 4rem) !important;
+    height: clamp(3rem, 9vw, 4rem) !important;
+  }
+}
+
+/* ── Mobile ── */
+@media (max-width: 767px) {
+  .rv-v0-nav {
+    min-height: 3.8rem !important;
+  }
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(2.8rem, 11vw, 3.6rem) !important;
+    height: clamp(2.8rem, 11vw, 3.6rem) !important;
+  }
+  header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+  .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+  header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+  .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
+    transform: scale(1.4) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rv-v0-nav {
+    min-height: 3.6rem !important;
+  }
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo {
+    width:  clamp(2.6rem, 12vw, 3.3rem) !important;
+    height: clamp(2.6rem, 12vw, 3.3rem) !important;
+  }
+}
+
+/* ╔══════════════════════════════════════════════════════════════════════╗
+   ║  ADMIN CARDS GRID — Professional card layout for entity lists       ║
+   ║  Replaces flat lists. Click card → expands inline (or modal).      ║
+   ╚══════════════════════════════════════════════════════════════════════╝ */
+
+/* Apply when container has .admin-cards-grid */
+.admin-cards-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 1rem !important;
+  padding: 1rem !important;
+  background: var(--admin-bg) !important;
+}
+
+/* Each entity row becomes a clean card */
+.admin-cards-grid > details.admin-data-row,
+.admin-cards-grid > article.admin-data-row {
+  display: block !important;
+  background: var(--admin-panel) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 1rem !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transition: transform 0.18s, box-shadow 0.2s, border-color 0.18s !important;
+  box-shadow: 0 1px 3px rgba(31, 16, 64, 0.04), 0 2px 8px rgba(31, 16, 64, 0.04) !important;
+  border-top: 1px solid var(--admin-border) !important;
+}
+
+.admin-cards-grid > details.admin-data-row:nth-child(even) {
+  background: var(--admin-panel) !important;
+}
+
+.admin-cards-grid > details.admin-data-row:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.14), 0 2px 4px rgba(31, 16, 64, 0.04) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 25%, var(--admin-border)) !important;
+}
+
+/* When card is open, span all columns to show edit form */
+.admin-cards-grid > details.admin-data-row[open] {
+  grid-column: 1 / -1 !important;
+  transform: none !important;
+  box-shadow: 0 10px 32px rgba(124, 58, 237, 0.18) !important;
+  border-color: color-mix(in oklch, var(--admin-accent) 35%, transparent) !important;
+}
+
+/* Summary becomes the card visible content (image + text + badge) */
+.admin-cards-grid > details.admin-data-row > summary {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto auto !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  list-style: none !important;
+  position: relative !important;
+}
+.admin-cards-grid > details.admin-data-row > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+/* The image (1st child of summary) becomes a banner-style top section */
+.admin-cards-grid > details.admin-data-row > summary > div:first-child {
+  width: 100% !important;
+  height: 11rem !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background: linear-gradient(135deg, color-mix(in oklch, var(--admin-accent) 8%, var(--admin-panel)), color-mix(in oklch, var(--admin-accent) 3%, var(--admin-panel))) !important;
+  flex: 1 0 auto !important;
+}
+
+/* For doctor avatars (circular small image) — make it a square banner */
+.admin-cards-grid > details.admin-data-row > summary > .rounded-full {
+  border-radius: 0 !important;
+}
+.admin-cards-grid > details.admin-data-row > summary > div:first-child img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* The info section (2nd child of summary): text below image */
+.admin-cards-grid > details.admin-data-row > summary > div:nth-child(2),
+.admin-cards-grid > details.admin-data-row > summary > div.min-w-0 {
+  padding: 0.85rem 1rem 0.4rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.1rem !important;
+  min-width: 0 !important;
+}
+
+/* Badge (3rd child) — overlays the top-right corner of the image */
+.admin-cards-grid > details.admin-data-row > summary > .admin-status-badge {
+  position: absolute !important;
+  top: 0.7rem !important;
+  inset-inline-end: 0.7rem !important;
+  z-index: 2 !important;
+  backdrop-filter: blur(4px) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Card titles */
+.admin-cards-grid .admin-data-row__title {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: var(--admin-text) !important;
+  white-space: normal !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 1 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  margin-bottom: 0.15rem !important;
+}
+.admin-cards-grid .admin-data-row__meta {
+  font-size: 0.74rem !important;
+  color: var(--admin-text-soft) !important;
+  white-space: normal !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+/* Add a "click to view/edit" footer hint */
+.admin-cards-grid > details.admin-data-row > summary::after {
+  content: "تعديل ←";
+  display: block;
+  padding: 0.55rem 1rem 0.95rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--admin-accent);
+  margin-top: auto;
+  border-top: 1px dashed color-mix(in oklch, var(--admin-accent) 20%, transparent);
+  transition: background 0.13s;
+}
+html[lang="en"] .admin-cards-grid > details.admin-data-row > summary::after {
+  content: "Edit →";
+}
+.admin-cards-grid > details.admin-data-row:hover > summary::after {
+  background: color-mix(in oklch, var(--admin-accent) 6%, transparent);
+}
+.admin-cards-grid > details.admin-data-row[open] > summary::after {
+  content: "إغلاق ↑";
+  background: color-mix(in oklch, var(--admin-accent) 10%, transparent);
+}
+html[lang="en"] .admin-cards-grid > details.admin-data-row[open] > summary::after {
+  content: "Close ↑";
+}
+
+/* Open card: form section below */
+.admin-cards-grid > details.admin-data-row[open] > div:not(:first-child),
+.admin-cards-grid > details.admin-data-row[open] > .mt-4 {
+  padding: 1.2rem 1.4rem !important;
+  border-top: 1px solid var(--admin-border) !important;
+  background: var(--admin-panel-soft) !important;
+  margin-top: 0 !important;
+}
+
+/* Categories (no image) — text-only cards */
+.admin-cards-grid > details.admin-data-row > summary:not(:has(> div:first-child > img)):not(:has(> div:first-child > .relative)) {
+  display: flex !important;
+  flex-direction: column !important;
+  padding-top: 1rem !important;
+}
+.admin-cards-grid > details.admin-data-row > summary > div.min-w-0:only-of-type {
+  padding: 1.2rem 1.2rem 0.5rem !important;
+}
+
+/* When summary uses grid-cols-[1fr_auto] (categories) — preserve badge inline */
+.admin-cards-grid > details.admin-data-row > summary.grid-cols-\[1fr_auto\] {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: start !important;
+  padding: 1.1rem 1.2rem 0.4rem !important;
+}
+.admin-cards-grid > details.admin-data-row > summary.grid-cols-\[1fr_auto\] > .admin-status-badge {
+  position: static !important;
+  background: var(--admin-panel-soft) !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+/* Service-group container override — let inner list flow as grid */
+.admin-service-groups .admin-data-list,
+.admin-service-group .admin-data-list,
+.admin-service-group > * > .admin-data-list {
+  /* If we put cards inside groups, they should be a grid */
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 0.85rem !important;
+  padding: 0.85rem !important;
+}
+
+/* Mobile: 1 col */
+@media (max-width: 560px) {
+  .admin-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+    padding: 0.75rem !important;
+  }
+}
