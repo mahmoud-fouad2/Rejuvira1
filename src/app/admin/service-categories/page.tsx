@@ -5,6 +5,7 @@ import type { Route } from "next";
 import { deleteServiceCategoryAction } from "@/app/admin/service-categories/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { AdminListControls } from "@/components/admin/AdminListControls";
+import { ReconcileCoreContentButton } from "@/components/admin/ReconcileCoreContentButton";
 import { ServiceCategoryForm } from "@/components/forms/ServiceCategoryForm";
 import { getServiceCategories, getServices } from "@/lib/content-repository";
 
@@ -78,6 +79,7 @@ export default async function AdminServiceCategoriesPage() {
           </p>
         </div>
         <div className="admin-page-header__actions">
+          <ReconcileCoreContentButton />
           <Link
             href={"/admin/content" as Route}
             className="admin-btn-secondary"

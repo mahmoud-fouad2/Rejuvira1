@@ -9,6 +9,7 @@ import {
 } from "@/app/admin/services/actions";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
 import { AdminListControls } from "@/components/admin/AdminListControls";
+import { ReconcileCoreContentButton } from "@/components/admin/ReconcileCoreContentButton";
 import { ServiceCreateForm } from "@/components/forms/ServiceCreateForm";
 import { ServiceEditorForm } from "@/components/forms/ServiceEditorForm";
 import {
@@ -254,6 +255,7 @@ export default async function AdminServicesPage() {
           </p>
         </div>
         <div className="admin-page-header__actions">
+          <ReconcileCoreContentButton />
           <Link
             href={"/admin/content" as Route}
             className="admin-btn-secondary"

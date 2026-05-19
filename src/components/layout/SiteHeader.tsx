@@ -114,15 +114,42 @@ export async function SiteHeader() {
 
       <div className="rv-v0-nav-shell">
         <div className="rv-v0-nav mx-auto max-w-[var(--max-width)] px-4 py-3 sm:px-6 lg:px-8">
-          <div className="rv-nav-actions">
-            <BookingModal
-              services={
-                publishedServices.length > 0 ? publishedServices : services
-              }
-              recaptchaSiteKey={getPublicSiteKey()}
-            />
-            <ThemeToggle />
-            <LanguageToggle />
+          <details className="rv-mobile-details group">
+            <summary className="rv-v0-menu-button flex h-11 w-11 cursor-pointer list-none items-center justify-center">
+              <MenuIcon />
+            </summary>
+            <div className="rv-v0-mobile-menu p-3">
+              <div className="grid gap-1">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="rv-v0-mobile-link"
+                  >
+                    <span className="lang-ar">{link.labelAr}</span>
+                    <span className="lang-en">{link.labelEn}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </details>
+
+          <div className="rv-nav-brand-wrap">
+            <Link
+              href="/"
+              className="rv-v0-brand"
+              aria-label={runtimeSettings.brand.siteName}
+            >
+              <BrandLogo
+                alt={runtimeSettings.brand.logoAlt}
+                width={564}
+                height={564}
+                priority
+                variant="header"
+                className="rv-v0-logo"
+                sizes="(max-width: 768px) 96px, 148px"
+              />
+            </Link>
           </div>
 
           <nav className="rv-nav-menu" aria-label={navLabel}>
@@ -151,22 +178,15 @@ export async function SiteHeader() {
             )}
           </nav>
 
-          <div className="rv-nav-brand-wrap">
-            <Link
-              href="/"
-              className="rv-v0-brand"
-              aria-label={runtimeSettings.brand.siteName}
-            >
-              <BrandLogo
-                alt={runtimeSettings.brand.logoAlt}
-                width={564}
-                height={564}
-                priority
-                variant="header"
-                className="rv-v0-logo"
-                sizes="(max-width: 768px) 96px, 148px"
-              />
-            </Link>
+          <div className="rv-nav-actions">
+            <BookingModal
+              services={
+                publishedServices.length > 0 ? publishedServices : services
+              }
+              recaptchaSiteKey={getPublicSiteKey()}
+            />
+            <ThemeToggle />
+            <LanguageToggle />
           </div>
 
           <div className="rv-mobile-inline-actions">
@@ -180,26 +200,6 @@ export async function SiteHeader() {
             <ThemeToggle />
             <LanguageToggle />
           </div>
-
-          <details className="rv-mobile-details group">
-            <summary className="rv-v0-menu-button flex h-11 w-11 cursor-pointer list-none items-center justify-center">
-              <MenuIcon />
-            </summary>
-            <div className="rv-v0-mobile-menu p-3">
-              <div className="grid gap-1">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="rv-v0-mobile-link"
-                  >
-                    <span className="lang-ar">{link.labelAr}</span>
-                    <span className="lang-en">{link.labelEn}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </details>
         </div>
       </div>
     </header>

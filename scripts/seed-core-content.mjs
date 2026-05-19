@@ -1,7 +1,7 @@
 import { ContentStatus, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const CORE_SEED_VERSION = "2026-05-19-service-tree-v2";
+const CORE_SEED_VERSION = "2026-05-19-service-tree-v3";
 
 const images = {
   surgery:
