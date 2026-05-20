@@ -147,7 +147,7 @@ export async function SiteHeader() {
                 priority
                 variant="header"
                 className="rv-v0-logo"
-                sizes="(max-width: 768px) 96px, 148px"
+                sizes="(max-width: 480px) 120px, (max-width: 768px) 132px, 180px"
               />
             </Link>
           </div>

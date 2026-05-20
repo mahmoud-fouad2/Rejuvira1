@@ -18250,6 +18250,81 @@ header .rv-brand-link {
   }
 }
 
+/* Final header logo sizing: larger, legible brand mark on desktop and mobile. */
+.rv-v0-nav {
+  min-height: 5rem !important;
+}
+
+header .rv-brand-logo,
+header .rv-brand-logo-header,
+.rv-v0-brand .rv-brand-logo,
+.rv-v0-brand .rv-brand-logo-header,
+header .rv-v0-logo,
+.rv-v0-brand .rv-v0-logo {
+  width: clamp(4.6rem, 5.4vw, 5.8rem) !important;
+  height: clamp(4.6rem, 5.4vw, 5.8rem) !important;
+  overflow: visible !important;
+}
+
+header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+.rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+.rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
+  transform: scale(1.6) !important;
+  transform-origin: center !important;
+}
+
+@media (max-width: 1023px) {
+  .rv-v0-nav {
+    min-height: 4.6rem !important;
+  }
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo,
+  .rv-v0-brand .rv-brand-logo-header,
+  header .rv-v0-logo,
+  .rv-v0-brand .rv-v0-logo {
+    width: clamp(4rem, 10vw, 5rem) !important;
+    height: clamp(4rem, 10vw, 5rem) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .rv-v0-nav {
+    min-height: 4.35rem !important;
+  }
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo,
+  .rv-v0-brand .rv-brand-logo-header,
+  header .rv-v0-logo,
+  .rv-v0-brand .rv-v0-logo {
+    width: clamp(3.7rem, 15vw, 4.7rem) !important;
+    height: clamp(3.7rem, 15vw, 4.7rem) !important;
+  }
+  header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+  .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+  header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+  .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
+    transform: scale(1.48) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rv-v0-nav {
+    min-height: 4.1rem !important;
+  }
+  header .rv-brand-logo,
+  header .rv-brand-logo-header,
+  .rv-v0-brand .rv-brand-logo,
+  .rv-v0-brand .rv-brand-logo-header,
+  header .rv-v0-logo,
+  .rv-v0-brand .rv-v0-logo {
+    width: clamp(3.45rem, 17vw, 4.25rem) !important;
+    height: clamp(3.45rem, 17vw, 4.25rem) !important;
+  }
+}
+
 /* ╔══════════════════════════════════════════════════════════════════════╗
    ║  ADMIN CARDS GRID — Professional card layout for entity lists       ║
    ║  Replaces flat lists. Click card → expands inline (or modal).      ║
