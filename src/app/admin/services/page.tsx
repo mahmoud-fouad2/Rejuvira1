@@ -268,7 +268,11 @@ export default async function AdminServicesPage() {
             titleArabic="إضافة خدمة جديدة"
             titleEnglish="New service"
           >
-            <ServiceCreateForm categories={categoryOptions} />
+            <ServiceCreateForm
+              categories={categoryOptions}
+              doctorOptions={doctorOptions}
+              deviceOptions={deviceOptions}
+            />
           </AdminAddModal>
         </div>
       </div>

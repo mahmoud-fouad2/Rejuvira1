@@ -4,6 +4,10 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 
 import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  MultiSelectChips,
+  type ChipOption,
+} from "@/components/admin/MultiSelectChips";
 
 type ServiceActionState = {
   status: "idle" | "success" | "error";
@@ -23,9 +27,15 @@ export type ServiceCategoryOption = {
 
 type Props = {
   categories?: ServiceCategoryOption[];
+  doctorOptions?: ChipOption[];
+  deviceOptions?: ChipOption[];
 };
 
-export function ServiceCreateForm({ categories = [] }: Props) {
+export function ServiceCreateForm({
+  categories = [],
+  doctorOptions = [],
+  deviceOptions = [],
+}: Props) {
   const router = useRouter();
   const [state, setState] = useState<ServiceActionState>(initialState);
   const [isPending, setIsPending] = useState(false);
@@ -131,6 +141,20 @@ export function ServiceCreateForm({ categories = [] }: Props) {
         label="صورة الغلاف / Cover image"
         aspect={16 / 9}
       />
+      <div className="grid gap-3 lg:grid-cols-2">
+        <MultiSelectChips
+          name="doctorSlugs"
+          label="الأطباء المرتبطون / Linked doctors"
+          options={doctorOptions}
+          helper="اختر الأطباء الذين يقدمون الخدمة من البداية."
+        />
+        <MultiSelectChips
+          name="deviceSlugs"
+          label="الأجهزة المرتبطة / Linked devices"
+          options={deviceOptions}
+          helper="اختر الأجهزة المستخدمة أو الداعمة للخدمة."
+        />
+      </div>
       <div className="grid gap-3 md:grid-cols-2">
         <label className="grid gap-1">
           <span className="admin-field-label">

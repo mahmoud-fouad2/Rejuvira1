@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { Route } from "next";
 import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
 
 type UploadState = {
@@ -142,7 +143,7 @@ export function HtmlLandingPageUploadForm() {
         status: "success",
         message: `تم حفظ الصفحة. الرابط: /p/${cleanSlug}`,
       });
-      if (data?.id) router.push(`/admin/pages/${data.id}`);
+      if (data?.id) router.push(`/admin/pages/${data.id}` as Route);
       else router.refresh();
     } catch {
       setState({

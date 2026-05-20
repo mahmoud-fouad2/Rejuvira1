@@ -437,6 +437,8 @@ export type CreateServiceInput = {
   description: string;
   descriptionEn?: string | undefined;
   coverImageUrl?: string | undefined;
+  doctorSlugs?: string[] | undefined;
+  deviceSlugs?: string[] | undefined;
 };
 
 export type CreateServiceCategoryInput = {
@@ -3748,12 +3750,28 @@ export async function createServiceDraft(input: CreateServiceInput) {
     return { mode: "preview" as const, item: input };
   }
 
+  const doctorSlugs = normalizeSlugList(input.doctorSlugs);
+  const deviceSlugs = normalizeSlugList(input.deviceSlugs);
   const category = input.categoryId
     ? await prisma.serviceCategory.findUnique({
         where: { id: input.categoryId },
         select: { id: true, nameAr: true },
       })
     : null;
+  const [relatedDoctors, relatedDevices] = await Promise.all([
+    doctorSlugs.length
+      ? prisma.doctor.findMany({
+          where: { slug: { in: doctorSlugs } },
+          select: { id: true },
+        })
+      : [],
+    deviceSlugs.length
+      ? prisma.device.findMany({
+          where: { slug: { in: deviceSlugs } },
+          select: { id: true },
+        })
+      : [],
+  ]);
 
   const service = await prisma.service.create({
     data: {
@@ -3770,6 +3788,20 @@ export async function createServiceDraft(input: CreateServiceInput) {
       ...(input.coverImageUrl
         ? {
             coverImageUrl: input.coverImageUrl,
+          }
+        : {}),
+      ...(relatedDoctors.length
+        ? {
+            doctors: {
+              connect: relatedDoctors.map((doctor) => ({ id: doctor.id })),
+            },
+          }
+        : {}),
+      ...(relatedDevices.length
+        ? {
+            devices: {
+              connect: relatedDevices.map((device) => ({ id: device.id })),
+            },
           }
         : {}),
     },
@@ -4699,18 +4731,42 @@ export async function deleteServiceCategory(id: string) {
 
 /* ── Service CRUD (extra) ────────────────────────────────── */
 
+function normalizeSlugList(slugs?: string[]): string[] {
+  return Array.from(
+    new Set((slugs ?? []).map((slug) => slug.trim()).filter(Boolean)),
+  );
+}
+
 export async function updateService(input: UpdateServiceInput) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, input };
   }
-  const doctorSlugs = input.doctorSlugs;
-  const deviceSlugs = input.deviceSlugs;
+  const doctorSlugs = Array.isArray(input.doctorSlugs)
+    ? normalizeSlugList(input.doctorSlugs)
+    : undefined;
+  const deviceSlugs = Array.isArray(input.deviceSlugs)
+    ? normalizeSlugList(input.deviceSlugs)
+    : undefined;
   const category = input.categoryId
     ? await prisma.serviceCategory.findUnique({
         where: { id: input.categoryId },
         select: { id: true, nameAr: true },
       })
     : null;
+  const [relatedDoctors, relatedDevices] = await Promise.all([
+    Array.isArray(doctorSlugs) && doctorSlugs.length
+      ? prisma.doctor.findMany({
+          where: { slug: { in: doctorSlugs } },
+          select: { id: true },
+        })
+      : [],
+    Array.isArray(deviceSlugs) && deviceSlugs.length
+      ? prisma.device.findMany({
+          where: { slug: { in: deviceSlugs } },
+          select: { id: true },
+        })
+      : [],
+  ]);
   const data = {
     slug: input.slug,
     nameAr: input.name,
@@ -4727,14 +4783,14 @@ export async function updateService(input: UpdateServiceInput) {
     ...(Array.isArray(doctorSlugs)
       ? {
           doctors: {
-            set: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
+            set: relatedDoctors.map((doctor) => ({ id: doctor.id })),
           },
         }
       : {}),
     ...(Array.isArray(deviceSlugs)
       ? {
           devices: {
-            set: deviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+            set: relatedDevices.map((device) => ({ id: device.id })),
           },
         }
       : {}),
@@ -4759,14 +4815,14 @@ export async function updateService(input: UpdateServiceInput) {
       ...(Array.isArray(doctorSlugs)
         ? {
             doctors: {
-              connect: doctorSlugs.filter(Boolean).map((slug) => ({ slug })),
+              connect: relatedDoctors.map((doctor) => ({ id: doctor.id })),
             },
           }
         : {}),
       ...(Array.isArray(deviceSlugs)
         ? {
             devices: {
-              connect: deviceSlugs.filter(Boolean).map((slug) => ({ slug })),
+              connect: relatedDevices.map((device) => ({ id: device.id })),
             },
           }
         : {}),

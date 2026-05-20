@@ -1,6 +1,7 @@
 "use client";
 
 import { ContentStatus } from "@prisma/client";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
@@ -67,7 +68,7 @@ export function CustomPageEditorForm({
       setState(data);
       if (response.ok && data.status === "success") {
         if (mode === "create" && data.id) {
-          router.push(`/admin/pages/${data.id}`);
+          router.push(`/admin/pages/${data.id}` as Route);
         } else {
           router.refresh();
         }

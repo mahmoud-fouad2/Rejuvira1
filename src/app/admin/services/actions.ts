@@ -28,14 +28,14 @@ const serviceSchema = z.object({
   description: z.string().min(20),
   descriptionEn: z.string().optional().or(z.literal("")),
   coverImageUrl: z.string().optional().or(z.literal("")),
+  doctorSlugs: z.string().optional().or(z.literal("")),
+  deviceSlugs: z.string().optional().or(z.literal("")),
 });
 
 const updateServiceSchema = serviceSchema.extend({
   id: z.string().min(3),
   status: z.nativeEnum(ContentStatus),
   featured: z.coerce.boolean().optional().default(false),
-  doctorSlugs: z.string().optional().or(z.literal("")),
-  deviceSlugs: z.string().optional().or(z.literal("")),
 });
 
 function parseSlugList(raw: FormDataEntryValue | null): string[] {
@@ -52,6 +52,8 @@ function revalidate() {
   revalidatePath("/services/[slug]", "page");
   revalidatePath("/");
   revalidatePath("/doctors");
+  revalidatePath("/devices");
+  revalidatePath("/sitemap.xml");
 }
 
 export async function createServiceAction(
@@ -69,6 +71,8 @@ export async function createServiceAction(
     description: formData.get("description"),
     descriptionEn: formData.get("descriptionEn"),
     coverImageUrl: formData.get("coverImageUrl"),
+    doctorSlugs: formData.get("doctorSlugs"),
+    deviceSlugs: formData.get("deviceSlugs"),
   });
 
   if (!parsed.success) {
@@ -88,6 +92,8 @@ export async function createServiceAction(
       ...(parsed.data.descriptionEn
         ? { descriptionEn: parsed.data.descriptionEn }
         : {}),
+      doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
+      deviceSlugs: parseSlugList(formData.get("deviceSlugs")),
       ...(parsed.data.coverImageUrl
         ? { coverImageUrl: parsed.data.coverImageUrl }
         : {}),
