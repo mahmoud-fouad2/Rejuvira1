@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
-import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import { canAccessAdminRoute, getAdminHomePath } from "@/lib/admin-permissions";
 import {
   buildCanonicalUrl,
   shouldRedirectToCanonicalHost,
@@ -76,6 +76,13 @@ export default auth((request) => {
     return NextResponse.redirect(url);
   }
 
+  if (nextUrl.pathname === "/admin" && hasAuthenticatedUser) {
+    const adminHomePath = getAdminHomePath(session?.user?.role);
+    if (adminHomePath !== "/admin") {
+      return NextResponse.redirect(buildCanonicalUrl(adminHomePath));
+    }
+  }
+
   if (
     isAdminRoute &&
     !canAccessAdminRoute(nextUrl.pathname, session?.user?.role)
@@ -84,7 +91,9 @@ export default auth((request) => {
   }
 
   if (isLoginRoute && hasAuthenticatedUser) {
-    return NextResponse.redirect(buildCanonicalUrl("/admin"));
+    return NextResponse.redirect(
+      buildCanonicalUrl(getAdminHomePath(session?.user?.role)),
+    );
   }
 
   const response = NextResponse.next({

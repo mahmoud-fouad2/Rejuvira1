@@ -33,6 +33,37 @@ function detectInitialLang(url: string | null, cookieLang: string | undefined) {
   return "ar";
 }
 
+function normalizeGoogleTagUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/^G-[A-Z0-9]+$/i.test(trimmed)) {
+    return `https://www.googletagmanager.com/gtag/js?id=${trimmed.toUpperCase()}`;
+  }
+  try {
+    const url = new URL(trimmed);
+    if (
+      url.protocol !== "https:" ||
+      url.hostname !== "www.googletagmanager.com" ||
+      url.pathname !== "/gtag/js"
+    ) {
+      return null;
+    }
+    const id = url.searchParams.get("id");
+    return id && /^G-[A-Z0-9]+$/i.test(id) ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function googleTagIdFromUrl(value: string) {
+  try {
+    const id = new URL(value).searchParams.get("id");
+    return id && /^G-[A-Z0-9]+$/i.test(id) ? id.toUpperCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 /* ── Local IBM Plex Sans Arabic (body) ──────────────────── */
 const rejuviraSans = localFont({
   src: [
@@ -172,6 +203,11 @@ export default async function RootLayout({
     pathname.startsWith("/api");
   const showMaintenance =
     Boolean(runtimeSettings.ops.maintenanceMode) && !isAdminOrAuth;
+  const googleTagUrl =
+    runtimeSettings.integrations.googleTagEnabled && !isAdminOrAuth
+      ? normalizeGoogleTagUrl(runtimeSettings.integrations.googleTagUrl)
+      : null;
+  const googleTagId = googleTagUrl ? googleTagIdFromUrl(googleTagUrl) : null;
   const localBusinessLd = buildLocalBusinessJsonLd({
     brand: runtimeSettings.brand,
     contact: runtimeSettings.contact,
@@ -221,6 +257,31 @@ export default async function RootLayout({
           <CustomCursor />
           <PageLoader />
           {!isAdminOrAuth ? <PageViewTracker /> : null}
+          {!isAdminOrAuth ? (
+            <Script
+              id="rejuvera-utm-hidden-fields"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `(function(){try{var keys=["utm_source","utm_medium","utm_campaign","utm_content"];var params=new URLSearchParams(window.location.search);var stored={};try{stored=JSON.parse(localStorage.getItem("rejuvera_utm")||"{}")||{};}catch(e){stored={};}var changed=false;keys.forEach(function(k){var v=params.get(k);if(v){stored[k]=v;changed=true;}});if(changed)localStorage.setItem("rejuvera_utm",JSON.stringify(stored));var aliases={utm_source:"utmSource",utm_medium:"utmMedium",utm_campaign:"utmCampaign",utm_content:"utmContent"};function fill(){keys.forEach(function(k){var v=stored[k]||"";document.querySelectorAll('input[name="'+k+'"],input[name="'+aliases[k]+'"]').forEach(function(input){if(!input.value)input.value=v;});});}fill();new MutationObserver(fill).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}})();`,
+              }}
+            />
+          ) : null}
+          {googleTagUrl && googleTagId ? (
+            <>
+              <Script
+                id="rejuvera-google-tag-src"
+                src={googleTagUrl}
+                strategy="afterInteractive"
+              />
+              <Script
+                id="rejuvera-google-tag-init"
+                strategy="afterInteractive"
+                dangerouslySetInnerHTML={{
+                  __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(googleTagId)});`,
+                }}
+              />
+            </>
+          ) : null}
           {children}
           {!isAdminOrAuth ? (
             <ExternalIntegrations

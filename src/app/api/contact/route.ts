@@ -10,6 +10,7 @@ import {
 import {
   createContactLead,
   getRuntimeSettings,
+  getServiceByReference,
 } from "@/lib/content-repository";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
@@ -29,6 +30,10 @@ const contactSchema = z.object({
   preferredLanguage: z.string().optional().or(z.literal("")),
   recaptchaToken: z.string().optional().or(z.literal("")),
   source: z.string().max(120).optional().or(z.literal("")),
+  utmSource: z.string().max(120).optional().or(z.literal("")),
+  utmMedium: z.string().max(120).optional().or(z.literal("")),
+  utmCampaign: z.string().max(120).optional().or(z.literal("")),
+  utmContent: z.string().max(120).optional().or(z.literal("")),
 });
 
 function formString(formData: FormData, key: string) {
@@ -130,6 +135,15 @@ export async function POST(request: Request) {
     preferredLanguage: formString(formData, "preferredLanguage"),
     recaptchaToken: formString(formData, "recaptchaToken"),
     source: formString(formData, "source"),
+    utmSource:
+      formString(formData, "utmSource") || formString(formData, "utm_source"),
+    utmMedium:
+      formString(formData, "utmMedium") || formString(formData, "utm_medium"),
+    utmCampaign:
+      formString(formData, "utmCampaign") ||
+      formString(formData, "utm_campaign"),
+    utmContent:
+      formString(formData, "utmContent") || formString(formData, "utm_content"),
   });
 
   if (!parsed.success) {
@@ -215,6 +229,11 @@ export async function POST(request: Request) {
     parsed.data.preferredDate,
     parsed.data.preferredTime,
   );
+  const selectedService = parsed.data.serviceSlug
+    ? await getServiceByReference(parsed.data.serviceSlug)
+    : null;
+  const serviceArabicName =
+    selectedService?.name || parsed.data.serviceSlug || undefined;
 
   try {
     const result = await createContactLead({
@@ -231,6 +250,12 @@ export async function POST(request: Request) {
       ...(parsed.data.serviceSlug
         ? { serviceSlug: parsed.data.serviceSlug }
         : {}),
+      ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
+      ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),
+      ...(parsed.data.utmCampaign
+        ? { utmCampaign: parsed.data.utmCampaign }
+        : {}),
+      ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
     });
 
     await dispatchFormWebhook({
@@ -247,6 +272,20 @@ export async function POST(request: Request) {
         email: parsed.data.email || undefined,
         message: parsed.data.message || undefined,
         serviceSlug: parsed.data.serviceSlug || undefined,
+        service: serviceArabicName,
+        serviceName: serviceArabicName,
+        serviceLabel: serviceArabicName,
+        serviceType: serviceArabicName,
+        serviceTypeAr: serviceArabicName,
+        serviceCategory: selectedService?.category || undefined,
+        utmSource: parsed.data.utmSource || undefined,
+        utmMedium: parsed.data.utmMedium || undefined,
+        utmCampaign: parsed.data.utmCampaign || undefined,
+        utmContent: parsed.data.utmContent || undefined,
+        utm_source: parsed.data.utmSource || undefined,
+        utm_medium: parsed.data.utmMedium || undefined,
+        utm_campaign: parsed.data.utmCampaign || undefined,
+        utm_content: parsed.data.utmContent || undefined,
         preferredAppointmentAt,
         appointmentNotes: parsed.data.appointmentNotes || undefined,
         preferredLanguage: parsed.data.preferredLanguage || "ar",

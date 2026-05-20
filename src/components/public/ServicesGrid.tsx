@@ -93,9 +93,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
             onClick={() => setActiveTab(category.id)}
           >
             <span className="lang-ar">{category.name}</span>
-            <span className="lang-en">
-              {category.nameEn ?? category.name}
-            </span>
+            <span className="lang-en">{category.nameEn ?? category.name}</span>
           </button>
         ))}
       </div>

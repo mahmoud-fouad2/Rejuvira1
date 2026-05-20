@@ -131,7 +131,7 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
         التكاملات والأكواد
       </p>
       <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
-        Chatbase، أكواد مؤقتة، و Webhook النماذج
+        Chatbase، Google Tag، و Webhook النماذج
       </h2>
       <p className="text-ink-soft mt-2 text-sm leading-7">
         يمكنك إضافة Widget أو Google Tag أو أي كود مؤقت بدون تعديل ملفات
@@ -156,6 +156,28 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
             className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
             placeholder="wjegZOeOaeYGtbw422le3"
           />
+        </label>
+        <ToggleField
+          name="googleTagEnabled"
+          label="تفعيل Google Tag على صفحات الموقع"
+          defaultChecked={settings.integrations.googleTagEnabled}
+          helper="يظهر على الواجهة العامة فقط ولا يحمّل داخل لوحة التحكم."
+        />
+        <label className="grid gap-2">
+          <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
+            Google Tag URL أو Measurement ID
+          </span>
+          <input
+            name="googleTagUrl"
+            defaultValue={settings.integrations.googleTagUrl}
+            dir="ltr"
+            className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
+            placeholder="https://www.googletagmanager.com/gtag/js?id=G-HDR59J12M1"
+          />
+          <span className="text-ink-faint text-[11px] leading-6">
+            يمكنك وضع الرابط الكامل أو كتابة Measurement ID فقط مثل
+            G-HDR59J12M1.
+          </span>
         </label>
         <label className="grid gap-2">
           <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">

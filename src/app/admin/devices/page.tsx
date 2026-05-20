@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ContentStatus } from "@prisma/client";
+import type { Route } from "next";
 
 import {
   deleteDeviceAction,
@@ -39,6 +41,16 @@ export default async function AdminDevicesPage() {
     label: service.name,
     hint: service.category,
   }));
+  const serviceBySlug = new Map(
+    services.map((service) => [service.slug, service]),
+  );
+  const publishedCount = devices.filter(
+    (device) => device.status === ContentStatus.PUBLISHED,
+  ).length;
+  const featuredCount = devices.filter((device) => device.featured).length;
+  const linkedServicesCount = devices.filter(
+    (device) => device.serviceSlugs.length > 0,
+  ).length;
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: devices.length },
     {
@@ -91,6 +103,27 @@ export default async function AdminDevicesPage() {
       </div>
 
       <div className="grid gap-4">
+        <section className="admin-kpi-grid--compact">
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">منشور</span>
+            <strong>{publishedCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مميز</span>
+            <strong>{featuredCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مرتبط بخدمات</span>
+            <strong>
+              {linkedServicesCount}/{devices.length}
+            </strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">إجمالي الخدمات</span>
+            <strong>{services.length}</strong>
+          </div>
+        </section>
+
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
@@ -101,14 +134,25 @@ export default async function AdminDevicesPage() {
               </div>
             </div>
           </div>
+          <p className="admin-empty-note mx-4 mb-4">
+            تظهر هنا الأجهزة الفعلية المسجلة في لوحة التحكم فقط. لا يتم إنشاء
+            أجهزة تلقائية من سكربتات الـ seed.
+          </p>
           <AdminListControls targetId="admin-devices-list" tabs={tabs} />
-          <div className="admin-data-list admin-cards-grid" data-admin-list="admin-devices-list">
+          <div
+            className="admin-resource-grid"
+            data-admin-list="admin-devices-list"
+          >
             {devices.map((device) => {
               const meta = statusMeta(device.status);
+              const linkedServices = device.serviceSlugs.flatMap((slug) => {
+                const service = serviceBySlug.get(slug);
+                return service ? [service] : [];
+              });
               return (
                 <details
                   key={device.id}
-                  className="admin-data-row !block"
+                  className="admin-resource-card"
                   data-admin-row
                   data-admin-status={device.status}
                   data-admin-search={[
@@ -121,11 +165,8 @@ export default async function AdminDevicesPage() {
                     .filter(Boolean)
                     .join(" ")}
                 >
-                  <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
-                    <div
-                      className="relative h-12 w-14 overflow-hidden rounded-lg"
-                      style={{ background: "var(--admin-panel-soft)" }}
-                    >
+                  <summary className="admin-resource-card__summary">
+                    <div className="admin-resource-card__media">
                       <Image
                         src={device.imageUrl}
                         alt={device.name}
@@ -134,13 +175,20 @@ export default async function AdminDevicesPage() {
                         sizes="56px"
                       />
                     </div>
-                    <div className="min-w-0">
+                    <div className="admin-resource-card__body">
                       <p className="admin-data-row__title truncate">
                         {device.name}
                       </p>
                       <p className="admin-data-row__meta truncate">
-                        {device.certifications.join(" • ")}
+                        {device.excerpt || device.certifications.join(" • ")}
                       </p>
+                      <div className="admin-resource-card__chips">
+                        <span>{device.serviceSlugs.length} خدمات</span>
+                        {device.featured ? <span>مميز</span> : null}
+                        {device.certifications.slice(0, 1).map((cert) => (
+                          <span key={cert}>{cert}</span>
+                        ))}
+                      </div>
                     </div>
                     <span className={`admin-status-badge ${meta.className}`}>
                       <span className="lang-ar">{meta.labelAr}</span>
@@ -170,6 +218,28 @@ export default async function AdminDevicesPage() {
                       }}
                       serviceOptions={serviceOptions}
                     />
+
+                    <div className="admin-linked-strip">
+                      {linkedServices.length ? (
+                        linkedServices.map((service) => (
+                          <Link
+                            key={service.slug}
+                            href={
+                              `/admin/services?service=${service.slug}` as Route
+                            }
+                            className="admin-linked-strip__item"
+                          >
+                            <strong>{service.name}</strong>
+                            <span>{service.category}</span>
+                          </Link>
+                        ))
+                      ) : (
+                        <p className="admin-empty-note">
+                          هذا الجهاز غير مرتبط بخدمات بعد. الربط يساعد الزائر
+                          يرى الجهاز داخل صفحة الخدمة المناسبة.
+                        </p>
+                      )}
+                    </div>
 
                     <div className="flex flex-wrap gap-2">
                       {[

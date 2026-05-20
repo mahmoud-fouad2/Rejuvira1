@@ -17,12 +17,27 @@ const opsSchema = z.object({
   maintenanceMode: z.string().optional(),
 });
 
+function formString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeDefaultTheme(value: string) {
+  if (value === "light" || value === "فاتح دائمًا" || value === "فاتح دائما") {
+    return "light";
+  }
+  if (value === "dark" || value === "داكن دائمًا" || value === "داكن دائما") {
+    return "dark";
+  }
+  return "system";
+}
+
 export async function saveOperationsAction(
   _prev: ExtraSettingsState,
   formData: FormData,
 ): Promise<ExtraSettingsState> {
   const parsed = opsSchema.safeParse({
-    defaultTheme: formData.get("defaultTheme") ?? "system",
+    defaultTheme: normalizeDefaultTheme(formString(formData, "defaultTheme")),
     themeToggleEnabled: formData.get("themeToggleEnabled"),
     recaptchaEnabled: formData.get("recaptchaEnabled"),
     maintenanceMode: formData.get("maintenanceMode"),
@@ -45,6 +60,21 @@ export async function saveOperationsAction(
 const integrationsSchema = z.object({
   chatbaseEnabled: z.string().optional(),
   chatbaseWidgetId: z.string().optional().or(z.literal("")),
+  googleTagEnabled: z.string().optional(),
+  googleTagUrl: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .refine(
+      (value) =>
+        !value ||
+        /^G-[A-Z0-9]+$/i.test(value) ||
+        /^https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-[A-Z0-9]+(?:&.*)?$/i.test(
+          value,
+        ),
+      "اكتب Measurement ID مثل G-XXXX أو رابط gtag.js الكامل.",
+    ),
   customHeadCode: z.string().optional().or(z.literal("")),
   customBodyCode: z.string().optional().or(z.literal("")),
   formWebhookEnabled: z.string().optional(),
@@ -59,6 +89,8 @@ export async function saveIntegrationsAction(
   const parsed = integrationsSchema.safeParse({
     chatbaseEnabled: formData.get("chatbaseEnabled"),
     chatbaseWidgetId: formData.get("chatbaseWidgetId") ?? "",
+    googleTagEnabled: formData.get("googleTagEnabled"),
+    googleTagUrl: formData.get("googleTagUrl") ?? "",
     customHeadCode: formData.get("customHeadCode") ?? "",
     customBodyCode: formData.get("customBodyCode") ?? "",
     formWebhookEnabled: formData.get("formWebhookEnabled"),
@@ -74,6 +106,8 @@ export async function saveIntegrationsAction(
   await saveSettingsGroup("integrations", {
     chatbaseEnabled: parsed.data.chatbaseEnabled === "on" ? "true" : "false",
     chatbaseWidgetId: parsed.data.chatbaseWidgetId ?? "",
+    googleTagEnabled: parsed.data.googleTagEnabled === "on" ? "true" : "false",
+    googleTagUrl: parsed.data.googleTagUrl ?? "",
     customHeadCode: parsed.data.customHeadCode ?? "",
     customBodyCode: parsed.data.customBodyCode ?? "",
     formWebhookEnabled:

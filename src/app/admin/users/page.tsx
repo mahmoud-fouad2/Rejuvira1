@@ -9,6 +9,7 @@ import { AdminUserRoleForm } from "@/components/forms/AdminUserRoleForm";
 import {
   getRoleLabel,
   permissionMatrix,
+  roleDescriptions,
   roleLabels,
 } from "@/lib/admin-permissions";
 import { getAdminUsers } from "@/lib/content-repository";
@@ -50,7 +51,7 @@ export default async function AdminUsersPage() {
         <div>
           <h1>
             <span className="lang-ar">المستخدمون والصلاحيات</span>
-            <span className="lang-en">Users &amp; permissions</span>
+            <span className="lang-en">Users & permissions</span>
           </h1>
           <p>
             <span className="lang-ar">{users.length} حساب</span>
@@ -91,12 +92,59 @@ export default async function AdminUsersPage() {
                 <p className="admin-data-row__meta" dir="ltr">
                   {group.role}
                 </p>
+                <p className="admin-data-row__meta mt-1">
+                  {roleDescriptions[group.role].summary}
+                </p>
               </div>
               <span className="admin-data-row__value">
                 {group.users.length}
               </span>
             </div>
           ))}
+        </div>
+      </article>
+
+      <article className="admin-card">
+        <div className="admin-card__header">
+          <div>
+            <div className="admin-card__subtitle">Access profiles</div>
+            <div className="admin-card__title">
+              <span className="lang-ar">ملخص الصلاحيات حسب الدور</span>
+              <span className="lang-en">Role access summary</span>
+            </div>
+          </div>
+        </div>
+        <div className="admin-role-profile-grid">
+          {roleOrder.map((role) => {
+            const description = roleDescriptions[role];
+            return (
+              <section key={role} className="admin-role-profile">
+                <header>
+                  <span className="admin-chip">{roleLabels[role]}</span>
+                  <small dir="ltr">{role}</small>
+                </header>
+                <p>{description.summary}</p>
+                <div>
+                  <strong>مسموح</strong>
+                  <ul>
+                    {description.allowed.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+                {description.restricted.length ? (
+                  <div>
+                    <strong>ممنوع</strong>
+                    <ul>
+                      {description.restricted.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
         </div>
       </article>
 

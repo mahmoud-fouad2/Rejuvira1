@@ -1,10 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { type FormEvent, useMemo, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import { SubmissionStatus } from "@prisma/client";
 
-import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
+import {
+  addCrmCommentAction,
+  deleteCrmCommentAction,
+  updateCrmSubmissionAction,
+  type CrmActionState,
+} from "@/app/admin/crm/actions";
 import {
   APPOINTMENT_TIME_OPTIONS,
   buildAppointmentDateOptions,
@@ -13,32 +17,24 @@ import type { CrmRecord } from "@/lib/content-repository";
 
 const initialState: CrmActionState = { status: "idle", message: "" };
 
-type CrmActionState = {
-  status: "idle" | "success" | "error";
-  message: string;
-};
-
 const STATUS_OPTIONS: Array<{
   value: SubmissionStatus;
   ar: string;
-  en: string;
 }> = [
-  { value: SubmissionStatus.NEW, ar: "جديد", en: "New" },
-  { value: SubmissionStatus.CONTACTED, ar: "تم التواصل", en: "Contacted" },
-  { value: SubmissionStatus.FOLLOW_UP, ar: "متابعة", en: "Follow-up" },
-  { value: SubmissionStatus.BOOKED, ar: "محجوز", en: "Booked" },
-  { value: SubmissionStatus.CLOSED, ar: "مغلق", en: "Closed" },
+  { value: SubmissionStatus.NEW, ar: "جديد" },
+  { value: SubmissionStatus.CONTACTED, ar: "تم التواصل" },
+  { value: SubmissionStatus.FOLLOW_UP, ar: "متابعة" },
+  { value: SubmissionStatus.BOOKED, ar: "محجوز" },
+  { value: SubmissionStatus.CLOSED, ar: "مغلق" },
 ];
 
 function formatDate(iso: string) {
   try {
-    return new Date(iso).toLocaleString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return new Intl.DateTimeFormat("ar-SA", {
+      dateStyle: "medium",
+      timeStyle: "short",
+      timeZone: "Asia/Riyadh",
+    }).format(new Date(iso));
   } catch {
     return iso;
   }
@@ -74,6 +70,7 @@ export type CrmSubmissionEditorProps = {
   services: ReadonlyArray<{ slug: string; name: string }>;
   staff: ReadonlyArray<{ id: string; name: string }>;
   currentServiceSlug?: string | undefined;
+  canDeleteComments?: boolean | undefined;
 };
 
 export function CrmSubmissionEditor({
@@ -81,14 +78,16 @@ export function CrmSubmissionEditor({
   services,
   staff,
   currentServiceSlug,
+  canDeleteComments = false,
 }: CrmSubmissionEditorProps) {
-  const router = useRouter();
-  const [state, setState] = useState<CrmActionState>(initialState);
-  const [commentState, setCommentState] =
-    useState<CrmActionState>(initialState);
-  const [isPending, setIsPending] = useState(false);
-  const [commentPending, setCommentPending] = useState(false);
-  const [deletePendingId, setDeletePendingId] = useState<string | null>(null);
+  const [state, formAction, isPending] = useActionState(
+    updateCrmSubmissionAction,
+    initialState,
+  );
+  const [commentState, commentAction, commentPending] = useActionState(
+    addCrmCommentAction,
+    initialState,
+  );
 
   const initialTags = useMemo(
     () => [...(submission.tags ?? [])],
@@ -131,11 +130,6 @@ export function CrmSubmissionEditor({
   const appointmentValue = appointmentDate
     ? `${appointmentDate}T${appointmentTime || "14:00"}`
     : "";
-  const phoneDigits = submission.phone.replace(/\D/g, "");
-  const whatsappHref = phoneDigits
-    ? `https://wa.me/${phoneDigits.startsWith("966") ? phoneDigits : `966${phoneDigits.replace(/^0/, "")}`}`
-    : "";
-  const phoneHref = phoneDigits ? `tel:${phoneDigits}` : "";
 
   const addTag = (raw: string) => {
     const value = raw.trim();
@@ -147,109 +141,9 @@ export function CrmSubmissionEditor({
     setTags(tags.filter((tag) => tag !== value));
   };
 
-  const parseApiMessage = async (response: Response, fallback: string) => {
-    try {
-      const payload = (await response.json()) as { message?: string };
-      return payload.message || fallback;
-    } catch {
-      return fallback;
-    }
-  };
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    setIsPending(true);
-    setState(initialState);
-    try {
-      const response = await fetch("/api/admin/crm", {
-        method: "PUT",
-        body: formData,
-        headers: { accept: "application/json", "x-requested-with": "fetch" },
-      });
-      const message = await parseApiMessage(
-        response,
-        response.ok ? "Lead updated." : "Could not update lead.",
-      );
-      setState({ status: response.ok ? "success" : "error", message });
-      if (response.ok) router.refresh();
-    } catch {
-      setState({
-        status: "error",
-        message: "تعذر الاتصال بالخادم. / Could not reach the server.",
-      });
-    } finally {
-      setIsPending(false);
-    }
-  };
-
-  const handleCommentSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    setCommentPending(true);
-    setCommentState(initialState);
-    try {
-      const response = await fetch("/api/admin/crm", {
-        method: "POST",
-        body: formData,
-        headers: { accept: "application/json", "x-requested-with": "fetch" },
-      });
-      const message = await parseApiMessage(
-        response,
-        response.ok ? "Note added." : "Could not add note.",
-      );
-      setCommentState({ status: response.ok ? "success" : "error", message });
-      if (response.ok) {
-        form.reset();
-        router.refresh();
-      }
-    } catch {
-      setCommentState({
-        status: "error",
-        message: "تعذر الاتصال بالخادم. / Could not reach the server.",
-      });
-    } finally {
-      setCommentPending(false);
-    }
-  };
-
-  const handleDelete = async (id: string, type: "lead" | "comment") => {
-    setDeletePendingId(id);
-    try {
-      const response = await fetch(
-        `/api/admin/crm?id=${encodeURIComponent(id)}&type=${type}`,
-        {
-          method: "DELETE",
-          headers: { accept: "application/json", "x-requested-with": "fetch" },
-        },
-      );
-      const message = await parseApiMessage(
-        response,
-        response.ok ? "Deleted." : "Could not delete.",
-      );
-      const nextState = {
-        status: response.ok ? ("success" as const) : ("error" as const),
-        message,
-      };
-      if (type === "comment") setCommentState(nextState);
-      else setState(nextState);
-      if (response.ok) router.refresh();
-    } catch {
-      const nextState = {
-        status: "error" as const,
-        message: "تعذر الاتصال بالخادم. / Could not reach the server.",
-      };
-      if (type === "comment") setCommentState(nextState);
-      else setState(nextState);
-    } finally {
-      setDeletePendingId(null);
-    }
-  };
-
   return (
     <div className="grid gap-4">
-      <form onSubmit={handleSubmit} className="grid gap-3">
+      <form action={formAction} className="grid gap-3">
         <input type="hidden" name="id" value={submission.id} />
         <input type="hidden" name="tagsCsv" value={tags.join(",")} />
         <input
@@ -258,44 +152,9 @@ export function CrmSubmissionEditor({
           value={appointmentValue}
         />
 
-        <div className="admin-crm-editor-brief">
-          <div>
-            <p>{submission.serviceLabel ?? "General inquiry"}</p>
-            <span>{submission.source}</span>
-          </div>
-          <div className="admin-crm-editor-brief__actions">
-            {phoneHref ? (
-              <a href={phoneHref} className="admin-btn-secondary text-xs">
-                Call
-              </a>
-            ) : null}
-            {whatsappHref ? (
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="admin-btn-secondary text-xs"
-              >
-                WhatsApp
-              </a>
-            ) : null}
-            {submission.email ? (
-              <a
-                href={`mailto:${submission.email}`}
-                className="admin-btn-secondary text-xs"
-              >
-                Email
-              </a>
-            ) : null}
-          </div>
-        </div>
-
         <div className="grid gap-3 md:grid-cols-3">
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">الاسم الكامل</span>
-              <span className="lang-en">Full name</span>
-            </span>
+            <span className="admin-field-label">الاسم الكامل</span>
             <input
               name="fullName"
               defaultValue={submission.fullName}
@@ -303,10 +162,7 @@ export function CrmSubmissionEditor({
             />
           </label>
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">الجوال</span>
-              <span className="lang-en">Phone</span>
-            </span>
+            <span className="admin-field-label">الجوال</span>
             <input
               name="phone"
               defaultValue={submission.phone}
@@ -314,10 +170,7 @@ export function CrmSubmissionEditor({
             />
           </label>
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">البريد الإلكتروني</span>
-              <span className="lang-en">Email</span>
-            </span>
+            <span className="admin-field-label">البريد الإلكتروني</span>
             <input
               name="email"
               type="email"
@@ -329,28 +182,22 @@ export function CrmSubmissionEditor({
 
         <div className="grid gap-3 md:grid-cols-[1.3fr_0.9fr_2fr]">
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">تاريخ الموعد</span>
-              <span className="lang-en">Appointment date</span>
-            </span>
+            <span className="admin-field-label">تاريخ الموعد</span>
             <select
               value={appointmentDate}
               onChange={(event) => setAppointmentDate(event.target.value)}
               className="admin-input"
             >
-              <option value="">بدون موعد · No date</option>
+              <option value="">بدون موعد</option>
               {appointmentDateOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.labelAr} · {option.labelEn}
+                  {option.labelAr}
                 </option>
               ))}
             </select>
           </label>
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">الوقت</span>
-              <span className="lang-en">Time</span>
-            </span>
+            <span className="admin-field-label">الوقت</span>
             <select
               value={appointmentTime}
               onChange={(event) => setAppointmentTime(event.target.value)}
@@ -359,16 +206,13 @@ export function CrmSubmissionEditor({
             >
               {APPOINTMENT_TIME_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.labelAr} · {option.labelEn}
+                  {option.labelAr}
                 </option>
               ))}
             </select>
           </label>
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">ملاحظات الموعد</span>
-              <span className="lang-en">Appointment notes</span>
-            </span>
+            <span className="admin-field-label">ملاحظات الموعد</span>
             <input
               name="appointmentNotes"
               defaultValue={submission.appointmentNotes ?? ""}
@@ -380,10 +224,7 @@ export function CrmSubmissionEditor({
 
         <div className="grid gap-3 md:grid-cols-3">
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">الحالة</span>
-              <span className="lang-en">Status</span>
-            </span>
+            <span className="admin-field-label">الحالة</span>
             <select
               name="status"
               defaultValue={submission.status}
@@ -391,16 +232,13 @@ export function CrmSubmissionEditor({
             >
               {STATUS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.ar} · {option.en}
+                  {option.ar}
                 </option>
               ))}
             </select>
           </label>
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">الخدمة</span>
-              <span className="lang-en">Service</span>
-            </span>
+            <span className="admin-field-label">الخدمة</span>
             <select
               name="serviceSlug"
               defaultValue={currentServiceSlug ?? ""}
@@ -415,10 +253,7 @@ export function CrmSubmissionEditor({
             </select>
           </label>
           <label className="grid gap-1">
-            <span className="admin-field-label">
-              <span className="lang-ar">المسؤول</span>
-              <span className="lang-en">Owner</span>
-            </span>
+            <span className="admin-field-label">المسؤول</span>
             <select
               name="assignedToId"
               defaultValue={submission.assignedToId ?? ""}
@@ -435,10 +270,7 @@ export function CrmSubmissionEditor({
         </div>
 
         <div className="grid gap-2">
-          <span className="admin-field-label">
-            <span className="lang-ar">الوسوم</span>
-            <span className="lang-en">Tags</span>
-          </span>
+          <span className="admin-field-label">الوسوم</span>
           <div className="flex flex-wrap items-center gap-2">
             {tags.map((tag) => (
               <span key={tag} className="admin-tag-chip">
@@ -463,7 +295,7 @@ export function CrmSubmissionEditor({
                   setTagInput("");
                 }
               }}
-              placeholder="Enter to add"
+              placeholder="اكتب الوسم ثم Enter"
               className="admin-input min-w-[8rem] flex-1"
             />
             {tagInput.trim() ? (
@@ -475,18 +307,14 @@ export function CrmSubmissionEditor({
                 }}
                 className="admin-btn-secondary text-xs"
               >
-                <span className="lang-ar">إضافة</span>
-                <span className="lang-en">Add</span>
+                إضافة
               </button>
             ) : null}
           </div>
         </div>
 
         <label className="grid gap-1">
-          <span className="admin-field-label">
-            <span className="lang-ar">ملاحظات داخلية</span>
-            <span className="lang-en">Internal notes</span>
-          </span>
+          <span className="admin-field-label">ملاحظات داخلية</span>
           <textarea
             name="notes"
             defaultValue={submission.notes ?? ""}
@@ -502,12 +330,7 @@ export function CrmSubmissionEditor({
               disabled={isPending}
               className="admin-btn-primary"
             >
-              <span className="lang-ar">
-                {isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
-              </span>
-              <span className="lang-en">
-                {isPending ? "Saving..." : "Save"}
-              </span>
+              {isPending ? "جاري الحفظ..." : "حفظ التغييرات"}
             </button>
           </div>
           {state.message ? (
@@ -526,15 +349,12 @@ export function CrmSubmissionEditor({
       >
         <div className="admin-card__header">
           <div>
-            <div className="admin-card__subtitle">Activity</div>
-            <div className="admin-card__title">
-              <span className="lang-ar">سجل التعليقات الداخلية</span>
-              <span className="lang-en">Internal activity log</span>
-            </div>
+            <div className="admin-card__subtitle">سجل النشاط</div>
+            <div className="admin-card__title">سجل التعليقات الداخلية</div>
           </div>
         </div>
         <div className="admin-card__body grid gap-3">
-          <form onSubmit={handleCommentSubmit} className="grid gap-2">
+          <form action={commentAction} className="grid gap-2">
             <input type="hidden" name="submissionId" value={submission.id} />
             <textarea
               name="body"
@@ -549,8 +369,7 @@ export function CrmSubmissionEditor({
                 disabled={commentPending}
                 className="admin-btn-secondary text-xs"
               >
-                <span className="lang-ar">إضافة ملاحظة</span>
-                <span className="lang-en">Add note</span>
+                إضافة ملاحظة
               </button>
               {commentState.message ? (
                 <span
@@ -564,8 +383,7 @@ export function CrmSubmissionEditor({
 
           {submission.comments.length === 0 ? (
             <p className="text-muted-foreground text-xs">
-              <span className="lang-ar">لا توجد ملاحظات داخلية بعد.</span>
-              <span className="lang-en">No internal notes yet.</span>
+              لا توجد ملاحظات داخلية بعد.
             </p>
           ) : (
             <ul className="grid gap-2">
@@ -587,17 +405,17 @@ export function CrmSubmissionEditor({
                         {formatDate(comment.createdAt)}
                       </p>
                     </div>
-                    <div>
-                      <button
-                        type="button"
-                        disabled={deletePendingId === comment.id}
-                        onClick={() => void handleDelete(comment.id, "comment")}
-                        className="text-[11px] text-red-500 hover:underline"
-                      >
-                        <span className="lang-ar">حذف</span>
-                        <span className="lang-en">Delete</span>
-                      </button>
-                    </div>
+                    {canDeleteComments ? (
+                      <form action={deleteCrmCommentAction}>
+                        <input type="hidden" name="id" value={comment.id} />
+                        <button
+                          type="submit"
+                          className="text-[11px] text-red-500 hover:underline"
+                        >
+                          حذف
+                        </button>
+                      </form>
+                    ) : null}
                   </div>
                   <p className="mt-1 text-[13px] leading-relaxed whitespace-pre-wrap">
                     {comment.body}
@@ -608,28 +426,6 @@ export function CrmSubmissionEditor({
           )}
         </div>
       </div>
-
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          void handleDelete(submission.id, "lead");
-        }}
-        className="flex"
-      >
-        <AdminConfirmSubmitButton
-          className="admin-btn-danger text-xs"
-          disabled={deletePendingId === submission.id}
-          titleArabic="حذف الطلب"
-          titleEnglish="Delete lead"
-          messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."
-          messageEnglish="This lead and its follow-up history will be permanently deleted."
-          confirmArabic="حذف نهائي"
-          confirmEnglish="Delete"
-        >
-          <span className="lang-ar">حذف الطلب نهائيًا</span>
-          <span className="lang-en">Delete lead permanently</span>
-        </AdminConfirmSubmitButton>
-      </form>
     </div>
   );
 }

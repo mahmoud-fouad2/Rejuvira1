@@ -1,7 +1,7 @@
 import { ContentStatus, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const CORE_SEED_VERSION = "2026-05-19-service-tree-v3";
+const CORE_SEED_VERSION = "2026-05-19-rejuvera-real-services-no-device-seed-v4";
 
 const images = {
   surgery:
@@ -608,353 +608,6 @@ const services = [
   },
 ];
 
-const deviceCatalog = [
-  {
-    slug: "ulthera-skin-lifting-device",
-    nameAr: "جهاز ألثيرا لشد الوجه والرقبة بالموجات فوق الصوتية",
-    nameEn: "Ulthera Face and Neck Ultrasound Lifting Device",
-    excerptAr:
-      "تقنية موجات فوق صوتية مركزة لدعم خطط شد الوجه والرقبة بدون جراحة في الحالات المناسبة.",
-    excerptEn:
-      "Focused ultrasound technology for non-surgical face and neck lifting plans.",
-    descriptionAr:
-      "يستخدم جهاز ألثيرا ضمن خطط شد الوجه والرقبة غير الجراحية بعد تقييم درجة الترهل وسماكة الجلد والتوقعات المناسبة لكل حالة.",
-    descriptionEn:
-      "Ulthera is used in non-surgical face and neck lifting plans after assessing laxity, skin quality, and realistic expectations.",
-    image: images.clinic,
-  },
-  {
-    slug: "emface-body-contouring-device",
-    nameAr: "جهاز إمفيس لشد العضلات ونحت القوام",
-    nameEn: "EMFACE Muscle Toning and Contouring Device",
-    excerptAr:
-      "تقنية داعمة لشد العضلات وتحسين التناسق ضمن مسارات غير جراحية مختارة.",
-    excerptEn:
-      "Supportive technology for muscle toning and contour refinement in selected non-surgical plans.",
-    descriptionAr:
-      "يدعم جهاز إمفيس خطط شد العضلات وتحسين التناسق في الحالات المناسبة، ويتم ربطه بالخدمة حسب الهدف العلاجي وخطة الجلسات.",
-    descriptionEn:
-      "EMFACE supports selected muscle-toning and contouring plans according to the treatment goal and session plan.",
-    image: images.body,
-  },
-  {
-    slug: "exion-skin-rejuvenation-device",
-    nameAr: "جهاز إكزيون لتجديد البشرة وشد الجلد",
-    nameEn: "EXION Skin Rejuvenation and Tightening Device",
-    excerptAr:
-      "تقنية مخصصة لتحسين نضارة البشرة وتماسك الجلد ضمن تقييم طبي واضح.",
-    excerptEn:
-      "Technology used to support skin rejuvenation and firmness after clinical assessment.",
-    descriptionAr:
-      "يستخدم إكزيون ضمن خطط تجديد البشرة وشد الجلد عندما تكون الحالة مناسبة للتقنيات غير الجراحية والتحسن التدريجي.",
-    descriptionEn:
-      "EXION is used in skin rejuvenation and tightening plans when non-surgical gradual improvement is appropriate.",
-    image: images.skin,
-  },
-  {
-    slug: "morpheus8-fractional-rf-device",
-    nameAr: "جهاز مورفيوس 8 لتجديد البشرة وشد الجلد",
-    nameEn: "Morpheus8 Fractional RF Skin Rejuvenation Device",
-    excerptAr:
-      "تقنية ترددات حرارية مجزأة لتحسين ملمس البشرة وشد الجلد وآثار الندبات والمسام.",
-    excerptEn:
-      "Fractional RF technology for texture, firmness, scars, and pores.",
-    descriptionAr:
-      "يدخل مورفيوس 8 في خطط تحسين ملمس البشرة وآثار الندبات والمسام وشد الجلد، حسب نوع البشرة واحتياج الحالة.",
-    descriptionEn:
-      "Morpheus8 supports plans for texture, pores, scars, and skin tightening according to skin type and case needs.",
-    image: images.skin,
-  },
-  {
-    slug: "emsculpt-body-contouring-device",
-    nameAr: "جهاز إيم سكلبت لنحت القوام وتقوية العضلات",
-    nameEn: "Emsculpt Body Contouring and Muscle Strengthening Device",
-    excerptAr:
-      "تقنية غير جراحية لدعم نحت القوام وتقوية العضلات في مناطق مختارة.",
-    excerptEn:
-      "Non-surgical technology supporting body contouring and muscle strengthening.",
-    descriptionAr:
-      "يستخدم إيم سكلبت ضمن مسارات نحت القوام وتقوية العضلات للحالات التي يناسبها التحفيز العضلي غير الجراحي.",
-    descriptionEn:
-      "Emsculpt is used in selected non-surgical contouring and muscle-strengthening programs.",
-    image: images.body,
-  },
-  {
-    slug: "emsella-pelvic-floor-therapy-device",
-    nameAr: "جهاز إمسيلّا لتقوية عضلات الحوض",
-    nameEn: "Emsella Pelvic Floor Strengthening Device",
-    excerptAr:
-      "تقنية غير جراحية لدعم تقوية عضلات قاع الحوض ضمن خطة التجميل النسائي.",
-    excerptEn:
-      "Non-surgical technology supporting pelvic floor strengthening in female aesthetic care.",
-    descriptionAr:
-      "يدعم إمسيلّا خدمات تقوية عضلات قاع الحوض بعد تقييم طبي نسائي يحدد ملاءمة الجلسات وهدفها.",
-    descriptionEn:
-      "Emsella supports pelvic floor strengthening after specialist assessment of suitability and goals.",
-    image: images.clinic,
-  },
-];
-
-const requestedCategorySlugs = [
-  "plastic-surgery",
-  "facial-plastic-surgery",
-  "dermatology-aesthetic-procedures",
-  "non-surgical-body-contouring",
-  "female-aesthetics",
-];
-
-const requestedCategoryOverrides = new Map([
-  ["plastic-surgery", { nameAr: "قسم جراحات التجميل" }],
-  ["facial-plastic-surgery", { nameAr: "قسم عمليات تجميل الوجه" }],
-]);
-
-const requestedPlasticSurgeons = plasticSurgeons;
-const nataliTeam = ["natali-domloj"];
-const noDoctorTeam = [];
-
-const requestedServiceTree = [
-  {
-    slug: "rhinoplasty",
-    nameAr: "عمليات تجميل الأنف",
-    nameEn: "Rhinoplasty",
-    categorySlug: "plastic-surgery",
-    excerptAr: "تحسين شكل الأنف وتناسقه مع ملامح الوجه بخطة جراحية دقيقة.",
-    excerptEn:
-      "Refines nose shape and facial harmony through surgical planning.",
-    image: images.face,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "breast-augmentation",
-    nameAr: "تكبير وتنسيق الصدر",
-    nameEn: "Breast Augmentation and Shaping",
-    categorySlug: "plastic-surgery",
-    excerptAr: "تحسين امتلاء وتناسق الصدر بما يناسب شكل الجسم وتوقعات الحالة.",
-    excerptEn:
-      "Improves breast fullness and proportions according to the case.",
-    image: images.surgery,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "breast-lift-reduction",
-    nameAr: "شد وتصغير الصدر",
-    nameEn: "Breast Lift and Reduction",
-    categorySlug: "plastic-surgery",
-    excerptAr: "رفع الصدر أو تقليل حجمه لتحسين الراحة والتناسق العام.",
-    excerptEn: "Lifts or reduces breast size to improve comfort and balance.",
-    image: images.surgery,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "breast-implant-revision-removal",
-    nameAr: "تغيير أو إزالة حشوات الصدر",
-    nameEn: "Breast Implant Revision or Removal",
-    categorySlug: "plastic-surgery",
-    excerptAr: "تحديث أو إزالة حشوات الصدر حسب الحاجة الطبية والجمالية.",
-    excerptEn:
-      "Updates or removes breast implants according to medical and aesthetic needs.",
-    image: images.surgery,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "male-gynecomastia-surgery",
-    nameAr: "علاج التثدي عند الرجال",
-    nameEn: "Male Gynecomastia Treatment",
-    categorySlug: "plastic-surgery",
-    excerptAr: "تحسين مظهر الصدر لدى الرجال بخطة جراحية مناسبة للحالة.",
-    excerptEn:
-      "Improves male chest contour through suitable surgical planning.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "liposuction-body-contouring",
-    nameAr: "شفط الدهون ونحت الجسم",
-    nameEn: "Liposuction and Body Contouring",
-    categorySlug: "plastic-surgery",
-    excerptAr: "إزالة الدهون الموضعية وتحسين خطوط القوام جراحياً.",
-    excerptEn: "Removes localized fat and improves body contours surgically.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "tummy-tuck",
-    nameAr: "شد البطن",
-    nameEn: "Tummy Tuck",
-    categorySlug: "plastic-surgery",
-    excerptAr: "تحسين ترهلات البطن وشد الجلد والأنسجة حسب احتياج الحالة.",
-    excerptEn: "Improves abdominal laxity and contour according to the case.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "buttock-augmentation-lift-reduction",
-    nameAr: "تكبير وشد وتصغير الأرداف",
-    nameEn: "Buttock Augmentation, Lift, and Reduction",
-    categorySlug: "plastic-surgery",
-    excerptAr: "تحسين شكل وحجم الأرداف بما يحقق تناسقاً أفضل للقوام.",
-    excerptEn: "Improves buttock shape, lift, or volume for better balance.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "arm-thigh-lift",
-    nameAr: "شد الذراعين والفخذين",
-    nameEn: "Arm and Thigh Lift",
-    categorySlug: "plastic-surgery",
-    excerptAr: "شد ترهلات الذراعين والفخذين وتحسين شكل الجلد.",
-    excerptEn: "Tightens arm and thigh laxity and improves contour.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "back-laxity-lift",
-    nameAr: "شد الظهر والترهلات",
-    nameEn: "Back and Laxity Lift",
-    categorySlug: "plastic-surgery",
-    excerptAr: "معالجة ترهلات الظهر والجلد الزائد ضمن خطة جراحية مناسبة.",
-    excerptEn: "Addresses back laxity and excess skin with surgical planning.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "full-body-lift",
-    nameAr: "شد الجسم الكامل",
-    nameEn: "Full Body Lift",
-    categorySlug: "plastic-surgery",
-    excerptAr: "خطة شاملة لتحسين ترهلات الجسم وتناسق القوام.",
-    excerptEn: "A comprehensive plan for body laxity and contour balance.",
-    image: images.body,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "blepharoplasty",
-    nameAr: "تجميل الجفون وشدها",
-    nameEn: "Eyelid Surgery and Lift",
-    categorySlug: "facial-plastic-surgery",
-    excerptAr: "تحسين ترهل الجفون والانتفاخ حول العين لمظهر أكثر إشراقاً.",
-    excerptEn: "Improves eyelid laxity and puffiness for a refreshed look.",
-    image: images.face,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "otoplasty",
-    nameAr: "تجميل الأذن",
-    nameEn: "Otoplasty",
-    categorySlug: "facial-plastic-surgery",
-    excerptAr: "تصحيح بروز الأذن وتحسين شكلها بخطة جراحية دقيقة.",
-    excerptEn: "Corrects prominent ears and improves ear shape surgically.",
-    image: images.face,
-    doctors: requestedPlasticSurgeons,
-    deviceSlugs: [],
-  },
-  {
-    slug: "non-surgical-face-neck-lift",
-    nameAr: "شد الوجه والرقبة بدون جراحة",
-    nameEn: "Non-Surgical Face and Neck Lift",
-    categorySlug: "facial-plastic-surgery",
-    excerptAr:
-      "تحسين شد الوجه والرقبة بدون جراحة باستخدام أجهزة مناسبة للحالة.",
-    excerptEn:
-      "Improves face and neck firmness with selected non-surgical devices.",
-    image: images.face,
-    doctors: nataliTeam,
-    deviceSlugs: [
-      "ulthera-skin-lifting-device",
-      "emface-body-contouring-device",
-    ],
-  },
-  {
-    slug: "skin-rejuvenation-tightening",
-    nameAr: "تجديد البشرة وشد الجلد",
-    nameEn: "Skin Rejuvenation and Tightening",
-    categorySlug: "dermatology-aesthetic-procedures",
-    excerptAr: "تحسين نضارة البشرة وتماسك الجلد بخطة أجهزة متدرجة.",
-    excerptEn: "Improves glow and firmness through a staged device plan.",
-    image: images.skin,
-    doctors: nataliTeam,
-    deviceSlugs: [
-      "exion-skin-rejuvenation-device",
-      "morpheus8-fractional-rf-device",
-    ],
-  },
-  {
-    slug: "skin-texture-scars-pores",
-    nameAr: "تحسين ملمس البشرة وآثار الندبات والمسام",
-    nameEn: "Skin Texture, Scars, and Pores",
-    categorySlug: "dermatology-aesthetic-procedures",
-    excerptAr: "تحسين ملمس البشرة وآثار الندبات والمسام باستخدام مورفيوس 8.",
-    excerptEn: "Improves skin texture, scars, and pores using Morpheus8.",
-    image: images.skin,
-    doctors: nataliTeam,
-    deviceSlugs: ["morpheus8-fractional-rf-device"],
-  },
-  {
-    slug: "muscle-body-contouring",
-    nameAr: "نحت القوام وتقوية العضلات",
-    nameEn: "Body Contouring and Muscle Strengthening",
-    categorySlug: "non-surgical-body-contouring",
-    excerptAr: "دعم نحت القوام وتقوية العضلات باستخدام إيم سكلبت.",
-    excerptEn: "Supports contouring and muscle strengthening using Emsculpt.",
-    image: images.body,
-    doctors: noDoctorTeam,
-    deviceSlugs: ["emsculpt-body-contouring-device"],
-  },
-  {
-    slug: "muscle-toning-body-harmony",
-    nameAr: "شد العضلات وتحسين تناسق القوام",
-    nameEn: "Muscle Toning and Body Harmony",
-    categorySlug: "non-surgical-body-contouring",
-    excerptAr: "تحسين شد العضلات وتناسق القوام باستخدام إمفيس وإيم سكلبت.",
-    excerptEn:
-      "Improves muscle tone and body harmony using EMFACE and Emsculpt.",
-    image: images.body,
-    doctors: noDoctorTeam,
-    deviceSlugs: [
-      "emface-body-contouring-device",
-      "emsculpt-body-contouring-device",
-    ],
-  },
-  {
-    slug: "pelvic-floor-strengthening",
-    nameAr: "تقوية عضلات قاع الحوض",
-    nameEn: "Pelvic Floor Strengthening",
-    categorySlug: "female-aesthetics",
-    excerptAr: "تقوية عضلات قاع الحوض ضمن خدمات التجميل النسائي المتخصصة.",
-    excerptEn:
-      "Pelvic floor strengthening within specialist female aesthetic care.",
-    image: images.clinic,
-    doctors: femaleTeam,
-    deviceSlugs: ["emsella-pelvic-floor-therapy-device"],
-  },
-];
-
-const requestedServiceSlugs = new Set(
-  requestedServiceTree.map((service) => service.slug),
-);
-
-const legacyServiceSlugsToArchive = Array.from(
-  new Set([
-    ...services.map((service) => service.slug),
-    "eyelid-lift-eye-rejuvenation",
-    "body-contouring-buttock-augmentation",
-    "breast-augmentation-reshaping",
-    "rhinoplasty-nose-reshaping",
-  ]),
-).filter((slug) => !requestedServiceSlugs.has(slug));
-
 function descriptionForService(service) {
   return `${service.excerptAr} يبدأ المسار باستشارة طبية لتقييم الحالة، شرح الخيارات المناسبة، وتحديد الخطة الآمنة التي تحقق نتيجة طبيعية ومتناسقة داخل Rejuvera Medical Center.`;
 }
@@ -964,16 +617,11 @@ function descriptionEnForService(service) {
 }
 
 async function upsertCategories() {
-  const requestedCategories = categories.filter((category) =>
-    requestedCategorySlugs.includes(category.slug),
-  );
-
-  for (const [index, category] of requestedCategories.entries()) {
-    const override = requestedCategoryOverrides.get(category.slug) ?? {};
+  for (const [index, category] of categories.entries()) {
     await prisma.serviceCategory.upsert({
       where: { slug: category.slug },
       update: {
-        nameAr: override.nameAr ?? category.nameAr,
+        nameAr: category.nameAr,
         nameEn: category.nameEn,
         descriptionAr: category.descriptionAr,
         descriptionEn: category.descriptionEn,
@@ -982,7 +630,7 @@ async function upsertCategories() {
       },
       create: {
         slug: category.slug,
-        nameAr: override.nameAr ?? category.nameAr,
+        nameAr: category.nameAr,
         nameEn: category.nameEn,
         descriptionAr: category.descriptionAr,
         descriptionEn: category.descriptionEn,
@@ -991,17 +639,6 @@ async function upsertCategories() {
       },
     });
   }
-
-  await prisma.serviceCategory.updateMany({
-    where: {
-      slug: {
-        in: categories
-          .map((category) => category.slug)
-          .filter((slug) => !requestedCategorySlugs.includes(slug)),
-      },
-    },
-    data: { status: ContentStatus.ARCHIVED },
-  });
 }
 
 async function upsertDoctors() {
@@ -1059,39 +696,8 @@ async function upsertDoctors() {
   }
 }
 
-async function upsertDevices() {
-  for (const [index, device] of deviceCatalog.entries()) {
-    const existing = await prisma.device.findUnique({
-      where: { slug: device.slug },
-      select: { id: true, gallery: true },
-    });
-    const data = {
-      nameAr: device.nameAr,
-      nameEn: device.nameEn,
-      excerptAr: device.excerptAr,
-      excerptEn: device.excerptEn,
-      descriptionAr: device.descriptionAr,
-      descriptionEn: device.descriptionEn,
-      gallery: existing?.gallery ?? [device.image],
-      certifications: ["تقنية معتمدة", "مرتبطة بالخدمات المحددة"],
-      status: ContentStatus.PUBLISHED,
-      isFeatured: index < 4,
-      sortOrder: index + 1,
-    };
-
-    await prisma.device.upsert({
-      where: { slug: device.slug },
-      update: data,
-      create: {
-        slug: device.slug,
-        ...data,
-      },
-    });
-  }
-}
-
 async function upsertServices() {
-  for (const [index, service] of requestedServiceTree.entries()) {
+  for (const [index, service] of services.entries()) {
     const category = await prisma.serviceCategory.findUnique({
       where: { slug: service.categorySlug },
       select: { id: true, nameAr: true },
@@ -1102,10 +708,6 @@ async function upsertServices() {
     });
     const doctorsToConnect = await prisma.doctor.findMany({
       where: { slug: { in: service.doctors } },
-      select: { slug: true },
-    });
-    const devicesToConnect = await prisma.device.findMany({
-      where: { slug: { in: service.deviceSlugs } },
       select: { slug: true },
     });
 
@@ -1133,10 +735,7 @@ async function upsertServices() {
       update: {
         ...common,
         doctors: {
-          set: doctorsToConnect.map((doctor) => ({ slug: doctor.slug })),
-        },
-        devices: {
-          set: devicesToConnect.map((device) => ({ slug: device.slug })),
+          connect: doctorsToConnect.map((doctor) => ({ slug: doctor.slug })),
         },
       },
       create: {
@@ -1145,17 +744,9 @@ async function upsertServices() {
         doctors: {
           connect: doctorsToConnect.map((doctor) => ({ slug: doctor.slug })),
         },
-        devices: {
-          connect: devicesToConnect.map((device) => ({ slug: device.slug })),
-        },
       },
     });
   }
-
-  await prisma.service.updateMany({
-    where: { slug: { in: legacyServiceSlugsToArchive } },
-    data: { status: ContentStatus.ARCHIVED, isFeatured: false },
-  });
 }
 
 async function updateBrandDefaults() {
@@ -1252,59 +843,19 @@ async function main() {
     return;
   }
 
-  if (process.env.SEED_CORE_FORCE === "1") {
+  const currentSeed = await prisma.siteSetting.findUnique({
+    where: { key: "system.coreContentSeedVersion" },
+    select: { value: true },
+  });
+  if (currentSeed?.value === CORE_SEED_VERSION) {
     console.log(
-      `[seed-core-content] SEED_CORE_FORCE=1 — reconciling ${CORE_SEED_VERSION}.`,
+      `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
     );
-  } else {
-    const currentSeed = await prisma.siteSetting.findUnique({
-      where: { key: "system.coreContentSeedVersion" },
-      select: { value: true },
-    });
-    if (currentSeed?.value === CORE_SEED_VERSION) {
-      const [
-        existingCategories,
-        existingServices,
-        existingDoctors,
-        existingDevices,
-      ] = await Promise.all([
-        prisma.serviceCategory.count({
-          where: { slug: { in: requestedCategorySlugs } },
-        }),
-        prisma.service.count({
-          where: {
-            slug: {
-              in: requestedServiceTree.map((service) => service.slug),
-            },
-          },
-        }),
-        prisma.doctor.count({
-          where: { slug: { in: doctors.map((doctor) => doctor.slug) } },
-        }),
-        prisma.device.count({
-          where: { slug: { in: deviceCatalog.map((device) => device.slug) } },
-        }),
-      ]);
-      if (
-        existingCategories === requestedCategorySlugs.length &&
-        existingServices === requestedServiceTree.length &&
-        existingDoctors === doctors.length &&
-        existingDevices === deviceCatalog.length
-      ) {
-        console.log(
-          `[seed-core-content] Core content ${CORE_SEED_VERSION} already applied; skipping.`,
-        );
-        return;
-      }
-      console.log(
-        `[seed-core-content] Core content ${CORE_SEED_VERSION} is marked applied, but records are missing; reconciling.`,
-      );
-    }
+    return;
   }
 
   await upsertCategories();
   await upsertDoctors();
-  await upsertDevices();
   await upsertServices();
   await updateBrandDefaults();
   await updateContactDefaults();
@@ -1319,7 +870,7 @@ async function main() {
   });
 
   console.log(
-    `[seed-core-content] Seeded ${requestedCategorySlugs.length} categories, ${requestedServiceTree.length} services, ${deviceCatalog.length} devices, and ${doctors.length} doctors.`,
+    `[seed-core-content] Seeded ${categories.length} categories, ${services.length} services, and ${doctors.length} doctors. Existing devices were preserved and not seeded.`,
   );
 }
 

@@ -20,10 +20,6 @@ export type RecaptchaVerifyResult = {
 
 const VERIFY_ENDPOINT = "https://www.google.com/recaptcha/api/siteverify";
 
-export function isRecaptchaConfigured(): boolean {
-  return Boolean(process.env.RECAPTCHA_SECRET_KEY);
-}
-
 export function getPublicSiteKey(): string {
   return (
     process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ??

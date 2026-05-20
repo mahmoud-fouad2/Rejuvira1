@@ -15,12 +15,13 @@ type BlockKind =
   | "stats"
   | "services"
   | "doctors"
+  | "devices"
   | "gallery"
+  | "beforeAfter"
   | "faq"
   | "steps"
   | "offer"
   | "testimonial"
-  | "beforeAfter"
   | "video"
   | "leadForm"
   | "contact"
@@ -36,23 +37,19 @@ type BuilderBlock = {
   subtitle?: string;
   body?: string;
   imageUrl?: string;
-  beforeImageUrl?: string;
-  afterImageUrl?: string;
   buttonLabel?: string;
   buttonHref?: string;
   accent?: string;
   tone?: Tone;
   align?: Align;
+  serviceSlug?: string;
+  serviceName?: string;
   formEmailMode?: "hidden" | "optional" | "required";
   formShowAppointment?: boolean;
   formShowMessage?: boolean;
+  formFields?: string;
+  formActionUrl?: string;
   webhookToken?: string;
-  serviceSlug?: string;
-};
-
-type PageOptions = {
-  showHeader: boolean;
-  showFooter: boolean;
 };
 
 type WebhookOption = {
@@ -68,7 +65,9 @@ const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
   { kind: "stats", label: "Stats", hint: "أرقام ومؤشرات" },
   { kind: "services", label: "Services", hint: "كروت خدمات" },
   { kind: "doctors", label: "Doctors", hint: "أطباء أو فريق طبي" },
+  { kind: "devices", label: "Devices", hint: "أجهزة مرتبطة بالخدمة" },
   { kind: "gallery", label: "Gallery", hint: "صور متعددة" },
+  { kind: "beforeAfter", label: "Before/After", hint: "حالات قبل وبعد" },
   { kind: "faq", label: "FAQ", hint: "أسئلة شائعة" },
   { kind: "steps", label: "Steps", hint: "مسار زيارة أو علاج" },
   { kind: "offer", label: "Offer", hint: "عرض أو باقة للحملة" },
@@ -127,11 +126,25 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     tone: "soft",
     align: "right",
   },
+  devices: {
+    title: "الأجهزة المستخدمة",
+    body: "اسم الجهاز|وصف مختصر للجهاز ودوره في الخطة العلاجية",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
   gallery: {
     title: "لمحة بصرية",
     body: "/media/reference/legacy/18.png|نتيجة علاجية\n/media/reference/legacy/56549.webp|تنسيق القوام\n/media/curated/service-laser-hair-removal.jpg|جلسات الليزر",
     accent: "#4a2476",
     tone: "light",
+    align: "right",
+  },
+  beforeAfter: {
+    title: "قبل وبعد",
+    body: "الحالة الأولى|||أضيفي صور قبل وبعد الحقيقية من محرر الصفحة قبل إطلاق الإعلان",
+    accent: "#4a2476",
+    tone: "soft",
     align: "right",
   },
   faq: {
@@ -162,17 +175,6 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     title: "تجربة مراجعة",
     subtitle: "نورة",
     body: "الشرح كان واضحًا قبل البدء، والفريق وضح لي الخيارات المناسبة دون استعجال.",
-    accent: "#4a2476",
-    tone: "light",
-    align: "center",
-  },
-  beforeAfter: {
-    title: "Before and after",
-    body: "Visual comparison for the case.",
-    beforeImageUrl: "/media/reference/legacy/18.png",
-    afterImageUrl: "/media/reference/legacy/56549.webp",
-    buttonLabel: "Book a consultation",
-    buttonHref: "#lead-form",
     accent: "#4a2476",
     tone: "light",
     align: "center",
@@ -229,6 +231,8 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
       "steps",
       "services",
       "doctors",
+      "devices",
+      "beforeAfter",
       "faq",
       "leadForm",
       "cta",
@@ -236,15 +240,7 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
   },
   {
     label: "Lead page",
-    blocks: [
-      "hero",
-      "offer",
-      "beforeAfter",
-      "testimonial",
-      "gallery",
-      "leadForm",
-      "faq",
-    ],
+    blocks: ["hero", "offer", "testimonial", "gallery", "leadForm", "faq"],
   },
   {
     label: "حملة حجز",
@@ -283,6 +279,55 @@ function appointmentTimeSelect(disabled: string) {
   return `<select name="preferredTime"${disabled}><option value="">اختاري الوقت</option>${options}</select>`;
 }
 
+function trackingHiddenInputs() {
+  return [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_content",
+    "utmSource",
+    "utmMedium",
+    "utmCampaign",
+    "utmContent",
+  ]
+    .map((name) => `<input type="hidden" name="${name}" value="">`)
+    .join("");
+}
+
+function safeFieldName(value: string, fallback: string) {
+  const normalized = value
+    .trim()
+    .replace(/[^\w\u0600-\u06ff-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return normalized || fallback;
+}
+
+function renderExtraFormFields(value = "", disabled: string) {
+  return value
+    .split(/\n+/)
+    .map((line, index) => {
+      const [label = "", rawName = "", rawType = "text", rawRequired = ""] =
+        line.split("|");
+      const safeLabel = label.trim();
+      if (!safeLabel) return "";
+      const name = escapeHtml(safeFieldName(rawName, `extraField${index + 1}`));
+      const type = rawType.trim().toLowerCase();
+      const isRequired =
+        rawRequired.trim().toLowerCase() === "required" ||
+        rawRequired.trim() === "مطلوب";
+      const required = isRequired && !disabled ? " required" : "";
+      if (type === "textarea" || type === "message") {
+        return `<label><span>${escapeHtml(safeLabel)}</span><textarea name="${name}" rows="3"${required}${disabled}></textarea></label>`;
+      }
+      const inputType = ["email", "tel", "number", "date", "url"].includes(type)
+        ? type
+        : "text";
+      return `<label><span>${escapeHtml(safeLabel)}</span><input name="${name}" type="${inputType}"${required}${disabled}></label>`;
+    })
+    .join("");
+}
+
 function paragraphHtml(value = "") {
   return value
     .split(/\n+/)
@@ -302,6 +347,35 @@ function parsePairs(value = "") {
       return { title: title.trim(), body: body.trim() };
     })
     .filter((item) => item.title);
+}
+
+function parseBeforeAfter(value = "") {
+  return value
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [title = "", before = "", after = "", body = ""] = line.split("|");
+      return {
+        title: title.trim(),
+        before: before.trim(),
+        after: after.trim(),
+        body: body.trim(),
+      };
+    })
+    .filter((item) => item.title);
+}
+
+function mediaSlot(src: string, label: string) {
+  const safeSrc = escapeHtml(src);
+  const safeLabel = escapeHtml(label);
+  if (
+    safeSrc &&
+    (/^(\/|https?:\/\/)/i.test(safeSrc) || safeSrc.startsWith("data:image/"))
+  ) {
+    return `<img src="${safeSrc}" alt="${safeLabel}" loading="lazy" decoding="async">`;
+  }
+  return `<span>${safeLabel}</span>`;
 }
 
 function classes(block: BuilderBlock, base: string) {
@@ -352,6 +426,26 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     return `<section class="${classes(block, `rv-builder-section rv-builder-${block.kind}`)}" ${style}><h2>${title}</h2><div>${cards}</div></section>`;
   }
 
+  if (block.kind === "devices") {
+    const cards = parsePairs(body)
+      .map(
+        (item) =>
+          `<article><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`,
+      )
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-devices")}" ${style}><h2>${title}</h2><div>${cards}</div></section>`;
+  }
+
+  if (block.kind === "beforeAfter") {
+    const cases = parseBeforeAfter(body)
+      .map(
+        (item) =>
+          `<article><div><figure><small>قبل</small>${mediaSlot(item.before, `${item.title} قبل`)}</figure><figure><small>بعد</small>${mediaSlot(item.after, `${item.title} بعد`)}</figure></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body || "أضيفي وصف الحالة الحقيقي قبل إطلاق الحملة.")}</p></article>`,
+      )
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-before-after")}" ${style}><h2>${title}</h2><div>${cases}</div></section>`;
+  }
+
   if (block.kind === "steps") {
     const steps = parsePairs(body)
       .map(
@@ -374,14 +468,6 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "testimonial") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-testimonial")}" ${style}><blockquote>${paragraphHtml(body)}</blockquote><strong>${title}</strong>${subtitle ? `<span>${subtitle}</span>` : ""}</section>`;
-  }
-
-  if (block.kind === "beforeAfter") {
-    const beforeImage = escapeHtml(
-      block.beforeImageUrl || block.imageUrl || image,
-    );
-    const afterImage = escapeHtml(block.afterImageUrl || image);
-    return `<section class="${classes(block, "rv-builder-section rv-builder-before-after")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><div class="rv-builder-before-after__grid"><figure><img src="${beforeImage}" alt="Before ${title}" loading="lazy" decoding="async"><figcaption>Before</figcaption></figure><figure><img src="${afterImage}" alt="After ${title}" loading="lazy" decoding="async"><figcaption>After</figcaption></figure></div><a href="${buttonHref}">${buttonLabel}</a></section>`;
   }
 
   if (block.kind === "video") {
@@ -420,75 +506,50 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "leadForm") {
     const tag = mode === "preview" ? "div" : "form";
-    const action = block.webhookToken
-      ? `/api/webhooks/${encodeURIComponent(block.webhookToken)}`
-      : "/api/leads";
+    const formAction = escapeHtml(
+      block.formActionUrl?.trim() ||
+        (block.webhookToken
+          ? `/api/webhooks/${encodeURIComponent(block.webhookToken)}`
+          : "/api/leads"),
+    );
     const attrs =
       mode === "preview"
         ? `class="rv-builder-lead-form-fields" aria-label="Lead form preview"`
-        : `class="rv-builder-lead-form-fields" action="${action}" method="post"`;
+        : `class="rv-builder-lead-form-fields" action="${formAction}" method="post"`;
     const disabled = mode === "preview" ? " disabled" : "";
     const required = mode === "preview" ? "" : " required";
-    let controls =
+    const emailMode = block.formEmailMode ?? "optional";
+    const showAppointment = block.formShowAppointment ?? true;
+    const showMessage = block.formShowMessage ?? true;
+    const controls =
       (mode === "preview"
         ? ""
-        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">`) +
+        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${block.serviceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(block.serviceSlug)}">` : ""}${block.serviceName ? `<input type="hidden" name="service" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(block.serviceName)}">` : ""}`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
-      `<label><span>تاريخ الموعد المفضل</span>${appointmentDateSelect(disabled)}</label>` +
-      `<label><span>الوقت المفضل</span>${appointmentTimeSelect(disabled)}</label>` +
-      `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${disabled} placeholder="name@example.com"></label>` +
-      `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو الموعد المناسب"></textarea></label>` +
+      (showAppointment
+        ? `<label><span>تاريخ الموعد المفضل</span>${appointmentDateSelect(disabled)}</label><label><span>الوقت المفضل</span>${appointmentTimeSelect(disabled)}</label>`
+        : "") +
+      (emailMode === "hidden"
+        ? ""
+        : `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${emailMode === "required" ? required : ""}${disabled} placeholder="name@example.com"></label>`) +
+      (showMessage
+        ? `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو الموعد المناسب"></textarea></label>`
+        : "") +
+      renderExtraFormFields(block.formFields, disabled) +
       (mode === "preview"
         ? ""
         : `<input type="hidden" name="appointmentNotes" value="Landing page appointment request">`) +
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
-    if (mode !== "preview" && block.serviceSlug) {
-      controls =
-        `<input type="hidden" name="serviceSlug" value="${escapeHtml(block.serviceSlug)}">` +
-        controls;
-    }
-    if ((block.formEmailMode ?? "optional") === "hidden") {
-      controls = controls.replace(
-        /<label><span>[^<]*<\/span><input name="email"[\s\S]*?<\/label>/,
-        "",
-      );
-    } else if (mode !== "preview" && block.formEmailMode === "required") {
-      controls = controls.replace(
-        'name="email" type="email"',
-        'name="email" type="email" required',
-      );
-    }
-    if (block.formShowAppointment === false) {
-      controls = controls
-        .replace(
-          /<label><span>[^<]*<\/span><select name="preferredDate"[\s\S]*?<\/label>/,
-          "",
-        )
-        .replace(
-          /<label><span>[^<]*<\/span><select name="preferredTime"[\s\S]*?<\/label>/,
-          "",
-        )
-        .replace(
-          '<input type="hidden" name="appointmentNotes" value="Landing page appointment request">',
-          "",
-        );
-    }
-    if (block.formShowMessage === false) {
-      controls = controls.replace(
-        /<label><span>[^<]*<\/span><textarea name="message"[\s\S]*?<\/label>/,
-        "",
-      );
-    }
     return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
   }
 
   return `<section class="${classes(block, "rv-builder-section rv-builder-cta")}" ${style}><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
 }
 
-function renderPage(blocks: BuilderBlock[], options: PageOptions) {
+function renderPage(blocks: BuilderBlock[]) {
   const encodedBlocks = encodeURIComponent(JSON.stringify(blocks));
-  return `<div class="rv-builder-page" data-blocks="${encodedBlocks}" data-header="${options.showHeader ? "true" : "false"}" data-footer="${options.showFooter ? "true" : "false"}">${blocks.map((block) => renderBlock(block)).join("")}</div>`;
+  return `<div class="rv-builder-page" data-blocks="${encodedBlocks}">${blocks.map((block) => renderBlock(block)).join("")}</div>`;
 }
 
 function createBlock(kind: BlockKind): BuilderBlock {
@@ -537,13 +598,6 @@ function initialBlocks(html?: string): BuilderBlock[] {
   ]);
 }
 
-function initialPageOptions(html?: string): PageOptions {
-  return {
-    showHeader: html?.match(/data-header="false"/) ? false : true,
-    showFooter: html?.match(/data-footer="false"/) ? false : true,
-  };
-}
-
 export function CustomPageBuilder({
   name,
   defaultValue = "",
@@ -556,18 +610,12 @@ export function CustomPageBuilder({
   const [blocks, setBlocks] = useState<BuilderBlock[]>(() =>
     initialBlocks(defaultValue),
   );
-  const [pageOptions, setPageOptions] = useState<PageOptions>(() =>
-    initialPageOptions(defaultValue),
-  );
   const [selectedId, setSelectedId] = useState(blocks[0]?.id ?? "");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
-  const html = useMemo(
-    () => renderPage(blocks, pageOptions),
-    [blocks, pageOptions],
-  );
+  const html = useMemo(() => renderPage(blocks), [blocks]);
 
   function add(kind: BlockKind) {
     const next = createBlock(kind);
@@ -642,35 +690,6 @@ export function CustomPageBuilder({
     <div className="pagecraft-admin">
       <input type="hidden" name={name} value={html} />
       <aside className="pagecraft-panel">
-        <div className="pagecraft-panel__header">Page chrome</div>
-        <div className="pagecraft-options">
-          <label>
-            <input
-              type="checkbox"
-              checked={pageOptions.showHeader}
-              onChange={(event) =>
-                setPageOptions((current) => ({
-                  ...current,
-                  showHeader: event.target.checked,
-                }))
-              }
-            />
-            <span>Show site header</span>
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={pageOptions.showFooter}
-              onChange={(event) =>
-                setPageOptions((current) => ({
-                  ...current,
-                  showFooter: event.target.checked,
-                }))
-              }
-            />
-            <span>Show site footer</span>
-          </label>
-        </div>
         <div className="pagecraft-panel__header">القوالب</div>
         <div className="pagecraft-templates">
           {templates.map((template) => (
@@ -696,10 +715,6 @@ export function CustomPageBuilder({
               <span>{item.hint}</span>
             </button>
           ))}
-          <button type="button" onClick={() => add("beforeAfter")}>
-            <strong>Before/After</strong>
-            <span>Before and after images</span>
-          </button>
         </div>
 
         <div className="pagecraft-panel__header">المعاينة</div>
@@ -797,16 +812,19 @@ export function CustomPageBuilder({
             <label>
               <span>
                 المحتوى
-                {selected.kind === "services" ||
-                selected.kind === "doctors" ||
-                selected.kind === "stats" ||
-                selected.kind === "gallery" ||
-                selected.kind === "faq" ||
-                selected.kind === "steps" ||
-                selected.kind === "offer" ||
-                selected.kind === "contact"
-                  ? " (سطر لكل عنصر: عنوان|وصف)"
-                  : ""}
+                {selected.kind === "beforeAfter"
+                  ? " (سطر لكل حالة: عنوان|صورة قبل|صورة بعد|وصف)"
+                  : selected.kind === "services" ||
+                      selected.kind === "doctors" ||
+                      selected.kind === "devices" ||
+                      selected.kind === "stats" ||
+                      selected.kind === "gallery" ||
+                      selected.kind === "faq" ||
+                      selected.kind === "steps" ||
+                      selected.kind === "offer" ||
+                      selected.kind === "contact"
+                    ? " (سطر لكل عنصر: عنوان|وصف)"
+                    : ""}
               </span>
               <textarea
                 value={selected.body ?? ""}
@@ -814,8 +832,10 @@ export function CustomPageBuilder({
                   [
                     "services",
                     "doctors",
+                    "devices",
                     "stats",
                     "gallery",
+                    "beforeAfter",
                     "faq",
                     "steps",
                     "offer",
@@ -843,107 +863,6 @@ export function CustomPageBuilder({
               />
             ) : null}
 
-            {selected.kind === "beforeAfter" ? (
-              <div className="grid gap-3">
-                <ImagePicker
-                  name={`builder-${selected.id}-before`}
-                  label="Before image"
-                  defaultValue={selected.beforeImageUrl ?? ""}
-                  namespace="pages"
-                  aspect={4 / 3}
-                  onChange={(url) =>
-                    update(selected.id, { beforeImageUrl: url })
-                  }
-                />
-                <ImagePicker
-                  name={`builder-${selected.id}-after`}
-                  label="After image"
-                  defaultValue={selected.afterImageUrl ?? ""}
-                  namespace="pages"
-                  aspect={4 / 3}
-                  onChange={(url) =>
-                    update(selected.id, { afterImageUrl: url })
-                  }
-                />
-              </div>
-            ) : null}
-
-            {selected.kind === "leadForm" ? (
-              <div className="pagecraft-form-options">
-                <label>
-                  <span>Email field</span>
-                  <select
-                    value={selected.formEmailMode ?? "optional"}
-                    onChange={(event) =>
-                      update(selected.id, {
-                        formEmailMode: event.target.value as
-                          | "hidden"
-                          | "optional"
-                          | "required",
-                      })
-                    }
-                  >
-                    <option value="hidden">Hidden</option>
-                    <option value="optional">Optional</option>
-                    <option value="required">Required</option>
-                  </select>
-                </label>
-                <label>
-                  <span>Webhook</span>
-                  <select
-                    value={selected.webhookToken ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, { webhookToken: event.target.value })
-                    }
-                  >
-                    <option value="">Default CRM form</option>
-                    {webhooks
-                      .filter((webhook) => webhook.isActive)
-                      .map((webhook) => (
-                        <option key={webhook.token} value={webhook.token}>
-                          {webhook.name}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-                <label>
-                  <span>Service slug</span>
-                  <input
-                    dir="ltr"
-                    value={selected.serviceSlug ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, { serviceSlug: event.target.value })
-                    }
-                    placeholder="rhinoplasty"
-                  />
-                </label>
-                <label className="pagecraft-check-row">
-                  <input
-                    type="checkbox"
-                    checked={selected.formShowAppointment !== false}
-                    onChange={(event) =>
-                      update(selected.id, {
-                        formShowAppointment: event.target.checked,
-                      })
-                    }
-                  />
-                  <span>Show appointment date/time</span>
-                </label>
-                <label className="pagecraft-check-row">
-                  <input
-                    type="checkbox"
-                    checked={selected.formShowMessage !== false}
-                    onChange={(event) =>
-                      update(selected.id, {
-                        formShowMessage: event.target.checked,
-                      })
-                    }
-                  />
-                  <span>Show message field</span>
-                </label>
-              </div>
-            ) : null}
-
             {selected.kind === "hero" ||
             selected.kind === "cta" ||
             selected.kind === "contact" ||
@@ -968,6 +887,124 @@ export function CustomPageBuilder({
                     onChange={(event) =>
                       update(selected.id, { buttonHref: event.target.value })
                     }
+                  />
+                </label>
+              </div>
+            ) : null}
+
+            {selected.kind === "leadForm" ? (
+              <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white/70 p-3">
+                <label>
+                  <span>حالة البريد الإلكتروني</span>
+                  <select
+                    value={selected.formEmailMode ?? "optional"}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formEmailMode: event.target.value as
+                          | "hidden"
+                          | "optional"
+                          | "required",
+                      })
+                    }
+                  >
+                    <option value="optional">اختياري</option>
+                    <option value="required">إجباري</option>
+                    <option value="hidden">إخفاء الخانة</option>
+                  </select>
+                </label>
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={selected.formShowAppointment ?? true}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formShowAppointment: event.target.checked,
+                      })
+                    }
+                  />
+                  <span>إظهار تاريخ ووقت الموعد</span>
+                </label>
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={selected.formShowMessage ?? true}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formShowMessage: event.target.checked,
+                      })
+                    }
+                  />
+                  <span>إظهار تفاصيل الطلب</span>
+                </label>
+                <label>
+                  <span>Slug الخدمة</span>
+                  <input
+                    dir="ltr"
+                    value={selected.serviceSlug ?? ""}
+                    onChange={(event) =>
+                      update(selected.id, { serviceSlug: event.target.value })
+                    }
+                    placeholder="rhinoplasty"
+                  />
+                </label>
+                <label>
+                  <span>اسم الخدمة العربي</span>
+                  <input
+                    value={selected.serviceName ?? ""}
+                    onChange={(event) =>
+                      update(selected.id, { serviceName: event.target.value })
+                    }
+                    placeholder="تجميل الأنف"
+                  />
+                </label>
+                <label>
+                  <span>Webhook داخلي</span>
+                  <select
+                    value={selected.webhookToken ?? ""}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        webhookToken: event.target.value,
+                        formActionUrl: event.target.value
+                          ? ""
+                          : (selected.formActionUrl ?? ""),
+                      })
+                    }
+                  >
+                    <option value="">CRM الافتراضي /api/leads</option>
+                    {webhooks
+                      .filter((webhook) => webhook.isActive)
+                      .map((webhook) => (
+                        <option key={webhook.token} value={webhook.token}>
+                          {webhook.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label>
+                  <span>رابط Make أو Action مخصص</span>
+                  <input
+                    dir="ltr"
+                    value={selected.formActionUrl ?? ""}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formActionUrl: event.target.value,
+                        webhookToken: event.target.value
+                          ? ""
+                          : (selected.webhookToken ?? ""),
+                      })
+                    }
+                    placeholder="https://hook.eu2.make.com/..."
+                  />
+                </label>
+                <label>
+                  <span>حقول إضافية</span>
+                  <textarea
+                    value={selected.formFields ?? ""}
+                    rows={5}
+                    onChange={(event) =>
+                      update(selected.id, { formFields: event.target.value })
+                    }
+                    placeholder="العمر|age|number&#10;ملاحظات إضافية|extra_notes|textarea|مطلوب"
                   />
                 </label>
               </div>

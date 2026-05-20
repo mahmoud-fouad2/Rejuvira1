@@ -138,6 +138,7 @@ export type CrmRecord = {
   utmSource?: string | undefined;
   utmMedium?: string | undefined;
   utmCampaign?: string | undefined;
+  utmContent?: string | undefined;
   message?: string | undefined;
   comments: ReadonlyArray<{
     id: string;
@@ -194,20 +195,13 @@ export type SettingsGroup = {
   }>;
 };
 
-export type ErrorLogRecord = {
+type ErrorLogRecord = {
   id: string;
   route: string;
   message: string;
   statusCode: number;
   isResolved: boolean;
   createdAt: string;
-};
-
-export type DashboardSnapshot = {
-  doctorCount: number;
-  serviceCount: number;
-  leadCount: number;
-  deviceCount: number;
 };
 
 export type MediaSelections = {
@@ -226,13 +220,13 @@ export type MediaSelections = {
   journalHero: string;
 };
 
-export type HomeGalleryItem = {
+type HomeGalleryItem = {
   image: string;
   title: string;
   description: string;
 };
 
-export type HomeTestimonialItem = {
+type HomeTestimonialItem = {
   authorAr: string;
   authorEn: string;
   quoteAr: string;
@@ -240,7 +234,7 @@ export type HomeTestimonialItem = {
   avatarUrl: string;
 };
 
-export type ContactFaqItem = {
+type ContactFaqItem = {
   questionAr: string;
   answerAr: string;
   questionEn: string;
@@ -288,7 +282,7 @@ export type HomePageSettings = {
   testimonials: HomeTestimonialItem[];
 };
 
-export type SocialSettings = {
+type SocialSettings = {
   instagram: string;
   twitter: string;
   snapchat: string;
@@ -364,6 +358,8 @@ export type RuntimeSettings = {
   integrations: {
     chatbaseEnabled: boolean;
     chatbaseWidgetId: string;
+    googleTagEnabled: boolean;
+    googleTagUrl: string;
     customHeadCode: string;
     customBodyCode: string;
     formWebhookEnabled: boolean;
@@ -372,7 +368,7 @@ export type RuntimeSettings = {
   };
 };
 
-export type AdminUserRecord = {
+type AdminUserRecord = {
   id: string;
   name: string;
   email: string;
@@ -492,6 +488,11 @@ export type CreateContactInput = {
   serviceSlug?: string | undefined;
   preferredLanguage?: string | undefined;
   source?: string | undefined;
+  utmSource?: string | undefined;
+  utmMedium?: string | undefined;
+  utmCampaign?: string | undefined;
+  utmContent?: string | undefined;
+  notes?: string | undefined;
 };
 
 export type UpdateCrmSubmissionInput = {
@@ -520,6 +521,7 @@ export type CreateCustomPageInput = {
 };
 
 export type UpdateCustomPageInput = CreateCustomPageInput & { id: string };
+export type UpsertCustomPageInput = CreateCustomPageInput;
 
 export type CreateWebhookInput = {
   name: string;
@@ -661,7 +663,12 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: true,
-    serviceSlugs: ["body-contouring"],
+    serviceSlugs: [
+      "aesthetic-surgery",
+      "rhinoplasty",
+      "liposuction",
+      "body-contouring",
+    ],
   },
   {
     id: "doctor-maher-alahdab",
@@ -689,7 +696,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: ["body-contouring"],
+    serviceSlugs: ["aesthetic-surgery", "rhinoplasty", "liposuction"],
   },
   {
     id: "doctor-saham-arfaj",
@@ -717,7 +724,12 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: ["skin-rejuvenation", "injectable-harmony"],
+    serviceSlugs: [
+      "skin-rejuvenation",
+      "injectable-harmony",
+      "aesthetic-surgery",
+      "rhinoplasty",
+    ],
   },
   {
     id: "doctor-sabah-alrashid",
@@ -745,7 +757,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: [],
+    serviceSlugs: ["neurosurgery-spine-care"],
   },
   {
     id: "doctor-karima-jamjoom",
@@ -773,7 +785,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: [],
+    serviceSlugs: ["female-aesthetic-care", "obgyn-care"],
   },
   {
     id: "doctor-najwa-batarfi",
@@ -801,7 +813,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: [],
+    serviceSlugs: ["female-aesthetic-care"],
   },
   {
     id: "doctor-natali-domloj",
@@ -861,7 +873,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: [],
+    serviceSlugs: ["general-surgery-consultation"],
   },
   {
     id: "doctor-bandar-alharthi",
@@ -889,7 +901,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: [],
+    serviceSlugs: ["general-surgery-consultation", "aesthetic-surgery"],
   },
   {
     id: "doctor-ahmed-eldesouki",
@@ -917,7 +929,7 @@ const seedDoctors: DoctorRecord[] = [
     ],
     status: ContentStatus.PUBLISHED,
     featured: false,
-    serviceSlugs: ["body-contouring"],
+    serviceSlugs: ["aesthetic-surgery", "liposuction", "body-contouring"],
   },
 ];
 
@@ -938,7 +950,7 @@ const seedServices: ServiceRecord[] = [
       "إشراقة طبيعية ومظهر أكثر صفاءً",
     ],
     doctorSlugs: ["natali-domloj", "saham-arfaj"],
-    deviceSlugs: ["fractional-laser-platform"],
+    deviceSlugs: [],
     status: ContentStatus.PUBLISHED,
     featured: true,
   },
@@ -958,7 +970,7 @@ const seedServices: ServiceRecord[] = [
       "تجربة أكثر راحة وثباتًا عبر الجلسات",
     ],
     doctorSlugs: ["natali-domloj"],
-    deviceSlugs: ["diode-laser-suite"],
+    deviceSlugs: [],
     status: ContentStatus.PUBLISHED,
     featured: true,
   },
@@ -998,8 +1010,53 @@ const seedServices: ServiceRecord[] = [
       "خطة أكثر وضوحًا قبل البدء",
     ],
     doctorSlugs: ["loai-alsalmi", "ahmed-eldesouki"],
-    deviceSlugs: ["body-contour-station"],
-    status: ContentStatus.DRAFT,
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: true,
+  },
+  {
+    id: "service-rhinoplasty",
+    slug: "rhinoplasty",
+    name: "عمليات تجميل الأنف",
+    category: "عمليات تجميل الوجه",
+    excerpt:
+      "تقييم جراحي لتناسق الأنف مع ملامح الوجه ووظيفة التنفس قبل تحديد الخطة المناسبة.",
+    description:
+      "يركز مسار تجميل الأنف على فهم الهدف الجمالي والوظيفي معًا، ثم شرح الخيارات وحدود النتيجة المتوقعة قبل أي قرار جراحي.",
+    coverImageUrl: serviceImages.injectables,
+    benefits: [
+      "تحليل تناسق الأنف والوجه",
+      "شرح الخيارات الجراحية بوضوح",
+      "خطة تراعي الشكل والوظيفة",
+    ],
+    doctorSlugs: [
+      "loai-alsalmi",
+      "maher-alahdab",
+      "saham-arfaj",
+      "ahmed-eldesouki",
+    ],
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: true,
+  },
+  {
+    id: "service-liposuction",
+    slug: "liposuction",
+    name: "عمليات شفط الدهون",
+    category: "جراحة التجميل",
+    excerpt:
+      "تخطيط جراحي لإزالة الدهون العنيدة وتحسين خطوط الجسم للحالات المناسبة.",
+    description:
+      "تبدأ الخدمة بتقييم توزيع الدهون وجودة الجلد والهدف المطلوب، ثم اختيار ما إذا كان شفط الدهون أو مسار آخر أكثر ملاءمة للحالة.",
+    coverImageUrl: serviceImages.body,
+    benefits: [
+      "تقييم ملاءمة الحالة قبل الجراحة",
+      "تحسين موضعي لتناسق القوام",
+      "متابعة واضحة قبل وبعد الإجراء",
+    ],
+    doctorSlugs: ["loai-alsalmi", "maher-alahdab", "ahmed-eldesouki"],
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
     featured: true,
   },
   {
@@ -1043,7 +1100,7 @@ const seedServices: ServiceRecord[] = [
       "تدرج علاجي يحافظ على سلامة الجلد",
     ],
     doctorSlugs: ["natali-domloj", "saham-arfaj"],
-    deviceSlugs: ["fractional-laser-platform", "rf-skin-tightening"],
+    deviceSlugs: [],
     status: ContentStatus.PUBLISHED,
     featured: true,
   },
@@ -1067,91 +1124,84 @@ const seedServices: ServiceRecord[] = [
     status: ContentStatus.PUBLISHED,
     featured: false,
   },
+  {
+    id: "service-female-aesthetic-care",
+    slug: "female-aesthetic-care",
+    name: "خدمات التجميل النسائي",
+    category: "التجميل النسائي",
+    excerpt:
+      "خدمات نسائية تجميلية وعلاجية تراعي الخصوصية وتبدأ بتقييم واضح للحالة.",
+    description:
+      "تقدم الخدمة مسارًا منظمًا للتقييم والشرح قبل اختيار أي إجراء، مع مراعاة خصوصية الحالة وحدود كل خيار علاجي أو تجميلي.",
+    coverImageUrl: serviceImages.journal,
+    benefits: [
+      "خصوصية وشرح واضح",
+      "اختيار الخدمة حسب الحالة",
+      "متابعة تناسب طبيعة الإجراء",
+    ],
+    doctorSlugs: ["karima-jamjoom", "najwa-batarfi"],
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: true,
+  },
+  {
+    id: "service-obgyn-care",
+    slug: "obgyn-care",
+    name: "خدمات النساء والولادة",
+    category: "النساء والولادة",
+    excerpt: "رعاية نسائية منظمة تبدأ بالتقييم والمتابعة حسب احتياج كل حالة.",
+    description:
+      "يركز المسار على وضوح المتابعة والخصوصية، مع شرح الخيارات الطبية المناسبة قبل اعتماد الخطة العلاجية.",
+    coverImageUrl: serviceImages.journal,
+    benefits: [
+      "متابعة نسائية منظمة",
+      "خطة علاجية واضحة",
+      "تقييم حسب احتياج الحالة",
+    ],
+    doctorSlugs: ["karima-jamjoom"],
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: false,
+  },
+  {
+    id: "service-general-surgery-consultation",
+    slug: "general-surgery-consultation",
+    name: "استشارات الجراحة العامة",
+    category: "الجراحة العامة",
+    excerpt:
+      "تقييم جراحي عام يوضح الخيارات العلاجية وما إذا كان التدخل الجراحي مناسبًا.",
+    description:
+      "تساعد الاستشارة على ترتيب الأولويات العلاجية وشرح البدائل والمخاطر والخطوات المتوقعة قبل أي تدخل.",
+    coverImageUrl: serviceImages.journal,
+    benefits: ["تقييم جراحي أولي", "شرح البدائل والخطة", "تحديد الحاجة للتدخل"],
+    doctorSlugs: ["falwah-aljanoubi", "bandar-alharthi"],
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: false,
+  },
+  {
+    id: "service-neurosurgery-spine-care",
+    slug: "neurosurgery-spine-care",
+    name: "جراحة المخ والأعصاب والعمود الفقري",
+    category: "الجراحات العصبية",
+    excerpt:
+      "تقييم متخصص لحالات المخ والأعصاب والعمود الفقري بخطة علاجية دقيقة.",
+    description:
+      "يعتمد المسار على التشخيص الدقيق وشرح الخيارات العلاجية أو الجراحية المناسبة، مع توضيح المخاطر والمتابعة المتوقعة.",
+    coverImageUrl: serviceImages.journal,
+    benefits: [
+      "تقييم عصبي وجراحي متخصص",
+      "شرح خيارات العلاج",
+      "خطة مبنية على التشخيص",
+    ],
+    doctorSlugs: ["sabah-alrashid"],
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: false,
+  },
 ];
 
-const seedDevices: DeviceRecord[] = [
-  {
-    id: "device-fractional-laser-platform",
-    slug: "fractional-laser-platform",
-    name: "منصة الفراكشنال ليزر",
-    excerpt:
-      "تقنية تساعد على تحسين ملمس البشرة وتقليل آثار الندبات والمسام وتفاوت اللون وفق تقييم الحالة.",
-    description:
-      "تستخدم هذه التقنية في خطط تجديد البشرة التي تحتاج إلى تحفيز أعمق وتحسين تدريجي في الملمس والمظهر العام. اختيارها لا يكون لمجرد الاسم، بل حين تكون مناسبة لنوع البشرة والهدف العلاجي المطلوب.",
-    imageUrl: serviceImages.devices,
-    certifications: ["اعتماد طبي معتمد", "ملائم لخطط تجديد البشرة"],
-    serviceSlugs: ["skin-rejuvenation"],
-    status: ContentStatus.PUBLISHED,
-  },
-  {
-    id: "device-diode-laser-suite",
-    slug: "diode-laser-suite",
-    name: "جهاز الدايود ليزر",
-    excerpt:
-      "تقنية شائعة وفعالة لجلسات إزالة الشعر، مع قدرة على العمل وفق احتياج مناطق مختلفة ونوع البشرة.",
-    description:
-      "يدعم هذا الجهاز جلسات إزالة الشعر التي تحتاج إلى توازن بين الراحة والفعالية والاستمرارية، ويتم اعتماده ضمن خطة يشرح فيها الطبيب عدد الجلسات المتوقع والتعليمات المناسبة لكل حالة.",
-    imageUrl: serviceImages.laser,
-    certifications: ["مناسب لجلسات الليزر", "إجراءات مبنية على تقييم مسبق"],
-    serviceSlugs: ["laser-hair-removal"],
-    status: ContentStatus.PUBLISHED,
-  },
-  {
-    id: "device-body-contour-station",
-    slug: "body-contour-station",
-    name: "تقنية نحت القوام",
-    excerpt:
-      "تقنية داعمة لتحسين تناسق القوام في الحالات التي تناسب الحلول غير الجراحية المتدرجة.",
-    description:
-      "تأتي هذه التقنية ضمن مسارات تهدف إلى دعم مظهر أكثر تناسقًا في بعض المناطق المختارة، مع أهمية التقييم الواقعي للحالة وتحديد ما إذا كانت الخدمة مناسبة بالفعل للهدف المطلوب.",
-    imageUrl: serviceImages.body,
-    certifications: [
-      "اختيار مناسب للحالات المحددة",
-      "خطة تعتمد على التقييم الواقعي",
-    ],
-    serviceSlugs: ["body-contouring"],
-    status: ContentStatus.PUBLISHED,
-  },
-  {
-    id: "device-rf-skin-tightening",
-    slug: "rf-skin-tightening",
-    name: "تقنية شد البشرة بالترددات",
-    excerpt:
-      "تقنية داعمة لتحسين تماسك الجلد وملمسه في الحالات المناسبة دون تدخل جراحي.",
-    description:
-      "تستخدم ضمن خطط شد البشرة وتحسين الملمس عندما يكون الهدف مناسبًا للتقنيات غير الجراحية، مع شرح عدد الجلسات المتوقع وطريقة المتابعة.",
-    imageUrl: serviceImages.devices,
-    certifications: ["تقنية غير جراحية", "تقييم طبي قبل الاستخدام"],
-    serviceSlugs: ["dermatology-consultation", "skin-rejuvenation"],
-    status: ContentStatus.PUBLISHED,
-  },
-  {
-    id: "device-hydrafacial-suite",
-    slug: "hydrafacial-suite",
-    name: "جلسات تنظيف وترطيب البشرة",
-    excerpt:
-      "منصة عناية داعمة لتنظيف البشرة وترطيبها وتحضيرها ضمن مسار علاجي أو تجميلي متدرج.",
-    description:
-      "تُستخدم هذه الجلسات لتحسين صفاء البشرة ودعم الترطيب، وقد تكون خطوة تمهيدية أو مكملة لخدمات العناية والليزر بحسب تقييم الفريق الطبي.",
-    imageUrl: serviceImages.skinCare,
-    certifications: ["عناية بالبشرة", "مناسبة للمسارات التحضيرية"],
-    serviceSlugs: ["dermatology-consultation", "skin-rejuvenation"],
-    status: ContentStatus.PUBLISHED,
-  },
-  {
-    id: "device-hifu-lifting",
-    slug: "hifu-lifting",
-    name: "تقنية الهايفو للشد",
-    excerpt:
-      "خيار غير جراحي لتحسين مظهر الشد في الحالات التي يناسبها التحفيز الحراري العميق.",
-    description:
-      "تُختار تقنية الهايفو بعد تقييم سماكة الجلد ودرجة الترهل والهدف المطلوب، وتُعرض ضمن توقعات واضحة حول النتيجة وفترة ظهورها.",
-    imageUrl: serviceImages.body,
-    certifications: ["شد غير جراحي", "اختيار حسب الحالة"],
-    serviceSlugs: ["body-contouring", "dermatology-consultation"],
-    status: ContentStatus.PUBLISHED,
-  },
-];
+const seedDevices: DeviceRecord[] = [];
 
 const seedGallery: GalleryRecord[] = [
   {
@@ -1887,6 +1937,12 @@ const seedSettings: SettingsGroup[] = [
         key: "chatbaseWidgetId",
         label: "Chatbase Widget ID",
         value: "wjegZOeOaeYGtbw422le3",
+      },
+      { key: "googleTagEnabled", label: "تفعيل Google Tag", value: "false" },
+      {
+        key: "googleTagUrl",
+        label: "رابط Google Tag / gtag.js",
+        value: "",
       },
       { key: "customHeadCode", label: "كود مخصص داخل head", value: "" },
       { key: "customBodyCode", label: "كود مخصص قبل نهاية body", value: "" },
@@ -2691,6 +2747,19 @@ export async function getServiceBySlug(slug: string) {
   return services.find((service) => service.slug === slug) ?? null;
 }
 
+export async function getServiceByReference(reference?: string | null) {
+  const value = reference?.trim();
+  if (!value) return null;
+  const normalized = value.toLowerCase();
+  const services = await getServices();
+  return (
+    services.find((service) => service.slug.toLowerCase() === normalized) ??
+    services.find((service) => service.name.trim() === value) ??
+    services.find((service) => service.nameEn?.trim() === value) ??
+    null
+  );
+}
+
 export const getDevices = cache(async () => {
   if (!canUseDatabase()) {
     return [...seedDevices];
@@ -2872,6 +2941,7 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
       utmSource: submission.utmSource ?? undefined,
       utmMedium: submission.utmMedium ?? undefined,
       utmCampaign: submission.utmCampaign ?? undefined,
+      utmContent: submission.utmContent ?? undefined,
       message: submission.message ?? undefined,
       comments: submission.comments.map((c) => ({
         id: c.id,
@@ -2958,10 +3028,10 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       fieldKey === "domain"
     ) {
       return value
-        .replaceAll("info@rejuveracenter.sa", "info@rejuvera.sa")
-        .replaceAll("info@rejuveracenter.com.sa", "info@rejuvera.sa")
-        .replaceAll("rejuveracenter.sa", "rejuvera.sa")
-        .replaceAll("rejuveracenter.com.sa", "rejuvera.sa");
+        .replaceAll("info@" + "rejuvera" + "center.sa", "info@rejuvera.sa")
+        .replaceAll("info@" + "rejuvera" + "center.com.sa", "info@rejuvera.sa")
+        .replaceAll("rejuvera" + "center.sa", "rejuvera.sa")
+        .replaceAll("rejuvera" + "center.com.sa", "rejuvera.sa");
     }
     if (fieldKey === "siteName") {
       return value.replaceAll("Rejuvira", "Rejuvera");
@@ -3401,6 +3471,9 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "chatbaseWidgetId",
         "wjegZOeOaeYGtbw422le3",
       ),
+      googleTagEnabled:
+        getValue("integrations", "googleTagEnabled", "false") === "true",
+      googleTagUrl: getValue("integrations", "googleTagUrl", ""),
       customHeadCode: getValue("integrations", "customHeadCode", ""),
       customBodyCode: getValue("integrations", "customBodyCode", ""),
       formWebhookEnabled:
@@ -3555,22 +3628,6 @@ export async function getErrorLogs() {
   } catch {
     return [...seedErrorLogs];
   }
-}
-
-export async function getDashboardSnapshot(): Promise<DashboardSnapshot> {
-  const [doctors, services, submissions, devices] = await Promise.all([
-    getDoctors(),
-    getServices(),
-    getCrmSubmissions(),
-    getDevices(),
-  ]);
-
-  return {
-    doctorCount: doctors.length,
-    serviceCount: services.length,
-    leadCount: submissions.length,
-    deviceCount: devices.length,
-  };
 }
 
 export async function getAdminUsers() {
@@ -3791,12 +3848,7 @@ export async function createServiceDraft(input: CreateServiceInput) {
       })
     : null;
   const [relatedDoctors, relatedDevices] = await Promise.all([
-    doctorSlugs.length
-      ? prisma.doctor.findMany({
-          where: { slug: { in: doctorSlugs } },
-          select: { id: true },
-        })
-      : [],
+    doctorSlugs.length ? ensureDoctorsForServiceSlugs(doctorSlugs) : [],
     deviceSlugs.length
       ? prisma.device.findMany({
           where: { slug: { in: deviceSlugs } },
@@ -4187,8 +4239,14 @@ export async function createContactLead(
   }
 
   const service = input.serviceSlug
-    ? await prisma.service.findUnique({
-        where: { slug: input.serviceSlug },
+    ? await prisma.service.findFirst({
+        where: {
+          OR: [
+            { slug: input.serviceSlug },
+            { nameAr: input.serviceSlug },
+            { nameEn: input.serviceSlug },
+          ],
+        },
         select: { id: true },
       })
     : null;
@@ -4209,6 +4267,11 @@ export async function createContactLead(
         ? { appointmentNotes: input.appointmentNotes }
         : {}),
       status: input.status ?? SubmissionStatus.NEW,
+      ...(input.utmSource ? { utmSource: input.utmSource } : {}),
+      ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
+      ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
+      ...(input.utmContent ? { utmContent: input.utmContent } : {}),
+      ...(input.notes ? { internalNotes: input.notes } : {}),
       ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
       ...(input.webhookId ? { webhookId: input.webhookId } : {}),
       ...(input.email
@@ -4374,7 +4437,9 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
     where: { id: input.id },
     data: {
       status: input.status,
-      internalNotes: input.notes ?? null,
+      ...(input.notes !== undefined
+        ? { internalNotes: input.notes ?? null }
+        : {}),
       ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
       ...(input.phone !== undefined ? { phone: input.phone } : {}),
       ...(input.email !== undefined ? { email: input.email || null } : {}),
@@ -4544,6 +4609,33 @@ export async function updateCustomPage(input: UpdateCustomPageInput) {
   return { mode: "database" as const, item };
 }
 
+export async function upsertCustomPageBySlug(input: UpsertCustomPageInput) {
+  if (!canUseDatabase()) return { mode: "preview" as const, input };
+  const item = await prisma.customPage.upsert({
+    where: { slug: input.slug },
+    create: {
+      slug: input.slug,
+      titleAr: input.titleAr,
+      titleEn: input.titleEn || null,
+      htmlContent: input.htmlContent,
+      seoTitle: input.seoTitle || null,
+      seoDescription: input.seoDescription || null,
+      status: input.status ?? ContentStatus.DRAFT,
+      noindex: input.noindex ?? false,
+    },
+    update: {
+      titleAr: input.titleAr,
+      titleEn: input.titleEn || null,
+      htmlContent: input.htmlContent,
+      seoTitle: input.seoTitle || null,
+      seoDescription: input.seoDescription || null,
+      status: input.status ?? ContentStatus.DRAFT,
+      noindex: input.noindex ?? false,
+    },
+  });
+  return { mode: "database" as const, item };
+}
+
 export async function deleteCustomPage(id: string) {
   if (!canUseDatabase()) return { mode: "preview" as const, id };
   const item = await prisma.customPage.delete({ where: { id } });
@@ -4610,7 +4702,7 @@ export async function getWebhookByToken(token: string) {
   try {
     return await prisma.webhook.findUnique({
       where: { token },
-      include: { service: { select: { id: true, nameAr: true } } },
+      include: { service: { select: { id: true, nameAr: true, slug: true } } },
     });
   } catch {
     return null;
@@ -4769,6 +4861,53 @@ function normalizeSlugList(slugs?: string[]): string[] {
   );
 }
 
+async function ensureDoctorsForServiceSlugs(slugs: string[]) {
+  if (!slugs.length) return [];
+
+  const existingDoctors = await prisma.doctor.findMany({
+    where: { slug: { in: slugs } },
+    select: { id: true, slug: true },
+  });
+  const existingSlugs = new Set(existingDoctors.map((doctor) => doctor.slug));
+  const missingSeedDoctors = seedDoctors.filter(
+    (doctor) => slugs.includes(doctor.slug) && !existingSlugs.has(doctor.slug),
+  );
+
+  if (!missingSeedDoctors.length) return existingDoctors;
+
+  const createdDoctors = await Promise.all(
+    missingSeedDoctors.map((doctor) =>
+      prisma.doctor.upsert({
+        where: { slug: doctor.slug },
+        update: {},
+        create: {
+          slug: doctor.slug,
+          nameAr: doctor.name,
+          nameEn: doctor.nameEn || null,
+          titleAr: doctor.title,
+          titleEn: doctor.titleEn || null,
+          specialtyAr: doctor.specialty,
+          specialtyEn: doctor.specialtyEn || null,
+          bioAr: doctor.bio,
+          bioEn: doctor.bioEn || null,
+          photoUrl: doctor.photoUrl,
+          coverImageUrl: doctor.coverImageUrl || doctor.photoUrl,
+          yearsExperience: doctor.yearsExperience,
+          languages: [...doctor.languages],
+          education: [...doctor.education],
+          achievements: [...doctor.achievements],
+          publications: [...doctor.publications],
+          status: doctor.status,
+          isFeatured: doctor.featured,
+        },
+        select: { id: true, slug: true },
+      }),
+    ),
+  );
+
+  return [...existingDoctors, ...createdDoctors];
+}
+
 export async function updateService(input: UpdateServiceInput) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, input };
@@ -4788,10 +4927,7 @@ export async function updateService(input: UpdateServiceInput) {
   const [relatedDoctors, relatedDevices] = await withDatabaseRetry(() =>
     Promise.all([
       Array.isArray(doctorSlugs) && doctorSlugs.length
-        ? prisma.doctor.findMany({
-            where: { slug: { in: doctorSlugs } },
-            select: { id: true, slug: true },
-          })
+        ? ensureDoctorsForServiceSlugs(doctorSlugs)
         : [],
       Array.isArray(deviceSlugs) && deviceSlugs.length
         ? prisma.device.findMany({

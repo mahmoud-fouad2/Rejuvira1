@@ -14,10 +14,10 @@ const initialState: AdminUserActionState = {
 };
 
 const roleOptions = [
-  { value: UserRole.SUPER_ADMIN, label: "Super Admin" },
-  { value: UserRole.ADMIN, label: "Admin" },
-  { value: UserRole.EDITOR, label: "Editor" },
-  { value: UserRole.VIEWER, label: "Viewer" },
+  { value: UserRole.SUPER_ADMIN, label: "إدارة عليا / Super Admin" },
+  { value: UserRole.ADMIN, label: "مدير / Admin" },
+  { value: UserRole.EDITOR, label: "محرر / Editor" },
+  { value: UserRole.VIEWER, label: "كول سنتر / Leads only" },
 ] as const;
 
 export function AdminUserRoleForm({

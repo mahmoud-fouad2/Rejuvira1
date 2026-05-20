@@ -3,8 +3,8 @@
  * drifts regardless of which SITE_URL / NEXTAUTH_URL env var
  * is set on Render or any other platform.
  */
-export const CANONICAL_ORIGIN = "https://rejuvera.sa" as const;
-export const CANONICAL_HOST = "rejuvera.sa" as const;
+const CANONICAL_ORIGIN = "https://rejuvera.sa" as const;
+const CANONICAL_HOST = "rejuvera.sa" as const;
 
 const LEGACY_HOSTS = new Set([
   "rejuveracenter.sa",
@@ -18,15 +18,11 @@ export function getCanonicalOrigin(): string {
   return CANONICAL_ORIGIN;
 }
 
-export function getCanonicalHost(): string {
-  return CANONICAL_HOST;
-}
-
-export function normalizeHost(host?: string | null): string {
+function normalizeHost(host?: string | null): string {
   return host?.split(",")[0]?.trim().toLowerCase().split(":")[0] ?? "";
 }
 
-export function isLegacyHost(host?: string | null): boolean {
+function isLegacyHost(host?: string | null): boolean {
   return LEGACY_HOSTS.has(normalizeHost(host));
 }
 
@@ -35,10 +31,7 @@ export function shouldRedirectToCanonicalHost(host?: string | null): boolean {
   if (!normalized || normalized === CANONICAL_HOST) {
     return false;
   }
-  return (
-    isLegacyHost(normalized) ||
-    normalized === `www.${CANONICAL_HOST}`
-  );
+  return isLegacyHost(normalized) || normalized === `www.${CANONICAL_HOST}`;
 }
 
 export function buildCanonicalUrl(pathname: string, search = ""): URL {

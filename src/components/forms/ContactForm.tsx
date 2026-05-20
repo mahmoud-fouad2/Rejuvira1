@@ -300,6 +300,14 @@ export function ContactForm({
       />
       <input type="hidden" name="preferredLanguage" value={lang} />
       <input type="hidden" name="source" value={source} />
+      <input type="hidden" name="utm_source" defaultValue="" />
+      <input type="hidden" name="utm_medium" defaultValue="" />
+      <input type="hidden" name="utm_campaign" defaultValue="" />
+      <input type="hidden" name="utm_content" defaultValue="" />
+      <input type="hidden" name="utmSource" defaultValue="" />
+      <input type="hidden" name="utmMedium" defaultValue="" />
+      <input type="hidden" name="utmCampaign" defaultValue="" />
+      <input type="hidden" name="utmContent" defaultValue="" />
       <input
         ref={tokenInputRef}
         type="hidden"

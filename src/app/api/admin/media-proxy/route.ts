@@ -10,10 +10,6 @@ const MAX_PROXY_BYTES = 12 * 1024 * 1024;
 const TRUSTED_STATIC_HOSTS = new Set([
   "rejuvera.sa",
   "www.rejuvera.sa",
-  "rejuveracenter.sa",
-  "www.rejuveracenter.sa",
-  "rejuveracenter.com",
-  "www.rejuveracenter.com",
   "rejuvira1.onrender.com",
 ]);
 

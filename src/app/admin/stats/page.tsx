@@ -12,30 +12,31 @@ import {
 import { listAppLogs } from "@/lib/app-log";
 
 /** Country code → bilingual label. */
-const COUNTRY_LABELS: Record<string, { ar: string; en: string; flag: string }> = {
-  SA: { ar: "السعودية", en: "Saudi Arabia", flag: "🇸🇦" },
-  AE: { ar: "الإمارات", en: "UAE", flag: "🇦🇪" },
-  EG: { ar: "مصر", en: "Egypt", flag: "🇪🇬" },
-  KW: { ar: "الكويت", en: "Kuwait", flag: "🇰🇼" },
-  QA: { ar: "قطر", en: "Qatar", flag: "🇶🇦" },
-  BH: { ar: "البحرين", en: "Bahrain", flag: "🇧🇭" },
-  OM: { ar: "عُمان", en: "Oman", flag: "🇴🇲" },
-  JO: { ar: "الأردن", en: "Jordan", flag: "🇯🇴" },
-  LB: { ar: "لبنان", en: "Lebanon", flag: "🇱🇧" },
-  IQ: { ar: "العراق", en: "Iraq", flag: "🇮🇶" },
-  TR: { ar: "تركيا", en: "Türkiye", flag: "🇹🇷" },
-  IN: { ar: "الهند", en: "India", flag: "🇮🇳" },
-  PK: { ar: "باكستان", en: "Pakistan", flag: "🇵🇰" },
-  US: { ar: "أمريكا", en: "USA", flag: "🇺🇸" },
-  GB: { ar: "بريطانيا", en: "UK", flag: "🇬🇧" },
-  FR: { ar: "فرنسا", en: "France", flag: "🇫🇷" },
-  DE: { ar: "ألمانيا", en: "Germany", flag: "🇩🇪" },
-  AS: { ar: "آسيا (تقريبي)", en: "Asia (approx)", flag: "🌏" },
-  EU: { ar: "أوروبا (تقريبي)", en: "Europe (approx)", flag: "🌍" },
-  AF: { ar: "أفريقيا (تقريبي)", en: "Africa (approx)", flag: "🌍" },
-  AM: { ar: "الأمريكتين (تقريبي)", en: "Americas (approx)", flag: "🌎" },
-  "??": { ar: "غير معروف", en: "Unknown", flag: "🌐" },
-};
+const COUNTRY_LABELS: Record<string, { ar: string; en: string; flag: string }> =
+  {
+    SA: { ar: "السعودية", en: "Saudi Arabia", flag: "🇸🇦" },
+    AE: { ar: "الإمارات", en: "UAE", flag: "🇦🇪" },
+    EG: { ar: "مصر", en: "Egypt", flag: "🇪🇬" },
+    KW: { ar: "الكويت", en: "Kuwait", flag: "🇰🇼" },
+    QA: { ar: "قطر", en: "Qatar", flag: "🇶🇦" },
+    BH: { ar: "البحرين", en: "Bahrain", flag: "🇧🇭" },
+    OM: { ar: "عُمان", en: "Oman", flag: "🇴🇲" },
+    JO: { ar: "الأردن", en: "Jordan", flag: "🇯🇴" },
+    LB: { ar: "لبنان", en: "Lebanon", flag: "🇱🇧" },
+    IQ: { ar: "العراق", en: "Iraq", flag: "🇮🇶" },
+    TR: { ar: "تركيا", en: "Türkiye", flag: "🇹🇷" },
+    IN: { ar: "الهند", en: "India", flag: "🇮🇳" },
+    PK: { ar: "باكستان", en: "Pakistan", flag: "🇵🇰" },
+    US: { ar: "أمريكا", en: "USA", flag: "🇺🇸" },
+    GB: { ar: "بريطانيا", en: "UK", flag: "🇬🇧" },
+    FR: { ar: "فرنسا", en: "France", flag: "🇫🇷" },
+    DE: { ar: "ألمانيا", en: "Germany", flag: "🇩🇪" },
+    AS: { ar: "آسيا (تقريبي)", en: "Asia (approx)", flag: "🌏" },
+    EU: { ar: "أوروبا (تقريبي)", en: "Europe (approx)", flag: "🌍" },
+    AF: { ar: "أفريقيا (تقريبي)", en: "Africa (approx)", flag: "🌍" },
+    AM: { ar: "الأمريكتين (تقريبي)", en: "Americas (approx)", flag: "🌎" },
+    "??": { ar: "غير معروف", en: "Unknown", flag: "🌐" },
+  };
 function countryLabel(code: string) {
   return (
     COUNTRY_LABELS[code] ?? {
@@ -73,18 +74,23 @@ function StatCard({
     >
       <div className="admin-stat-card__icon">{icon}</div>
       <div className="admin-stat-card__body">
-        <p className="admin-stat-card__value">{value.toLocaleString("ar-SA")}</p>
+        <p className="admin-stat-card__value">
+          {value.toLocaleString("ar-SA")}
+        </p>
         <p className="admin-stat-card__label">
           <span className="lang-ar">{label}</span>
           <span className="lang-en">{labelEn}</span>
         </p>
         {delta ? (
-          <p className="admin-stat-card__delta" style={{
-            color: delta.value >= 0 ? "#059669" : "#dc2626",
-            fontSize: "0.72rem",
-            marginTop: "0.2rem",
-            fontWeight: 600,
-          }}>
+          <p
+            className="admin-stat-card__delta"
+            style={{
+              color: delta.value >= 0 ? "#059669" : "#dc2626",
+              fontSize: "0.72rem",
+              marginTop: "0.2rem",
+              fontWeight: 600,
+            }}
+          >
             {delta.value >= 0 ? "▲" : "▼"} {Math.abs(delta.value)} {delta.label}
           </p>
         ) : sub ? (
@@ -165,7 +171,14 @@ function ProgressRow({
           />
         </div>
       </div>
-      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
+      <div
+        style={{
+          display: "flex",
+          gap: "0.5rem",
+          alignItems: "center",
+          flexShrink: 0,
+        }}
+      >
         <span
           style={{
             fontSize: "0.95rem",
@@ -176,7 +189,13 @@ function ProgressRow({
         >
           {count}
         </span>
-        <span style={{ fontSize: "0.72rem", color: "var(--admin-muted)", opacity: 0.7 }}>
+        <span
+          style={{
+            fontSize: "0.72rem",
+            color: "var(--admin-muted)",
+            opacity: 0.7,
+          }}
+        >
           ({pct}%)
         </span>
       </div>
@@ -262,10 +281,30 @@ export default async function AdminStatsPage() {
 
   const statusRows = [
     { status: SubmissionStatus.NEW, ar: "جديد", en: "New", color: "#dc2626" },
-    { status: SubmissionStatus.CONTACTED, ar: "تم التواصل", en: "Contacted", color: "#d97706" },
-    { status: SubmissionStatus.FOLLOW_UP, ar: "متابعة", en: "Follow-up", color: "#7c3aed" },
-    { status: SubmissionStatus.BOOKED, ar: "محجوز", en: "Booked", color: "#059669" },
-    { status: SubmissionStatus.CLOSED, ar: "مغلق", en: "Closed", color: "#6b7280" },
+    {
+      status: SubmissionStatus.CONTACTED,
+      ar: "تم التواصل",
+      en: "Contacted",
+      color: "#d97706",
+    },
+    {
+      status: SubmissionStatus.FOLLOW_UP,
+      ar: "متابعة",
+      en: "Follow-up",
+      color: "#7c3aed",
+    },
+    {
+      status: SubmissionStatus.BOOKED,
+      ar: "محجوز",
+      en: "Booked",
+      color: "#059669",
+    },
+    {
+      status: SubmissionStatus.CLOSED,
+      ar: "مغلق",
+      en: "Closed",
+      color: "#6b7280",
+    },
   ];
 
   /* ─── Visitor analytics from pageview logs ─── */
@@ -277,9 +316,7 @@ export default async function AdminStatsPage() {
   const totalVisits = visits.length;
 
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const visits30 = visits.filter(
-    (v) => new Date(v.createdAt) >= thirtyDaysAgo,
-  );
+  const visits30 = visits.filter((v) => new Date(v.createdAt) >= thirtyDaysAgo);
   const visits7 = visits.filter(
     (v) =>
       new Date(v.createdAt) >=
@@ -321,9 +358,8 @@ export default async function AdminStatsPage() {
     const d = new Date(now);
     d.setDate(d.getDate() - (13 - i));
     const ds = d.toDateString();
-    return visits.filter(
-      (v) => new Date(v.createdAt).toDateString() === ds,
-    ).length;
+    return visits.filter((v) => new Date(v.createdAt).toDateString() === ds)
+      .length;
   });
 
   /* Hourly distribution (today) */
@@ -343,8 +379,20 @@ export default async function AdminStatsPage() {
             <span className="lang-en">Analytics</span>
           </h1>
           <p>
-            <span className="lang-ar">آخر تحديث: {now.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })}</span>
-            <span className="lang-en">Last updated: {now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}</span>
+            <span className="lang-ar">
+              آخر تحديث:{" "}
+              {now.toLocaleTimeString("ar-SA", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+            <span className="lang-en">
+              Last updated:{" "}
+              {now.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
           </p>
         </div>
       </div>
@@ -359,9 +407,15 @@ export default async function AdminStatsPage() {
               <span className="lang-en">Visitor Analytics</span>
             </div>
           </div>
-          <span style={{ fontSize: "0.72rem", color: "var(--admin-text-faint)" }}>
-            <span className="lang-ar">آخر 30 يوم · {visits30.length} زيارة</span>
-            <span className="lang-en">Last 30 days · {visits30.length} visits</span>
+          <span
+            style={{ fontSize: "0.72rem", color: "var(--admin-text-faint)" }}
+          >
+            <span className="lang-ar">
+              آخر 30 يوم · {visits30.length} زيارة
+            </span>
+            <span className="lang-en">
+              Last 30 days · {visits30.length} visits
+            </span>
           </span>
         </div>
 
@@ -372,7 +426,20 @@ export default async function AdminStatsPage() {
             value={totalVisits}
             sub={`آخر 7 أيام: ${visits7.length}`}
             color="#7c3aed"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            }
           />
           <StatCard
             label="زيارات اليوم"
@@ -380,7 +447,20 @@ export default async function AdminStatsPage() {
             value={visitsToday.length}
             sub={`الذروة: ${Math.max(...hourly)} في الساعة`}
             color="#0891b2"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            }
           />
           <StatCard
             label="صفحات فريدة"
@@ -388,7 +468,20 @@ export default async function AdminStatsPage() {
             value={topPages.length}
             sub={topPageFirst ? `الأشهر: ${topPageFirst[0]}` : ""}
             color="#059669"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <path d="M14 2v6h6M8 13h8M8 17h6" />
+              </svg>
+            }
           />
           <StatCard
             label="مصادر الزيارات"
@@ -396,15 +489,46 @@ export default async function AdminStatsPage() {
             value={topSources.length}
             sub={topSourceFirst ? `الأكبر: ${topSourceFirst[0]}` : ""}
             color="#d97706"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <path d="M20 8v6M23 11h-6" />
+              </svg>
+            }
           />
           <StatCard
             label="دول الزوار"
             labelEn="Countries"
             value={topCountries.length}
-            sub={topCountryFirst ? `الأكبر: ${countryLabel(topCountryFirst[0]).ar}` : ""}
+            sub={
+              topCountryFirst
+                ? `الأكبر: ${countryLabel(topCountryFirst[0]).ar}`
+                : ""
+            }
             color="#be185d"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+            }
           />
           <StatCard
             label="جوال vs دسكتوب"
@@ -412,38 +536,69 @@ export default async function AdminStatsPage() {
             value={mobileVisits}
             sub={`دسكتوب: ${desktopVisits}`}
             color="#4f46e5"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <rect x="5" y="2" width="14" height="20" rx="2" />
+                <path d="M12 18h.01" />
+              </svg>
+            }
           />
         </div>
 
         {/* Daily 14-day visits chart */}
         <div style={{ padding: "0 1rem 1rem" }}>
-          <div style={{
-            fontSize: "0.7rem",
-            fontWeight: 700,
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            color: "var(--admin-accent)",
-            opacity: 0.75,
-            marginBottom: "0.5rem",
-            padding: "0 0.25rem",
-          }}>
+          <div
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--admin-accent)",
+              opacity: 0.75,
+              marginBottom: "0.5rem",
+              padding: "0 0.25rem",
+            }}
+          >
             <span className="lang-ar">الزيارات آخر 14 يوم</span>
             <span className="lang-en">Visits — Last 14 days</span>
           </div>
           <MiniBarChart data={visits14d} color="#7c3aed" />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "0.62rem", color: "var(--admin-text-faint)", padding: "0 0.25rem" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "6px",
+              fontSize: "0.62rem",
+              color: "var(--admin-text-faint)",
+              padding: "0 0.25rem",
+            }}
+          >
             {Array.from({ length: 14 }, (_, i) => {
               const d = new Date(now);
               d.setDate(d.getDate() - (13 - i));
-              return <span key={i} style={{ flex: 1, textAlign: "center" }}>{d.getDate()}</span>;
+              return (
+                <span key={i} style={{ flex: 1, textAlign: "center" }}>
+                  {d.getDate()}
+                </span>
+              );
             })}
           </div>
         </div>
       </article>
 
       {/* Visitor breakdown rows */}
-      <div className="admin-stats-charts-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+      <div
+        className="admin-stats-charts-2col"
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
+      >
         {/* Top pages */}
         <article className="admin-card">
           <div className="admin-card__header">
@@ -458,7 +613,12 @@ export default async function AdminStatsPage() {
           <div className="admin-data-list">
             {topPages.length === 0 ? (
               <div className="admin-data-row">
-                <span style={{ color: "var(--admin-text-faint)", fontSize: "0.82rem" }}>
+                <span
+                  style={{
+                    color: "var(--admin-text-faint)",
+                    fontSize: "0.82rem",
+                  }}
+                >
                   <span className="lang-ar">لا توجد بيانات زوار بعد.</span>
                   <span className="lang-en">No visitor data yet.</span>
                 </span>
@@ -492,7 +652,12 @@ export default async function AdminStatsPage() {
           <div className="admin-data-list">
             {topSources.length === 0 ? (
               <div className="admin-data-row">
-                <span style={{ color: "var(--admin-text-faint)", fontSize: "0.82rem" }}>
+                <span
+                  style={{
+                    color: "var(--admin-text-faint)",
+                    fontSize: "0.82rem",
+                  }}
+                >
                   <span className="lang-ar">لا توجد بيانات بعد.</span>
                   <span className="lang-en">No data yet.</span>
                 </span>
@@ -526,7 +691,12 @@ export default async function AdminStatsPage() {
           <div className="admin-data-list">
             {topCountries.length === 0 ? (
               <div className="admin-data-row">
-                <span style={{ color: "var(--admin-text-faint)", fontSize: "0.82rem" }}>
+                <span
+                  style={{
+                    color: "var(--admin-text-faint)",
+                    fontSize: "0.82rem",
+                  }}
+                >
                   <span className="lang-ar">لا توجد بيانات بعد.</span>
                   <span className="lang-en">No data yet.</span>
                 </span>
@@ -535,31 +705,59 @@ export default async function AdminStatsPage() {
               topCountries.map(([code, count]) => {
                 const meta = countryLabel(code);
                 return (
-                  <div key={code} className="admin-data-row" style={{ gap: "0.75rem" }}>
-                    <div style={{ minWidth: 0, flex: 1, display: "flex", alignItems: "center", gap: "0.55rem" }}>
-                      <span style={{ fontSize: "1.3rem", flexShrink: 0 }}>{meta.flag}</span>
+                  <div
+                    key={code}
+                    className="admin-data-row"
+                    style={{ gap: "0.75rem" }}
+                  >
+                    <div
+                      style={{
+                        minWidth: 0,
+                        flex: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.55rem",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.3rem", flexShrink: 0 }}>
+                        {meta.flag}
+                      </span>
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <p className="admin-data-row__title" style={{ fontSize: "0.85rem" }}>
+                        <p
+                          className="admin-data-row__title"
+                          style={{ fontSize: "0.85rem" }}
+                        >
                           <span className="lang-ar">{meta.ar}</span>
                           <span className="lang-en">{meta.en}</span>
                         </p>
-                        <div style={{
-                          height: "6px",
-                          borderRadius: "999px",
-                          background: "var(--admin-border)",
-                          marginTop: "4px",
-                          overflow: "hidden",
-                        }}>
-                          <div style={{
-                            height: "100%",
-                            width: `${Math.round((count / (visits30.length || 1)) * 100)}%`,
-                            background: "#be185d",
+                        <div
+                          style={{
+                            height: "6px",
                             borderRadius: "999px",
-                          }} />
+                            background: "var(--admin-border)",
+                            marginTop: "4px",
+                            overflow: "hidden",
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: "100%",
+                              width: `${Math.round((count / (visits30.length || 1)) * 100)}%`,
+                              background: "#be185d",
+                              borderRadius: "999px",
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
-                    <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#be185d", fontVariantNumeric: "tabular-nums" }}>
+                    <span
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        color: "#be185d",
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
                       {count}
                     </span>
                   </div>
@@ -636,15 +834,28 @@ export default async function AdminStatsPage() {
               <span className="lang-en">Hourly Distribution Today</span>
             </div>
           </div>
-          <span style={{ fontSize: "1.4rem", fontWeight: 700, color: "#7c3aed" }}>
+          <span
+            style={{ fontSize: "1.4rem", fontWeight: 700, color: "#7c3aed" }}
+          >
             {visitsToday.length}
           </span>
         </div>
         <div style={{ padding: "0 1rem 1rem" }}>
           <MiniBarChart data={hourly} color="#7c3aed" />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "0.6rem", color: "var(--admin-text-faint)", padding: "0 0.25rem" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginTop: "6px",
+              fontSize: "0.6rem",
+              color: "var(--admin-text-faint)",
+              padding: "0 0.25rem",
+            }}
+          >
             {[0, 4, 8, 12, 16, 20].map((h) => (
-              <span key={h} style={{ flex: 1, textAlign: "center" }}>{h}:00</span>
+              <span key={h} style={{ flex: 1, textAlign: "center" }}>
+                {h}:00
+              </span>
             ))}
           </div>
         </div>
@@ -662,32 +873,142 @@ export default async function AdminStatsPage() {
           </div>
         </div>
         <div className="admin-stats-grid">
-          <StatCard label="إجمالي الطلبات" labelEn="Total Leads" value={submissions.length} color="#7c3aed"
+          <StatCard
+            label="إجمالي الطلبات"
+            labelEn="Total Leads"
+            value={submissions.length}
+            color="#7c3aed"
             delta={{ value: monthDelta, label: "هذا الشهر" }}
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            }
           />
-          <StatCard label="طلبات جديدة (بانتظار)" labelEn="Pending New Leads" value={newLeads} color="#dc2626"
+          <StatCard
+            label="طلبات جديدة (بانتظار)"
+            labelEn="Pending New Leads"
+            value={newLeads}
+            color="#dc2626"
             sub={newLeads > 0 ? "تحتاج متابعة فورية" : "لا يوجد معلّق"}
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z" />
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+            }
           />
-          <StatCard label="طلبات هذا الشهر" labelEn="This Month" value={monthLeads} color="#059669"
+          <StatCard
+            label="طلبات هذا الشهر"
+            labelEn="This Month"
+            value={monthLeads}
+            color="#059669"
             sub={`الشهر الماضي: ${lastMonthLeads}`}
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>}
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" />
+              </svg>
+            }
           />
-          <StatCard label="طلبات اليوم" labelEn="Today" value={todayLeads} color="#0891b2"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>}
+          <StatCard
+            label="طلبات اليوم"
+            labelEn="Today"
+            value={todayLeads}
+            color="#0891b2"
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 6v6l4 2" />
+              </svg>
+            }
           />
-          <StatCard label="خدمة منشورة" labelEn="Published Services" value={publishedServices} sub={`من ${services.length} إجمالي`} color="#d97706"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z" strokeLinejoin="round"/></svg>}
+          <StatCard
+            label="خدمة منشورة"
+            labelEn="Published Services"
+            value={publishedServices}
+            sub={`من ${services.length} إجمالي`}
+            color="#d97706"
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path
+                  d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            }
           />
-          <StatCard label="طبيب منشور" labelEn="Published Doctors" value={publishedDoctors} sub={`من ${doctors.length} إجمالي`} color="#059669"
-            icon={<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>}
+          <StatCard
+            label="طبيب منشور"
+            labelEn="Published Doctors"
+            value={publishedDoctors}
+            sub={`من ${doctors.length} إجمالي`}
+            color="#059669"
+            icon={
+              <svg
+                viewBox="0 0 24 24"
+                width="22"
+                height="22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+              </svg>
+            }
           />
         </div>
       </article>
 
       {/* Charts row */}
-      <div className="admin-stats-charts-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+      <div
+        className="admin-stats-charts-2col"
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
+      >
         {/* Last 7 days */}
         <article className="admin-card">
           <div className="admin-card__header">
@@ -698,17 +1019,32 @@ export default async function AdminStatsPage() {
                 <span className="lang-en">Leads — Last 7 Days</span>
               </div>
             </div>
-            <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "#7c3aed" }}>
+            <span
+              style={{ fontSize: "1.5rem", fontWeight: 700, color: "#7c3aed" }}
+            >
               {last7.reduce((a, b) => a + b, 0)}
             </span>
           </div>
           <div style={{ padding: "0 1rem 1rem" }}>
             <MiniBarChart data={last7} color="#7c3aed" />
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "0.68rem", color: "var(--admin-muted)", opacity: 0.6 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "6px",
+                fontSize: "0.68rem",
+                color: "var(--admin-muted)",
+                opacity: 0.6,
+              }}
+            >
               {Array.from({ length: 7 }, (_, i) => {
                 const d = new Date(now);
                 d.setDate(d.getDate() - (6 - i));
-                return <span key={i}>{d.toLocaleDateString("ar-SA", { weekday: "short" })}</span>;
+                return (
+                  <span key={i}>
+                    {d.toLocaleDateString("ar-SA", { weekday: "short" })}
+                  </span>
+                );
               })}
             </div>
           </div>
@@ -724,16 +1060,35 @@ export default async function AdminStatsPage() {
                 <span className="lang-en">Leads — Last 6 Months</span>
               </div>
             </div>
-            <span style={{ fontSize: "1.5rem", fontWeight: 700, color: "#059669" }}>
+            <span
+              style={{ fontSize: "1.5rem", fontWeight: 700, color: "#059669" }}
+            >
               {last6Months.reduce((a, b) => a + b, 0)}
             </span>
           </div>
           <div style={{ padding: "0 1rem 1rem" }}>
             <MiniBarChart data={last6Months} color="#059669" />
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px", fontSize: "0.68rem", color: "var(--admin-muted)", opacity: 0.6 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "6px",
+                fontSize: "0.68rem",
+                color: "var(--admin-muted)",
+                opacity: 0.6,
+              }}
+            >
               {Array.from({ length: 6 }, (_, i) => {
-                const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-                return <span key={i}>{d.toLocaleDateString("ar-SA", { month: "short" })}</span>;
+                const d = new Date(
+                  now.getFullYear(),
+                  now.getMonth() - (5 - i),
+                  1,
+                );
+                return (
+                  <span key={i}>
+                    {d.toLocaleDateString("ar-SA", { month: "short" })}
+                  </span>
+                );
               })}
             </div>
           </div>
@@ -741,8 +1096,10 @@ export default async function AdminStatsPage() {
       </div>
 
       {/* Content + CRM in columns */}
-      <div className="admin-stats-charts-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-
+      <div
+        className="admin-stats-charts-2col"
+        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
+      >
         {/* Lead Status */}
         <article className="admin-card">
           <div className="admin-card__header">
@@ -780,26 +1137,97 @@ export default async function AdminStatsPage() {
             </div>
           </div>
           <div className="admin-data-list">
-            <ProgressRow label="خدمات منشورة" labelEn="Published services" count={publishedServices} total={services.length} color="#d97706" />
-            <ProgressRow label="أطباء منشورون" labelEn="Published doctors" count={publishedDoctors} total={doctors.length} color="#059669" />
-            <ProgressRow label="صور المعرض" labelEn="Gallery items" count={gallery.filter(g => g.status === ContentStatus.PUBLISHED).length} total={gallery.length} color="#0891b2" />
-            <ProgressRow label="مقالات المجلة" labelEn="Journal posts" count={journal.filter(j => j.status === ContentStatus.PUBLISHED).length} total={journal.length} color="#be185d" />
+            <ProgressRow
+              label="خدمات منشورة"
+              labelEn="Published services"
+              count={publishedServices}
+              total={services.length}
+              color="#d97706"
+            />
+            <ProgressRow
+              label="أطباء منشورون"
+              labelEn="Published doctors"
+              count={publishedDoctors}
+              total={doctors.length}
+              color="#059669"
+            />
+            <ProgressRow
+              label="صور المعرض"
+              labelEn="Gallery items"
+              count={
+                gallery.filter((g) => g.status === ContentStatus.PUBLISHED)
+                  .length
+              }
+              total={gallery.length}
+              color="#0891b2"
+            />
+            <ProgressRow
+              label="مقالات المجلة"
+              labelEn="Journal posts"
+              count={
+                journal.filter((j) => j.status === ContentStatus.PUBLISHED)
+                  .length
+              }
+              total={journal.length}
+              color="#be185d"
+            />
           </div>
-          <div className="admin-data-list" style={{ borderTop: "1px solid var(--admin-border)", marginTop: "0" }}>
+          <div
+            className="admin-data-list"
+            style={{
+              borderTop: "1px solid var(--admin-border)",
+              marginTop: "0",
+            }}
+          >
             {[
-              { label: "الخدمات", labelEn: "Services", count: services.length, color: "#d97706" },
-              { label: "الأطباء", labelEn: "Doctors", count: doctors.length, color: "#059669" },
-              { label: "الأقسام", labelEn: "Categories", count: categories.length, color: "#7c3aed" },
-              { label: "معرض الصور", labelEn: "Gallery", count: gallery.length, color: "#0891b2" },
-              { label: "المقالات", labelEn: "Journal", count: journal.length, color: "#be185d" },
-              { label: "المستخدمون", labelEn: "Users", count: users.length, color: "#4f46e5" },
+              {
+                label: "الخدمات",
+                labelEn: "Services",
+                count: services.length,
+                color: "#d97706",
+              },
+              {
+                label: "الأطباء",
+                labelEn: "Doctors",
+                count: doctors.length,
+                color: "#059669",
+              },
+              {
+                label: "الأقسام",
+                labelEn: "Categories",
+                count: categories.length,
+                color: "#7c3aed",
+              },
+              {
+                label: "معرض الصور",
+                labelEn: "Gallery",
+                count: gallery.length,
+                color: "#0891b2",
+              },
+              {
+                label: "المقالات",
+                labelEn: "Journal",
+                count: journal.length,
+                color: "#be185d",
+              },
+              {
+                label: "المستخدمون",
+                labelEn: "Users",
+                count: users.length,
+                color: "#4f46e5",
+              },
             ].map(({ label, labelEn, count, color }) => (
               <div key={label} className="admin-data-row">
                 <p className="admin-data-row__title">
                   <span className="lang-ar">{label}</span>
                   <span className="lang-en">{labelEn}</span>
                 </p>
-                <span className="admin-data-row__value" style={{ color, fontWeight: 700 }}>{count}</span>
+                <span
+                  className="admin-data-row__value"
+                  style={{ color, fontWeight: 700 }}
+                >
+                  {count}
+                </span>
               </div>
             ))}
           </div>
@@ -818,7 +1246,13 @@ export default async function AdminStatsPage() {
           </div>
         </div>
         {topServices.length === 0 ? (
-          <p style={{ padding: "1rem 1.2rem", fontSize: "0.85rem", color: "var(--admin-muted)" }}>
+          <p
+            style={{
+              padding: "1rem 1.2rem",
+              fontSize: "0.85rem",
+              color: "var(--admin-muted)",
+            }}
+          >
             <span className="lang-ar">لا توجد بيانات كافية بعد</span>
             <span className="lang-en">No data yet</span>
           </p>
@@ -826,27 +1260,75 @@ export default async function AdminStatsPage() {
           <div className="admin-data-list">
             {topServices.map(([label, count], i) => (
               <div key={label} className="admin-data-row">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", minWidth: 0, flex: 1 }}>
-                  <span style={{
-                    width: "1.6rem",
-                    height: "1.6rem",
-                    borderRadius: "50%",
-                    background: i === 0 ? "#f59e0b" : i === 1 ? "#94a3b8" : i === 2 ? "#cd7c3a" : "var(--admin-border)",
-                    display: "grid",
-                    placeItems: "center",
-                    fontSize: "0.7rem",
-                    fontWeight: 700,
-                    color: i < 3 ? "#fff" : "var(--admin-muted)",
-                    flexShrink: 0,
-                  }}>{i + 1}</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.65rem",
+                    minWidth: 0,
+                    flex: 1,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "1.6rem",
+                      height: "1.6rem",
+                      borderRadius: "50%",
+                      background:
+                        i === 0
+                          ? "#f59e0b"
+                          : i === 1
+                            ? "#94a3b8"
+                            : i === 2
+                              ? "#cd7c3a"
+                              : "var(--admin-border)",
+                      display: "grid",
+                      placeItems: "center",
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      color: i < 3 ? "#fff" : "var(--admin-muted)",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {i + 1}
+                  </span>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <p className="admin-data-row__title" style={{ fontSize: "0.83rem" }}>{label}</p>
-                    <div style={{ height: "5px", borderRadius: "999px", background: "var(--admin-border)", marginTop: "5px", overflow: "hidden" }}>
-                      <div style={{ height: "100%", width: `${Math.round((count / maxServiceLeads) * 100)}%`, background: "#7c3aed", borderRadius: "999px" }} />
+                    <p
+                      className="admin-data-row__title"
+                      style={{ fontSize: "0.83rem" }}
+                    >
+                      {label}
+                    </p>
+                    <div
+                      style={{
+                        height: "5px",
+                        borderRadius: "999px",
+                        background: "var(--admin-border)",
+                        marginTop: "5px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${Math.round((count / maxServiceLeads) * 100)}%`,
+                          background: "#7c3aed",
+                          borderRadius: "999px",
+                        }}
+                      />
                     </div>
                   </div>
                 </div>
-                <span style={{ fontSize: "1.05rem", fontWeight: 700, color: "#7c3aed", flexShrink: 0 }}>{count}</span>
+                <span
+                  style={{
+                    fontSize: "1.05rem",
+                    fontWeight: 700,
+                    color: "#7c3aed",
+                    flexShrink: 0,
+                  }}
+                >
+                  {count}
+                </span>
               </div>
             ))}
           </div>

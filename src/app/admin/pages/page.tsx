@@ -2,8 +2,11 @@ import { ContentStatus } from "@prisma/client";
 import Link from "next/link";
 import type { Route } from "next";
 
+import {
+  deleteCustomPageAction,
+  generateServiceLandingPagesAction,
+} from "@/app/admin/pages/actions";
 import { AdminListControls } from "@/components/admin/AdminListControls";
-import { CustomPageDeleteForm } from "@/components/admin/CustomPageDeleteForm";
 import { getCustomPages } from "@/lib/content-repository";
 
 function statusMeta(status: ContentStatus) {
@@ -37,7 +40,16 @@ function countBlocks(htmlContent: string) {
   return (htmlContent.match(/rv-builder-section/g) ?? []).length;
 }
 
-export default async function AdminCustomPagesPage() {
+export default async function AdminCustomPagesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{
+    generated?: string;
+    count?: string;
+    eligible?: string;
+  }>;
+}) {
+  const query = searchParams ? await searchParams : {};
   const pages = await getCustomPages();
   const published = pages.filter(
     (page) => page.status === ContentStatus.PUBLISHED,
@@ -100,6 +112,11 @@ export default async function AdminCustomPagesPage() {
           </p>
         </div>
         <div className="admin-page-header__actions">
+          <form action={generateServiceLandingPagesAction}>
+            <button type="submit" className="admin-btn-secondary">
+              توليد صفحات الخدمات
+            </button>
+          </form>
           <Link
             href={"/admin/pages/new" as Route}
             className="admin-btn-primary"
@@ -108,6 +125,19 @@ export default async function AdminCustomPagesPage() {
           </Link>
         </div>
       </div>
+
+      {query.generated === "service-pages" && query.count === "0" ? (
+        <div className="admin-inline-notice is-warning">
+          لم يتم حفظ صفحات جديدة لأن قاعدة البيانات غير متاحة في هذه البيئة، أو
+          لا توجد خدمات منشورة/معتمدة جاهزة للتوليد.
+        </div>
+      ) : query.generated === "service-pages" ? (
+        <div className="admin-inline-notice">
+          تم توليد أو تحديث {query.count ?? "0"} صفحة إعلان من أصل{" "}
+          {query.eligible ?? query.count ?? "0"} خدمة منشورة/معتمدة داخل الصفحات
+          المخصصة.
+        </div>
+      ) : null}
 
       <section className="admin-kpi-grid admin-kpi-grid--compact">
         <article className="admin-kpi-card">
@@ -203,7 +233,13 @@ export default async function AdminCustomPagesPage() {
                   >
                     معاينة
                   </a>
-                  <CustomPageDeleteForm id={page.id} slug={page.slug} />
+                  <form action={deleteCustomPageAction}>
+                    <input type="hidden" name="id" value={page.id} />
+                    <input type="hidden" name="slug" value={page.slug} />
+                    <button type="submit" className="admin-btn-danger">
+                      حذف
+                    </button>
+                  </form>
                 </div>
               </div>
             </article>

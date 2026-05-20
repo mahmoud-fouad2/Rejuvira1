@@ -25,12 +25,12 @@ const isProd = process.env.NODE_ENV === "production";
  *   as "could be stronger", but the policy still mitigates many XSS vectors.
  * - In dev we relax `script-src` to allow `'unsafe-eval'` for HMR.
  * - We allow third-party origins we actively integrate with: Chatbase, Google
- *   Maps embed, Google reCAPTCHA, Cloudflare R2 (image hosting).
+ *   Maps embed, Google reCAPTCHA/Tag, Cloudflare R2 (image hosting).
  */
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co https://www.google.com https://www.gstatic.com`.trim(),
-  "script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co https://www.google.com https://www.gstatic.com",
+  `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co https://www.google.com https://www.gstatic.com https://www.googletagmanager.com`.trim(),
+  "script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co https://www.google.com https://www.gstatic.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "style-src-elem 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
@@ -97,8 +97,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "rejuvera.sa" },
       { protocol: "https", hostname: "www.rejuvera.sa" },
       { protocol: "https", hostname: "cdn.rejuvera.sa" },
-      { protocol: "https", hostname: "rejuveracenter.sa" },
-      { protocol: "https", hostname: "cdn.rejuveracenter.sa" },
     ],
   },
   env: {
@@ -118,36 +116,47 @@ const nextConfig: NextConfig = {
         headers: [{ key: "X-Robots-Tag", value: "all" }],
       },
       {
-        source:
-          "/((?!admin|api/admin|api/auth|forbidden|login)(?:.*))",
+        source: "/((?!admin|api/admin|api/auth|forbidden|login)(?:.*))",
         headers: [{ key: "X-Robots-Tag", value: "all" }],
       },
       // robots.txt + sitemap files: short cache, plus permissive indexing.
       {
         source: "/robots.txt",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
           { key: "Content-Type", value: "text/plain; charset=utf-8" },
         ],
       },
       {
         source: "/sitemap.xml",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
         ],
       },
       {
         source: "/sitemap2.xml",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
         ],
       },
       {
         source: "/sitemap-index.xml",
         headers: [
-          { key: "Cache-Control", value: "public, max-age=300, must-revalidate" },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
         ],
       },

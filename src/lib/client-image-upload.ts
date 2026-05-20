@@ -1,7 +1,7 @@
 "use client";
 
-export const MAX_UPLOAD_SOURCE_BYTES = 12 * 1024 * 1024;
-export const MAX_DIRECT_UPLOAD_BYTES = 6 * 1024 * 1024;
+const MAX_UPLOAD_SOURCE_BYTES = 12 * 1024 * 1024;
+const MAX_DIRECT_UPLOAD_BYTES = 6 * 1024 * 1024;
 const MAX_OUTPUT_SIDE = 1920;
 const RASTER_TYPES = new Set([
   "image/png",

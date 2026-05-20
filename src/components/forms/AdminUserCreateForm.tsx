@@ -17,7 +17,7 @@ const roleOptions = [
   { value: UserRole.SUPER_ADMIN, label: "إدارة عليا / Super Admin" },
   { value: UserRole.ADMIN, label: "مدير / Admin" },
   { value: UserRole.EDITOR, label: "محرر / Editor" },
-  { value: UserRole.VIEWER, label: "مراقب / Viewer" },
+  { value: UserRole.VIEWER, label: "كول سنتر / Leads only" },
 ] as const;
 
 export function AdminUserCreateForm() {
@@ -59,7 +59,7 @@ export function AdminUserCreateForm() {
           <input
             name="positionTitle"
             className="admin-input"
-            placeholder="CRM Manager / Content lead"
+            placeholder="Call center / CRM manager"
           />
         </label>
         <label className="grid gap-1">
@@ -70,7 +70,7 @@ export function AdminUserCreateForm() {
           <input
             name="department"
             className="admin-input"
-            placeholder="Operations / Marketing"
+            placeholder="Call center / Operations"
           />
         </label>
       </div>

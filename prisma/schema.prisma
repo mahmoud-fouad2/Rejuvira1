@@ -32,50 +32,50 @@ enum SubmissionStatus {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  name               String
-  email              String              @unique
-  hashedPassword     String
-  role               UserRole            @default(ADMIN)
-  positionTitle      String?
-  department         String?
-  isActive           Boolean             @default(true)
-  avatarUrl          String?
-  lastLoginAt        DateTime?
-  assignedLeads      ContactSubmission[] @relation("LeadOwner")
-  authoredComments   CrmComment[]        @relation("CrmCommentAuthor")
-  createdAuditLogs   AuditLog[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id               String              @id @default(cuid())
+  name             String
+  email            String              @unique
+  hashedPassword   String
+  role             UserRole            @default(ADMIN)
+  positionTitle    String?
+  department       String?
+  isActive         Boolean             @default(true)
+  avatarUrl        String?
+  lastLoginAt      DateTime?
+  assignedLeads    ContactSubmission[] @relation("LeadOwner")
+  authoredComments CrmComment[]        @relation("CrmCommentAuthor")
+  createdAuditLogs AuditLog[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   @@index([role])
   @@index([isActive])
 }
 
 model Doctor {
-  id                 String         @id @default(cuid())
-  slug               String         @unique
-  nameAr             String
-  nameEn             String?
-  titleAr            String
-  titleEn            String?
-  specialtyAr        String
-  specialtyEn        String?
-  bioAr              String         @db.Text
-  bioEn              String?        @db.Text
-  photoUrl           String?
-  coverImageUrl      String?
-  education          Json?
-  publications       Json?
-  achievements       Json?
-  languages          String[]
-  yearsExperience    Int?
-  status             ContentStatus  @default(DRAFT)
-  isFeatured         Boolean        @default(false)
-  sortOrder          Int            @default(0)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  services           Service[]      @relation("DoctorServices")
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  nameAr          String
+  nameEn          String?
+  titleAr         String
+  titleEn         String?
+  specialtyAr     String
+  specialtyEn     String?
+  bioAr           String        @db.Text
+  bioEn           String?       @db.Text
+  photoUrl        String?
+  coverImageUrl   String?
+  education       Json?
+  publications    Json?
+  achievements    Json?
+  languages       String[]
+  yearsExperience Int?
+  status          ContentStatus @default(DRAFT)
+  isFeatured      Boolean       @default(false)
+  sortOrder       Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  services        Service[]     @relation("DoctorServices")
 }
 
 model Service {
@@ -110,156 +110,157 @@ model Service {
 }
 
 model ServiceCategory {
-  id             String        @id @default(cuid())
-  slug           String        @unique
-  nameAr         String
-  nameEn         String?
-  descriptionAr  String?       @db.Text
-  descriptionEn  String?       @db.Text
-  status         ContentStatus @default(PUBLISHED)
-  sortOrder      Int           @default(0)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  services       Service[]
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  nameAr        String
+  nameEn        String?
+  descriptionAr String?       @db.Text
+  descriptionEn String?       @db.Text
+  status        ContentStatus @default(PUBLISHED)
+  sortOrder     Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  services      Service[]
 
   @@index([status])
   @@index([sortOrder])
 }
 
 model Device {
-  id                 String         @id @default(cuid())
-  slug               String         @unique
-  nameAr             String
-  nameEn             String?
-  excerptAr          String?        @db.Text
-  excerptEn          String?        @db.Text
-  descriptionAr      String         @db.Text
-  descriptionEn      String?        @db.Text
-  gallery            Json?
-  specifications     Json?
-  certifications     Json?
-  status             ContentStatus  @default(DRAFT)
-  isFeatured         Boolean        @default(false)
-  sortOrder          Int            @default(0)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  services           Service[]      @relation("ServiceDevices")
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  nameAr         String
+  nameEn         String?
+  excerptAr      String?       @db.Text
+  excerptEn      String?       @db.Text
+  descriptionAr  String        @db.Text
+  descriptionEn  String?       @db.Text
+  gallery        Json?
+  specifications Json?
+  certifications Json?
+  status         ContentStatus @default(DRAFT)
+  isFeatured     Boolean       @default(false)
+  sortOrder      Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  services       Service[]     @relation("ServiceDevices")
 }
 
 model GalleryItem {
-  id                 String         @id @default(cuid())
-  slug               String         @unique
-  titleAr            String
-  titleEn            String?
-  beforeImageUrl     String
-  afterImageUrl      String
-  beforeImageAlt     String?
-  afterImageAlt      String?
-  categoryKey        String
-  descriptionAr      String?        @db.Text
-  descriptionEn      String?        @db.Text
-  consentDocumentUrl String?
-  status             ContentStatus  @default(DRAFT)
-  sortOrder          Int            @default(0)
+  id                  String        @id @default(cuid())
+  slug                String        @unique
+  titleAr             String
+  titleEn             String?
+  beforeImageUrl      String
+  afterImageUrl       String
+  beforeImageAlt      String?
+  afterImageAlt       String?
+  categoryKey         String
+  descriptionAr       String?       @db.Text
+  descriptionEn       String?       @db.Text
+  consentDocumentUrl  String?
+  status              ContentStatus @default(DRAFT)
+  sortOrder           Int           @default(0)
   initialSplitPercent Int           @default(50)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 model JournalPost {
-  id                 String         @id @default(cuid())
-  slug               String         @unique
-  titleAr            String
-  titleEn            String?
-  excerptAr          String         @db.Text
-  excerptEn          String?        @db.Text
-  bodyAr             Json
-  bodyEn             Json?
-  coverImageUrl      String
-  categoryKey        String
-  readingTimeLabel   String?
+  id                  String        @id @default(cuid())
+  slug                String        @unique
+  titleAr             String
+  titleEn             String?
+  excerptAr           String        @db.Text
+  excerptEn           String?       @db.Text
+  bodyAr              Json
+  bodyEn              Json?
+  coverImageUrl       String
+  categoryKey         String
+  readingTimeLabel    String?
   relatedServiceSlugs String[]
-  relatedDoctorSlugs String[]
-  status             ContentStatus  @default(DRAFT)
-  publishedAt        DateTime?
-  sortOrder          Int            @default(0)
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  relatedDoctorSlugs  String[]
+  status              ContentStatus @default(DRAFT)
+  publishedAt         DateTime?
+  sortOrder           Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 }
 
 model ContactSubmission {
-  id                 String           @id @default(cuid())
-  fullName           String
-  phone              String
-  email              String?
-  message            String?          @db.Text
-  preferredLanguage  String           @default("ar")
+  id                     String           @id @default(cuid())
+  fullName               String
+  phone                  String
+  email                  String?
+  message                String?          @db.Text
+  preferredLanguage      String           @default("ar")
   preferredAppointmentAt DateTime?
-  appointmentNotes    String?          @db.Text
-  source             String?
-  utmSource          String?
-  utmMedium          String?
-  utmCampaign        String?
-  status             SubmissionStatus @default(NEW)
-  internalNotes      String?          @db.Text
-  tags               String[]         @default([])
-  webhookId          String?
-  serviceId          String?
-  assignedToId       String?
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  service            Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  assignedTo         User?            @relation("LeadOwner", fields: [assignedToId], references: [id], onDelete: SetNull)
-  webhook            Webhook?         @relation(fields: [webhookId], references: [id], onDelete: SetNull)
-  comments           CrmComment[]
+  appointmentNotes       String?          @db.Text
+  source                 String?
+  utmSource              String?
+  utmMedium              String?
+  utmCampaign            String?
+  utmContent             String?
+  status                 SubmissionStatus @default(NEW)
+  internalNotes          String?          @db.Text
+  tags                   String[]         @default([])
+  webhookId              String?
+  serviceId              String?
+  assignedToId           String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  service                Service?         @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  assignedTo             User?            @relation("LeadOwner", fields: [assignedToId], references: [id], onDelete: SetNull)
+  webhook                Webhook?         @relation(fields: [webhookId], references: [id], onDelete: SetNull)
+  comments               CrmComment[]
 
   @@index([preferredAppointmentAt])
 }
 
 model CrmComment {
-  id                 String            @id @default(cuid())
-  submissionId       String
-  authorId           String?
-  authorName         String?
-  body               String            @db.Text
-  createdAt          DateTime          @default(now())
-  submission         ContactSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
-  author             User?             @relation("CrmCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  id           String            @id @default(cuid())
+  submissionId String
+  authorId     String?
+  authorName   String?
+  body         String            @db.Text
+  createdAt    DateTime          @default(now())
+  submission   ContactSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  author       User?             @relation("CrmCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([submissionId])
   @@index([createdAt])
 }
 
 model CustomPage {
-  id          String        @id @default(cuid())
-  slug        String        @unique
-  titleAr     String
-  titleEn     String?
-  htmlContent String        @db.Text
-  seoTitle    String?
-  seoDescription String?    @db.Text
-  status      ContentStatus @default(DRAFT)
-  noindex     Boolean       @default(false)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  slug           String        @unique
+  titleAr        String
+  titleEn        String?
+  htmlContent    String        @db.Text
+  seoTitle       String?
+  seoDescription String?       @db.Text
+  status         ContentStatus @default(DRAFT)
+  noindex        Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@index([status])
 }
 
 model Webhook {
-  id                 String              @id @default(cuid())
-  name               String
-  token              String              @unique
-  isActive           Boolean             @default(true)
-  defaultStatus      SubmissionStatus    @default(NEW)
-  defaultTags        String[]            @default([])
-  defaultSource      String?
-  serviceId          String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  service            Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  events             WebhookEvent[]
-  submissions        ContactSubmission[]
+  id            String              @id @default(cuid())
+  name          String
+  token         String              @unique
+  isActive      Boolean             @default(true)
+  defaultStatus SubmissionStatus    @default(NEW)
+  defaultTags   String[]            @default([])
+  defaultSource String?
+  serviceId     String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  service       Service?            @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  events        WebhookEvent[]
+  submissions   ContactSubmission[]
 
   @@index([token])
 }
@@ -280,34 +281,34 @@ model WebhookEvent {
 }
 
 model ErrorLog {
-  id                 String   @id @default(cuid())
-  route              String?
-  message            String   @db.Text
-  stack              String?  @db.Text
-  statusCode         Int?
-  payload            Json?
-  isResolved         Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id         String   @id @default(cuid())
+  route      String?
+  message    String   @db.Text
+  stack      String?  @db.Text
+  statusCode Int?
+  payload    Json?
+  isResolved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model SiteSetting {
-  id                 String   @id @default(cuid())
-  key                String   @unique
-  value              Json
-  groupName          String
-  updatedAt          DateTime @updatedAt
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  groupName String
+  updatedAt DateTime @updatedAt
 }
 
 model AuditLog {
-  id                 String   @id @default(cuid())
-  actorUserId        String
-  action             String
-  entityType         String
-  entityId           String?
-  metadata           Json?
-  createdAt          DateTime @default(now())
-  actor              User     @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  actorUserId String
+  action      String
+  entityType  String
+  entityId    String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  actor       User     @relation(fields: [actorUserId], references: [id], onDelete: Cascade)
 }
 
 model AppLog {

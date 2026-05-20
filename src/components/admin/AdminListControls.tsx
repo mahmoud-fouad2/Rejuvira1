@@ -170,7 +170,11 @@ export function AdminListControls({
 
       {/* Pagination — hidden when one page fits all */}
       {totalPages > 1 ? (
-        <div className="admin-pagination" role="navigation" aria-label="Pagination">
+        <div
+          className="admin-pagination"
+          role="navigation"
+          aria-label="Pagination"
+        >
           <button
             type="button"
             className="admin-pagination__btn"

@@ -11,6 +11,7 @@ import {
   getWebhookByToken,
   recordWebhookEvent,
 } from "@/lib/content-repository";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -28,6 +29,10 @@ const payloadSchema = z
     source: z.string().max(120).optional(),
     serviceSlug: z.string().max(120).optional(),
     service: z.string().max(120).optional(),
+    serviceName: z.string().max(120).optional(),
+    serviceLabel: z.string().max(120).optional(),
+    serviceType: z.string().max(120).optional(),
+    serviceTypeAr: z.string().max(120).optional(),
     preferredAppointmentAt: z.string().max(80).optional(),
     preferredDate: z.string().max(40).optional(),
     preferredTime: z.string().max(20).optional(),
@@ -37,6 +42,11 @@ const payloadSchema = z
     utmSource: z.string().max(120).optional(),
     utmMedium: z.string().max(120).optional(),
     utmCampaign: z.string().max(120).optional(),
+    utmContent: z.string().max(120).optional(),
+    utm_source: z.string().max(120).optional(),
+    utm_medium: z.string().max(120).optional(),
+    utm_campaign: z.string().max(120).optional(),
+    utm_content: z.string().max(120).optional(),
   })
   .passthrough();
 
@@ -189,6 +199,26 @@ async function handleIngest(request: Request, context: RouteContext) {
     null;
   const ua = request.headers.get("user-agent") ?? null;
 
+  const limit = rateLimit({
+    key: `webhook:${token}:${ip ?? "unknown"}`,
+    limit: 120,
+    windowSeconds: 60 * 10,
+  });
+  if (!limit.ok) {
+    await recordWebhookEvent({
+      webhookId: webhook.id,
+      payload: { error: "rate_limit" },
+      statusCode: 429,
+      errorMessage: "Webhook rate limit hit",
+      ip,
+      userAgent: ua,
+    });
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfter) } },
+    );
+  }
+
   const raw = await readBody(request);
   const parsed = payloadSchema.safeParse(raw);
   if (!parsed.success) {
@@ -239,7 +269,15 @@ async function handleIngest(request: Request, context: RouteContext) {
   ]);
   const sourceLabel =
     pickFirst(data, ["source"]) ?? webhook.defaultSource ?? "Webhook";
-  const serviceSlug = pickFirst(data, ["serviceSlug", "service"]);
+  const serviceSlug =
+    pickFirst(data, [
+      "serviceSlug",
+      "service",
+      "serviceName",
+      "serviceLabel",
+      "serviceTypeAr",
+      "serviceType",
+    ]) ?? webhook.service?.slug;
   const tags = [
     ...normaliseTags(data.tags),
     ...(webhook.defaultTags ?? []),
@@ -251,6 +289,18 @@ async function handleIngest(request: Request, context: RouteContext) {
       phone,
       ...(email ? { email } : {}),
       ...(message ? { message } : {}),
+      ...(pickFirst(data, ["utmSource", "utm_source"])
+        ? { utmSource: pickFirst(data, ["utmSource", "utm_source"]) }
+        : {}),
+      ...(pickFirst(data, ["utmMedium", "utm_medium"])
+        ? { utmMedium: pickFirst(data, ["utmMedium", "utm_medium"]) }
+        : {}),
+      ...(pickFirst(data, ["utmCampaign", "utm_campaign"])
+        ? { utmCampaign: pickFirst(data, ["utmCampaign", "utm_campaign"]) }
+        : {}),
+      ...(pickFirst(data, ["utmContent", "utm_content"])
+        ? { utmContent: pickFirst(data, ["utmContent", "utm_content"]) }
+        : {}),
       ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
       ...(appointmentNotes ? { appointmentNotes } : {}),
       source: sourceLabel,
@@ -301,6 +351,17 @@ export async function PUT(request: Request, context: RouteContext) {
   return handleIngest(request, context);
 }
 
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      Allow: "GET, POST, PUT, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
+
 export async function GET(_request: Request, context: RouteContext) {
   const { token } = await context.params;
   const webhook = await getWebhookByToken(token);
@@ -311,5 +372,46 @@ export async function GET(_request: Request, context: RouteContext) {
     ok: true,
     name: webhook.name,
     isActive: webhook.isActive,
+    defaultStatus: webhook.defaultStatus,
+    defaultSource: webhook.defaultSource ?? "Webhook",
+    defaultTags: webhook.defaultTags,
+    service: webhook.service
+      ? {
+          slug: webhook.service.slug,
+          name: webhook.service.nameAr,
+        }
+      : null,
+    methods: ["POST", "PUT"],
+    contentTypes: [
+      "application/json",
+      "multipart/form-data",
+      "application/x-www-form-urlencoded",
+    ],
+    acceptedFields: [
+      "fullName",
+      "name",
+      "phone",
+      "mobile",
+      "email",
+      "message",
+      "serviceSlug",
+      "service",
+      "serviceName",
+      "serviceLabel",
+      "serviceType",
+      "serviceTypeAr",
+      "preferredDate",
+      "preferredTime",
+      "preferredAppointmentAt",
+      "tags",
+      "utmSource",
+      "utmMedium",
+      "utmCampaign",
+      "utmContent",
+      "utm_source",
+      "utm_medium",
+      "utm_campaign",
+      "utm_content",
+    ],
   });
 }

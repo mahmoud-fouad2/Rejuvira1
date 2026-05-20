@@ -78,6 +78,16 @@ export default async function AdminServicesPage() {
       !service.categoryId &&
       !categories.some((category) => category.name === service.category),
   );
+  const publishedCount = services.filter(
+    (service) => service.status === ContentStatus.PUBLISHED,
+  ).length;
+  const featuredCount = services.filter((service) => service.featured).length;
+  const linkedDoctorsCount = services.filter(
+    (service) => service.doctorSlugs.length > 0,
+  ).length;
+  const linkedDevicesCount = services.filter(
+    (service) => service.deviceSlugs.length > 0,
+  ).length;
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: services.length },
     {
@@ -118,7 +128,7 @@ export default async function AdminServicesPage() {
     return (
       <details
         key={service.id}
-        className="admin-data-row !block"
+        className="admin-resource-card"
         data-admin-row
         data-admin-status={service.status}
         data-admin-search={[
@@ -133,11 +143,8 @@ export default async function AdminServicesPage() {
           .filter(Boolean)
           .join(" ")}
       >
-        <summary className="grid cursor-pointer grid-cols-[4rem_1fr_auto] items-center gap-3">
-          <div
-            className="relative h-14 w-16 overflow-hidden rounded-xl"
-            style={{ background: "var(--admin-panel-soft)" }}
-          >
+        <summary className="admin-resource-card__summary">
+          <div className="admin-resource-card__media">
             <Image
               src={service.coverImageUrl}
               alt={service.name}
@@ -146,12 +153,14 @@ export default async function AdminServicesPage() {
               sizes="64px"
             />
           </div>
-          <div className="min-w-0">
+          <div className="admin-resource-card__body">
             <p className="admin-data-row__title truncate">{service.name}</p>
-            <p className="admin-data-row__meta truncate">
-              {service.category} · {linkedDoctors.length} أطباء ·{" "}
-              {linkedDevices.length} أجهزة
-            </p>
+            <p className="admin-data-row__meta truncate">{service.category}</p>
+            <div className="admin-resource-card__chips">
+              <span>{linkedDoctors.length} أطباء</span>
+              <span>{linkedDevices.length} أجهزة</span>
+              {service.featured ? <span>مميز</span> : null}
+            </div>
           </div>
           <span className={`admin-status-badge ${meta.className}`}>
             <span className="lang-ar">{meta.labelAr}</span>
@@ -278,6 +287,29 @@ export default async function AdminServicesPage() {
       </div>
 
       <div className="grid gap-4">
+        <section className="admin-kpi-grid--compact">
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">منشور</span>
+            <strong>{publishedCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مميز</span>
+            <strong>{featuredCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مرتبط بأطباء</span>
+            <strong>
+              {linkedDoctorsCount}/{services.length}
+            </strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مرتبط بأجهزة</span>
+            <strong>
+              {linkedDevicesCount}/{services.length}
+            </strong>
+          </div>
+        </section>
+
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
@@ -293,6 +325,13 @@ export default async function AdminServicesPage() {
             className="admin-data-list admin-service-groups"
             data-admin-list="admin-services-list"
           >
+            {categoryGroups.length === 0 &&
+            uncategorizedServices.length === 0 ? (
+              <p className="admin-empty-note">
+                لا توجد خدمات بعد. أضيفي خدمة ثم اربطيها بالقسم والطبيب والجهاز
+                المناسب.
+              </p>
+            ) : null}
             {categoryGroups.map(({ category, services: categoryServices }) => (
               <section key={category.id} className="admin-service-group">
                 <header className="admin-service-group__header">

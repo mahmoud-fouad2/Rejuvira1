@@ -27,6 +27,20 @@ export default async function AdminWebhooksPage() {
     getServices(),
   ]);
   const services = servicesRaw.map((s) => ({ slug: s.slug, name: s.name }));
+  const activeCount = webhooks.filter((webhook) => webhook.isActive).length;
+  const totalEvents = webhooks.reduce(
+    (sum, webhook) => sum + webhook.totalEvents,
+    0,
+  );
+  const recentFailureCount = webhooks.reduce(
+    (sum, webhook) =>
+      sum +
+      webhook.recentEvents.filter((event) => event.statusCode >= 400).length,
+    0,
+  );
+  const serviceLinkedCount = webhooks.filter(
+    (webhook) => webhook.serviceLabel,
+  ).length;
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: webhooks.length },
     {
@@ -62,6 +76,29 @@ export default async function AdminWebhooksPage() {
         </div>
       </div>
 
+      <section className="admin-kpi-grid--compact mb-4">
+        <div className="admin-kpi-card">
+          <span className="admin-kpi-card__label">نقاط مفعلة</span>
+          <strong>
+            {activeCount}/{webhooks.length}
+          </strong>
+        </div>
+        <div className="admin-kpi-card">
+          <span className="admin-kpi-card__label">إجمالي الأحداث</span>
+          <strong>{totalEvents}</strong>
+        </div>
+        <div className="admin-kpi-card">
+          <span className="admin-kpi-card__label">أخطاء حديثة</span>
+          <strong>{recentFailureCount}</strong>
+        </div>
+        <div className="admin-kpi-card">
+          <span className="admin-kpi-card__label">مرتبطة بخدمة</span>
+          <strong>
+            {serviceLinkedCount}/{webhooks.length}
+          </strong>
+        </div>
+      </section>
+
       <div className="grid gap-4 xl:grid-cols-[1fr_1.4fr]">
         <article className="admin-card">
           <div className="admin-card__header">
@@ -77,8 +114,9 @@ export default async function AdminWebhooksPage() {
             <WebhookEditor mode="create" services={services} />
             <p className="text-muted-foreground mt-3 text-xs">
               <span className="lang-ar">
-                بعد الإنشاء انسخ الرابط وأرسله لمنصة الإعلانات
-                (Meta/Snap/Google) أو ضعه في فورم خارجي.
+                بعد الإنشاء انسخ رابط الاستقبال داخل منصة الإعلانات أو النموذج
+                الخارجي. كل طلب ناجح يدخل مباشرة إلى CRM بنفس الحالة والوسوم
+                والخدمة الافتراضية المحددة هنا.
               </span>
               <span className="lang-en">
                 After creating, copy the link into Meta/Snap/Google or any

@@ -83,7 +83,7 @@ the first deploy. Optional values can be added later.
 | -------------------------------- | -------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `DATABASE_URL`                   | Yes      | Neon **pooled** URI (`â€¦-poolerâ€¦` host when Neon offers it) | Used by the app at runtime (serverless-friendly). If Neon does not give a separate pooled string, use their default **nonâ€‘pooling** URI. Optional Prisma tightening: append `?connection_limit=5&pool_timeout=10` **after** `sslmode=require` (`&connection_limit=5â€¦`) â€” adjust for traffic. |
 | `DIRECT_URL`                     | Yes      | Neon **direct** URI (non-pooler host)                          | Required for `prisma migrate deploy` during build (advisory locks). Do **not** point both at the pooler-only endpoint.                                                                                                                                                                             |
-| `AUTH_TRUST_HOST`                | Yes      | `true`                                                         | Required for multi-domain auth. Do not set `NEXTAUTH_URL` or `AUTH_URL` when serving Render, `rejuvera.sa`, and `rejuveracenter.sa` from the same service.                                                                                                                                         |
+| `AUTH_TRUST_HOST`                | Yes      | `true`                                                         | Required for trusted-host auth. Do not set `NEXTAUTH_URL` or `AUTH_URL` when serving Render preview URLs and `rejuvera.sa` from the same service.                                                                                                                                                  |
 | `NEXTAUTH_SECRET`                | Yes      | `<random 32+ bytes>`                                           | NextAuth session encryption secret. Generate with `openssl rand -base64 32`. Render can auto-generate this.                                                                                                                                                                                        |
 | `AUTH_SECRET`                    | Yes      | same as `NEXTAUTH_SECRET`                                      | NextAuth v5 mirror of `NEXTAUTH_SECRET`.                                                                                                                                                                                                                                                           |
 | `SITE_URL`                       | Yes      | `https://rejuvera.sa`                                          | Used by SEO, sitemap, robots, OG.                                                                                                                                                                                                                                                                  |
@@ -137,8 +137,8 @@ unattended calls.
 
 ## 6) Domain & TLS
 
-1. Add `rejuvera.sa`, `www.rejuvera.sa`, `rejuveracenter.sa`, and
-   `www.rejuveracenter.sa` as **custom domains** in Render settings.
+1. Add `rejuvera.sa` and `www.rejuvera.sa` as **custom domains** in
+   Render settings.
 2. Point Cloudflare DNS at the Render CNAME shown in the dashboard.
 3. Render auto-provisions Let's Encrypt certificates.
 4. Keep `SITE_URL=https://rejuvera.sa` as the SEO canonical domain, and

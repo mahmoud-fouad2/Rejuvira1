@@ -16,8 +16,7 @@ function browserFromUA(ua: string): string {
   const lower = ua.toLowerCase();
   if (lower.includes("edg/")) return "Edge";
   if (lower.includes("opr/") || lower.includes("opera")) return "Opera";
-  if (lower.includes("chrome/") && !lower.includes("chromium"))
-    return "Chrome";
+  if (lower.includes("chrome/") && !lower.includes("chromium")) return "Chrome";
   if (lower.includes("safari/") && !lower.includes("chrome")) return "Safari";
   if (lower.includes("firefox/")) return "Firefox";
   return "Other";
@@ -97,8 +96,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
 
-    const path =
-      typeof body.path === "string" ? body.path.slice(0, 240) : "/";
+    const path = typeof body.path === "string" ? body.path.slice(0, 240) : "/";
     const referrer =
       typeof body.referrer === "string" ? body.referrer.slice(0, 500) : "";
     const language =

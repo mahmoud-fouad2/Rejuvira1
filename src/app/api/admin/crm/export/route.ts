@@ -4,22 +4,93 @@ import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/auth";
-import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import { canManageCrm } from "@/lib/admin-permissions";
 import { buildCsv } from "@/lib/backup";
 import { getCrmSubmissions } from "@/lib/content-repository";
 
+const STATUS_AR: Record<string, string> = {
+  NEW: "جديد",
+  CONTACTED: "تم التواصل",
+  FOLLOW_UP: "متابعة",
+  BOOKED: "محجوز",
+  CLOSED: "مغلق",
+};
+
+function filterSubmissions(
+  submissions: Awaited<ReturnType<typeof getCrmSubmissions>>,
+  request: NextRequest,
+) {
+  const params = request.nextUrl.searchParams;
+  const status = params.get("status");
+  const source = params.get("source");
+  const service = params.get("service");
+  const owner = params.get("owner");
+  const from = params.get("from");
+  const to = params.get("to");
+  const search = (params.get("search") ?? "").trim().toLowerCase();
+  const fromTime = from ? new Date(`${from}T00:00:00+03:00`).getTime() : null;
+  const toTime = to ? new Date(`${to}T23:59:59+03:00`).getTime() : null;
+
+  return submissions.filter((submission) => {
+    if (status && status !== "ALL" && submission.status !== status) {
+      return false;
+    }
+    if (source && source !== "ALL" && submission.source !== source) {
+      return false;
+    }
+    if (service && service !== "ALL" && submission.serviceSlug !== service) {
+      return false;
+    }
+    if (owner && owner !== "ALL") {
+      if (owner === "_unassigned" && submission.assignedToId) return false;
+      if (owner !== "_unassigned" && submission.assignedToId !== owner) {
+        return false;
+      }
+    }
+    const created = new Date(submission.createdAt).getTime();
+    if (fromTime && created < fromTime) return false;
+    if (toTime && created > toTime) return false;
+    if (search) {
+      const haystack = [
+        submission.fullName,
+        submission.phone,
+        submission.email ?? "",
+        submission.serviceLabel ?? "",
+        submission.source,
+        submission.utmSource ?? "",
+        submission.utmMedium ?? "",
+        submission.utmCampaign ?? "",
+        submission.utmContent ?? "",
+        submission.message ?? "",
+        submission.notes ?? "",
+      ]
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
 function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
   return submissions.map((submission) => ({
-    Name: submission.fullName,
-    Phone: submission.phone,
-    Email: submission.email ?? "",
-    Service: submission.serviceLabel ?? "",
-    Status: submission.status,
-    Source: submission.source,
-    PreferredAppointment: submission.preferredAppointmentAt ?? "",
-    AppointmentNotes: submission.appointmentNotes ?? "",
-    Notes: submission.notes ?? "",
-    CreatedAt: submission.createdAt,
+    name: submission.fullName,
+    phone: submission.phone,
+    email: submission.email ?? "",
+    service: submission.serviceLabel ?? "",
+    status: STATUS_AR[submission.status] ?? submission.status,
+    source: submission.source,
+    owner: submission.assignedToName ?? "",
+    utmSource: submission.utmSource ?? "",
+    utmMedium: submission.utmMedium ?? "",
+    utmCampaign: submission.utmCampaign ?? "",
+    utmContent: submission.utmContent ?? "",
+    preferredAppointment: submission.preferredAppointmentAt ?? "",
+    appointmentNotes: submission.appointmentNotes ?? "",
+    message: submission.message ?? "",
+    notes: submission.notes ?? "",
+    tags: submission.tags.join("، "),
+    createdAt: submission.createdAt,
   }));
 }
 
@@ -83,32 +154,35 @@ async function createPdfBuffer(
       color: rgb(0.06, 0.08, 0.1),
     });
     cursorY -= 16;
-    page.drawText(`Phone: ${submission.phone} | Status: ${submission.status}`, {
-      x: 40,
-      y: cursorY,
-      size: 10,
-      font: fallbackFont,
-      color: rgb(0.35, 0.33, 0.31),
-    });
-    cursorY -= 14;
     page.drawText(
-      `Appointment: ${submission.preferredAppointmentAt ?? "N/A"}`,
+      `الجوال: ${submission.phone} | الحالة: ${STATUS_AR[submission.status] ?? submission.status}`,
       {
         x: 40,
         y: cursorY,
         size: 10,
-        font: fallbackFont,
+        font: customFont,
         color: rgb(0.35, 0.33, 0.31),
       },
     );
     cursorY -= 14;
     page.drawText(
-      `Service: ${submission.serviceLabel ?? "N/A"} | Source: ${submission.source}`,
+      `الموعد: ${submission.preferredAppointmentAt ?? "غير محدد"}`,
       {
         x: 40,
         y: cursorY,
         size: 10,
-        font: fallbackFont,
+        font: customFont,
+        color: rgb(0.35, 0.33, 0.31),
+      },
+    );
+    cursorY -= 14;
+    page.drawText(
+      `الخدمة: ${submission.serviceLabel ?? "غير محددة"} | المصدر: ${submission.source}`,
+      {
+        x: 40,
+        y: cursorY,
+        size: 10,
+        font: customFont,
         color: rgb(0.35, 0.33, 0.31),
       },
     );
@@ -134,26 +208,33 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  if (!canAccessAdminRoute("/admin/crm", session.user.role)) {
+  if (!canManageCrm(session.user.role)) {
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
   }
 
   const format = request.nextUrl.searchParams.get("format") ?? "csv";
-  const submissions = await getCrmSubmissions();
+  const submissions = filterSubmissions(await getCrmSubmissions(), request);
 
   if (format === "csv" || format === "xlsx") {
     const rows = buildRows(submissions);
     const csv = buildCsv(rows, [
-      { key: "Name", label: "Name" },
-      { key: "Phone", label: "Phone" },
-      { key: "Email", label: "Email" },
-      { key: "Service", label: "Service" },
-      { key: "Status", label: "Status" },
-      { key: "Source", label: "Source" },
-      { key: "PreferredAppointment", label: "Preferred appointment" },
-      { key: "AppointmentNotes", label: "Appointment notes" },
-      { key: "Notes", label: "Notes" },
-      { key: "CreatedAt", label: "Created at" },
+      { key: "name", label: "الاسم" },
+      { key: "phone", label: "الجوال" },
+      { key: "email", label: "البريد الإلكتروني" },
+      { key: "service", label: "الخدمة" },
+      { key: "status", label: "الحالة" },
+      { key: "source", label: "المصدر" },
+      { key: "owner", label: "المسؤول" },
+      { key: "utmSource", label: "utm_source" },
+      { key: "utmMedium", label: "utm_medium" },
+      { key: "utmCampaign", label: "utm_campaign" },
+      { key: "utmContent", label: "utm_content" },
+      { key: "preferredAppointment", label: "الموعد المفضل" },
+      { key: "appointmentNotes", label: "ملاحظات الموعد" },
+      { key: "message", label: "رسالة العميل" },
+      { key: "notes", label: "ملاحظات داخلية" },
+      { key: "tags", label: "الوسوم" },
+      { key: "createdAt", label: "تاريخ الإنشاء" },
     ]);
     const buffer = Buffer.from(`\uFEFF${csv}`, "utf8");
 

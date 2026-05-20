@@ -37,21 +37,18 @@ export type UploadResult = {
 const REGION = "auto";
 const SERVICE = "s3";
 const DEFAULT_SIGNED_URL_TTL = 60 * 60; // 1 hour
-const STORAGE_NAMESPACES = [
-  "doctors",
-  "services",
-  "devices",
-  "gallery",
-  "journal",
-  "brand",
-  "trust",
-  "payments",
-  "pages",
-  "media/uploads",
-  "backups",
-] as const;
-
-export type StorageNamespace = (typeof STORAGE_NAMESPACES)[number];
+export type StorageNamespace =
+  | "doctors"
+  | "services"
+  | "devices"
+  | "gallery"
+  | "journal"
+  | "brand"
+  | "trust"
+  | "payments"
+  | "pages"
+  | "media/uploads"
+  | "backups";
 
 export function isR2Configured(): boolean {
   return Boolean(
@@ -263,28 +260,13 @@ export async function uploadObject(
   return result;
 }
 
-export async function deleteObject(key: string): Promise<void> {
-  const creds = getR2Credentials();
-  const signed = signRequest(creds, { method: "DELETE", key });
-  const response = await fetch(signed.url, {
-    method: "DELETE",
-    headers: signed.headers,
-  });
-  if (!response.ok && response.status !== 404) {
-    const text = await response.text().catch(() => "");
-    throw new Error(
-      `R2 delete failed (${response.status} ${response.statusText}): ${text || "no body"}`,
-    );
-  }
-}
-
 /**
  * Generate a query-string-signed GET URL for a single object.
  * The URL is valid for `ttlSeconds` (default 1 hour) and includes
  * the bucket. This is the right thing to give to the browser when
  * R2_PUBLIC_BASE_URL is not configured.
  */
-export function getSignedReadUrl(
+function getSignedReadUrl(
   key: string,
   ttlSeconds: number = DEFAULT_SIGNED_URL_TTL,
 ): string {
@@ -346,7 +328,7 @@ export function getSignedReadUrl(
   return url.toString();
 }
 
-export function publicUrl(key: string): string {
+function publicUrl(key: string): string {
   const creds = getR2Credentials();
   if (creds.publicBaseUrl) {
     return `${creds.publicBaseUrl}/${key.replace(/^\/+/, "")}`;
@@ -375,5 +357,3 @@ export function backupKey(date: Date = new Date()): string {
   const id = randomBytes(6).toString("hex");
   return `backups/${yyyy}/${mm}/${dd}-${id}.json`;
 }
-
-export const STORAGE_NAMESPACES_LIST = STORAGE_NAMESPACES;

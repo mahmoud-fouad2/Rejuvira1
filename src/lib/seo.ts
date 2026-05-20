@@ -7,17 +7,13 @@ import {
   type SeoSettings,
 } from "@/lib/content-repository";
 
-export type SeoPageKey = keyof SeoSettings;
+type SeoPageKey = keyof SeoSettings;
 
 export function getSiteUrl(): string {
   return getCanonicalOrigin();
 }
 
-export function getSiteUrlForHost(_host?: string | null): string {
-  return getSiteUrl();
-}
-
-export function getCanonicalPath(path: string): string {
+function getCanonicalPath(path: string): string {
   if (!path || path === "/") return getSiteUrl() + "/";
   return `${getSiteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
 }
@@ -184,82 +180,6 @@ export function buildLocalBusinessJsonLd(settings: {
     ],
     inLanguage: ["ar", "en"],
     ...(sameAs.length ? { sameAs } : {}),
-  } as const;
-}
-
-export function buildPhysicianJsonLd(doctor: {
-  slug: string;
-  name: string;
-  title: string;
-  specialty: string;
-  bio?: string;
-  photoUrl?: string;
-  languages?: readonly string[];
-}) {
-  const baseUrl = getSiteUrl();
-  return {
-    "@context": "https://schema.org",
-    "@type": "Physician",
-    "@id": `${baseUrl}/doctors/${doctor.slug}`,
-    name: doctor.name,
-    jobTitle: doctor.title,
-    medicalSpecialty: doctor.specialty,
-    description: doctor.bio?.slice(0, 320),
-    image: doctor.photoUrl?.startsWith("http")
-      ? doctor.photoUrl
-      : `${baseUrl}${doctor.photoUrl ?? "/media/curated/doctor-team.jpg"}`,
-    url: `${baseUrl}/doctors/${doctor.slug}`,
-    knowsLanguage: doctor.languages ?? ["ar", "en"],
-    worksFor: { "@id": `${baseUrl}#organization` },
-  } as const;
-}
-
-export function buildServiceJsonLd(service: {
-  slug: string;
-  name: string;
-  excerpt?: string;
-  description?: string;
-  coverImageUrl?: string;
-}) {
-  const baseUrl = getSiteUrl();
-  return {
-    "@context": "https://schema.org",
-    "@type": "MedicalProcedure",
-    "@id": `${baseUrl}/services/${service.slug}`,
-    name: service.name,
-    description: service.excerpt ?? service.description?.slice(0, 320),
-    url: `${baseUrl}/services/${service.slug}`,
-    image: service.coverImageUrl?.startsWith("http")
-      ? service.coverImageUrl
-      : `${baseUrl}${service.coverImageUrl ?? "/media/curated/service-skin-rejuvenation.webp"}`,
-    procedureType: "MedicalProcedure",
-    provider: { "@id": `${baseUrl}#organization` },
-  } as const;
-}
-
-export function buildArticleJsonLd(post: {
-  slug: string;
-  title: string;
-  excerpt: string;
-  publishedAt: string;
-  coverImageUrl: string;
-}) {
-  const baseUrl = getSiteUrl();
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "@id": `${baseUrl}/journal/${post.slug}`,
-    headline: post.title,
-    description: post.excerpt,
-    image: post.coverImageUrl?.startsWith("http")
-      ? post.coverImageUrl
-      : `${baseUrl}${post.coverImageUrl}`,
-    datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    inLanguage: ["ar", "en"],
-    publisher: { "@id": `${baseUrl}#organization` },
-    author: { "@id": `${baseUrl}#organization` },
-    url: `${baseUrl}/journal/${post.slug}`,
   } as const;
 }
 

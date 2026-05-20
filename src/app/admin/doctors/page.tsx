@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ContentStatus } from "@prisma/client";
+import type { Route } from "next";
 
 import {
   deleteDoctorAction,
@@ -39,6 +41,19 @@ export default async function AdminDoctorsPage() {
     label: service.name,
     hint: service.category,
   }));
+  const serviceBySlug = new Map(
+    services.map((service) => [service.slug, service]),
+  );
+  const publishedCount = doctors.filter(
+    (doctor) => doctor.status === ContentStatus.PUBLISHED,
+  ).length;
+  const reviewCount = doctors.filter(
+    (doctor) => doctor.status === ContentStatus.REVIEW,
+  ).length;
+  const featuredCount = doctors.filter((doctor) => doctor.featured).length;
+  const linkedToServicesCount = doctors.filter(
+    (doctor) => doctor.serviceSlugs.length > 0,
+  ).length;
   const tabs = [
     { value: "all", labelAr: "الكل", labelEn: "All", count: doctors.length },
     {
@@ -91,6 +106,27 @@ export default async function AdminDoctorsPage() {
       </div>
 
       <div className="grid gap-4">
+        <section className="admin-kpi-grid--compact">
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">منشور</span>
+            <strong>{publishedCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">قيد المراجعة</span>
+            <strong>{reviewCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مميز في الموقع</span>
+            <strong>{featuredCount}</strong>
+          </div>
+          <div className="admin-kpi-card">
+            <span className="admin-kpi-card__label">مرتبط بخدمات</span>
+            <strong>
+              {linkedToServicesCount}/{doctors.length}
+            </strong>
+          </div>
+        </section>
+
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
@@ -102,13 +138,20 @@ export default async function AdminDoctorsPage() {
             </div>
           </div>
           <AdminListControls targetId="admin-doctors-list" tabs={tabs} />
-          <div className="admin-data-list admin-cards-grid" data-admin-list="admin-doctors-list">
+          <div
+            className="admin-resource-grid"
+            data-admin-list="admin-doctors-list"
+          >
             {doctors.map((doctor) => {
               const meta = statusMeta(doctor.status);
+              const linkedServices = doctor.serviceSlugs.flatMap((slug) => {
+                const service = serviceBySlug.get(slug);
+                return service ? [service] : [];
+              });
               return (
                 <details
                   key={doctor.id}
-                  className="admin-data-row !block"
+                  className="admin-resource-card"
                   data-admin-row
                   data-admin-status={doctor.status}
                   data-admin-search={[
@@ -120,11 +163,8 @@ export default async function AdminDoctorsPage() {
                     .filter(Boolean)
                     .join(" ")}
                 >
-                  <summary className="grid cursor-pointer grid-cols-[3.4rem_1fr_auto] items-center gap-3">
-                    <div
-                      className="relative h-12 w-12 overflow-hidden rounded-full"
-                      style={{ background: "var(--admin-panel-soft)" }}
-                    >
+                  <summary className="admin-resource-card__summary">
+                    <div className="admin-resource-card__media is-avatar">
                       <Image
                         src={doctor.photoUrl}
                         alt={doctor.name}
@@ -133,13 +173,18 @@ export default async function AdminDoctorsPage() {
                         sizes="48px"
                       />
                     </div>
-                    <div className="min-w-0">
+                    <div className="admin-resource-card__body">
                       <p className="admin-data-row__title truncate">
                         {doctor.name}
                       </p>
                       <p className="admin-data-row__meta truncate">
                         {doctor.specialty}
                       </p>
+                      <div className="admin-resource-card__chips">
+                        <span>{doctor.yearsExperience} سنوات خبرة</span>
+                        <span>{doctor.serviceSlugs.length} خدمات</span>
+                        {doctor.featured ? <span>مميز</span> : null}
+                      </div>
                     </div>
                     <span className={`admin-status-badge ${meta.className}`}>
                       <span className="lang-ar">{meta.labelAr}</span>
@@ -155,6 +200,43 @@ export default async function AdminDoctorsPage() {
                       doctor={doctor}
                       serviceOptions={serviceOptions}
                     />
+                    <div className="admin-linked-strip">
+                      {doctor.serviceSlugs.length ? (
+                        doctor.serviceSlugs.map((slug) => {
+                          const service = serviceBySlug.get(slug);
+                          return (
+                            <Link
+                              key={slug}
+                              href={`/admin/services?service=${slug}` as Route}
+                              className="admin-linked-strip__item"
+                            >
+                              <strong>{service?.name ?? slug}</strong>
+                              <span>{service?.category ?? "خدمة مرتبطة"}</span>
+                            </Link>
+                          );
+                        })
+                      ) : (
+                        <p className="admin-empty-note">
+                          لم يتم ربط هذا الطبيب بخدمة بعد. الربط يحسّن صفحات
+                          الخدمات وتجربة الحجز.
+                        </p>
+                      )}
+                    </div>
+                    {linkedServices.length ? (
+                      <div className="admin-edit-context">
+                        <span>أقسام نشطة: {linkedServices.length}</span>
+                        <span>
+                          {Array.from(
+                            new Set(
+                              linkedServices.map((service) => service.category),
+                            ),
+                          )
+                            .filter(Boolean)
+                            .slice(0, 3)
+                            .join(" · ")}
+                        </span>
+                      </div>
+                    ) : null}
 
                     <div className="flex flex-wrap gap-2">
                       {[

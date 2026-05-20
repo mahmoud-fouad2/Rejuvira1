@@ -5,8 +5,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { auth } from "@/auth";
+import { canAccessAdminRoute, canManageCrm } from "@/lib/admin-permissions";
 import {
   addCrmComment,
+  createContactLead,
   deleteCrmComment,
   deleteCrmSubmission,
   updateCrmSubmission,
@@ -51,6 +53,22 @@ function revalidate() {
   revalidatePath("/admin");
 }
 
+async function ensureCrmAccess() {
+  const session = await auth();
+  if (!canAccessAdminRoute("/admin/crm", session?.user?.role)) {
+    throw new Error("UNAUTHORIZED");
+  }
+  return session;
+}
+
+async function ensureCrmManager() {
+  const session = await ensureCrmAccess();
+  if (!canManageCrm(session?.user?.role)) {
+    throw new Error("UNAUTHORIZED");
+  }
+  return session;
+}
+
 function isValidAdminAppointment(value?: string) {
   if (!value) return true;
   const localMatch = value.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
@@ -83,6 +101,15 @@ export async function updateCrmSubmissionAction(
   _previousState: CrmActionState,
   formData: FormData,
 ): Promise<CrmActionState> {
+  try {
+    await ensureCrmAccess();
+  } catch {
+    return {
+      status: "error",
+      message: "لا تتوفر صلاحية كافية لتحديث الطلب.",
+    };
+  }
+
   const parsed = updateSchema.safeParse({
     id: formData.get("id"),
     status: formData.get("status"),
@@ -154,10 +181,137 @@ const commentSchema = z.object({
   body: z.string().min(2).max(2000),
 });
 
+function parseCsvLine(line: string) {
+  const cells: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const next = line[index + 1];
+    if (char === '"' && inQuotes && next === '"') {
+      current += '"';
+      index += 1;
+      continue;
+    }
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+    if (char === "," && !inQuotes) {
+      cells.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  cells.push(current.trim());
+  return cells;
+}
+
+function parseCsvRows(text: string) {
+  const lines = text
+    .replace(/^\uFEFF/, "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  if (lines.length < 2) return [];
+  const headers = parseCsvLine(lines[0] ?? "").map((header) =>
+    header.toLowerCase().replace(/\s+/g, ""),
+  );
+  return lines.slice(1).map((line) => {
+    const cells = parseCsvLine(line);
+    return Object.fromEntries(
+      headers.map((header, index) => [header, cells[index] ?? ""]),
+    );
+  });
+}
+
+function csvValue(row: Record<string, string>, keys: string[]) {
+  for (const key of keys) {
+    const value = row[key.toLowerCase().replace(/\s+/g, "")];
+    if (value) return value.trim();
+  }
+  return "";
+}
+
+function parseImportStatus(value: string) {
+  const normalized = value.trim().toUpperCase();
+  const aliases: Record<string, SubmissionStatus> = {
+    NEW: SubmissionStatus.NEW,
+    جديد: SubmissionStatus.NEW,
+    CONTACTED: SubmissionStatus.CONTACTED,
+    تمالتواصل: SubmissionStatus.CONTACTED,
+    FOLLOW_UP: SubmissionStatus.FOLLOW_UP,
+    FOLLOWUP: SubmissionStatus.FOLLOW_UP,
+    متابعة: SubmissionStatus.FOLLOW_UP,
+    BOOKED: SubmissionStatus.BOOKED,
+    محجوز: SubmissionStatus.BOOKED,
+    CLOSED: SubmissionStatus.CLOSED,
+    مغلق: SubmissionStatus.CLOSED,
+  };
+  return aliases[normalized.replace(/\s+/g, "")] ?? SubmissionStatus.NEW;
+}
+
+export async function importCrmCsvAction(formData: FormData) {
+  try {
+    await ensureCrmManager();
+  } catch {
+    return;
+  }
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) return;
+
+  const text = await file.text();
+  const rows = parseCsvRows(text).slice(0, 3000);
+  for (const row of rows) {
+    const fullName = csvValue(row, ["name", "fullName", "الاسم"]);
+    const phone = csvValue(row, ["phone", "mobile", "الجوال", "الهاتف"]);
+    if (!fullName || !phone) continue;
+    const tags = csvValue(row, ["tags", "الوسوم"])
+      .split(/[;,،]/)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
+    await createContactLead({
+      fullName,
+      phone,
+      email: csvValue(row, ["email", "البريد"]) || undefined,
+      message: csvValue(row, ["message", "الرسالة"]) || undefined,
+      notes: csvValue(row, ["notes", "ملاحظات", "ملاحظاتداخلية"]) || undefined,
+      appointmentNotes:
+        csvValue(row, ["appointmentNotes", "ملاحظاتالموعد"]) || undefined,
+      preferredAppointmentAt:
+        csvValue(row, ["preferredAppointment", "appointment", "الموعد"]) ||
+        undefined,
+      serviceSlug:
+        csvValue(row, ["serviceSlug", "service", "الخدمة"]) || undefined,
+      source: csvValue(row, ["source", "المصدر"]) || "استيراد CRM",
+      utmSource: csvValue(row, ["utmSource", "utm_source"]) || undefined,
+      utmMedium: csvValue(row, ["utmMedium", "utm_medium"]) || undefined,
+      utmCampaign: csvValue(row, ["utmCampaign", "utm_campaign"]) || undefined,
+      utmContent: csvValue(row, ["utmContent", "utm_content"]) || undefined,
+      tags,
+      status: parseImportStatus(csvValue(row, ["status", "الحالة"])),
+    });
+  }
+  revalidate();
+}
+
 export async function addCrmCommentAction(
   _previousState: CrmActionState,
   formData: FormData,
 ): Promise<CrmActionState> {
+  let session;
+  try {
+    session = await ensureCrmAccess();
+  } catch {
+    return {
+      status: "error",
+      message: "لا تتوفر صلاحية كافية لإضافة ملاحظة.",
+    };
+  }
+
   const parsed = commentSchema.safeParse({
     submissionId: formData.get("submissionId"),
     body: formData.get("body"),
@@ -165,7 +319,6 @@ export async function addCrmCommentAction(
   if (!parsed.success) {
     return { status: "error", message: "النص قصير جدًا." };
   }
-  const session = await auth();
   await addCrmComment({
     submissionId: parsed.data.submissionId,
     body: parsed.data.body,
@@ -177,6 +330,11 @@ export async function addCrmCommentAction(
 }
 
 export async function deleteCrmCommentAction(formData: FormData) {
+  try {
+    await ensureCrmManager();
+  } catch {
+    return;
+  }
   const id = formData.get("id");
   if (typeof id !== "string" || !id) return;
   await deleteCrmComment(id);
@@ -184,6 +342,11 @@ export async function deleteCrmCommentAction(formData: FormData) {
 }
 
 export async function deleteCrmSubmissionAction(formData: FormData) {
+  try {
+    await ensureCrmManager();
+  } catch {
+    return;
+  }
   const id = formData.get("id");
   if (typeof id !== "string" || !id) return;
   await deleteCrmSubmission(id);
@@ -191,6 +354,11 @@ export async function deleteCrmSubmissionAction(formData: FormData) {
 }
 
 export async function setCrmStatusAction(formData: FormData) {
+  try {
+    await ensureCrmAccess();
+  } catch {
+    return;
+  }
   const id = formData.get("id");
   const status = formData.get("status");
   if (typeof id !== "string" || !id) return;
