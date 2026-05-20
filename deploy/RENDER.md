@@ -30,7 +30,7 @@ Use these **exact** strings in Render â†’ Settings â†’ Build & Deploy:
 ```bash
 # Build command (--include=dev: Render sets NODE_ENV=production; without this,
 # devDependencies like Prisma CLI / Tailwind tooling may be skipped and the build fails.)
-npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run seed:core && npm run build
+npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run seed:core && npm run seed:landing && npm run build
 ```
 
 ```bash
@@ -54,6 +54,10 @@ Notes:
   the core departments, services, doctors, and brand/contact defaults. The seed
   is idempotent and also reconciles missing core records if the saved seed
   version exists but records were removed later.
+- `npm run seed:landing` then creates the 6 ready advertising landing pages
+  under `/admin/pages`. It skips existing slugs by default so admin edits are
+  preserved; use `LANDING_SEED_FORCE=1 npm run seed:landing` only when you
+  intentionally want to re-apply the templates.
 - `npm ci` (not `npm install`) is used so the build is reproducible
   from `package-lock.json`.
 - The Next.js build is `next build` (with `output: "standalone"` set

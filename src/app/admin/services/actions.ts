@@ -38,12 +38,16 @@ const updateServiceSchema = serviceSchema.extend({
   featured: z.coerce.boolean().optional().default(false),
 });
 
-function parseSlugList(raw: FormDataEntryValue | null): string[] {
-  if (typeof raw !== "string" || !raw.trim()) return [];
-  return raw
-    .split(",")
-    .map((slug) => slug.trim())
-    .filter(Boolean);
+function parseSlugList(formData: FormData, name: string): string[] {
+  const values = [...formData.getAll(name), ...formData.getAll(`${name}[]`)];
+  return Array.from(
+    new Set(
+      values
+        .flatMap((value) => (typeof value === "string" ? value.split(",") : []))
+        .map((slug) => slug.trim())
+        .filter(Boolean),
+    ),
+  );
 }
 
 function revalidate() {
@@ -92,8 +96,8 @@ export async function createServiceAction(
       ...(parsed.data.descriptionEn
         ? { descriptionEn: parsed.data.descriptionEn }
         : {}),
-      doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
-      deviceSlugs: parseSlugList(formData.get("deviceSlugs")),
+      doctorSlugs: parseSlugList(formData, "doctorSlugs"),
+      deviceSlugs: parseSlugList(formData, "deviceSlugs"),
       ...(parsed.data.coverImageUrl
         ? { coverImageUrl: parsed.data.coverImageUrl }
         : {}),
@@ -148,8 +152,8 @@ export async function updateServiceAction(
         : {}),
       status: parsed.data.status,
       featured: parsed.data.featured,
-      doctorSlugs: parseSlugList(formData.get("doctorSlugs")),
-      deviceSlugs: parseSlugList(formData.get("deviceSlugs")),
+      doctorSlugs: parseSlugList(formData, "doctorSlugs"),
+      deviceSlugs: parseSlugList(formData, "deviceSlugs"),
       ...(parsed.data.coverImageUrl
         ? { coverImageUrl: parsed.data.coverImageUrl }
         : {}),

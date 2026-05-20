@@ -74,6 +74,14 @@ export function MultiSelectChips({
         value={selected.join(",")}
         required={required}
       />
+      {selected.map((value) => (
+        <input
+          key={`${name}-${value}`}
+          type="hidden"
+          name={`${name}[]`}
+          value={value}
+        />
+      ))}
       {label ? (
         <label htmlFor={id} className="admin-field-label mb-1 block">
           {label}
