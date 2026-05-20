@@ -2390,6 +2390,32 @@ function canUseDatabase() {
   return Boolean(process.env.DATABASE_URL);
 }
 
+function isTransientDatabaseError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    message.includes("PostgreSQL connection") ||
+    message.includes("kind: Closed") ||
+    message.includes("Connection terminated") ||
+    message.includes("Can't reach database server") ||
+    message.includes("Timed out fetching a new connection")
+  );
+}
+
+async function withDatabaseRetry<T>(operation: () => Promise<T>): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    if (!isTransientDatabaseError(error)) {
+      throw error;
+    }
+    console.warn(
+      "[database] transient Prisma connection error; retrying once.",
+    );
+    await prisma.$disconnect().catch(() => undefined);
+    return operation();
+  }
+}
+
 function sortFeaturedFirst<T extends { featured: boolean }>(items: T[]) {
   return items.sort(
     (left, right) => Number(right.featured) - Number(left.featured),
@@ -2611,14 +2637,16 @@ export const getServices = cache(async () => {
   }
 
   try {
-    const services = await prisma.service.findMany({
-      include: {
-        doctors: { select: { slug: true } },
-        devices: { select: { slug: true } },
-        category: true,
-      },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    });
+    const services = await withDatabaseRetry(() =>
+      prisma.service.findMany({
+        include: {
+          doctors: { select: { slug: true } },
+          devices: { select: { slug: true } },
+          category: true,
+        },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      }),
+    );
 
     if (services.length === 0) {
       return sortFeaturedFirst([...seedServices]);
@@ -2649,7 +2677,11 @@ export const getServices = cache(async () => {
         featured: service.isFeatured,
       })),
     );
-  } catch {
+  } catch (error) {
+    console.error(
+      "[content-repository] getServices failed; using seed fallback.",
+      error,
+    );
     return sortFeaturedFirst([...seedServices]);
   }
 });
@@ -4753,20 +4785,22 @@ export async function updateService(input: UpdateServiceInput) {
         select: { id: true, nameAr: true },
       })
     : null;
-  const [relatedDoctors, relatedDevices] = await Promise.all([
-    Array.isArray(doctorSlugs) && doctorSlugs.length
-      ? prisma.doctor.findMany({
-          where: { slug: { in: doctorSlugs } },
-          select: { id: true },
-        })
-      : [],
-    Array.isArray(deviceSlugs) && deviceSlugs.length
-      ? prisma.device.findMany({
-          where: { slug: { in: deviceSlugs } },
-          select: { id: true },
-        })
-      : [],
-  ]);
+  const [relatedDoctors, relatedDevices] = await withDatabaseRetry(() =>
+    Promise.all([
+      Array.isArray(doctorSlugs) && doctorSlugs.length
+        ? prisma.doctor.findMany({
+            where: { slug: { in: doctorSlugs } },
+            select: { id: true, slug: true },
+          })
+        : [],
+      Array.isArray(deviceSlugs) && deviceSlugs.length
+        ? prisma.device.findMany({
+            where: { slug: { in: deviceSlugs } },
+            select: { id: true, slug: true },
+          })
+        : [],
+    ]),
+  );
   const data = {
     slug: input.slug,
     nameAr: input.name,
@@ -4795,39 +4829,45 @@ export async function updateService(input: UpdateServiceInput) {
         }
       : {}),
   };
-  const item = await prisma.service.upsert({
-    where: { id: input.id },
-    update: data,
-    create: {
-      id: input.id,
-      slug: input.slug,
-      nameAr: input.name,
-      nameEn: input.nameEn || null,
-      categoryKey: category?.nameAr ?? input.category,
-      categoryId: category?.id ?? null,
-      excerptAr: input.excerpt,
-      excerptEn: input.excerptEn || null,
-      descriptionAr: input.description,
-      descriptionEn: input.descriptionEn || null,
-      status: input.status,
-      isFeatured: input.featured,
-      ...(input.coverImageUrl ? { coverImageUrl: input.coverImageUrl } : {}),
-      ...(Array.isArray(doctorSlugs)
-        ? {
-            doctors: {
-              connect: relatedDoctors.map((doctor) => ({ id: doctor.id })),
-            },
-          }
-        : {}),
-      ...(Array.isArray(deviceSlugs)
-        ? {
-            devices: {
-              connect: relatedDevices.map((device) => ({ id: device.id })),
-            },
-          }
-        : {}),
-    },
-  });
+  const item = await withDatabaseRetry(() =>
+    prisma.service.upsert({
+      where: { id: input.id },
+      update: data,
+      create: {
+        id: input.id,
+        slug: input.slug,
+        nameAr: input.name,
+        nameEn: input.nameEn || null,
+        categoryKey: category?.nameAr ?? input.category,
+        categoryId: category?.id ?? null,
+        excerptAr: input.excerpt,
+        excerptEn: input.excerptEn || null,
+        descriptionAr: input.description,
+        descriptionEn: input.descriptionEn || null,
+        status: input.status,
+        isFeatured: input.featured,
+        ...(input.coverImageUrl ? { coverImageUrl: input.coverImageUrl } : {}),
+        ...(Array.isArray(doctorSlugs)
+          ? {
+              doctors: {
+                connect: relatedDoctors.map((doctor) => ({ id: doctor.id })),
+              },
+            }
+          : {}),
+        ...(Array.isArray(deviceSlugs)
+          ? {
+              devices: {
+                connect: relatedDevices.map((device) => ({ id: device.id })),
+              },
+            }
+          : {}),
+      },
+      include: {
+        doctors: { select: { slug: true } },
+        devices: { select: { slug: true } },
+      },
+    }),
+  );
   return { mode: "database" as const, item };
 }
 

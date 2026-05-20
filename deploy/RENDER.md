@@ -36,7 +36,7 @@ npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run pris
 ```bash
 # Start command â€” standalone Node server (smaller than `npm run start`) with a
 # capped V8 heap (~460MB) so the web process stays under Render Starterâ€™s ~512MB limit.
-cd .next/standalone && node --max-old-space-size=460 server.js
+npm run start:standalone
 ```
 
 Local smoke (after `npm run build`): `npm run start:standalone` (runs `server.js` with correct cwd).
@@ -54,6 +54,9 @@ Notes:
   the core departments, services, doctors, and brand/contact defaults. The seed
   is idempotent and also reconciles missing core records if the saved seed
   version exists but records were removed later.
+- Do not run `seed:core` in the start command. Admin editors can change
+  service-doctor-device relations in production, and restart-time seeds must
+  not rewrite those edits.
 - `npm run seed:landing` then creates the 6 ready advertising landing pages
   under `/admin/pages`. It skips existing slugs by default so admin edits are
   preserved; use `LANDING_SEED_FORCE=1 npm run seed:landing` only when you

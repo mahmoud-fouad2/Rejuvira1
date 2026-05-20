@@ -131,6 +131,11 @@ export function CrmSubmissionEditor({
   const appointmentValue = appointmentDate
     ? `${appointmentDate}T${appointmentTime || "14:00"}`
     : "";
+  const phoneDigits = submission.phone.replace(/\D/g, "");
+  const whatsappHref = phoneDigits
+    ? `https://wa.me/${phoneDigits.startsWith("966") ? phoneDigits : `966${phoneDigits.replace(/^0/, "")}`}`
+    : "";
+  const phoneHref = phoneDigits ? `tel:${phoneDigits}` : "";
 
   const addTag = (raw: string) => {
     const value = raw.trim();
@@ -252,6 +257,38 @@ export function CrmSubmissionEditor({
           name="preferredAppointmentAt"
           value={appointmentValue}
         />
+
+        <div className="admin-crm-editor-brief">
+          <div>
+            <p>{submission.serviceLabel ?? "General inquiry"}</p>
+            <span>{submission.source}</span>
+          </div>
+          <div className="admin-crm-editor-brief__actions">
+            {phoneHref ? (
+              <a href={phoneHref} className="admin-btn-secondary text-xs">
+                Call
+              </a>
+            ) : null}
+            {whatsappHref ? (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noreferrer"
+                className="admin-btn-secondary text-xs"
+              >
+                WhatsApp
+              </a>
+            ) : null}
+            {submission.email ? (
+              <a
+                href={`mailto:${submission.email}`}
+                className="admin-btn-secondary text-xs"
+              >
+                Email
+              </a>
+            ) : null}
+          </div>
+        </div>
 
         <div className="grid gap-3 md:grid-cols-3">
           <label className="grid gap-1">
