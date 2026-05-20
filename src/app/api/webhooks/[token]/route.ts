@@ -142,6 +142,34 @@ type RouteContext = {
   params: Promise<{ token: string }>;
 };
 
+function wantsJson(request: Request) {
+  const accept = request.headers.get("accept") ?? "";
+  const requestedWith = request.headers.get("x-requested-with") ?? "";
+  const contentType = request.headers.get("content-type") ?? "";
+  return (
+    accept.includes("application/json") ||
+    requestedWith.toLowerCase() === "fetch" ||
+    contentType.includes("application/json")
+  );
+}
+
+function webhookResponse(
+  request: Request,
+  body: Record<string, unknown>,
+  init: ResponseInit,
+) {
+  if (wantsJson(request)) {
+    return NextResponse.json(body, init);
+  }
+  const referer = request.headers.get("referer") || "/";
+  const url = new URL(referer, request.url);
+  url.searchParams.set(
+    "lead",
+    init.status && init.status >= 400 ? "error" : "success",
+  );
+  return NextResponse.redirect(url, { status: 303 });
+}
+
 async function handleIngest(request: Request, context: RouteContext) {
   const { token } = await context.params;
   if (!token || token.length < 8) {
@@ -175,7 +203,8 @@ async function handleIngest(request: Request, context: RouteContext) {
       ip,
       userAgent: ua,
     });
-    return NextResponse.json(
+    return webhookResponse(
+      request,
       { error: "Invalid payload", issues: parsed.error.issues },
       { status: 400 },
     );
@@ -194,7 +223,11 @@ async function handleIngest(request: Request, context: RouteContext) {
       ip,
       userAgent: ua,
     });
-    return NextResponse.json({ error: "phone is required" }, { status: 422 });
+    return webhookResponse(
+      request,
+      { error: "phone is required" },
+      { status: 422 },
+    );
   }
 
   const email = pickFirst(data, ["email"]);
@@ -236,7 +269,8 @@ async function handleIngest(request: Request, context: RouteContext) {
     });
     revalidatePath("/admin/crm");
     revalidatePath("/admin/webhooks");
-    return NextResponse.json(
+    return webhookResponse(
+      request,
       { ok: true, message: "Lead captured" },
       { status: 200 },
     );
@@ -251,7 +285,11 @@ async function handleIngest(request: Request, context: RouteContext) {
       ip,
       userAgent: ua,
     });
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    return webhookResponse(
+      request,
+      { error: "Internal error" },
+      { status: 500 },
+    );
   }
 }
 

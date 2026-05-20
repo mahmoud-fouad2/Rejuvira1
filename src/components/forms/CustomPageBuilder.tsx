@@ -20,6 +20,7 @@ type BlockKind =
   | "steps"
   | "offer"
   | "testimonial"
+  | "beforeAfter"
   | "video"
   | "leadForm"
   | "contact"
@@ -35,11 +36,29 @@ type BuilderBlock = {
   subtitle?: string;
   body?: string;
   imageUrl?: string;
+  beforeImageUrl?: string;
+  afterImageUrl?: string;
   buttonLabel?: string;
   buttonHref?: string;
   accent?: string;
   tone?: Tone;
   align?: Align;
+  formEmailMode?: "hidden" | "optional" | "required";
+  formShowAppointment?: boolean;
+  formShowMessage?: boolean;
+  webhookToken?: string;
+  serviceSlug?: string;
+};
+
+type PageOptions = {
+  showHeader: boolean;
+  showFooter: boolean;
+};
+
+type WebhookOption = {
+  token: string;
+  name: string;
+  isActive: boolean;
 };
 
 const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
@@ -147,6 +166,17 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     tone: "light",
     align: "center",
   },
+  beforeAfter: {
+    title: "Before and after",
+    body: "Visual comparison for the case.",
+    beforeImageUrl: "/media/reference/legacy/18.png",
+    afterImageUrl: "/media/reference/legacy/56549.webp",
+    buttonLabel: "Book a consultation",
+    buttonHref: "#lead-form",
+    accent: "#4a2476",
+    tone: "light",
+    align: "center",
+  },
   video: {
     title: "فيديو تعريفي",
     body: "استخدمي رابط صورة معاينة أو ارفعي صورة مؤقتة حتى إضافة الفيديو النهائي.",
@@ -166,6 +196,9 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     accent: "#4a2476",
     tone: "soft",
     align: "right",
+    formEmailMode: "optional",
+    formShowAppointment: true,
+    formShowMessage: true,
   },
   contact: {
     title: "ابدئي بخطوة واضحة",
@@ -203,7 +236,15 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
   },
   {
     label: "Lead page",
-    blocks: ["hero", "offer", "testimonial", "gallery", "leadForm", "faq"],
+    blocks: [
+      "hero",
+      "offer",
+      "beforeAfter",
+      "testimonial",
+      "gallery",
+      "leadForm",
+      "faq",
+    ],
   },
   {
     label: "حملة حجز",
@@ -335,6 +376,14 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-testimonial")}" ${style}><blockquote>${paragraphHtml(body)}</blockquote><strong>${title}</strong>${subtitle ? `<span>${subtitle}</span>` : ""}</section>`;
   }
 
+  if (block.kind === "beforeAfter") {
+    const beforeImage = escapeHtml(
+      block.beforeImageUrl || block.imageUrl || image,
+    );
+    const afterImage = escapeHtml(block.afterImageUrl || image);
+    return `<section class="${classes(block, "rv-builder-section rv-builder-before-after")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><div class="rv-builder-before-after__grid"><figure><img src="${beforeImage}" alt="Before ${title}" loading="lazy" decoding="async"><figcaption>Before</figcaption></figure><figure><img src="${afterImage}" alt="After ${title}" loading="lazy" decoding="async"><figcaption>After</figcaption></figure></div><a href="${buttonHref}">${buttonLabel}</a></section>`;
+  }
+
   if (block.kind === "video") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-video")}" ${style}><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"><span>▶</span></figure><div><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></div></section>`;
   }
@@ -371,13 +420,16 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "leadForm") {
     const tag = mode === "preview" ? "div" : "form";
+    const action = block.webhookToken
+      ? `/api/webhooks/${encodeURIComponent(block.webhookToken)}`
+      : "/api/leads";
     const attrs =
       mode === "preview"
         ? `class="rv-builder-lead-form-fields" aria-label="Lead form preview"`
-        : `class="rv-builder-lead-form-fields" action="/api/leads" method="post"`;
+        : `class="rv-builder-lead-form-fields" action="${action}" method="post"`;
     const disabled = mode === "preview" ? " disabled" : "";
     const required = mode === "preview" ? "" : " required";
-    const controls =
+    let controls =
       (mode === "preview"
         ? ""
         : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">`) +
@@ -391,15 +443,52 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
         ? ""
         : `<input type="hidden" name="appointmentNotes" value="Landing page appointment request">`) +
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
+    if (mode !== "preview" && block.serviceSlug) {
+      controls =
+        `<input type="hidden" name="serviceSlug" value="${escapeHtml(block.serviceSlug)}">` +
+        controls;
+    }
+    if ((block.formEmailMode ?? "optional") === "hidden") {
+      controls = controls.replace(
+        /<label><span>[^<]*<\/span><input name="email"[\s\S]*?<\/label>/,
+        "",
+      );
+    } else if (mode !== "preview" && block.formEmailMode === "required") {
+      controls = controls.replace(
+        'name="email" type="email"',
+        'name="email" type="email" required',
+      );
+    }
+    if (block.formShowAppointment === false) {
+      controls = controls
+        .replace(
+          /<label><span>[^<]*<\/span><select name="preferredDate"[\s\S]*?<\/label>/,
+          "",
+        )
+        .replace(
+          /<label><span>[^<]*<\/span><select name="preferredTime"[\s\S]*?<\/label>/,
+          "",
+        )
+        .replace(
+          '<input type="hidden" name="appointmentNotes" value="Landing page appointment request">',
+          "",
+        );
+    }
+    if (block.formShowMessage === false) {
+      controls = controls.replace(
+        /<label><span>[^<]*<\/span><textarea name="message"[\s\S]*?<\/label>/,
+        "",
+      );
+    }
     return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
   }
 
   return `<section class="${classes(block, "rv-builder-section rv-builder-cta")}" ${style}><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
 }
 
-function renderPage(blocks: BuilderBlock[]) {
+function renderPage(blocks: BuilderBlock[], options: PageOptions) {
   const encodedBlocks = encodeURIComponent(JSON.stringify(blocks));
-  return `<div class="rv-builder-page" data-blocks="${encodedBlocks}">${blocks.map((block) => renderBlock(block)).join("")}</div>`;
+  return `<div class="rv-builder-page" data-blocks="${encodedBlocks}" data-header="${options.showHeader ? "true" : "false"}" data-footer="${options.showFooter ? "true" : "false"}">${blocks.map((block) => renderBlock(block)).join("")}</div>`;
 }
 
 function createBlock(kind: BlockKind): BuilderBlock {
@@ -448,22 +537,37 @@ function initialBlocks(html?: string): BuilderBlock[] {
   ]);
 }
 
+function initialPageOptions(html?: string): PageOptions {
+  return {
+    showHeader: html?.match(/data-header="false"/) ? false : true,
+    showFooter: html?.match(/data-footer="false"/) ? false : true,
+  };
+}
+
 export function CustomPageBuilder({
   name,
   defaultValue = "",
+  webhooks = [],
 }: {
   name: string;
   defaultValue?: string;
+  webhooks?: WebhookOption[];
 }) {
   const [blocks, setBlocks] = useState<BuilderBlock[]>(() =>
     initialBlocks(defaultValue),
+  );
+  const [pageOptions, setPageOptions] = useState<PageOptions>(() =>
+    initialPageOptions(defaultValue),
   );
   const [selectedId, setSelectedId] = useState(blocks[0]?.id ?? "");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
-  const html = useMemo(() => renderPage(blocks), [blocks]);
+  const html = useMemo(
+    () => renderPage(blocks, pageOptions),
+    [blocks, pageOptions],
+  );
 
   function add(kind: BlockKind) {
     const next = createBlock(kind);
@@ -538,6 +642,35 @@ export function CustomPageBuilder({
     <div className="pagecraft-admin">
       <input type="hidden" name={name} value={html} />
       <aside className="pagecraft-panel">
+        <div className="pagecraft-panel__header">Page chrome</div>
+        <div className="pagecraft-options">
+          <label>
+            <input
+              type="checkbox"
+              checked={pageOptions.showHeader}
+              onChange={(event) =>
+                setPageOptions((current) => ({
+                  ...current,
+                  showHeader: event.target.checked,
+                }))
+              }
+            />
+            <span>Show site header</span>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={pageOptions.showFooter}
+              onChange={(event) =>
+                setPageOptions((current) => ({
+                  ...current,
+                  showFooter: event.target.checked,
+                }))
+              }
+            />
+            <span>Show site footer</span>
+          </label>
+        </div>
         <div className="pagecraft-panel__header">القوالب</div>
         <div className="pagecraft-templates">
           {templates.map((template) => (
@@ -563,6 +696,10 @@ export function CustomPageBuilder({
               <span>{item.hint}</span>
             </button>
           ))}
+          <button type="button" onClick={() => add("beforeAfter")}>
+            <strong>Before/After</strong>
+            <span>Before and after images</span>
+          </button>
         </div>
 
         <div className="pagecraft-panel__header">المعاينة</div>
@@ -704,6 +841,107 @@ export function CustomPageBuilder({
                 aspect={16 / 9}
                 onChange={(url) => update(selected.id, { imageUrl: url })}
               />
+            ) : null}
+
+            {selected.kind === "beforeAfter" ? (
+              <div className="grid gap-3">
+                <ImagePicker
+                  name={`builder-${selected.id}-before`}
+                  label="Before image"
+                  defaultValue={selected.beforeImageUrl ?? ""}
+                  namespace="pages"
+                  aspect={4 / 3}
+                  onChange={(url) =>
+                    update(selected.id, { beforeImageUrl: url })
+                  }
+                />
+                <ImagePicker
+                  name={`builder-${selected.id}-after`}
+                  label="After image"
+                  defaultValue={selected.afterImageUrl ?? ""}
+                  namespace="pages"
+                  aspect={4 / 3}
+                  onChange={(url) =>
+                    update(selected.id, { afterImageUrl: url })
+                  }
+                />
+              </div>
+            ) : null}
+
+            {selected.kind === "leadForm" ? (
+              <div className="pagecraft-form-options">
+                <label>
+                  <span>Email field</span>
+                  <select
+                    value={selected.formEmailMode ?? "optional"}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formEmailMode: event.target.value as
+                          | "hidden"
+                          | "optional"
+                          | "required",
+                      })
+                    }
+                  >
+                    <option value="hidden">Hidden</option>
+                    <option value="optional">Optional</option>
+                    <option value="required">Required</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Webhook</span>
+                  <select
+                    value={selected.webhookToken ?? ""}
+                    onChange={(event) =>
+                      update(selected.id, { webhookToken: event.target.value })
+                    }
+                  >
+                    <option value="">Default CRM form</option>
+                    {webhooks
+                      .filter((webhook) => webhook.isActive)
+                      .map((webhook) => (
+                        <option key={webhook.token} value={webhook.token}>
+                          {webhook.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <label>
+                  <span>Service slug</span>
+                  <input
+                    dir="ltr"
+                    value={selected.serviceSlug ?? ""}
+                    onChange={(event) =>
+                      update(selected.id, { serviceSlug: event.target.value })
+                    }
+                    placeholder="rhinoplasty"
+                  />
+                </label>
+                <label className="pagecraft-check-row">
+                  <input
+                    type="checkbox"
+                    checked={selected.formShowAppointment !== false}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formShowAppointment: event.target.checked,
+                      })
+                    }
+                  />
+                  <span>Show appointment date/time</span>
+                </label>
+                <label className="pagecraft-check-row">
+                  <input
+                    type="checkbox"
+                    checked={selected.formShowMessage !== false}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formShowMessage: event.target.checked,
+                      })
+                    }
+                  />
+                  <span>Show message field</span>
+                </label>
+              </div>
             ) : null}
 
             {selected.kind === "hero" ||

@@ -4914,7 +4914,10 @@ html[data-theme="dark"] .rv-v0-footer-cta.is-secondary {
   border: none;
   background: transparent;
   padding: 0;
-  transition: transform 0.2s, filter 0.2s, opacity 0.2s;
+  transition:
+    transform 0.2s,
+    filter 0.2s,
+    opacity 0.2s;
   flex-shrink: 0;
 }
 
@@ -4926,7 +4929,7 @@ html[data-theme="dark"] .rv-v0-footer-cta.is-secondary {
 
 .rv-v0-footer-social-btn:hover {
   transform: translateY(-3px) scale(1.1);
-  filter: brightness(1.1) drop-shadow(0 6px 14px rgba(0,0,0,0.22));
+  filter: brightness(1.1) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.22));
 }
 
 html[data-theme="dark"] .rv-v0-footer-social-btn {
@@ -4935,7 +4938,7 @@ html[data-theme="dark"] .rv-v0-footer-social-btn {
 
 html[data-theme="dark"] .rv-v0-footer-social-btn:hover {
   opacity: 1;
-  filter: brightness(1.15) drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+  filter: brightness(1.15) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.4));
 }
 
 /* ── Scroll to top (v0-style) ───────────────────────────── */
@@ -14229,6 +14232,21 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   gap: 0.4rem;
   padding: 0.8rem;
 }
+.pagecraft-options,
+.pagecraft-form-options {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.8rem;
+}
+.pagecraft-options label,
+.pagecraft-check-row {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem !important;
+  color: var(--admin-text-soft);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
 .pagecraft-devices button {
   flex: 1;
   padding: 0.5rem;
@@ -14327,6 +14345,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   font-weight: 800;
 }
 .pagecraft-props input,
+.pagecraft-props select,
 .pagecraft-props textarea {
   width: 100%;
   border: 1px solid var(--admin-border);
@@ -14473,6 +14492,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .rv-builder-offer,
 .rv-builder-testimonial,
 .rv-builder-video,
+.rv-builder-before-after,
 .rv-builder-lead-form,
 .rv-builder-contact,
 .rv-builder-faq {
@@ -14489,6 +14509,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .rv-builder-steps h2,
 .rv-builder-offer h2,
 .rv-builder-video h2,
+.rv-builder-before-after h2,
 .rv-builder-lead-form h2,
 .rv-builder-contact h2,
 .rv-builder-faq h2 {
@@ -14594,6 +14615,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 }
 .rv-builder-offer a,
 .rv-builder-video a,
+.rv-builder-before-after a,
 .rv-builder-lead-form button {
   display: inline-flex;
   justify-content: center;
@@ -14651,6 +14673,44 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   color: var(--builder-accent);
   font-weight: 900;
 }
+.rv-builder-before-after {
+  display: grid;
+  gap: 1rem;
+}
+.rv-builder-before-after__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+.rv-builder-before-after figure {
+  position: relative;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 1rem;
+  background: #fff;
+  aspect-ratio: 4 / 3;
+  box-shadow: 0 12px 30px rgba(74, 36, 118, 0.08);
+}
+.rv-builder-before-after img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.rv-builder-before-after figcaption {
+  position: absolute;
+  inset-block-end: 0.75rem;
+  inset-inline-start: 0.75rem;
+  border-radius: 999px;
+  background: rgba(31, 16, 64, 0.82);
+  color: #fff;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+.rv-builder-before-after a {
+  width: max-content;
+}
 .rv-builder-lead-form {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(18rem, 1.15fr);
@@ -14675,6 +14735,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   font-weight: 850;
 }
 .rv-builder-lead-form input,
+.rv-builder-lead-form select,
 .rv-builder-lead-form textarea {
   width: 100%;
   border: 1px solid rgba(74, 36, 118, 0.16);
@@ -14743,6 +14804,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   .rv-builder-steps > div,
   .rv-builder-offer,
   .rv-builder-video,
+  .rv-builder-before-after__grid,
   .rv-builder-lead-form {
     grid-template-columns: 1fr;
   }
@@ -15322,8 +15384,16 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   border-color: var(--admin-border, rgba(31, 16, 64, 0.08));
 }
 .rv-multiselect__option[data-selected="true"] {
-  background: color-mix(in oklch, var(--admin-accent, #8a4ec1) 10%, transparent);
-  border-color: color-mix(in oklch, var(--admin-accent, #8a4ec1) 32%, transparent);
+  background: color-mix(
+    in oklch,
+    var(--admin-accent, #8a4ec1) 10%,
+    transparent
+  );
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent, #8a4ec1) 32%,
+    transparent
+  );
 }
 .rv-multiselect__check {
   display: inline-grid;
@@ -15372,7 +15442,9 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color 0.2s, background 0.2s;
+  transition:
+    color 0.2s,
+    background 0.2s;
   white-space: nowrap;
 }
 
@@ -15411,7 +15483,8 @@ html[data-theme="dark"] .services-tab--active {
   border: 1px solid color-mix(in oklch, var(--border-line) 80%, transparent);
   border-radius: 1.5rem;
   overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   display: flex;
   flex-direction: column;
@@ -15462,7 +15535,9 @@ html[data-theme="dark"] .services-tab--active {
   font-weight: 600;
   color: var(--ink-soft);
   text-decoration: none;
-  transition: color 0.2s, gap 0.2s;
+  transition:
+    color 0.2s,
+    gap 0.2s;
 }
 
 .service-card__cta:hover {
@@ -15497,7 +15572,8 @@ html[dir="rtl"] .service-card__cta:hover .service-card__cta-arrow {
   border: 1px solid color-mix(in oklch, var(--border-line) 80%, transparent);
   border-radius: 1.5rem;
   overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -15576,7 +15652,10 @@ html[dir="rtl"] .service-card__cta:hover .service-card__cta-arrow {
   border: 1px solid color-mix(in oklch, var(--border-line) 80%, transparent);
   color: var(--ink-soft);
   text-decoration: none;
-  transition: background 0.2s, color 0.2s, transform 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    transform 0.2s;
 }
 
 .gallery-card__link-btn:hover {
@@ -15593,7 +15672,8 @@ html[dir="rtl"] .service-card__cta:hover .service-card__cta-arrow {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -15636,7 +15716,11 @@ html[dir="rtl"] .service-card__cta:hover .service-card__cta-arrow {
 .doctor-card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, oklch(18% 0.05 285 / 0.75) 0%, transparent 55%);
+  background: linear-gradient(
+    to top,
+    oklch(18% 0.05 285 / 0.75) 0%,
+    transparent 55%
+  );
 }
 
 .doctor-card__name-wrap {
@@ -15709,7 +15793,9 @@ html[dir="rtl"] .service-card__cta:hover .service-card__cta-arrow {
   text-decoration: none;
   padding-top: 0.75rem;
   border-top: 1px solid color-mix(in oklch, var(--border-line) 60%, transparent);
-  transition: color 0.2s, gap 0.2s;
+  transition:
+    color 0.2s,
+    gap 0.2s;
 }
 
 .doctor-card__cta:hover {
@@ -15788,12 +15874,18 @@ header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
 }
 
 /* Dark mode: swap which logo shows */
-html[data-theme="dark"] header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
+html[data-theme="dark"]
+  header
+  .rv-v0-brand
+  .rv-brand-logo-img.rv-brand-logo-light,
 html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light {
   display: none !important;
 }
 
-html[data-theme="dark"] header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
+html[data-theme="dark"]
+  header
+  .rv-v0-brand
+  .rv-brand-logo-img.rv-brand-logo-dark,
 html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
   display: block !important;
 }
@@ -15833,14 +15925,22 @@ html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
   gap: 0.85rem;
   padding: 1.1rem 1.1rem;
   border-radius: 1rem;
-  border: 1px solid color-mix(in oklch, var(--stat-color, #7c3aed) 18%, transparent);
-  background: color-mix(in oklch, var(--stat-color, #7c3aed) 5%, var(--admin-panel-bg, #fff));
-  transition: transform 0.18s, box-shadow 0.18s;
+  border: 1px solid
+    color-mix(in oklch, var(--stat-color, #7c3aed) 18%, transparent);
+  background: color-mix(
+    in oklch,
+    var(--stat-color, #7c3aed) 5%,
+    var(--admin-panel-bg, #fff)
+  );
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
 }
 
 .admin-stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px color-mix(in oklch, var(--stat-color, #7c3aed) 14%, transparent);
+  box-shadow: 0 8px 24px
+    color-mix(in oklch, var(--stat-color, #7c3aed) 14%, transparent);
 }
 
 .admin-stat-card__icon {
@@ -15942,14 +16042,20 @@ html[data-theme="dark"] .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark {
   border: 1px solid var(--admin-border) !important;
   background: var(--admin-panel-soft, var(--admin-panel-bg)) !important;
   padding: 0 !important;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04) !important;
-  transition: box-shadow 0.2s, border-color 0.2s !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04) !important;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s !important;
   overflow: hidden !important;
 }
 
 .admin-entity-grid details.admin-data-row:not([open]):hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.09) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 30%, var(--admin-border)) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 30%,
+    var(--admin-border)
+  ) !important;
 }
 
 /* Summary inside card */
@@ -16081,7 +16187,11 @@ html[dir="ltr"] .rv-v0-nav {
     width: 2.5rem !important;
     height: 2.5rem !important;
     border-radius: 999px !important;
-    background: color-mix(in oklch, var(--surface-0) 70%, transparent) !important;
+    background: color-mix(
+      in oklch,
+      var(--surface-0) 70%,
+      transparent
+    ) !important;
     border: 1px solid color-mix(in oklch, var(--border-line) 60%, transparent) !important;
   }
 }
@@ -16124,7 +16234,11 @@ html[dir="ltr"] .rv-v0-nav {
 /* ── Admin buttons: primary (accent) ── */
 .admin-btn,
 button.admin-btn {
-  background: linear-gradient(135deg, var(--admin-accent), color-mix(in oklch, var(--admin-accent) 80%, #000)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent),
+    color-mix(in oklch, var(--admin-accent) 80%, #000)
+  ) !important;
   color: #fff !important;
   border: none !important;
   border-radius: 0.6rem !important;
@@ -16132,27 +16246,46 @@ button.admin-btn {
   font-size: 0.82rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s !important;
-  box-shadow: 0 2px 8px color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+  transition:
+    opacity 0.15s,
+    transform 0.15s,
+    box-shadow 0.15s !important;
+  box-shadow: 0 2px 8px
+    color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
 }
 
 .admin-btn:hover {
   opacity: 0.92 !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 6px 18px color-mix(in oklch, var(--admin-accent) 35%, transparent) !important;
+  box-shadow: 0 6px 18px
+    color-mix(in oklch, var(--admin-accent) 35%, transparent) !important;
 }
 
-.admin-btn:active { transform: translateY(0) !important; opacity: 1 !important; }
+.admin-btn:active {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
 
 /* ── Admin buttons: secondary ── */
 .admin-btn-secondary {
   border-radius: 0.6rem !important;
-  transition: background 0.15s, border-color 0.15s, transform 0.15s !important;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.15s !important;
 }
 
 .admin-btn-secondary:hover {
-  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 40%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 8%,
+    transparent
+  ) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 40%,
+    transparent
+  ) !important;
   color: var(--admin-accent) !important;
   transform: translateY(-1px) !important;
 }
@@ -16160,7 +16293,10 @@ button.admin-btn {
 /* ── Admin buttons: danger ── */
 .admin-btn-danger {
   border-radius: 0.6rem !important;
-  transition: background 0.15s, color 0.15s, transform 0.15s !important;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    transform 0.15s !important;
 }
 
 .admin-btn-danger:hover {
@@ -16179,7 +16315,9 @@ button.admin-btn {
 .admin-app textarea,
 .admin-app select {
   border-radius: 0.55rem !important;
-  transition: border-color 0.15s, box-shadow 0.15s !important;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s !important;
 }
 
 .admin-app input:focus,
@@ -16187,7 +16325,8 @@ button.admin-btn {
 .admin-app select:focus {
   outline: none !important;
   border-color: var(--admin-accent) !important;
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
+  box-shadow: 0 0 0 3px
+    color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
 }
 
 /* ── Admin card: hover lift ── */
@@ -16202,7 +16341,11 @@ button.admin-btn {
 }
 
 .admin-data-row:not(details):hover {
-  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel-bg)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 4%,
+    var(--admin-panel-bg)
+  ) !important;
 }
 
 /* ── Admin status badge: refined pills ── */
@@ -16243,7 +16386,11 @@ button.admin-btn {
     color-mix(in oklch, var(--admin-accent) 15%, transparent),
     color-mix(in oklch, var(--admin-accent) 8%, transparent)
   ) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 30%,
+    transparent
+  ) !important;
 }
 
 /* ── Admin nav group label ── */
@@ -16260,7 +16407,11 @@ button.admin-btn {
 /* ── Admin nav item hover ── */
 .admin-shell__nav-item:not(.is-active):hover,
 .admin-shell__nav-subitem:not(.is-active):hover {
-  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 8%,
+    transparent
+  ) !important;
   transform: translateX(-2px) !important;
 }
 
@@ -16272,7 +16423,9 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 /* ── Admin list controls: filter tabs ── */
 .admin-list-tab {
   border-radius: 999px !important;
-  transition: background 0.15s, color 0.15s !important;
+  transition:
+    background 0.15s,
+    color 0.15s !important;
 }
 
 .admin-list-tab.is-active {
@@ -16282,7 +16435,8 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 
 /* ── Admin data list: divider refinement ── */
 .admin-data-list > *:not(:last-child) {
-  border-bottom: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
+  border-bottom: 1px solid
+    color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
 }
 
 .admin-entity-grid > *:not(:last-child) {
@@ -16291,7 +16445,11 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 
 /* ── Admin service group header ── */
 .admin-service-group__header {
-  background: color-mix(in oklch, var(--admin-accent) 6%, var(--admin-panel-bg)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 6%,
+    var(--admin-panel-bg)
+  ) !important;
   border-radius: 0.75rem 0.75rem 0 0 !important;
   border-bottom: 1px solid var(--admin-border) !important;
 }
@@ -16299,11 +16457,14 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 /* ── Search field in admin ── */
 .admin-search-field {
   border-radius: 999px !important;
-  transition: box-shadow 0.15s, border-color 0.15s !important;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s !important;
 }
 
 .admin-search-field:focus {
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
+  box-shadow: 0 0 0 3px
+    color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
   border-color: var(--admin-accent) !important;
 }
 
@@ -16332,14 +16493,19 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 .admin-kpi {
   border-radius: 1.1rem !important;
   padding: 1.1rem 1.2rem !important;
-  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s !important;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s !important;
   position: relative;
   overflow: hidden;
 }
 .admin-kpi::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--admin-accent), var(--admin-gold));
   opacity: 0.7;
@@ -16348,7 +16514,11 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 .admin-kpi:hover {
   transform: translateY(-3px) !important;
   box-shadow: 0 12px 32px rgba(138, 78, 193, 0.18) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 35%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 35%,
+    transparent
+  ) !important;
 }
 .admin-kpi__icon {
   width: 3rem !important;
@@ -16359,7 +16529,11 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
   font-size: 1.8rem !important;
   font-weight: 800 !important;
   letter-spacing: -0.03em !important;
-  background: linear-gradient(135deg, var(--admin-text), var(--admin-text-soft));
+  background: linear-gradient(
+    135deg,
+    var(--admin-text),
+    var(--admin-text-soft)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -16369,13 +16543,17 @@ html[dir="ltr"] .admin-shell__nav-subitem:not(.is-active):hover {
 .admin-card {
   border-radius: 1.2rem !important;
   border: 1px solid var(--admin-border) !important;
-  box-shadow: 0 2px 12px rgba(31,16,64,0.07), 0 1px 3px rgba(31,16,64,0.04) !important;
+  box-shadow:
+    0 2px 12px rgba(31, 16, 64, 0.07),
+    0 1px 3px rgba(31, 16, 64, 0.04) !important;
   overflow: hidden !important;
   transition: box-shadow 0.2s !important;
   background: var(--admin-panel) !important;
 }
 html[data-theme="dark"] .admin-card {
-  box-shadow: 0 4px 20px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.2) !important;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.28),
+    0 1px 4px rgba(0, 0, 0, 0.2) !important;
 }
 .admin-card__header {
   background: linear-gradient(
@@ -16447,10 +16625,18 @@ html[data-theme="dark"] .admin-status-badge.is-review {
 
 /* ─── 4. Data rows — zebra striping + stronger hover ──── */
 .admin-data-list > .admin-data-row:nth-child(even):not(:hover) {
-  background: color-mix(in oklch, var(--admin-accent) 2.5%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 2.5%,
+    transparent
+  ) !important;
 }
 .admin-data-row:hover {
-  background: color-mix(in oklch, var(--admin-accent) 6%, var(--admin-panel)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 6%,
+    var(--admin-panel)
+  ) !important;
 }
 .admin-data-row__title {
   font-size: 0.86rem !important;
@@ -16467,8 +16653,9 @@ html[data-theme="dark"] .admin-status-badge.is-review {
 .admin-command-center {
   border-radius: 1.2rem !important;
   border: 1px solid color-mix(in oklch, var(--admin-accent) 25%, transparent) !important;
-  box-shadow: 0 0 0 1px color-mix(in oklch, var(--admin-accent) 8%, transparent),
-              0 8px 32px rgba(138,78,193,0.1) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--admin-accent) 8%, transparent),
+    0 8px 32px rgba(138, 78, 193, 0.1) !important;
 }
 .admin-command-center__eyebrow {
   font-size: 0.68rem !important;
@@ -16480,12 +16667,19 @@ html[data-theme="dark"] .admin-status-badge.is-review {
 }
 .admin-command-action {
   border-radius: 0.85rem !important;
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s !important;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    background 0.15s !important;
 }
 .admin-command-action:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(138,78,193,0.15) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 45%, transparent) !important;
+  box-shadow: 0 6px 20px rgba(138, 78, 193, 0.15) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 45%,
+    transparent
+  ) !important;
 }
 
 /* ─── 6. Sidebar — vivid active state + section dividers ──── */
@@ -16496,24 +16690,24 @@ html[data-theme="dark"] .admin-status-badge.is-review {
     rgba(201, 162, 106, 0.28)
   ) !important;
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.15),
-    0 4px 12px rgba(138,78,193,0.25) !important;
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 4px 12px rgba(138, 78, 193, 0.25) !important;
 }
 .admin-shell__nav-item.is-active .admin-shell__nav-icon {
-  background: rgba(255,255,255,0.22) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 .admin-shell__nav-item:not(.is-active):hover {
-  background: rgba(255,255,255,0.07) !important;
+  background: rgba(255, 255, 255, 0.07) !important;
   color: #fff !important;
 }
 .admin-shell__nav-subitem.is-active {
-  background: rgba(138,78,193,0.3) !important;
+  background: rgba(138, 78, 193, 0.3) !important;
   color: #fff !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
 }
 .admin-shell__nav-group {
-  border-top: 1px solid rgba(255,255,255,0.04) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.04) !important;
   padding-top: 0.5rem !important;
   margin-top: 0.25rem !important;
   margin-bottom: 0.75rem !important;
@@ -16525,25 +16719,29 @@ html[data-theme="dark"] .admin-status-badge.is-review {
 
 /* ─── 7. Topbar — refined glass morphism ──── */
 .admin-shell__topbar {
-  background: rgba(255,255,255,0.92) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
   backdrop-filter: blur(12px) saturate(160%) !important;
-  border-bottom: 1px solid color-mix(in oklch, var(--admin-accent) 12%, var(--admin-border)) !important;
+  border-bottom: 1px solid
+    color-mix(in oklch, var(--admin-accent) 12%, var(--admin-border)) !important;
 }
 html[data-theme="dark"] .admin-shell__topbar {
-  background: rgba(14,6,30,0.88) !important;
-  border-bottom-color: rgba(138,78,193,0.2) !important;
+  background: rgba(14, 6, 30, 0.88) !important;
+  border-bottom-color: rgba(138, 78, 193, 0.2) !important;
 }
 
 /* ─── 8. Button system — consistent and polished ──── */
 .admin-btn-primary {
   background: linear-gradient(135deg, #8a4ec1, #6b3a9b) !important;
   border: none !important;
-  box-shadow: 0 4px 14px rgba(138,78,193,0.35) !important;
-  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s !important;
+  box-shadow: 0 4px 14px rgba(138, 78, 193, 0.35) !important;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    opacity 0.15s !important;
 }
 .admin-btn-primary:hover:not(:disabled) {
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 22px rgba(138,78,193,0.45) !important;
+  box-shadow: 0 8px 22px rgba(138, 78, 193, 0.45) !important;
   opacity: 1 !important;
 }
 .admin-btn-secondary {
@@ -16551,44 +16749,67 @@ html[data-theme="dark"] .admin-shell__topbar {
 }
 .admin-btn-secondary:hover {
   transform: translateY(-1px) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 50%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 50%,
+    transparent
+  ) !important;
   color: var(--admin-accent) !important;
-  background: color-mix(in oklch, var(--admin-accent) 6%, var(--admin-panel)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 6%,
+    var(--admin-panel)
+  ) !important;
 }
 .admin-btn-danger:hover {
-  background: rgba(179,51,75,0.18) !important;
-  border-color: rgba(179,51,75,0.45) !important;
+  background: rgba(179, 51, 75, 0.18) !important;
+  border-color: rgba(179, 51, 75, 0.45) !important;
   transform: translateY(-1px) !important;
 }
 
 /* ─── 9. Sidebar footer link — more visible ──── */
 .admin-shell__sidebar-footer {
   padding: 0.65rem !important;
-  border-top: 1px solid rgba(255,255,255,0.07) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
 }
 .admin-shell__sidebar-link {
-  background: linear-gradient(135deg, rgba(138,78,193,0.2), rgba(201,162,106,0.12)) !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  color: rgba(255,255,255,0.9) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(138, 78, 193, 0.2),
+    rgba(201, 162, 106, 0.12)
+  ) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
   font-weight: 700 !important;
-  transition: background 0.15s, transform 0.15s !important;
+  transition:
+    background 0.15s,
+    transform 0.15s !important;
 }
 .admin-shell__sidebar-link:hover {
-  background: linear-gradient(135deg, rgba(138,78,193,0.35), rgba(201,162,106,0.2)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(138, 78, 193, 0.35),
+    rgba(201, 162, 106, 0.2)
+  ) !important;
   transform: scale(1.02) !important;
 }
 
 /* ─── 10. Admin page header — cleaner ──── */
 .admin-page-header {
   padding-bottom: 1.2rem !important;
-  border-bottom: 2px solid color-mix(in oklch, var(--admin-accent) 15%, var(--admin-border)) !important;
+  border-bottom: 2px solid
+    color-mix(in oklch, var(--admin-accent) 15%, var(--admin-border)) !important;
   margin-bottom: 1.5rem !important;
 }
 .admin-page-header h1 {
   font-size: clamp(1.35rem, 2.5vw, 1.75rem) !important;
   font-weight: 800 !important;
   letter-spacing: -0.02em !important;
-  background: linear-gradient(135deg, var(--admin-text), var(--admin-text-soft));
+  background: linear-gradient(
+    135deg,
+    var(--admin-text),
+    var(--admin-text-soft)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -16612,14 +16833,14 @@ html[data-theme="dark"] .admin-shell__topbar {
   letter-spacing: 0.04em !important;
 }
 .admin-shell__pill.is-success {
-  background: rgba(22,163,74,0.1) !important;
+  background: rgba(22, 163, 74, 0.1) !important;
   color: #16a34a !important;
-  border-color: rgba(22,163,74,0.28) !important;
+  border-color: rgba(22, 163, 74, 0.28) !important;
 }
 .admin-shell__pill.is-danger {
-  background: rgba(220,38,38,0.1) !important;
+  background: rgba(220, 38, 38, 0.1) !important;
   color: #dc2626 !important;
-  border-color: rgba(220,38,38,0.28) !important;
+  border-color: rgba(220, 38, 38, 0.28) !important;
 }
 
 /* ─── 13. Admin chip — cleaner tag pills ──── */
@@ -16628,8 +16849,16 @@ html[data-theme="dark"] .admin-shell__topbar {
   padding: 0.2rem 0.55rem !important;
   font-size: 0.7rem !important;
   font-weight: 600 !important;
-  background: color-mix(in oklch, var(--admin-accent) 7%, var(--admin-panel)) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 18%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 7%,
+    var(--admin-panel)
+  ) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 18%,
+    transparent
+  ) !important;
   color: var(--admin-text-soft) !important;
   transition: background 0.12s !important;
 }
@@ -16637,11 +16866,18 @@ html[data-theme="dark"] .admin-shell__topbar {
 /* ─── 14. Admin search field ──── */
 .admin-list-search {
   border-radius: 0.85rem !important;
-  transition: border-color 0.15s, box-shadow 0.15s !important;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s !important;
 }
 .admin-list-search:focus {
-  border-color: color-mix(in oklch, var(--admin-accent) 60%, transparent) !important;
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--admin-accent) 14%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 60%,
+    transparent
+  ) !important;
+  box-shadow: 0 0 0 3px
+    color-mix(in oklch, var(--admin-accent) 14%, transparent) !important;
 }
 
 /* ─── 15. Admin service group header — color accent ──── */
@@ -16676,11 +16912,11 @@ html[data-theme="dark"] .admin-shell__topbar {
   border-radius: 1.1rem !important;
   overflow: hidden !important;
   background: var(--admin-panel) !important;
-  box-shadow: 0 2px 10px rgba(31,16,64,0.05) !important;
+  box-shadow: 0 2px 10px rgba(31, 16, 64, 0.05) !important;
   margin-bottom: 0 !important;
 }
 html[data-theme="dark"] .admin-service-group {
-  box-shadow: 0 2px 12px rgba(0,0,0,0.22) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.22) !important;
 }
 .admin-service-group__header {
   display: flex !important;
@@ -16704,7 +16940,8 @@ html[data-theme="dark"] .admin-service-group {
 /* Each service row within a group — picture-card strip */
 .admin-service-group .admin-data-row {
   padding: 0.8rem 1.1rem !important;
-  border-top: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
+  border-top: 1px solid
+    color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
   transition: background 0.15s !important;
 }
 .admin-service-group .admin-data-row:first-child {
@@ -16726,10 +16963,10 @@ html[data-theme="dark"] .admin-service-group {
 
 /* Category section — warning color */
 .admin-service-group.is-warning {
-  border-color: rgba(202,138,4,0.3) !important;
+  border-color: rgba(202, 138, 4, 0.3) !important;
 }
 .admin-service-group.is-warning .admin-service-group__header {
-  background: rgba(202,138,4,0.06) !important;
+  background: rgba(202, 138, 4, 0.06) !important;
 }
 
 /* ─── Admin data list gaps between groups ──── */
@@ -16746,10 +16983,12 @@ html[data-theme="dark"] .admin-service-group {
   border: 1px solid var(--admin-border);
   background: var(--admin-panel);
   padding: 0.85rem 1.1rem;
-  transition: box-shadow 0.15s, border-color 0.15s;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
 }
 .admin-crm-row:hover {
-  box-shadow: 0 4px 16px rgba(138,78,193,0.1);
+  box-shadow: 0 4px 16px rgba(138, 78, 193, 0.1);
   border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent);
 }
 
@@ -16760,7 +16999,11 @@ html[data-theme="dark"] .admin-service-group {
   border: 1px solid var(--admin-border);
   border-radius: 1.15rem;
   background:
-    radial-gradient(circle at 15% 10%, color-mix(in oklch, var(--admin-accent) 12%, transparent), transparent 30%),
+    radial-gradient(
+      circle at 15% 10%,
+      color-mix(in oklch, var(--admin-accent) 12%, transparent),
+      transparent 30%
+    ),
     linear-gradient(135deg, var(--admin-panel), var(--admin-panel-soft));
   padding: 1rem;
   box-shadow: var(--admin-shadow-soft);
@@ -16826,7 +17069,8 @@ html[data-theme="dark"] .admin-service-group {
 .admin-crm-pipeline__stage:hover,
 .admin-crm-pipeline__stage.is-active {
   border-color: color-mix(in oklch, var(--admin-accent) 45%, transparent);
-  box-shadow: 0 12px 28px color-mix(in oklch, var(--admin-accent) 12%, transparent);
+  box-shadow: 0 12px 28px
+    color-mix(in oklch, var(--admin-accent) 12%, transparent);
   transform: translateY(-1px);
 }
 
@@ -17035,7 +17279,9 @@ html[data-theme="dark"] .admin-service-group {
   padding: 0.8rem 1rem;
   background: var(--admin-panel-soft);
   text-align: center;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 }
 .admin-pipeline-stage:hover {
   border-color: color-mix(in oklch, var(--admin-accent) 35%, transparent);
@@ -17058,12 +17304,20 @@ html[data-theme="dark"] .admin-service-group {
   border-radius: 0.75rem !important;
   background: var(--admin-bg-soft) !important;
   border-color: var(--admin-border) !important;
-  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s !important;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s !important;
 }
 .admin-input:focus {
   background: var(--admin-panel) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 55%, transparent) !important;
-  box-shadow: 0 0 0 3.5px color-mix(in oklch, var(--admin-accent) 14%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 55%,
+    transparent
+  ) !important;
+  box-shadow: 0 0 0 3.5px
+    color-mix(in oklch, var(--admin-accent) 14%, transparent) !important;
 }
 
 /* ─── Mobile touch targets — 44px minimum ──── */
@@ -17123,13 +17377,18 @@ html[data-theme="dark"] .admin-service-group {
   transition: all 0.15s !important;
 }
 .admin-tab:hover {
-  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 8%,
+    transparent
+  ) !important;
   color: var(--admin-accent) !important;
 }
 .admin-tab.is-active {
   background: var(--admin-accent) !important;
   color: #fff !important;
-  box-shadow: 0 2px 8px color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+  box-shadow: 0 2px 8px
+    color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
 }
 .admin-tab__count {
   display: inline-flex !important;
@@ -17141,7 +17400,7 @@ html[data-theme="dark"] .admin-service-group {
   border-radius: 999px !important;
   font-size: 0.68rem !important;
   font-weight: 700 !important;
-  background: rgba(255,255,255,0.18) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
 }
 .admin-tab:not(.is-active) .admin-tab__count {
   background: var(--admin-border) !important;
@@ -17184,7 +17443,7 @@ html[data-theme="dark"] .admin-service-group {
   overflow: hidden !important;
   border: 1px solid var(--admin-border) !important;
   background: var(--admin-panel) !important;
-  box-shadow: 0 2px 12px rgba(31,16,64,0.07) !important;
+  box-shadow: 0 2px 12px rgba(31, 16, 64, 0.07) !important;
 }
 
 /* ─── Admin content area gap ──── */
@@ -17194,17 +17453,31 @@ html[data-theme="dark"] .admin-service-group {
   animation: admin-slide-up 0.22s ease-out both !important;
 }
 @keyframes admin-slide-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.admin-shell__content > *:nth-child(2) { animation-delay: 0.04s !important; }
-.admin-shell__content > *:nth-child(3) { animation-delay: 0.08s !important; }
-.admin-shell__content > *:nth-child(4) { animation-delay: 0.12s !important; }
-.admin-shell__content > *:nth-child(5) { animation-delay: 0.16s !important; }
+.admin-shell__content > *:nth-child(2) {
+  animation-delay: 0.04s !important;
+}
+.admin-shell__content > *:nth-child(3) {
+  animation-delay: 0.08s !important;
+}
+.admin-shell__content > *:nth-child(4) {
+  animation-delay: 0.12s !important;
+}
+.admin-shell__content > *:nth-child(5) {
+  animation-delay: 0.16s !important;
+}
 
 /* ─── Entity grid (doctors) — hover shadow only, no translate ──── */
 .admin-entity-grid details.admin-data-row:not([open]):hover {
-  box-shadow: 0 6px 22px rgba(138,78,193,0.12) !important;
+  box-shadow: 0 6px 22px rgba(138, 78, 193, 0.12) !important;
   transform: none !important;
 }
 
@@ -17256,7 +17529,8 @@ html[data-theme="dark"] .admin-service-group {
   box-shadow: none !important;
 }
 .admin-data-list.admin-service-groups .admin-data-row + .admin-data-row {
-  border-top: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
+  border-top: 1px solid
+    color-mix(in oklch, var(--admin-border) 60%, transparent) !important;
 }
 
 /* ─── Dashboard pipeline stage cards — bolder micro-cards ──── */
@@ -17266,18 +17540,29 @@ html[data-theme="dark"] .admin-service-group {
   padding: 0.85rem 1rem !important;
   border: 1px solid var(--admin-border) !important;
   background: var(--admin-panel-soft) !important;
-  transition: border-color 0.15s, box-shadow 0.15s !important;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s !important;
 }
 .admin-card__body .grid.grid-cols-2.gap-3 > div:hover,
 .admin-card__body .grid.md\:grid-cols-5 > div:hover {
-  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
-  box-shadow: 0 3px 12px color-mix(in oklch, var(--admin-accent) 10%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 30%,
+    transparent
+  ) !important;
+  box-shadow: 0 3px 12px
+    color-mix(in oklch, var(--admin-accent) 10%, transparent) !important;
 }
 .admin-card__body .grid.grid-cols-2.gap-3 > div p:last-child,
 .admin-card__body .grid.md\:grid-cols-5 > div p:last-child {
   font-size: 1.6rem !important;
   font-weight: 800 !important;
-  background: linear-gradient(135deg, var(--admin-text) 40%, var(--admin-accent));
+  background: linear-gradient(
+    135deg,
+    var(--admin-text) 40%,
+    var(--admin-accent)
+  );
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -17331,7 +17616,8 @@ html[data-theme="dark"] .admin-service-group {
   padding: 0.5rem 0 !important;
 }
 .admin-shell__nav-group + .admin-shell__nav-group {
-  border-top: 1px solid color-mix(in oklch, var(--admin-border) 70%, transparent) !important;
+  border-top: 1px solid
+    color-mix(in oklch, var(--admin-border) 70%, transparent) !important;
   margin-top: 0.1rem !important;
   padding-top: 0.65rem !important;
 }
@@ -17350,7 +17636,9 @@ html[data-theme="dark"] .admin-service-group {
   margin: 0.1rem 0.55rem !important;
   border-radius: 0.7rem !important;
   padding: 0.6rem 0.75rem !important;
-  transition: background 0.13s, color 0.13s !important;
+  transition:
+    background 0.13s,
+    color 0.13s !important;
 }
 .admin-shell__nav-item.is-active {
   background: linear-gradient(
@@ -17403,7 +17691,7 @@ header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo-header,
 header .rv-v0-logo,
 .rv-v0-brand .rv-v0-logo {
-  width:  clamp(5rem, 6.5vw, 7rem) !important;
+  width: clamp(5rem, 6.5vw, 7rem) !important;
   height: clamp(5rem, 6.5vw, 7rem) !important;
   overflow: visible !important;
   flex-shrink: 0 !important;
@@ -17419,7 +17707,7 @@ header .rv-v0-logo,
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(4rem, 11vw, 5.5rem) !important;
+    width: clamp(4rem, 11vw, 5.5rem) !important;
     height: clamp(4rem, 11vw, 5.5rem) !important;
   }
   .rv-v0-nav {
@@ -17432,7 +17720,7 @@ header .rv-v0-logo,
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(4rem, 14vw, 5.5rem) !important;
+    width: clamp(4rem, 14vw, 5.5rem) !important;
     height: clamp(4rem, 14vw, 5.5rem) !important;
   }
   .rv-v0-nav {
@@ -17445,7 +17733,7 @@ header .rv-v0-logo,
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(3.8rem, 15vw, 5rem) !important;
+    width: clamp(3.8rem, 15vw, 5rem) !important;
     height: clamp(3.8rem, 15vw, 5rem) !important;
   }
   .rv-v0-nav {
@@ -17465,7 +17753,8 @@ header .rv-v0-logo,
   height: 100%;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklch, var(--admin-accent) 20%, transparent) transparent;
+  scrollbar-color: color-mix(in oklch, var(--admin-accent) 20%, transparent)
+    transparent;
 }
 
 /* ── Section wrapper ── */
@@ -17477,7 +17766,8 @@ header .rv-v0-logo,
 .admin-snav__section + .admin-snav__section {
   margin-top: 0.25rem;
   padding-top: 0.4rem;
-  border-top: 1px solid color-mix(in oklch, var(--admin-border) 60%, transparent);
+  border-top: 1px solid
+    color-mix(in oklch, var(--admin-border) 60%, transparent);
 }
 
 /* ── Accordion group toggle button ── */
@@ -17496,7 +17786,9 @@ header .rv-v0-logo,
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 .admin-snav__group-btn:hover {
   background: color-mix(in oklch, var(--admin-accent) 8%, transparent);
@@ -17547,7 +17839,8 @@ header .rv-v0-logo,
   flex-direction: column;
   gap: 0.05rem;
   padding: 0.2rem 0 0.3rem 0.35rem;
-  border-inline-start: 1.5px solid color-mix(in oklch, var(--admin-border) 80%, transparent);
+  border-inline-start: 1.5px solid
+    color-mix(in oklch, var(--admin-border) 80%, transparent);
   margin-inline-start: 1.15rem;
 }
 
@@ -17562,7 +17855,10 @@ header .rv-v0-logo,
   color: var(--admin-text-soft);
   font-size: 0.78rem;
   font-weight: 500;
-  transition: background 0.13s, color 0.13s, padding-inline-start 0.13s;
+  transition:
+    background 0.13s,
+    color 0.13s,
+    padding-inline-start 0.13s;
   position: relative;
 }
 .admin-snav__item:hover {
@@ -17604,7 +17900,9 @@ header .rv-v0-logo,
   flex-shrink: 0;
   border-radius: 0.4rem;
   background: color-mix(in oklch, var(--admin-text) 6%, transparent);
-  transition: background 0.13s, color 0.13s;
+  transition:
+    background 0.13s,
+    color 0.13s;
 }
 .admin-snav__item.is-active .admin-snav__item-icon {
   background: color-mix(in oklch, var(--admin-accent) 15%, transparent);
@@ -17679,7 +17977,7 @@ header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo-header,
 header .rv-v0-logo,
 .rv-v0-brand .rv-v0-logo {
-  width:  clamp(6rem, 8vw, 9rem) !important;
+  width: clamp(6rem, 8vw, 9rem) !important;
   height: clamp(6rem, 8vw, 9rem) !important;
   overflow: visible !important;
   flex-shrink: 0 !important;
@@ -17692,30 +17990,36 @@ header .rv-v0-logo,
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(5rem, 13vw, 7rem) !important;
+    width: clamp(5rem, 13vw, 7rem) !important;
     height: clamp(5rem, 13vw, 7rem) !important;
   }
-  .rv-v0-nav { min-height: 6rem !important; }
+  .rv-v0-nav {
+    min-height: 6rem !important;
+  }
 }
 
 @media (max-width: 767px) {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(5rem, 16vw, 6.5rem) !important;
+    width: clamp(5rem, 16vw, 6.5rem) !important;
     height: clamp(5rem, 16vw, 6.5rem) !important;
   }
-  .rv-v0-nav { min-height: 5.8rem !important; }
+  .rv-v0-nav {
+    min-height: 5.8rem !important;
+  }
 }
 
 @media (max-width: 480px) {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(4.8rem, 18vw, 6rem) !important;
+    width: clamp(4.8rem, 18vw, 6rem) !important;
     height: clamp(4.8rem, 18vw, 6rem) !important;
   }
-  .rv-v0-nav { min-height: 5.5rem !important; }
+  .rv-v0-nav {
+    min-height: 5.5rem !important;
+  }
 }
 
 /* ╔══════════════════════════════════════════════════════════════════════════╗
@@ -17769,12 +18073,27 @@ html[data-theme="dark"] {
 
 /* ── Sidebar: richer gradient background ── */
 .admin-shell__sidebar {
-  background:
-    linear-gradient(160deg, var(--admin-sidebar-bg) 0%, var(--admin-sidebar-bg-2) 100%) !important;
+  background: linear-gradient(
+    160deg,
+    var(--admin-sidebar-bg) 0%,
+    var(--admin-sidebar-bg-2) 100%
+  ) !important;
   background-image:
-    radial-gradient(circle at 22% 8%, rgba(168, 85, 247, 0.32), transparent 22rem),
-    radial-gradient(circle at 78% 92%, rgba(212, 163, 115, 0.14), transparent 20rem),
-    linear-gradient(165deg, var(--admin-sidebar-bg) 0%, var(--admin-sidebar-bg-2) 100%) !important;
+    radial-gradient(
+      circle at 22% 8%,
+      rgba(168, 85, 247, 0.32),
+      transparent 22rem
+    ),
+    radial-gradient(
+      circle at 78% 92%,
+      rgba(212, 163, 115, 0.14),
+      transparent 20rem
+    ),
+    linear-gradient(
+      165deg,
+      var(--admin-sidebar-bg) 0%,
+      var(--admin-sidebar-bg-2) 100%
+    ) !important;
   border-inline-end: 1px solid var(--admin-sidebar-border) !important;
   box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.03) !important;
 }
@@ -17790,11 +18109,13 @@ html[data-theme="dark"] {
 .admin-shell__sidebar .admin-snav__item.is-active {
   background: linear-gradient(
     135deg,
-    rgba(168, 85, 247, 0.30),
+    rgba(168, 85, 247, 0.3),
     rgba(124, 58, 237, 0.16)
   ) !important;
   color: #fff !important;
-  box-shadow: inset 0 0 0 1px rgba(168, 85, 247, 0.35), 0 4px 12px rgba(168, 85, 247, 0.18) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(168, 85, 247, 0.35),
+    0 4px 12px rgba(168, 85, 247, 0.18) !important;
 }
 .admin-shell__sidebar .admin-snav__item-icon {
   background: rgba(255, 255, 255, 0.07) !important;
@@ -17823,7 +18144,7 @@ html[data-theme="dark"] {
 }
 
 .admin-shell__sidebar .admin-snav__items {
-  border-inline-start-color: rgba(255, 255, 255, 0.10) !important;
+  border-inline-start-color: rgba(255, 255, 255, 0.1) !important;
 }
 .admin-shell__sidebar .admin-snav__section + .admin-snav__section {
   border-top-color: rgba(255, 255, 255, 0.06) !important;
@@ -17847,7 +18168,9 @@ html[data-theme="dark"] {
   align-items: center !important;
   justify-content: center !important;
   box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35) !important;
-  transition: transform 0.15s, box-shadow 0.15s !important;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s !important;
   width: 100% !important;
 }
 .admin-shell__sidebar-link:hover {
@@ -17865,7 +18188,11 @@ html[data-theme="dark"] {
   height: 5.5rem !important;
   width: 5.5rem !important;
   border-radius: 1.4rem !important;
-  background: linear-gradient(135deg, rgba(255,255,255,0.14), rgba(168, 85, 247, 0.18)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14),
+    rgba(168, 85, 247, 0.18)
+  ) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.4),
@@ -17891,22 +18218,36 @@ html[data-theme="dark"] {
 
 /* ── Topbar: cleaner glass + subtle accent line ── */
 .admin-shell__topbar {
-  background: color-mix(in oklch, var(--admin-panel) 86%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-panel) 86%,
+    transparent
+  ) !important;
   backdrop-filter: blur(14px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   border-bottom: 1px solid var(--admin-border) !important;
-  box-shadow: 0 1px 0 rgba(124, 58, 237, 0.08), 0 4px 12px rgba(31, 16, 64, 0.05) !important;
+  box-shadow:
+    0 1px 0 rgba(124, 58, 237, 0.08),
+    0 4px 12px rgba(31, 16, 64, 0.05) !important;
   padding-block: 0.85rem !important;
 }
 html[data-theme="dark"] .admin-shell__topbar {
-  background: color-mix(in oklch, var(--admin-panel) 82%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-panel) 82%,
+    transparent
+  ) !important;
 }
 
 /* ── Page header titles: stronger gradient ── */
 .admin-page-header h1 {
   font-size: clamp(1.4rem, 2.2vw, 1.85rem) !important;
   font-weight: 800 !important;
-  background: linear-gradient(135deg, var(--admin-text) 30%, var(--admin-accent-2) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-text) 30%,
+    var(--admin-accent-2) 100%
+  ) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -17929,14 +18270,20 @@ html[data-theme="dark"] .admin-shell__topbar {
     0 4px 16px rgba(31, 16, 64, 0.06),
     0 1px 3px rgba(31, 16, 64, 0.04) !important;
   overflow: hidden !important;
-  transition: box-shadow 0.18s, border-color 0.18s !important;
+  transition:
+    box-shadow 0.18s,
+    border-color 0.18s !important;
 }
 .admin-card:hover {
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 12px 32px rgba(124, 58, 237, 0.10),
+    0 12px 32px rgba(124, 58, 237, 0.1),
     0 2px 6px rgba(31, 16, 64, 0.05) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 18%, var(--admin-border)) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 18%,
+    var(--admin-border)
+  ) !important;
 }
 .admin-card__header {
   background: linear-gradient(
@@ -17980,7 +18327,10 @@ html[data-theme="dark"] .admin-card {
   text-decoration: none !important;
   color: var(--admin-text) !important;
   overflow: hidden !important;
-  transition: transform 0.15s, box-shadow 0.18s, border-color 0.18s !important;
+  transition:
+    transform 0.15s,
+    box-shadow 0.18s,
+    border-color 0.18s !important;
   box-shadow: 0 2px 8px rgba(31, 16, 64, 0.05) !important;
 }
 .admin-kpi::before {
@@ -17989,12 +18339,20 @@ html[data-theme="dark"] .admin-card {
   inset-block-start: 0;
   inset-inline: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-2));
+  background: linear-gradient(
+    90deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  );
   opacity: 0.85;
 }
 .admin-kpi:hover {
   transform: translateY(-2px) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 25%, var(--admin-border)) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 25%,
+    var(--admin-border)
+  ) !important;
   box-shadow: 0 12px 28px rgba(124, 58, 237, 0.14) !important;
 }
 .admin-kpi__icon {
@@ -18004,16 +18362,28 @@ html[data-theme="dark"] .admin-card {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: linear-gradient(135deg, var(--admin-accent-soft), color-mix(in oklch, var(--admin-accent) 6%, transparent)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent-soft),
+    color-mix(in oklch, var(--admin-accent) 6%, transparent)
+  ) !important;
   color: var(--admin-accent) !important;
   flex-shrink: 0 !important;
 }
 .admin-kpi__icon.is-success {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.07)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.18),
+    rgba(16, 185, 129, 0.07)
+  ) !important;
   color: var(--admin-emerald) !important;
 }
 .admin-kpi__icon.is-gold {
-  background: linear-gradient(135deg, rgba(212, 163, 115, 0.22), rgba(212, 163, 115, 0.08)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 163, 115, 0.22),
+    rgba(212, 163, 115, 0.08)
+  ) !important;
   color: var(--admin-gold) !important;
 }
 .admin-kpi__value {
@@ -18021,7 +18391,11 @@ html[data-theme="dark"] .admin-card {
   font-size: 1.85rem !important;
   font-weight: 800 !important;
   line-height: 1 !important;
-  background: linear-gradient(135deg, var(--admin-text), var(--admin-accent-2)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-text),
+    var(--admin-accent-2)
+  ) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -18038,28 +18412,48 @@ html[data-theme="dark"] .admin-card {
 /* ── Command center: vibrant gradient banner ── */
 .admin-command-center {
   border-radius: 1.4rem !important;
-  border: 1px solid color-mix(in oklch, var(--admin-accent) 22%, var(--admin-border)) !important;
+  border: 1px solid
+    color-mix(in oklch, var(--admin-accent) 22%, var(--admin-border)) !important;
   background:
-    radial-gradient(circle at 90% 10%, rgba(168, 85, 247, 0.16), transparent 28rem),
-    linear-gradient(140deg, var(--admin-panel) 60%, color-mix(in oklch, var(--admin-accent) 7%, var(--admin-panel))) !important;
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(168, 85, 247, 0.16),
+      transparent 28rem
+    ),
+    linear-gradient(
+      140deg,
+      var(--admin-panel) 60%,
+      color-mix(in oklch, var(--admin-accent) 7%, var(--admin-panel))
+    ) !important;
   padding: 1.4rem 1.6rem !important;
-  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.10) !important;
+  box-shadow: 0 8px 28px rgba(124, 58, 237, 0.1) !important;
   position: relative !important;
   overflow: hidden !important;
 }
 .admin-command-center::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-2), var(--admin-gold));
+  background: linear-gradient(
+    90deg,
+    var(--admin-accent),
+    var(--admin-accent-2),
+    var(--admin-gold)
+  );
 }
 .admin-command-center__eyebrow {
   font-size: 0.65rem !important;
   font-weight: 800 !important;
   letter-spacing: 0.18em !important;
   text-transform: uppercase !important;
-  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  background: linear-gradient(
+    90deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  ) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -18093,7 +18487,11 @@ html[data-theme="dark"] .admin-card {
 }
 .admin-command-action:hover {
   transform: translateY(-2px) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 30%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 30%,
+    transparent
+  ) !important;
   box-shadow: 0 8px 20px rgba(124, 58, 237, 0.18) !important;
 }
 .admin-command-action strong {
@@ -18104,7 +18502,11 @@ html[data-theme="dark"] .admin-card {
   height: 2rem !important;
   padding: 0 0.45rem !important;
   border-radius: 0.55rem !important;
-  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  ) !important;
   color: #fff !important;
   font-size: 0.85rem !important;
   font-weight: 800 !important;
@@ -18142,14 +18544,26 @@ html[data-theme="dark"] .admin-card {
   color: #374151 !important;
   border-color: rgba(107, 114, 128, 0.32) !important;
 }
-html[data-theme="dark"] .admin-status-badge.is-published { color: #6ee7b7 !important; }
-html[data-theme="dark"] .admin-status-badge.is-draft { color: #fcd34d !important; }
-html[data-theme="dark"] .admin-status-badge.is-review { color: #93c5fd !important; }
-html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !important; }
+html[data-theme="dark"] .admin-status-badge.is-published {
+  color: #6ee7b7 !important;
+}
+html[data-theme="dark"] .admin-status-badge.is-draft {
+  color: #fcd34d !important;
+}
+html[data-theme="dark"] .admin-status-badge.is-review {
+  color: #93c5fd !important;
+}
+html[data-theme="dark"] .admin-status-badge.is-archived {
+  color: #d1d5db !important;
+}
 
 /* ── Buttons: refined primary ── */
 .admin-btn-primary {
-  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  ) !important;
   color: #fff !important;
   border: none !important;
   border-radius: 0.7rem !important;
@@ -18163,7 +18577,9 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
   justify-content: center !important;
   gap: 0.4rem !important;
   box-shadow: 0 4px 14px rgba(124, 58, 237, 0.32) !important;
-  transition: transform 0.13s, box-shadow 0.15s !important;
+  transition:
+    transform 0.13s,
+    box-shadow 0.15s !important;
 }
 .admin-btn-primary:hover {
   transform: translateY(-1px) !important;
@@ -18189,7 +18605,11 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
 .admin-btn-secondary:hover {
   border-color: var(--admin-accent) !important;
   color: var(--admin-accent) !important;
-  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 4%,
+    var(--admin-panel)
+  ) !important;
 }
 
 .admin-btn-danger {
@@ -18201,8 +18621,10 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
   font-size: 0.8rem !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.30) !important;
-  transition: transform 0.13s, box-shadow 0.15s !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3) !important;
+  transition:
+    transform 0.13s,
+    box-shadow 0.15s !important;
 }
 .admin-btn-danger:hover {
   transform: translateY(-1px) !important;
@@ -18219,10 +18641,16 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
   border-radius: 0.55rem !important;
   text-decoration: none !important;
   cursor: pointer !important;
-  transition: background 0.13s, color 0.13s !important;
+  transition:
+    background 0.13s,
+    color 0.13s !important;
 }
 .admin-btn-ghost:hover {
-  background: color-mix(in oklch, var(--admin-accent) 8%, transparent) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 8%,
+    transparent
+  ) !important;
   color: var(--admin-accent) !important;
 }
 
@@ -18242,12 +18670,22 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
   border-top: 1px solid var(--admin-border) !important;
   transition: background 0.13s !important;
 }
-.admin-data-row:first-child { border-top: none !important; }
+.admin-data-row:first-child {
+  border-top: none !important;
+}
 .admin-data-row:nth-child(even) {
-  background: color-mix(in oklch, var(--admin-accent) 1.5%, var(--admin-panel)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 1.5%,
+    var(--admin-panel)
+  ) !important;
 }
 .admin-data-row:hover {
-  background: color-mix(in oklch, var(--admin-accent) 4%, var(--admin-panel)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 4%,
+    var(--admin-panel)
+  ) !important;
 }
 .admin-data-row__title {
   font-weight: 600 !important;
@@ -18268,7 +18706,11 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
   flex-wrap: wrap !important;
   padding: 0.7rem 1.2rem !important;
   border-bottom: 1px solid var(--admin-border) !important;
-  background: color-mix(in oklch, var(--admin-accent) 1.2%, var(--admin-panel)) !important;
+  background: color-mix(
+    in oklch,
+    var(--admin-accent) 1.2%,
+    var(--admin-panel)
+  ) !important;
 }
 
 /* ── Pills (health, status indicators) ── */
@@ -18304,8 +18746,12 @@ html[data-theme="dark"] .admin-status-badge.is-archived { color: #d1d5db !import
   background: currentColor;
   box-shadow: 0 0 6px currentColor;
 }
-html[data-theme="dark"] .admin-shell__pill.is-success { color: #6ee7b7 !important; }
-html[data-theme="dark"] .admin-shell__pill.is-danger  { color: #fda4af !important; }
+html[data-theme="dark"] .admin-shell__pill.is-success {
+  color: #6ee7b7 !important;
+}
+html[data-theme="dark"] .admin-shell__pill.is-danger {
+  color: #fda4af !important;
+}
 
 /* ── Inputs: refined ── */
 .admin-input,
@@ -18318,7 +18764,10 @@ textarea.admin-input {
   padding: 0.55rem 0.85rem !important;
   font-size: 0.85rem !important;
   color: var(--admin-text) !important;
-  transition: border-color 0.13s, box-shadow 0.15s, background 0.13s !important;
+  transition:
+    border-color 0.13s,
+    box-shadow 0.15s,
+    background 0.13s !important;
   width: 100% !important;
 }
 .admin-input:focus,
@@ -18349,22 +18798,36 @@ button.admin-tab {
 }
 .admin-tab:hover {
   color: var(--admin-accent) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 32%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 32%,
+    transparent
+  ) !important;
 }
 .admin-tab.is-active,
 .admin-tab[data-active="true"] {
-  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  ) !important;
   color: #fff !important;
   border-color: transparent !important;
   box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28) !important;
 }
 
 /* ── Generic links inside admin ── */
-.admin-shell__content a:not(.admin-btn-primary):not(.admin-btn-secondary):not(.admin-btn-ghost):not(.admin-btn-danger):not(.admin-kpi):not(.admin-command-action):not(.admin-snav__item) {
+.admin-shell__content
+  a:not(.admin-btn-primary):not(.admin-btn-secondary):not(.admin-btn-ghost):not(
+    .admin-btn-danger
+  ):not(.admin-kpi):not(.admin-command-action):not(.admin-snav__item) {
   color: var(--admin-accent) !important;
   text-decoration: none !important;
 }
-.admin-shell__content a:not(.admin-btn-primary):not(.admin-btn-secondary):not(.admin-btn-ghost):not(.admin-btn-danger):hover {
+.admin-shell__content
+  a:not(.admin-btn-primary):not(.admin-btn-secondary):not(.admin-btn-ghost):not(
+    .admin-btn-danger
+  ):hover {
   text-decoration: underline !important;
 }
 
@@ -18407,7 +18870,7 @@ header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo-header,
 header .rv-v0-logo,
 .rv-v0-brand .rv-v0-logo {
-  width:  clamp(7rem, 10vw, 11rem) !important;
+  width: clamp(7rem, 10vw, 11rem) !important;
   height: clamp(7rem, 10vw, 11rem) !important;
   overflow: visible !important;
   flex-shrink: 0 !important;
@@ -18419,28 +18882,34 @@ header .rv-v0-logo,
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(6rem, 17vw, 9rem) !important;
+    width: clamp(6rem, 17vw, 9rem) !important;
     height: clamp(6rem, 17vw, 9rem) !important;
   }
-  .rv-v0-nav { min-height: 7rem !important; }
+  .rv-v0-nav {
+    min-height: 7rem !important;
+  }
 }
 @media (max-width: 767px) {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(6rem, 19vw, 8rem) !important;
+    width: clamp(6rem, 19vw, 8rem) !important;
     height: clamp(6rem, 19vw, 8rem) !important;
   }
-  .rv-v0-nav { min-height: 6.8rem !important; }
+  .rv-v0-nav {
+    min-height: 6.8rem !important;
+  }
 }
 @media (max-width: 480px) {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(5.5rem, 22vw, 7.5rem) !important;
+    width: clamp(5.5rem, 22vw, 7.5rem) !important;
     height: clamp(5.5rem, 22vw, 7.5rem) !important;
   }
-  .rv-v0-nav { min-height: 6.5rem !important; }
+  .rv-v0-nav {
+    min-height: 6.5rem !important;
+  }
 }
 
 /* ╔══════════════════════════════════════════════════════════════════════╗
@@ -18463,7 +18932,7 @@ header .rv-brand-logo-header,
 .rv-v0-brand .rv-brand-logo-header,
 header .rv-v0-logo,
 .rv-v0-brand .rv-v0-logo {
-  width:  clamp(3.4rem, 4.5vw, 4.4rem) !important;
+  width: clamp(3.4rem, 4.5vw, 4.4rem) !important;
   height: clamp(3.4rem, 4.5vw, 4.4rem) !important;
   overflow: visible !important;
   flex-shrink: 0 !important;
@@ -18498,7 +18967,7 @@ header .rv-brand-link {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(3rem, 9vw, 4rem) !important;
+    width: clamp(3rem, 9vw, 4rem) !important;
     height: clamp(3rem, 9vw, 4rem) !important;
   }
 }
@@ -18511,7 +18980,7 @@ header .rv-brand-link {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(2.8rem, 11vw, 3.6rem) !important;
+    width: clamp(2.8rem, 11vw, 3.6rem) !important;
     height: clamp(2.8rem, 11vw, 3.6rem) !important;
   }
   header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-light,
@@ -18529,7 +18998,7 @@ header .rv-brand-link {
   header .rv-brand-logo,
   header .rv-brand-logo-header,
   .rv-v0-brand .rv-brand-logo {
-    width:  clamp(2.6rem, 12vw, 3.3rem) !important;
+    width: clamp(2.6rem, 12vw, 3.3rem) !important;
     height: clamp(2.6rem, 12vw, 3.3rem) !important;
   }
 }
@@ -18632,8 +19101,13 @@ header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
   border-radius: 1rem !important;
   padding: 0 !important;
   overflow: hidden !important;
-  transition: transform 0.18s, box-shadow 0.2s, border-color 0.18s !important;
-  box-shadow: 0 1px 3px rgba(31, 16, 64, 0.04), 0 2px 8px rgba(31, 16, 64, 0.04) !important;
+  transition:
+    transform 0.18s,
+    box-shadow 0.2s,
+    border-color 0.18s !important;
+  box-shadow:
+    0 1px 3px rgba(31, 16, 64, 0.04),
+    0 2px 8px rgba(31, 16, 64, 0.04) !important;
   border-top: 1px solid var(--admin-border) !important;
 }
 
@@ -18643,8 +19117,14 @@ header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
 
 .admin-cards-grid > details.admin-data-row:hover {
   transform: translateY(-3px) !important;
-  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.14), 0 2px 4px rgba(31, 16, 64, 0.04) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 25%, var(--admin-border)) !important;
+  box-shadow:
+    0 12px 28px rgba(124, 58, 237, 0.14),
+    0 2px 4px rgba(31, 16, 64, 0.04) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 25%,
+    var(--admin-border)
+  ) !important;
 }
 
 /* When card is open, span all columns to show edit form */
@@ -18652,7 +19132,11 @@ header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
   grid-column: 1 / -1 !important;
   transform: none !important;
   box-shadow: 0 10px 32px rgba(124, 58, 237, 0.18) !important;
-  border-color: color-mix(in oklch, var(--admin-accent) 35%, transparent) !important;
+  border-color: color-mix(
+    in oklch,
+    var(--admin-accent) 35%,
+    transparent
+  ) !important;
 }
 
 /* Summary becomes the card visible content (image + text + badge) */
@@ -18677,7 +19161,11 @@ header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
   border-radius: 0 !important;
   overflow: hidden !important;
   position: relative !important;
-  background: linear-gradient(135deg, color-mix(in oklch, var(--admin-accent) 8%, var(--admin-panel)), color-mix(in oklch, var(--admin-accent) 3%, var(--admin-panel))) !important;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklch, var(--admin-accent) 8%, var(--admin-panel)),
+    color-mix(in oklch, var(--admin-accent) 3%, var(--admin-panel))
+  ) !important;
   flex: 1 0 auto !important;
 }
 
@@ -18745,7 +19233,8 @@ header .rv-v0-brand .rv-brand-logo-img.rv-brand-logo-dark,
   letter-spacing: 0.04em;
   color: var(--admin-accent);
   margin-top: auto;
-  border-top: 1px dashed color-mix(in oklch, var(--admin-accent) 20%, transparent);
+  border-top: 1px dashed
+    color-mix(in oklch, var(--admin-accent) 20%, transparent);
   transition: background 0.13s;
 }
 html[lang="en"] .admin-cards-grid > details.admin-data-row > summary::after {
@@ -18758,7 +19247,10 @@ html[lang="en"] .admin-cards-grid > details.admin-data-row > summary::after {
   content: "إغلاق ↑";
   background: color-mix(in oklch, var(--admin-accent) 10%, transparent);
 }
-html[lang="en"] .admin-cards-grid > details.admin-data-row[open] > summary::after {
+html[lang="en"]
+  .admin-cards-grid
+  > details.admin-data-row[open]
+  > summary::after {
   content: "Close ↑";
 }
 
@@ -18772,12 +19264,19 @@ html[lang="en"] .admin-cards-grid > details.admin-data-row[open] > summary::afte
 }
 
 /* Categories (no image) — text-only cards */
-.admin-cards-grid > details.admin-data-row > summary:not(:has(> div:first-child > img)):not(:has(> div:first-child > .relative)) {
+.admin-cards-grid
+  > details.admin-data-row
+  > summary:not(:has(> div:first-child > img)):not(
+    :has(> div:first-child > .relative)
+  ) {
   display: flex !important;
   flex-direction: column !important;
   padding-top: 1rem !important;
 }
-.admin-cards-grid > details.admin-data-row > summary > div.min-w-0:only-of-type {
+.admin-cards-grid
+  > details.admin-data-row
+  > summary
+  > div.min-w-0:only-of-type {
   padding: 1.2rem 1.2rem 0.5rem !important;
 }
 
@@ -18788,7 +19287,10 @@ html[lang="en"] .admin-cards-grid > details.admin-data-row[open] > summary::afte
   align-items: start !important;
   padding: 1.1rem 1.2rem 0.4rem !important;
 }
-.admin-cards-grid > details.admin-data-row > summary.grid-cols-\[1fr_auto\] > .admin-status-badge {
+.admin-cards-grid
+  > details.admin-data-row
+  > summary.grid-cols-\[1fr_auto\]
+  > .admin-status-badge {
   position: static !important;
   background: var(--admin-panel-soft) !important;
   backdrop-filter: none !important;
@@ -18882,7 +19384,11 @@ html[lang="en"] .admin-cards-grid > details.admin-data-row[open] > summary::afte
   color: var(--admin-accent);
 }
 .admin-pagination__page.is-active {
-  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  ) !important;
   color: #fff !important;
   border-color: transparent !important;
   box-shadow: 0 3px 8px rgba(124, 58, 237, 0.32) !important;

@@ -15,6 +15,11 @@ type CustomPageActionState = {
 
 const initialState: CustomPageActionState = { status: "idle", message: "" };
 
+type PageChromeOptions = {
+  showHeader: boolean;
+  showFooter: boolean;
+};
+
 const STATUS_OPTIONS: Array<{ value: ContentStatus; ar: string; en: string }> =
   [
     { value: ContentStatus.DRAFT, ar: "مسودة", en: "Draft" },
@@ -24,9 +29,30 @@ const STATUS_OPTIONS: Array<{ value: ContentStatus; ar: string; en: string }> =
     { value: ContentStatus.ARCHIVED, ar: "مؤرشفة", en: "Archived" },
   ];
 
+function initialChromeOptions(htmlContent?: string): PageChromeOptions {
+  return {
+    showHeader: htmlContent?.match(/data-header="false"/) ? false : true,
+    showFooter: htmlContent?.match(/data-footer="false"/) ? false : true,
+  };
+}
+
+function stripUploadedWrapper(htmlContent: string) {
+  const trimmed = htmlContent.trim();
+  const match = trimmed.match(
+    /^<div\b[^>]*data-uploaded-html="true"[^>]*>\s*([\s\S]*?)\s*<\/div>\s*$/i,
+  );
+  return match?.[1]?.trim() ?? trimmed;
+}
+
+function wrapHtmlPage(htmlContent: string, chrome: PageChromeOptions) {
+  const body = stripUploadedWrapper(htmlContent);
+  return `<div class="rv-uploaded-html-page" data-uploaded-html="true" data-header="${chrome.showHeader ? "true" : "false"}" data-footer="${chrome.showFooter ? "true" : "false"}">\n${body}\n</div>`;
+}
+
 export type CustomPageEditorFormProps = {
   mode: "create" | "edit";
   previewHref?: string;
+  webhooks?: Array<{ token: string; name: string; isActive: boolean }>;
   initial?: {
     id: string;
     slug: string;
@@ -43,6 +69,7 @@ export type CustomPageEditorFormProps = {
 export function CustomPageEditorForm({
   mode,
   previewHref,
+  webhooks = [],
   initial,
 }: CustomPageEditorFormProps) {
   const router = useRouter();
@@ -53,6 +80,9 @@ export function CustomPageEditorForm({
       ? "html"
       : "builder",
   );
+  const [htmlChrome, setHtmlChrome] = useState<PageChromeOptions>(() =>
+    initialChromeOptions(initial?.htmlContent),
+  );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -60,9 +90,16 @@ export function CustomPageEditorForm({
     setState(initialState);
 
     try {
+      const formData = new FormData(event.currentTarget);
+      if (editorMode === "html") {
+        const htmlContent = formData.get("htmlContent");
+        if (typeof htmlContent === "string") {
+          formData.set("htmlContent", wrapHtmlPage(htmlContent, htmlChrome));
+        }
+      }
       const response = await fetch("/api/admin/custom-pages", {
         method: mode === "create" ? "POST" : "PUT",
-        body: new FormData(event.currentTarget),
+        body: formData,
       });
       const data = (await response.json()) as CustomPageActionState;
       setState(data);
@@ -229,17 +266,48 @@ export function CustomPageEditorForm({
           <CustomPageBuilder
             name="htmlContent"
             defaultValue={initial?.htmlContent ?? ""}
+            webhooks={webhooks}
           />
         ) : (
-          <textarea
-            name="htmlContent"
-            required
-            rows={22}
-            dir="ltr"
-            defaultValue={initial?.htmlContent ?? ""}
-            className="admin-input font-mono text-xs leading-relaxed"
-            placeholder="<section>...</section>"
-          />
+          <div className="grid gap-3">
+            <div className="pagecraft-options">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={htmlChrome.showHeader}
+                  onChange={(event) =>
+                    setHtmlChrome((current) => ({
+                      ...current,
+                      showHeader: event.target.checked,
+                    }))
+                  }
+                />
+                <span>Show site header</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={htmlChrome.showFooter}
+                  onChange={(event) =>
+                    setHtmlChrome((current) => ({
+                      ...current,
+                      showFooter: event.target.checked,
+                    }))
+                  }
+                />
+                <span>Show site footer</span>
+              </label>
+            </div>
+            <textarea
+              name="htmlContent"
+              required
+              rows={22}
+              dir="ltr"
+              defaultValue={stripUploadedWrapper(initial?.htmlContent ?? "")}
+              className="admin-input font-mono text-xs leading-relaxed"
+              placeholder="<section>...</section>"
+            />
+          </div>
         )}
         <span className="text-muted-foreground text-[11px]">
           {editorMode === "builder"

@@ -160,7 +160,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    const hasAppointment =
+      Boolean(parsed.data.preferredDate) || Boolean(parsed.data.preferredTime);
     if (
+      hasAppointment &&
       !isValidAppointmentSlot(
         parsed.data.preferredDate,
         parsed.data.preferredTime,
@@ -174,10 +177,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const preferredAppointmentAt = parsePreferredAppointment(
-      parsed.data.preferredDate,
-      parsed.data.preferredTime,
-    );
+    const preferredAppointmentAt = hasAppointment
+      ? parsePreferredAppointment(
+          parsed.data.preferredDate,
+          parsed.data.preferredTime,
+        )
+      : undefined;
 
     const result = await createContactLead({
       fullName: parsed.data.fullName,

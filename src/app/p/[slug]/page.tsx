@@ -9,6 +9,12 @@ import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export const dynamic = "force-dynamic";
 
+function readBuilderBoolean(html: string, attr: "header" | "footer") {
+  const match = html.match(new RegExp(`data-${attr}="(true|false)"`));
+  if (!match) return true;
+  return match[1] !== "false";
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -43,11 +49,13 @@ export default async function CustomPage({
   }
 
   const isUploadedHtml = page.htmlContent.includes("data-uploaded-html");
+  const showHeader = readBuilderBoolean(page.htmlContent, "header");
+  const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const safeHtml = sanitizeHtml(page.htmlContent);
 
   return (
     <>
-      <SiteHeader />
+      {showHeader ? <SiteHeader /> : null}
       <main
         className={`rv-custom-page ${
           isUploadedHtml ? "rv-custom-page--uploaded" : ""
@@ -74,7 +82,7 @@ export default async function CustomPage({
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
       </main>
-      <SiteFooter />
+      {showFooter ? <SiteFooter /> : null}
     </>
   );
 }

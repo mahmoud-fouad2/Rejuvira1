@@ -3,8 +3,10 @@ import type { Route } from "next";
 
 import { CustomPageEditorForm } from "@/components/forms/CustomPageEditorForm";
 import { HtmlLandingPageUploadForm } from "@/components/forms/HtmlLandingPageUploadForm";
+import { getWebhooks } from "@/lib/content-repository";
 
-export default function NewCustomPagePage() {
+export default async function NewCustomPagePage() {
+  const webhooks = await getWebhooks();
   return (
     <>
       <div className="admin-page-header admin-page-header--hero">
@@ -24,7 +26,14 @@ export default function NewCustomPagePage() {
       </div>
 
       <HtmlLandingPageUploadForm />
-      <CustomPageEditorForm mode="create" />
+      <CustomPageEditorForm
+        mode="create"
+        webhooks={webhooks.map((webhook) => ({
+          token: webhook.token,
+          name: webhook.name,
+          isActive: webhook.isActive,
+        }))}
+      />
     </>
   );
 }

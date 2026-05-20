@@ -34,8 +34,21 @@ function titleFromFile(fileName: string) {
   );
 }
 
-function wrapUploadedHtml(content: string) {
-  return `<div class="rv-uploaded-html-page" data-uploaded-html="true">\n${content.trim()}\n</div>`;
+function stripUploadedWrapper(content: string) {
+  const trimmed = content.trim();
+  const match = trimmed.match(
+    /^<div\b[^>]*data-uploaded-html="true"[^>]*>\s*([\s\S]*?)\s*<\/div>\s*$/i,
+  );
+  return match?.[1]?.trim() ?? trimmed;
+}
+
+function wrapUploadedHtml(
+  content: string,
+  options: { showHeader?: boolean; showFooter?: boolean } = {},
+) {
+  const showHeader = options.showHeader ?? true;
+  const showFooter = options.showFooter ?? true;
+  return `<div class="rv-uploaded-html-page" data-uploaded-html="true" data-header="${showHeader ? "true" : "false"}" data-footer="${showFooter ? "true" : "false"}">\n${stripUploadedWrapper(content)}\n</div>`;
 }
 
 function extractLandingHtml(source: string) {
@@ -67,6 +80,8 @@ export function HtmlLandingPageUploadForm() {
   const [slug, setSlug] = useState("");
   const [html, setHtml] = useState("");
   const [fileName, setFileName] = useState("");
+  const [showHeader, setShowHeader] = useState(true);
+  const [showFooter, setShowFooter] = useState(true);
   const [pending, setPending] = useState(false);
   const [state, setState] = useState<UploadState>(initialState);
 
@@ -117,7 +132,10 @@ export function HtmlLandingPageUploadForm() {
     formData.set("titleEn", title || cleanSlug);
     formData.set("seoTitle", title || cleanSlug);
     formData.set("seoDescription", `Landing page: ${title || cleanSlug}`);
-    formData.set("htmlContent", html);
+    formData.set(
+      "htmlContent",
+      wrapUploadedHtml(html, { showHeader, showFooter }),
+    );
     formData.set("status", "PUBLISHED");
     formData.set("noindex", "false");
 
@@ -204,6 +222,25 @@ export function HtmlLandingPageUploadForm() {
             dir="ltr"
             placeholder="ramadan-campaign"
           />
+        </label>
+      </div>
+
+      <div className="pagecraft-options">
+        <label>
+          <input
+            type="checkbox"
+            checked={showHeader}
+            onChange={(event) => setShowHeader(event.target.checked)}
+          />
+          <span>Show site header</span>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={showFooter}
+            onChange={(event) => setShowFooter(event.target.checked)}
+          />
+          <span>Show site footer</span>
         </label>
       </div>
 
