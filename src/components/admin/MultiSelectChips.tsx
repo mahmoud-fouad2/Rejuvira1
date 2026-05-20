@@ -53,10 +53,13 @@ export function MultiSelectChips({
   }, [options, query]);
 
   function toggle(value: string) {
-    setSelected((prev) => {
-      if (prev.includes(value)) return prev.filter((entry) => entry !== value);
-      return [...prev, value];
-    });
+    const exists = selected.includes(value);
+    setSelected((prev) =>
+      exists ? prev.filter((entry) => entry !== value) : [...prev, value],
+    );
+    if (!exists) {
+      setQuery("");
+    }
   }
 
   function remove(value: string) {
@@ -116,12 +119,17 @@ export function MultiSelectChips({
           visibleOptions.map((option) => {
             const checked = selected.includes(option.value);
             return (
-              <label key={option.value} className="rv-multiselect__option">
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  onChange={() => toggle(option.value)}
-                />
+              <button
+                key={option.value}
+                type="button"
+                className="rv-multiselect__option"
+                data-selected={checked ? "true" : "false"}
+                aria-pressed={checked}
+                onClick={() => toggle(option.value)}
+              >
+                <span className="rv-multiselect__check" aria-hidden>
+                  {checked ? "✓" : "+"}
+                </span>
                 <span className="flex-1">
                   <span className="block text-sm font-medium">
                     {option.label}
@@ -132,8 +140,7 @@ export function MultiSelectChips({
                     </span>
                   ) : null}
                 </span>
-                {checked ? <span aria-hidden>✓</span> : null}
-              </label>
+              </button>
             );
           })
         )}

@@ -15306,20 +15306,41 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
 .rv-multiselect__option {
   display: flex;
   align-items: center;
+  width: 100%;
   gap: 0.55rem;
   padding: 0.4rem 0.55rem;
   border-radius: 0.45rem;
   cursor: pointer;
   background: transparent;
   border: 1px solid transparent;
+  color: var(--admin-text, inherit);
   font-size: 0.85rem;
+  text-align: start;
 }
 .rv-multiselect__option:hover {
   background: var(--admin-row-hover, rgba(31, 16, 64, 0.045));
   border-color: var(--admin-border, rgba(31, 16, 64, 0.08));
 }
-.rv-multiselect__option input[type="checkbox"] {
-  accent-color: var(--admin-accent, #8a4ec1);
+.rv-multiselect__option[data-selected="true"] {
+  background: color-mix(in oklch, var(--admin-accent, #8a4ec1) 10%, transparent);
+  border-color: color-mix(in oklch, var(--admin-accent, #8a4ec1) 32%, transparent);
+}
+.rv-multiselect__check {
+  display: inline-grid;
+  place-items: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--admin-border, rgba(31, 16, 64, 0.12));
+  border-radius: 999px;
+  color: var(--admin-accent, #8a4ec1);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.rv-multiselect__option[data-selected="true"] .rv-multiselect__check {
+  background: var(--admin-accent, #8a4ec1);
+  border-color: var(--admin-accent, #8a4ec1);
+  color: #fff;
 }
 
 /* ═══════════════════════════════════════════════════════════
