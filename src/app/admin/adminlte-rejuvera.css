@@ -551,7 +551,10 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 
 .admin-page-header {
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   gap: 0.72rem;
   padding: 0.7rem 0.82rem;
   border: 1px solid var(--admin-border);
@@ -618,7 +621,12 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 
 .admin-card__header {
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   min-height: 3rem;
+  gap: 0.72rem;
   padding: 0.62rem 0.82rem;
   background: linear-gradient(
     180deg,
@@ -896,10 +904,12 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-resource-grid,
+.admin-cards-grid,
 .admin-service-group__rows {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   gap: 0.68rem;
+  align-items: start;
 }
 
 .admin-resource-card {
@@ -957,6 +967,7 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   position: relative;
   width: 3.5rem;
   height: 3.5rem;
+  flex: 0 0 auto;
   overflow: hidden;
   border: 1px solid rgba(31, 16, 64, 0.08);
   border-radius: 0.65rem;
@@ -971,6 +982,26 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   display: grid;
   min-width: 0;
   gap: 0.24rem;
+}
+
+.admin-resource-card__summary::after {
+  font-size: 0.86rem;
+  font-weight: 900;
+  content: "+" !important;
+  transform: none;
+}
+
+.admin-resource-card[open] .admin-resource-card__summary::after {
+  content: "-" !important;
+  transform: none;
+}
+
+.admin-resource-card__media img,
+.admin-doctor-card__photo img,
+.admin-editor-card__media img,
+.custom-page-list-card__preview img {
+  object-fit: cover;
+  object-position: center;
 }
 
 .admin-resource-card__chips {
