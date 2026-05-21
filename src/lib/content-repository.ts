@@ -1941,7 +1941,7 @@ const seedSettings: SettingsGroup[] = [
       { key: "googleTagEnabled", label: "تفعيل Google Tag", value: "false" },
       {
         key: "googleTagUrl",
-        label: "رابط Google Tag / gtag.js",
+        label: "Google Tag / GTM",
         value: "",
       },
       { key: "customHeadCode", label: "كود مخصص داخل head", value: "" },

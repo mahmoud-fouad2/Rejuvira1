@@ -11,6 +11,7 @@ import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
 import { LanguageProvider } from "@/components/providers/LanguageProvider";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
+import { normalizeGoogleTagConfig } from "@/lib/google-tag";
 import { buildLocalBusinessJsonLd, getSiteUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
@@ -31,37 +32,6 @@ function detectInitialLang(url: string | null, cookieLang: string | undefined) {
   }
   if (cookieLang === "en" || cookieLang === "ar") return cookieLang;
   return "ar";
-}
-
-function normalizeGoogleTagUrl(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  if (/^G-[A-Z0-9]+$/i.test(trimmed)) {
-    return `https://www.googletagmanager.com/gtag/js?id=${trimmed.toUpperCase()}`;
-  }
-  try {
-    const url = new URL(trimmed);
-    if (
-      url.protocol !== "https:" ||
-      url.hostname !== "www.googletagmanager.com" ||
-      url.pathname !== "/gtag/js"
-    ) {
-      return null;
-    }
-    const id = url.searchParams.get("id");
-    return id && /^G-[A-Z0-9]+$/i.test(id) ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
-function googleTagIdFromUrl(value: string) {
-  try {
-    const id = new URL(value).searchParams.get("id");
-    return id && /^G-[A-Z0-9]+$/i.test(id) ? id.toUpperCase() : null;
-  } catch {
-    return null;
-  }
 }
 
 /* ── Local IBM Plex Sans Arabic (body) ──────────────────── */
@@ -203,11 +173,10 @@ export default async function RootLayout({
     pathname.startsWith("/api");
   const showMaintenance =
     Boolean(runtimeSettings.ops.maintenanceMode) && !isAdminOrAuth;
-  const googleTagUrl =
+  const googleTagConfig =
     runtimeSettings.integrations.googleTagEnabled && !isAdminOrAuth
-      ? normalizeGoogleTagUrl(runtimeSettings.integrations.googleTagUrl)
+      ? normalizeGoogleTagConfig(runtimeSettings.integrations.googleTagUrl)
       : null;
-  const googleTagId = googleTagUrl ? googleTagIdFromUrl(googleTagUrl) : null;
   const localBusinessLd = buildLocalBusinessJsonLd({
     brand: runtimeSettings.brand,
     contact: runtimeSettings.contact,
@@ -240,8 +209,44 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
         />
+        {googleTagConfig?.kind === "gtag" ? (
+          <>
+            <Script
+              id="rejuvera-google-tag-src"
+              src={googleTagConfig.scriptUrl}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="rejuvera-google-tag-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(googleTagConfig.id)});`,
+              }}
+            />
+          </>
+        ) : null}
+        {googleTagConfig?.kind === "gtm" ? (
+          <Script
+            id="rejuvera-google-tag-manager"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);var dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+encodeURIComponent(i)+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(googleTagConfig.id)});`,
+            }}
+          />
+        ) : null}
       </head>
       <body className="page-enter flex min-h-full min-w-0 flex-col">
+        {googleTagConfig?.kind === "gtm" ? (
+          <noscript>
+            <iframe
+              src={googleTagConfig.noscriptUrl}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+              title="Google Tag Manager"
+            />
+          </noscript>
+        ) : null}
         <LanguageProvider>
           {showMaintenance ? (
             <MaintenanceOverlay
@@ -265,22 +270,6 @@ export default async function RootLayout({
                 __html: `(function(){try{var keys=["utm_source","utm_medium","utm_campaign","utm_content"];var params=new URLSearchParams(window.location.search);var stored={};try{stored=JSON.parse(localStorage.getItem("rejuvera_utm")||"{}")||{};}catch(e){stored={};}var changed=false;keys.forEach(function(k){var v=params.get(k);if(v){stored[k]=v;changed=true;}});if(changed)localStorage.setItem("rejuvera_utm",JSON.stringify(stored));var aliases={utm_source:"utmSource",utm_medium:"utmMedium",utm_campaign:"utmCampaign",utm_content:"utmContent"};function fill(){keys.forEach(function(k){var v=stored[k]||"";document.querySelectorAll('input[name="'+k+'"],input[name="'+aliases[k]+'"]').forEach(function(input){if(!input.value)input.value=v;});});}fill();new MutationObserver(fill).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}})();`,
               }}
             />
-          ) : null}
-          {googleTagUrl && googleTagId ? (
-            <>
-              <Script
-                id="rejuvera-google-tag-src"
-                src={googleTagUrl}
-                strategy="afterInteractive"
-              />
-              <Script
-                id="rejuvera-google-tag-init"
-                strategy="afterInteractive"
-                dangerouslySetInnerHTML={{
-                  __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(googleTagId)});`,
-                }}
-              />
-            </>
           ) : null}
           {children}
           {!isAdminOrAuth ? (

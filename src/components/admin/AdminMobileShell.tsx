@@ -46,7 +46,7 @@ export function AdminMobileShell({
 
   return (
     <div
-      className="admin-shell__layout"
+      className="admin-shell__layout layout-fixed sidebar-expand-lg"
       data-mobile-open={open ? "true" : "false"}
     >
       <button
@@ -56,12 +56,15 @@ export function AdminMobileShell({
         tabIndex={-1}
         onClick={() => setOpen(false)}
       />
-      <aside className="admin-shell__sidebar" aria-label="Admin sidebar">
+      <aside
+        className="admin-shell__sidebar main-sidebar sidebar-dark-primary elevation-4"
+        aria-label="Admin sidebar"
+      >
         {sidebar}
       </aside>
 
-      <div className="admin-shell__main">
-        <header className="admin-shell__topbar">
+      <div className="admin-shell__main app-wrapper">
+        <header className="admin-shell__topbar app-header navbar navbar-expand">
           <button
             type="button"
             className="admin-shell__hamburger"
@@ -101,7 +104,7 @@ export function AdminMobileShell({
           <div className="admin-shell__topbar-meta">{topbarMeta}</div>
         </header>
 
-        <main className="admin-shell__content">{children}</main>
+        <main className="admin-shell__content app-main">{children}</main>
       </div>
     </div>
   );

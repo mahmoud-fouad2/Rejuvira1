@@ -165,18 +165,18 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
         />
         <label className="grid gap-2">
           <span className="text-ink-strong text-xs font-semibold tracking-[0.18em] uppercase">
-            Google Tag URL أو Measurement ID
+            Google Tag / GTM
           </span>
           <input
             name="googleTagUrl"
             defaultValue={settings.integrations.googleTagUrl}
             dir="ltr"
             className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3"
-            placeholder="https://www.googletagmanager.com/gtag/js?id=G-HDR59J12M1"
+            placeholder="G-HDR59J12M1 أو GTM-XXXXXXX أو رابط googletagmanager.com"
           />
           <span className="text-ink-faint text-[11px] leading-6">
-            يمكنك وضع الرابط الكامل أو كتابة Measurement ID فقط مثل
-            G-HDR59J12M1.
+            يقبل Measurement ID مثل G-HDR59J12M1، أو Container ID مثل
+            GTM-XXXXXXX، أو روابط gtag.js / gtm.js الرسمية.
           </span>
         </label>
         <label className="grid gap-2">

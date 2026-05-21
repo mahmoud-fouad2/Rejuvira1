@@ -27,6 +27,8 @@ export default async function AdminCrmPage() {
     name: service.name,
   }));
   const staff = staffRaw.map((user) => ({ id: user.id, name: user.name }));
+  const today = new Date();
+  const initialNow = today.getTime();
 
   const newCount = submissions.filter((i) => i.status === "NEW").length;
   const contactedCount = submissions.filter(
@@ -38,7 +40,6 @@ export default async function AdminCrmPage() {
   const bookedCount = submissions.filter((i) => i.status === "BOOKED").length;
   const closedCount = submissions.filter((i) => i.status === "CLOSED").length;
   const assignedCount = submissions.filter((i) => i.assignedToId).length;
-  const today = new Date();
   const todayAppointmentCount = submissions.filter((item) => {
     if (!item.preferredAppointmentAt) return false;
     const date = new Date(item.preferredAppointmentAt);
@@ -177,6 +178,7 @@ export default async function AdminCrmPage() {
         staff={staff}
         canDelete={canManage}
         canDeleteComments={canManage}
+        initialNow={initialNow}
       />
     </>
   );

@@ -445,7 +445,7 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
       <Link
         key={item.href}
         href={item.href as Route}
-        className={`admin-snav__item admin-snav__item--${variant} ${active ? "is-active" : ""}`}
+        className={`admin-snav__item admin-snav__item--${variant} nav-link ${active ? "is-active active" : ""}`}
       >
         <span className="admin-snav__item-icon">{iconFor(item.href)}</span>
         <span className="admin-snav__item-label">
@@ -458,7 +458,10 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
   }
 
   return (
-    <nav className="admin-snav" aria-label="Admin navigation">
+    <nav
+      className="admin-snav nav nav-pills nav-sidebar flex-column nav-child-indent"
+      aria-label="Admin navigation"
+    >
       {groupOrder.map((groupKey) => {
         const groupItems = grouped.get(groupKey);
         if (!groupItems || groupItems.length === 0) return null;
@@ -470,7 +473,7 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
         /* Overview: render items directly without accordion */
         if (groupKey === "overview") {
           return (
-            <div key={groupKey} className="admin-snav__section">
+            <div key={groupKey} className="admin-snav__section nav-item">
               {groupItems.map((item) => renderItem(item, "primary"))}
             </div>
           );
@@ -480,11 +483,11 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
         return (
           <div
             key={groupKey}
-            className={`admin-snav__section admin-snav__section--accordion ${hasActive ? "has-active" : ""}`}
+            className={`admin-snav__section admin-snav__section--accordion nav-item ${isOpen ? "menu-open" : ""} ${hasActive ? "has-active" : ""}`}
           >
             <button
               type="button"
-              className={`admin-snav__group-btn ${isOpen ? "is-open" : ""} ${hasActive ? "has-active" : ""}`}
+              className={`admin-snav__group-btn nav-link ${isOpen ? "is-open" : ""} ${hasActive ? "has-active active" : ""}`}
               onClick={() => toggleGroup(groupKey)}
               aria-expanded={isOpen}
             >
@@ -509,7 +512,7 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
                 transition: "max-height 0.25s cubic-bezier(0.4,0,0.2,1)",
               }}
             >
-              <div className="admin-snav__items">
+              <div className="admin-snav__items nav nav-treeview">
                 {groupItems.map((item) => renderItem(item, "sub"))}
               </div>
             </div>

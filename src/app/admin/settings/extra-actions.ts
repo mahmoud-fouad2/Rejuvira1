@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { saveSettingsGroup } from "@/lib/content-repository";
+import {
+  normalizeGoogleTagConfig,
+  normalizeGoogleTagValue,
+} from "@/lib/google-tag";
 
 export type ExtraSettingsState = {
   status: "idle" | "success" | "error";
@@ -61,20 +65,7 @@ const integrationsSchema = z.object({
   chatbaseEnabled: z.string().optional(),
   chatbaseWidgetId: z.string().optional().or(z.literal("")),
   googleTagEnabled: z.string().optional(),
-  googleTagUrl: z
-    .string()
-    .trim()
-    .optional()
-    .or(z.literal(""))
-    .refine(
-      (value) =>
-        !value ||
-        /^G-[A-Z0-9]+$/i.test(value) ||
-        /^https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=G-[A-Z0-9]+(?:&.*)?$/i.test(
-          value,
-        ),
-      "اكتب Measurement ID مثل G-XXXX أو رابط gtag.js الكامل.",
-    ),
+  googleTagUrl: z.string().trim().optional().or(z.literal("")),
   customHeadCode: z.string().optional().or(z.literal("")),
   customBodyCode: z.string().optional().or(z.literal("")),
   formWebhookEnabled: z.string().optional(),
@@ -103,11 +94,21 @@ export async function saveIntegrationsAction(
       message: "تأكد من صحة رابط الويب هوك وبيانات التكامل.",
     };
   }
+  const googleTagRaw = parsed.data.googleTagUrl ?? "";
+  const googleTagEnabled = parsed.data.googleTagEnabled === "on";
+  const googleTagConfig = normalizeGoogleTagConfig(googleTagRaw);
+  if (googleTagRaw && !googleTagConfig) {
+    return {
+      status: "error",
+      message:
+        "Google Tag غير صحيح. استخدم G-XXXX أو GTM-XXXX أو رابط googletagmanager.com الصحيح.",
+    };
+  }
   await saveSettingsGroup("integrations", {
     chatbaseEnabled: parsed.data.chatbaseEnabled === "on" ? "true" : "false",
     chatbaseWidgetId: parsed.data.chatbaseWidgetId ?? "",
-    googleTagEnabled: parsed.data.googleTagEnabled === "on" ? "true" : "false",
-    googleTagUrl: parsed.data.googleTagUrl ?? "",
+    googleTagEnabled: googleTagEnabled ? "true" : "false",
+    googleTagUrl: normalizeGoogleTagValue(googleTagRaw),
     customHeadCode: parsed.data.customHeadCode ?? "",
     customBodyCode: parsed.data.customBodyCode ?? "",
     formWebhookEnabled:

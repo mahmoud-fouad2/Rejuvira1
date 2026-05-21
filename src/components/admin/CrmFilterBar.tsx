@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SubmissionStatus } from "@prisma/client";
 
 import {
@@ -121,12 +121,14 @@ export function CrmFilterBar({
   staff,
   canDelete = false,
   canDeleteComments = false,
+  initialNow,
 }: {
   submissions: ReadonlyArray<CrmRecord>;
   services: ReadonlyArray<{ slug: string; name: string }>;
   staff: ReadonlyArray<{ id: string; name: string }>;
   canDelete?: boolean;
   canDeleteComments?: boolean;
+  initialNow: number;
 }) {
   const [status, setStatus] = useState<FilterStatus>("ALL");
   const [search, setSearch] = useState("");
@@ -139,7 +141,7 @@ export function CrmFilterBar({
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [nowSnapshot] = useState(() => Date.now());
+  const [nowSnapshot] = useState(initialNow);
 
   const allSources = useMemo(() => {
     const set = new Set<string>();
@@ -266,8 +268,23 @@ export function CrmFilterBar({
   const bookedCount = filtered.filter(
     (item) => item.status === SubmissionStatus.BOOKED,
   ).length;
-  const selectedSubmission =
-    filtered.find((item) => item.id === selectedLeadId) ?? filtered[0] ?? null;
+  const selectedSubmission = selectedLeadId
+    ? (filtered.find((item) => item.id === selectedLeadId) ?? null)
+    : null;
+
+  useEffect(() => {
+    if (!selectedSubmission) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedLeadId(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [selectedSubmission]);
 
   const exportQuery = useMemo(() => {
     const params = new URLSearchParams();
@@ -559,7 +576,14 @@ export function CrmFilterBar({
                         key={submission.id}
                         id={`lead-${submission.id}`}
                         data-selected={isSelected ? "true" : "false"}
+                        tabIndex={0}
                         onClick={() => setSelectedLeadId(submission.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            setSelectedLeadId(submission.id);
+                          }
+                        }}
                       >
                         <td>{index + 1}</td>
                         <td>
@@ -617,13 +641,31 @@ export function CrmFilterBar({
             </div>
           </div>
         ) : null}
+      </section>
 
-        {selectedSubmission ? (
-          <section className="admin-crm-detail-panel">
-            <div className="admin-card admin-crm-lead-card !block">
-              <div className="admin-card__header admin-crm-lead-summary">
+      {selectedSubmission ? (
+        <div
+          className="admin-modal admin-crm-modal modal fade show"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`lead-modal-title-${selectedSubmission.id}`}
+        >
+          <button
+            type="button"
+            className="admin-modal__backdrop modal-backdrop fade show"
+            aria-label="إغلاق التفاصيل"
+            onClick={() => setSelectedLeadId(null)}
+          />
+          <div className="admin-modal__panel modal-dialog modal-xl modal-dialog-scrollable">
+            <div className="modal-content">
+              <header className="admin-modal__header modal-header">
                 <div className="admin-crm-lead-main">
-                  <strong>{selectedSubmission.fullName}</strong>
+                  <h2
+                    id={`lead-modal-title-${selectedSubmission.id}`}
+                    className="admin-modal__title modal-title"
+                  >
+                    {selectedSubmission.fullName}
+                  </h2>
                   <span>
                     {selectedSubmission.phone}
                     {selectedSubmission.serviceLabel
@@ -643,11 +685,19 @@ export function CrmFilterBar({
                   <span className="admin-chip is-accent">
                     {formatTimeAgo(selectedSubmission.createdAt, nowSnapshot)}
                   </span>
+                  <button
+                    type="button"
+                    className="admin-modal__close btn-close"
+                    aria-label="إغلاق"
+                    onClick={() => setSelectedLeadId(null)}
+                  >
+                    ×
+                  </button>
                 </div>
-              </div>
+              </header>
 
-              <div className="admin-card__body grid gap-4">
-                <div className="admin-crm-lead-intel">
+              <div className="admin-modal__body modal-body">
+                <div className="admin-crm-modal__summary">
                   <div>
                     <span className="admin-field-label">تاريخ الدخول</span>
                     <strong>
@@ -687,7 +737,7 @@ export function CrmFilterBar({
                   </div>
                 </div>
 
-                <div className="admin-crm-row-actions">
+                <div className="admin-crm-modal__actions">
                   <form action={setCrmStatusAction}>
                     <input
                       type="hidden"
@@ -696,7 +746,7 @@ export function CrmFilterBar({
                     />
                     <select
                       name="status"
-                      className="admin-input"
+                      className="admin-input form-select"
                       defaultValue={selectedSubmission.status}
                     >
                       {STATUS_ORDER.map((value) => (
@@ -707,7 +757,7 @@ export function CrmFilterBar({
                     </select>
                     <button
                       type="submit"
-                      className="admin-btn-secondary text-xs"
+                      className="admin-btn-secondary btn btn-outline-primary btn-sm"
                     >
                       تحديث الحالة
                     </button>
@@ -720,7 +770,7 @@ export function CrmFilterBar({
                         value={selectedSubmission.id}
                       />
                       <AdminConfirmSubmitButton
-                        className="admin-btn-danger text-xs"
+                        className="admin-btn-danger btn btn-outline-danger btn-sm"
                         titleArabic="حذف الطلب"
                         titleEnglish="Delete lead"
                         messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."
@@ -734,23 +784,25 @@ export function CrmFilterBar({
                   ) : null}
                 </div>
 
-                <CrmSubmissionEditor
-                  key={selectedSubmission.id}
-                  submission={selectedSubmission}
-                  services={services}
-                  staff={staff}
-                  canDeleteComments={canDeleteComments}
-                  {...(selectedSubmission.serviceId
-                    ? {
-                        currentServiceSlug: selectedSubmission.serviceSlug,
-                      }
-                    : {})}
-                />
+                <div className="admin-crm-modal__editor">
+                  <CrmSubmissionEditor
+                    key={selectedSubmission.id}
+                    submission={selectedSubmission}
+                    services={services}
+                    staff={staff}
+                    canDeleteComments={canDeleteComments}
+                    {...(selectedSubmission.serviceId
+                      ? {
+                          currentServiceSlug: selectedSubmission.serviceSlug,
+                        }
+                      : {})}
+                  />
+                </div>
               </div>
             </div>
-          </section>
-        ) : null}
-      </section>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
