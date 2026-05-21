@@ -76,6 +76,16 @@ function formatTimeAgo(iso: string, now: number) {
   return `منذ ${days} يوم`;
 }
 
+function whatsappHref(phone: string) {
+  const digits = phone.replace(/[^\d]/g, "");
+  const normalized = digits.startsWith("966")
+    ? digits
+    : digits.startsWith("0")
+      ? `966${digits.slice(1)}`
+      : digits;
+  return normalized ? `https://wa.me/${normalized}` : "#";
+}
+
 function todayInputValue() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Riyadh",
@@ -738,6 +748,22 @@ export function CrmFilterBar({
                 </div>
 
                 <div className="admin-crm-modal__actions">
+                  <div className="admin-crm-modal__quick-actions">
+                    <a
+                      href={`tel:${selectedSubmission.phone}`}
+                      className="admin-btn-secondary btn btn-outline-primary btn-sm"
+                    >
+                      اتصال
+                    </a>
+                    <a
+                      href={whatsappHref(selectedSubmission.phone)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="admin-btn-secondary btn btn-outline-success btn-sm"
+                    >
+                      واتساب
+                    </a>
+                  </div>
                   <form action={setCrmStatusAction}>
                     <input
                       type="hidden"
@@ -782,6 +808,51 @@ export function CrmFilterBar({
                       </AdminConfirmSubmitButton>
                     </form>
                   ) : null}
+                </div>
+
+                <div className="admin-crm-modal__pipeline">
+                  {STATUS_ORDER.map((value) => (
+                    <span
+                      key={value}
+                      className={
+                        STATUS_ORDER.indexOf(value) <=
+                        STATUS_ORDER.indexOf(selectedSubmission.status)
+                          ? "is-active"
+                          : ""
+                      }
+                    >
+                      {STATUS_AR[value]}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="admin-crm-modal__timeline">
+                  <div className="admin-card__subtitle">Timeline</div>
+                  <ol>
+                    <li>
+                      <strong>تم استقبال الليد</strong>
+                      <span>
+                        {formatArabicDateTime(selectedSubmission.createdAt)}
+                      </span>
+                    </li>
+                    {selectedSubmission.preferredAppointmentAt ? (
+                      <li>
+                        <strong>موعد مفضل</strong>
+                        <span>
+                          {formatArabicDateTime(
+                            selectedSubmission.preferredAppointmentAt,
+                          )}
+                        </span>
+                      </li>
+                    ) : null}
+                    {selectedSubmission.comments.slice(0, 4).map((comment) => (
+                      <li key={comment.id}>
+                        <strong>{comment.authorName ?? "ملاحظة داخلية"}</strong>
+                        <span>{formatArabicDateTime(comment.createdAt)}</span>
+                        <p>{comment.body}</p>
+                      </li>
+                    ))}
+                  </ol>
                 </div>
 
                 <div className="admin-crm-modal__editor">

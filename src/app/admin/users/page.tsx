@@ -1,8 +1,9 @@
-﻿import { UserRole } from "@prisma/client";
+import { UserRole } from "@prisma/client";
 
 import { deleteAdminUserAction } from "@/app/admin/users/actions";
 import { auth } from "@/auth";
 import { AdminAddModal } from "@/components/admin/AdminAddModal";
+import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import { AdminListControls } from "@/components/admin/AdminListControls";
 import { AdminUserCreateForm } from "@/components/forms/AdminUserCreateForm";
 import { AdminUserRoleForm } from "@/components/forms/AdminUserRoleForm";
@@ -20,6 +21,11 @@ const roleOrder: readonly UserRole[] = [
   UserRole.EDITOR,
   UserRole.VIEWER,
 ];
+
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return `${parts[0]?.[0] ?? "R"}${parts[1]?.[0] ?? ""}`;
+}
 
 export default async function AdminUsersPage() {
   const [session, users] = await Promise.all([auth(), getAdminUsers()]);
@@ -54,8 +60,8 @@ export default async function AdminUsersPage() {
             <span className="lang-en">Users & permissions</span>
           </h1>
           <p>
-            <span className="lang-ar">{users.length} حساب</span>
-            <span className="lang-en">{users.length} accounts</span>
+            <span className="lang-ar">{users.length} حساب إداري</span>
+            <span className="lang-en">{users.length} admin accounts</span>
           </p>
         </div>
         {canManage ? (
@@ -72,7 +78,7 @@ export default async function AdminUsersPage() {
         ) : null}
       </div>
 
-      <article className="admin-card">
+      <article className="admin-card admin-users-overview">
         <div className="admin-card__header">
           <div>
             <div className="admin-card__subtitle">By role</div>
@@ -82,30 +88,158 @@ export default async function AdminUsersPage() {
             </div>
           </div>
         </div>
-        <div className="admin-data-list">
+        <div className="admin-role-stats-grid">
           {groupedUsers.map((group) => (
-            <div key={group.role} className="admin-data-row">
+            <div key={group.role} className="admin-role-stat">
               <div>
-                <p className="admin-data-row__title">
-                  {roleLabels[group.role]}
-                </p>
-                <p className="admin-data-row__meta" dir="ltr">
-                  {group.role}
-                </p>
-                <p className="admin-data-row__meta mt-1">
-                  {roleDescriptions[group.role].summary}
-                </p>
+                <span className="admin-chip">{group.label}</span>
+                <p dir="ltr">{group.role}</p>
               </div>
-              <span className="admin-data-row__value">
-                {group.users.length}
-              </span>
+              <strong>{group.users.length}</strong>
+              <small>{roleDescriptions[group.role].summary}</small>
             </div>
           ))}
         </div>
       </article>
 
-      <article className="admin-card">
+      <article className="admin-card admin-users-card">
         <div className="admin-card__header">
+          <div>
+            <div className="admin-card__subtitle">DataTable</div>
+            <div className="admin-card__title">
+              <span className="lang-ar">قاعدة المستخدمين</span>
+              <span className="lang-en">User directory</span>
+            </div>
+          </div>
+        </div>
+        <AdminListControls
+          targetId="admin-users-list"
+          tabs={tabs}
+          pageSize={10}
+        />
+        <div className="admin-table-wrap" data-admin-list="admin-users-list">
+          <table className="table-hover admin-users-table table align-middle">
+            <thead>
+              <tr>
+                <th>المستخدم</th>
+                <th>الدور</th>
+                <th>القسم</th>
+                <th>الحالة</th>
+                <th>الطلبات</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr
+                  key={user.id}
+                  data-admin-row
+                  data-admin-status={
+                    user.isActive === false ? "inactive" : user.role
+                  }
+                  data-admin-search={[
+                    user.name,
+                    user.email,
+                    user.role,
+                    user.positionTitle,
+                    user.department,
+                    getRoleLabel(user.role),
+                  ].join(" ")}
+                >
+                  <td>
+                    <div className="admin-user-cell">
+                      <span className="admin-user-avatar">
+                        {initials(user.name)}
+                      </span>
+                      <span>
+                        <strong>{user.name}</strong>
+                        <small dir="ltr">{user.email}</small>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className="admin-status-badge is-review">
+                      {getRoleLabel(user.role)}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="admin-users-table__muted">
+                      {user.positionTitle || user.department
+                        ? [user.positionTitle, user.department]
+                            .filter(Boolean)
+                            .join(" · ")
+                        : "غير محدد"}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      className={`admin-status-badge ${
+                        user.isActive === false ? "is-archived" : "is-published"
+                      }`}
+                    >
+                      {user.isActive === false ? "غير نشط" : "نشط"}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="admin-users-table__count">
+                      {user.leadCount}
+                    </span>
+                  </td>
+                  <td>
+                    <details className="admin-row-menu">
+                      <summary>إجراءات</summary>
+                      <div className="admin-row-menu__panel">
+                        {canManage ? (
+                          <AdminAddModal
+                            triggerArabic="تعديل"
+                            triggerEnglish="Edit"
+                            titleArabic={`تعديل ${user.name}`}
+                            titleEnglish={`Edit ${user.name}`}
+                            triggerClassName="admin-row-menu__item"
+                          >
+                            <AdminUserRoleForm
+                              userId={user.id}
+                              currentRole={user.role}
+                              positionTitle={user.positionTitle}
+                              department={user.department}
+                              isActive={user.isActive !== false}
+                              canDeactivate={session?.user?.id !== user.id}
+                            />
+                          </AdminAddModal>
+                        ) : null}
+                        {canManage && session?.user?.id !== user.id ? (
+                          <form action={deleteAdminUserAction}>
+                            <input type="hidden" name="id" value={user.id} />
+                            <AdminConfirmSubmitButton
+                              className="admin-row-menu__item is-danger"
+                              titleArabic="تعطيل الحساب"
+                              titleEnglish="Disable account"
+                              messageArabic="سيتم تعطيل الحساب ومنعه من دخول لوحة الإدارة."
+                              messageEnglish="This account will be disabled and blocked from the admin panel."
+                              confirmArabic="تعطيل"
+                              confirmEnglish="Disable"
+                            >
+                              تعطيل الحساب
+                            </AdminConfirmSubmitButton>
+                          </form>
+                        ) : null}
+                      </div>
+                    </details>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {users.length === 0 ? (
+            <div className="admin-empty-state">
+              لا توجد حسابات إدارية مسجلة.
+            </div>
+          ) : null}
+        </div>
+      </article>
+
+      <details className="admin-card admin-collapsible-card">
+        <summary className="admin-card__header">
           <div>
             <div className="admin-card__subtitle">Access profiles</div>
             <div className="admin-card__title">
@@ -113,7 +247,8 @@ export default async function AdminUsersPage() {
               <span className="lang-en">Role access summary</span>
             </div>
           </div>
-        </div>
+          <span className="admin-btn-ghost">عرض / إخفاء</span>
+        </summary>
         <div className="admin-role-profile-grid">
           {roleOrder.map((role) => {
             const description = roleDescriptions[role];
@@ -146,94 +281,10 @@ export default async function AdminUsersPage() {
             );
           })}
         </div>
-      </article>
+      </details>
 
-      <article className="admin-card">
-        <div className="admin-card__header">
-          <div>
-            <div className="admin-card__subtitle">Accounts</div>
-            <div className="admin-card__title">
-              <span className="lang-ar">الحسابات</span>
-              <span className="lang-en">Accounts</span>
-            </div>
-          </div>
-        </div>
-        <AdminListControls targetId="admin-users-list" tabs={tabs} />
-        <div className="admin-data-list" data-admin-list="admin-users-list">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="admin-data-row grid-cols-[1fr_auto] !items-start"
-              data-admin-row
-              data-admin-status={
-                user.isActive === false ? "inactive" : user.role
-              }
-              data-admin-search={[
-                user.name,
-                user.email,
-                user.role,
-                user.positionTitle,
-                user.department,
-                getRoleLabel(user.role),
-              ].join(" ")}
-            >
-              <div className="min-w-0">
-                <p className="admin-data-row__title truncate">{user.name}</p>
-                <p className="admin-data-row__meta truncate" dir="ltr">
-                  {user.email}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  <span className="admin-chip">{getRoleLabel(user.role)}</span>
-                  {user.positionTitle ? (
-                    <span className="admin-chip">{user.positionTitle}</span>
-                  ) : null}
-                  {user.department ? (
-                    <span className="admin-chip">{user.department}</span>
-                  ) : null}
-                  <span
-                    className={`admin-chip ${user.isActive === false ? "!border-burgundy/30 !text-burgundy" : ""}`}
-                  >
-                    <span className="lang-ar">
-                      {user.isActive === false ? "غير نشط" : "نشط"}
-                    </span>
-                    <span className="lang-en">
-                      {user.isActive === false ? "Inactive" : "Active"}
-                    </span>
-                  </span>
-                  <span className="admin-chip">
-                    <span className="lang-ar">طلبات: {user.leadCount}</span>
-                    <span className="lang-en">Leads: {user.leadCount}</span>
-                  </span>
-                </div>
-              </div>
-              <div className="grid justify-items-end gap-2">
-                {canManage ? (
-                  <AdminUserRoleForm
-                    userId={user.id}
-                    currentRole={user.role}
-                    positionTitle={user.positionTitle}
-                    department={user.department}
-                    isActive={user.isActive !== false}
-                    canDeactivate={session?.user?.id !== user.id}
-                  />
-                ) : null}
-                {canManage && session?.user?.id !== user.id ? (
-                  <form action={deleteAdminUserAction}>
-                    <input type="hidden" name="id" value={user.id} />
-                    <button type="submit" className="admin-btn-danger">
-                      <span className="lang-ar">تعطيل الحساب</span>
-                      <span className="lang-en">Disable</span>
-                    </button>
-                  </form>
-                ) : null}
-              </div>
-            </div>
-          ))}
-        </div>
-      </article>
-
-      <article className="admin-card">
-        <div className="admin-card__header">
+      <details className="admin-card admin-collapsible-card">
+        <summary className="admin-card__header">
           <div>
             <div className="admin-card__subtitle">Matrix</div>
             <div className="admin-card__title">
@@ -241,7 +292,8 @@ export default async function AdminUsersPage() {
               <span className="lang-en">Permission matrix</span>
             </div>
           </div>
-        </div>
+          <span className="admin-btn-ghost">عرض / إخفاء</span>
+        </summary>
         <div className="admin-data-list">
           {permissionMatrix.map((rule) => (
             <div key={rule.prefix} className="admin-data-row">
@@ -261,7 +313,7 @@ export default async function AdminUsersPage() {
             </div>
           ))}
         </div>
-      </article>
+      </details>
     </>
   );
 }

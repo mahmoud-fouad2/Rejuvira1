@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 type AdminConfirmSubmitButtonProps = {
   children: React.ReactNode;
@@ -29,21 +30,27 @@ export function AdminConfirmSubmitButton({
   className = "admin-btn-danger",
   disabled,
 }: AdminConfirmSubmitButtonProps) {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const submitterRef = useRef<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  function submitClosestForm() {
-    const form = buttonRef.current?.closest("form");
+  useEffect(() => setMounted(true), []);
+
+  function submitConfirmedForm() {
     setOpen(false);
-    if (form) {
-      form.requestSubmit();
-    }
+    submitterRef.current?.click();
   }
 
   return (
     <>
       <button
-        ref={buttonRef}
+        ref={submitterRef}
+        type="submit"
+        tabIndex={-1}
+        aria-hidden="true"
+        className="sr-only"
+      />
+      <button
         type="button"
         disabled={disabled}
         className={className}
@@ -52,44 +59,47 @@ export function AdminConfirmSubmitButton({
         {children}
       </button>
 
-      {open ? (
-        <div className="admin-confirm" role="dialog" aria-modal="true">
-          <button
-            type="button"
-            className="admin-confirm__backdrop"
-            aria-label="Close"
-            onClick={() => setOpen(false)}
-          />
-          <div className="admin-confirm__panel">
-            <h2>
-              <span className="lang-ar">{titleArabic}</span>
-              <span className="lang-en">{titleEnglish}</span>
-            </h2>
-            <p>
-              <span className="lang-ar">{messageArabic}</span>
-              <span className="lang-en">{messageEnglish}</span>
-            </p>
-            <div className="admin-confirm__actions">
+      {mounted && open
+        ? createPortal(
+            <div className="admin-confirm" role="dialog" aria-modal="true">
               <button
                 type="button"
-                className="admin-btn-secondary"
+                className="admin-confirm__backdrop"
+                aria-label="Close"
                 onClick={() => setOpen(false)}
-              >
-                <span className="lang-ar">{cancelArabic}</span>
-                <span className="lang-en">{cancelEnglish}</span>
-              </button>
-              <button
-                type="button"
-                className="admin-btn-danger"
-                onClick={submitClosestForm}
-              >
-                <span className="lang-ar">{confirmArabic}</span>
-                <span className="lang-en">{confirmEnglish}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+              />
+              <div className="admin-confirm__panel">
+                <h2>
+                  <span className="lang-ar">{titleArabic}</span>
+                  <span className="lang-en">{titleEnglish}</span>
+                </h2>
+                <p>
+                  <span className="lang-ar">{messageArabic}</span>
+                  <span className="lang-en">{messageEnglish}</span>
+                </p>
+                <div className="admin-confirm__actions">
+                  <button
+                    type="button"
+                    className="admin-btn-secondary"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="lang-ar">{cancelArabic}</span>
+                    <span className="lang-en">{cancelEnglish}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn-danger"
+                    onClick={submitConfirmedForm}
+                  >
+                    <span className="lang-ar">{confirmArabic}</span>
+                    <span className="lang-en">{confirmEnglish}</span>
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
