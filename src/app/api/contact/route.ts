@@ -12,6 +12,7 @@ import {
   getRuntimeSettings,
   getServiceByReference,
 } from "@/lib/content-repository";
+import { dispatchFormWebhook } from "@/lib/form-webhook";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
 
@@ -64,50 +65,6 @@ function response(
   const url = new URL(referer, request.url);
   url.searchParams.set("lead", status);
   return NextResponse.redirect(url, { status: 303 });
-}
-
-async function dispatchFormWebhook({
-  settings,
-  payload,
-}: {
-  settings: Awaited<ReturnType<typeof getRuntimeSettings>>;
-  payload: Record<string, unknown>;
-}) {
-  if (!settings.integrations.formWebhookEnabled) return;
-  if (!settings.integrations.formWebhookUrl.trim()) return;
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3500);
-  try {
-    await fetch(settings.integrations.formWebhookUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...(settings.integrations.formWebhookSecret
-          ? {
-              "x-rejuvera-webhook-secret":
-                settings.integrations.formWebhookSecret,
-              "x-rejuvira-webhook-secret":
-                settings.integrations.formWebhookSecret,
-            }
-          : {}),
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    await recordAppLog({
-      level: "warn",
-      kind: "webhook",
-      message: "Form webhook delivery failed",
-      meta: {
-        error: error instanceof Error ? error.message : "unknown",
-        source: payload.source,
-      },
-    });
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 export async function POST(request: Request) {
@@ -260,6 +217,7 @@ export async function POST(request: Request) {
 
     await dispatchFormWebhook({
       settings,
+      failureMessage: "Form webhook delivery failed",
       payload: {
         event: "contact_submission.created",
         source: parsed.data.source || "Website contact form",

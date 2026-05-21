@@ -12,6 +12,7 @@ import {
   getRuntimeSettings,
   getServiceByReference,
 } from "@/lib/content-repository";
+import { dispatchFormWebhook } from "@/lib/form-webhook";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -157,50 +158,6 @@ function response(
   return NextResponse.redirect(url, { status: 303 });
 }
 
-async function dispatchFormWebhook({
-  settings,
-  payload,
-}: {
-  settings: Awaited<ReturnType<typeof getRuntimeSettings>>;
-  payload: Record<string, unknown>;
-}) {
-  if (!settings.integrations.formWebhookEnabled) return;
-  if (!settings.integrations.formWebhookUrl.trim()) return;
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 3500);
-  try {
-    await fetch(settings.integrations.formWebhookUrl, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...(settings.integrations.formWebhookSecret
-          ? {
-              "x-rejuvera-webhook-secret":
-                settings.integrations.formWebhookSecret,
-              "x-rejuvira-webhook-secret":
-                settings.integrations.formWebhookSecret,
-            }
-          : {}),
-      },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-  } catch (error) {
-    await recordAppLog({
-      level: "warn",
-      kind: "webhook",
-      message: "Landing page webhook delivery failed",
-      meta: {
-        error: error instanceof Error ? error.message : "unknown",
-        source: payload.source,
-      },
-    });
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 export async function POST(request: Request) {
   const jsonResponse = wantsJson(request);
   let payload: Awaited<ReturnType<typeof readLeadPayload>>;
@@ -325,6 +282,7 @@ export async function POST(request: Request) {
     const settings = await getRuntimeSettings();
     await dispatchFormWebhook({
       settings,
+      failureMessage: "Landing page webhook delivery failed",
       payload: {
         event: "landing_lead.created",
         source: parsed.data.source || "Landing page form",
