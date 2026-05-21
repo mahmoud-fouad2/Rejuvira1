@@ -343,15 +343,12 @@ export default async function AdminStatsPage() {
   const topDevices = tally("device");
   const topBrowsers = tally("browser").slice(0, 6);
   const topOS = tally("os").slice(0, 5);
-  const topLanguages = tally("language").slice(0, 5);
 
   const topPageFirst = topPages[0];
   const topSourceFirst = topSources[0];
   const topCountryFirst = topCountries[0];
   const mobileVisits = topDevices.find((d) => d[0] === "mobile")?.[1] ?? 0;
   const desktopVisits = topDevices.find((d) => d[0] === "desktop")?.[1] ?? 0;
-  /* unused but kept for future expansion */
-  void topLanguages;
 
   /* Daily 14-day visit chart */
   const visits14d = Array.from({ length: 14 }, (_, i) => {
