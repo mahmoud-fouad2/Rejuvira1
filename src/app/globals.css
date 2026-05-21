@@ -15316,3 +15316,211 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   font-size: 0.68rem;
   font-weight: 700;
 }
+
+/* ── Public header rescue: stable nav columns and sane logo sizing ── */
+.rv-v0-nav-shell {
+  position: relative;
+  z-index: 70;
+}
+
+.rv-v0-nav {
+  display: grid !important;
+  grid-template-columns: minmax(10rem, auto) minmax(0, 1fr) minmax(9rem, auto) !important;
+  align-items: center !important;
+  gap: clamp(0.5rem, 1vw, 1rem) !important;
+  min-height: 4.75rem !important;
+  direction: ltr !important;
+}
+
+.rv-nav-actions {
+  grid-column: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-width: 0 !important;
+}
+
+.rv-nav-menu {
+  grid-column: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+}
+
+.rv-nav-brand-wrap {
+  grid-column: 3 !important;
+  display: flex !important;
+  min-width: 0 !important;
+  justify-content: flex-end !important;
+  justify-self: end !important;
+}
+
+.rv-mobile-details,
+.rv-mobile-inline-actions {
+  display: none !important;
+}
+
+header .rv-brand-logo,
+header .rv-brand-logo-header {
+  width: clamp(10.25rem, 12vw, 13.25rem) !important;
+  height: clamp(4.45rem, 5.8vw, 5.75rem) !important;
+}
+
+header .rv-brand-logo-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  transform: scale(1.82) !important;
+  transform-origin: center !important;
+}
+
+header .rv-v0-brand {
+  min-height: auto !important;
+}
+
+html[data-lang="en"] .rv-nav-actions {
+  grid-column: 3 !important;
+  justify-content: flex-end !important;
+}
+
+html[data-lang="en"] .rv-nav-brand-wrap {
+  grid-column: 1 !important;
+  justify-content: flex-start !important;
+  justify-self: start !important;
+}
+
+@media (max-width: 1180px) {
+  .rv-v0-nav {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    min-height: 4.35rem !important;
+    gap: 0.45rem !important;
+  }
+
+  .rv-nav-menu,
+  .rv-nav-actions {
+    display: none !important;
+  }
+
+  .rv-mobile-details {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: block !important;
+    justify-self: start !important;
+    direction: rtl !important;
+  }
+
+  .rv-mobile-inline-actions {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.32rem !important;
+    min-width: 0 !important;
+    direction: rtl !important;
+  }
+
+  .rv-nav-brand-wrap {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    justify-content: flex-end !important;
+    justify-self: end !important;
+  }
+
+  header .rv-brand-logo,
+  header .rv-brand-logo-header {
+    width: clamp(8rem, 21vw, 10.5rem) !important;
+    height: 4.5rem !important;
+  }
+
+  header .rv-brand-logo-img {
+    transform: scale(1.72) !important;
+  }
+
+  .rv-v0-mobile-menu {
+    top: calc(100% + 0.5rem) !important;
+    right: 0.75rem !important;
+    left: 0.75rem !important;
+  }
+
+  html[data-lang="en"] .rv-mobile-details {
+    grid-column: 3 !important;
+    justify-self: end !important;
+    direction: ltr !important;
+  }
+
+  html[data-lang="en"] .rv-mobile-inline-actions {
+    grid-column: 2 !important;
+    justify-content: flex-start !important;
+    direction: ltr !important;
+  }
+
+  html[data-lang="en"] .rv-nav-brand-wrap {
+    grid-column: 1 !important;
+    justify-content: flex-start !important;
+    justify-self: start !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .rv-v0-nav {
+    min-height: 4.05rem !important;
+    padding-inline: 0.75rem !important;
+    padding-block: 0.45rem !important;
+  }
+
+  header .rv-brand-logo,
+  header .rv-brand-logo-header {
+    width: clamp(7.2rem, 28vw, 8.8rem) !important;
+    height: 3.85rem !important;
+  }
+
+  header .rv-brand-logo-img {
+    transform: scale(1.62) !important;
+  }
+
+  .rv-mobile-details .rv-v0-menu-button {
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+  }
+
+  .rv-mobile-inline-actions {
+    gap: 0.22rem !important;
+  }
+
+  .rv-mobile-inline-actions .rv-v0-book {
+    min-height: 2.2rem !important;
+    padding-inline: 0.52rem !important;
+    font-size: 0.7rem !important;
+  }
+
+  .rv-mobile-inline-actions button,
+  .rv-mobile-inline-actions .relative.flex {
+    width: 2.2rem !important;
+    min-width: 2.2rem !important;
+    height: 2.2rem !important;
+    min-height: 2.2rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  header .rv-brand-logo,
+  header .rv-brand-logo-header {
+    width: clamp(6.8rem, 27vw, 7.6rem) !important;
+    height: 3.5rem !important;
+  }
+
+  header .rv-brand-logo-img {
+    transform: scale(1.54) !important;
+  }
+
+  .rv-mobile-inline-actions .rv-v0-book {
+    padding-inline: 0.44rem !important;
+  }
+}
