@@ -368,7 +368,7 @@ export default async function AdminStatsPage() {
   });
 
   return (
-    <>
+    <div className="admin-stats-page">
       <div className="admin-page-header">
         <div>
           <h1>
@@ -592,10 +592,7 @@ export default async function AdminStatsPage() {
       </article>
 
       {/* Visitor breakdown rows */}
-      <div
-        className="admin-stats-charts-2col"
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
-      >
+      <div className="admin-stats-charts-2col">
         {/* Top pages */}
         <article className="admin-card">
           <div className="admin-card__header">
@@ -1002,10 +999,7 @@ export default async function AdminStatsPage() {
       </article>
 
       {/* Charts row */}
-      <div
-        className="admin-stats-charts-2col"
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
-      >
+      <div className="admin-stats-charts-2col">
         {/* Last 7 days */}
         <article className="admin-card">
           <div className="admin-card__header">
@@ -1093,10 +1087,7 @@ export default async function AdminStatsPage() {
       </div>
 
       {/* Content + CRM in columns */}
-      <div
-        className="admin-stats-charts-2col"
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
-      >
+      <div className="admin-stats-charts-2col">
         {/* Lead Status */}
         <article className="admin-card">
           <div className="admin-card__header">
@@ -1331,6 +1322,6 @@ export default async function AdminStatsPage() {
           </div>
         )}
       </article>
-    </>
+    </div>
   );
 }
