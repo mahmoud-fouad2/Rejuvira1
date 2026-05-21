@@ -15317,7 +15317,7 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   font-weight: 700;
 }
 
-/* ── Public header rescue: stable nav columns and sane logo sizing ── */
+/* ── Public header: stable one-row layout and uncropped logo ── */
 .rv-v0-nav-shell {
   position: relative;
   z-index: 70;
@@ -15325,23 +15325,29 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
 
 .rv-v0-nav {
   display: grid !important;
-  grid-template-columns: minmax(10rem, auto) minmax(0, 1fr) minmax(9rem, auto) !important;
+  grid-template-areas: "actions menu brand" !important;
+  grid-template-columns: minmax(9rem, auto) minmax(0, 1fr) minmax(8rem, auto) !important;
+  grid-auto-rows: auto !important;
   align-items: center !important;
-  gap: clamp(0.5rem, 1vw, 1rem) !important;
-  min-height: 4.75rem !important;
+  gap: clamp(0.65rem, 1.1vw, 1.1rem) !important;
+  min-height: 5rem !important;
+  padding-block: 0.35rem !important;
   direction: ltr !important;
 }
 
 .rv-nav-actions {
-  grid-column: 1 !important;
+  grid-area: actions !important;
+  grid-row: 1 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-start !important;
   min-width: 0 !important;
+  align-self: center !important;
 }
 
 .rv-nav-menu {
-  grid-column: 2 !important;
+  grid-area: menu !important;
+  grid-row: 1 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -15349,14 +15355,17 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   max-width: 100% !important;
   overflow: visible !important;
   white-space: nowrap !important;
+  align-self: center !important;
 }
 
 .rv-nav-brand-wrap {
-  grid-column: 3 !important;
+  grid-area: brand !important;
+  grid-row: 1 !important;
   display: flex !important;
   min-width: 0 !important;
   justify-content: flex-end !important;
   justify-self: end !important;
+  align-self: center !important;
 }
 
 .rv-mobile-details,
@@ -15366,8 +15375,10 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
 
 header .rv-brand-logo,
 header .rv-brand-logo-header {
-  width: clamp(10.25rem, 12vw, 13.25rem) !important;
-  height: clamp(4.45rem, 5.8vw, 5.75rem) !important;
+  width: clamp(9.4rem, 10.5vw, 11.4rem) !important;
+  height: clamp(4.15rem, 4.8vw, 4.8rem) !important;
+  min-width: clamp(9.4rem, 10.5vw, 11.4rem) !important;
+  overflow: hidden !important;
 }
 
 header .rv-brand-logo-img {
@@ -15375,8 +15386,9 @@ header .rv-brand-logo-img {
   height: 100% !important;
   max-width: none !important;
   max-height: none !important;
-  object-fit: contain !important;
-  transform: scale(1.82) !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  transform: none !important;
   transform-origin: center !important;
 }
 
@@ -15385,20 +15397,26 @@ header .rv-v0-brand {
 }
 
 html[data-lang="en"] .rv-nav-actions {
-  grid-column: 3 !important;
+  grid-area: actions !important;
   justify-content: flex-end !important;
 }
 
 html[data-lang="en"] .rv-nav-brand-wrap {
-  grid-column: 1 !important;
+  grid-area: brand !important;
   justify-content: flex-start !important;
   justify-self: start !important;
 }
 
+html[data-lang="en"] .rv-v0-nav {
+  grid-template-areas: "brand menu actions" !important;
+}
+
 @media (max-width: 1180px) {
   .rv-v0-nav {
+    grid-template-areas: "menu actions brand" !important;
     grid-template-columns: auto minmax(0, 1fr) auto !important;
-    min-height: 4.35rem !important;
+    min-height: 4.4rem !important;
+    padding-block: 0.35rem !important;
     gap: 0.45rem !important;
   }
 
@@ -15408,39 +15426,44 @@ html[data-lang="en"] .rv-nav-brand-wrap {
   }
 
   .rv-mobile-details {
-    grid-column: 1 !important;
+    grid-area: menu !important;
     grid-row: 1 !important;
     display: block !important;
     justify-self: start !important;
+    align-self: center !important;
     direction: rtl !important;
   }
 
   .rv-mobile-inline-actions {
-    grid-column: 2 !important;
+    grid-area: actions !important;
     grid-row: 1 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-end !important;
     gap: 0.32rem !important;
     min-width: 0 !important;
+    align-self: center !important;
     direction: rtl !important;
   }
 
   .rv-nav-brand-wrap {
-    grid-column: 3 !important;
+    grid-area: brand !important;
     grid-row: 1 !important;
     justify-content: flex-end !important;
     justify-self: end !important;
+    align-self: center !important;
   }
 
   header .rv-brand-logo,
   header .rv-brand-logo-header {
-    width: clamp(8rem, 21vw, 10.5rem) !important;
-    height: 4.5rem !important;
+    width: clamp(8rem, 18vw, 9.6rem) !important;
+    height: 4.1rem !important;
+    min-width: clamp(8rem, 18vw, 9.6rem) !important;
   }
 
   header .rv-brand-logo-img {
-    transform: scale(1.72) !important;
+    object-fit: cover !important;
+    transform: none !important;
   }
 
   .rv-v0-mobile-menu {
@@ -15450,39 +15473,90 @@ html[data-lang="en"] .rv-nav-brand-wrap {
   }
 
   html[data-lang="en"] .rv-mobile-details {
-    grid-column: 3 !important;
+    grid-area: menu !important;
     justify-self: end !important;
     direction: ltr !important;
   }
 
   html[data-lang="en"] .rv-mobile-inline-actions {
-    grid-column: 2 !important;
+    grid-area: actions !important;
     justify-content: flex-start !important;
     direction: ltr !important;
   }
 
   html[data-lang="en"] .rv-nav-brand-wrap {
-    grid-column: 1 !important;
+    grid-area: brand !important;
     justify-content: flex-start !important;
     justify-self: start !important;
+  }
+
+  html[data-lang="en"] .rv-v0-nav {
+    grid-template-areas: "brand actions menu" !important;
   }
 }
 
 @media (max-width: 640px) {
   .rv-v0-nav {
-    min-height: 4.05rem !important;
+    grid-template-areas:
+      "brand brand"
+      "menu actions" !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    min-height: auto !important;
+    row-gap: 0.18rem !important;
     padding-inline: 0.75rem !important;
-    padding-block: 0.45rem !important;
+    padding-block: 0.42rem !important;
+    overflow: visible !important;
+  }
+
+  .rv-mobile-details {
+    grid-area: menu !important;
+    justify-self: start !important;
+  }
+
+  .rv-nav-brand-wrap {
+    grid-area: brand !important;
+    justify-self: center !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+
+  .rv-mobile-inline-actions {
+    grid-area: actions !important;
+    justify-content: flex-start !important;
+    justify-self: start !important;
+    max-width: 100% !important;
+    overflow: visible !important;
   }
 
   header .rv-brand-logo,
   header .rv-brand-logo-header {
-    width: clamp(7.2rem, 28vw, 8.8rem) !important;
-    height: 3.85rem !important;
+    width: clamp(8.8rem, 48vw, 10.6rem) !important;
+    height: 4rem !important;
+    min-width: 0 !important;
   }
 
   header .rv-brand-logo-img {
-    transform: scale(1.62) !important;
+    object-fit: cover !important;
+    transform: none !important;
+  }
+
+  html[data-lang="en"] .rv-v0-nav {
+    grid-template-areas:
+      "brand brand"
+      "actions menu" !important;
+  }
+
+  html[data-lang="en"] .rv-mobile-details {
+    justify-self: end !important;
+  }
+
+  html[data-lang="en"] .rv-nav-brand-wrap {
+    justify-self: center !important;
+  }
+
+  html[data-lang="en"] .rv-mobile-inline-actions {
+    justify-content: flex-end !important;
+    justify-self: end !important;
   }
 
   .rv-mobile-details .rv-v0-menu-button {
@@ -15507,17 +15581,31 @@ html[data-lang="en"] .rv-nav-brand-wrap {
     height: 2.2rem !important;
     min-height: 2.2rem !important;
   }
+
+  .rv-v0-home .rv-v0-hero-copy h1 {
+    max-width: min(100%, 10.5ch) !important;
+    font-size: clamp(2.05rem, 9.5vw, 3rem) !important;
+    line-height: 1.14 !important;
+    overflow-wrap: normal !important;
+  }
+
+  .rv-v0-home .rv-v0-hero-copy p {
+    max-width: min(100%, 22rem) !important;
+    padding-inline: 0.35rem !important;
+  }
 }
 
 @media (max-width: 380px) {
   header .rv-brand-logo,
   header .rv-brand-logo-header {
-    width: clamp(6.8rem, 27vw, 7.6rem) !important;
-    height: 3.5rem !important;
+    width: clamp(8.1rem, 50vw, 9.3rem) !important;
+    height: 3.75rem !important;
+    min-width: 0 !important;
   }
 
   header .rv-brand-logo-img {
-    transform: scale(1.54) !important;
+    object-fit: cover !important;
+    transform: none !important;
   }
 
   .rv-mobile-inline-actions .rv-v0-book {
