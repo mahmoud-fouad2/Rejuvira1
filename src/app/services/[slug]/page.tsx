@@ -64,11 +64,13 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
+  const doctorSlugSet = new Set(service.doctorSlugs);
+  const deviceSlugSet = new Set(service.deviceSlugs);
   const relatedDoctors = doctors.filter((doctor) =>
-    service.doctorSlugs.includes(doctor.slug),
+    doctorSlugSet.has(doctor.slug),
   );
   const relatedDevices = devices.filter((device) =>
-    service.deviceSlugs.includes(device.slug),
+    deviceSlugSet.has(device.slug),
   );
 
   return (

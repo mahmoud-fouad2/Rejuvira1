@@ -115,8 +115,9 @@ export default async function DoctorDetailPage({
     notFound();
   }
 
+  const doctorServiceSlugSet = new Set(doctor.serviceSlugs);
   const relatedServices = services.filter((service) =>
-    doctor.serviceSlugs.includes(service.slug),
+    doctorServiceSlugSet.has(service.slug),
   );
   const relatedDeviceSlugs = new Set(
     relatedServices.flatMap((service) => service.deviceSlugs),

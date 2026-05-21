@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import {
-  getDoctorBySlug,
+  getDoctors,
   getJournalPostBySlug,
   getServices,
 } from "@/lib/content-repository";
@@ -57,17 +57,16 @@ export default async function JournalDetailPage({
     notFound();
   }
 
-  const [services, doctors] = await Promise.all([
-    getServices(),
-    Promise.all(
-      post.relatedDoctorSlugs.map((doctorSlug) => getDoctorBySlug(doctorSlug)),
-    ),
-  ]);
+  const [services, doctors] = await Promise.all([getServices(), getDoctors()]);
 
+  const relatedServiceSlugSet = new Set(post.relatedServiceSlugs);
+  const doctorsBySlug = new Map(doctors.map((doctor) => [doctor.slug, doctor]));
   const relatedServices = services.filter((service) =>
-    post.relatedServiceSlugs.includes(service.slug),
+    relatedServiceSlugSet.has(service.slug),
   );
-  const relatedDoctors = doctors.filter((doctor) => doctor !== null);
+  const relatedDoctors = post.relatedDoctorSlugs
+    .map((doctorSlug) => doctorsBySlug.get(doctorSlug))
+    .filter((doctor) => doctor !== undefined);
 
   return (
     <div className="relative min-h-screen overflow-x-clip">

@@ -2631,10 +2631,10 @@ export const getDoctors = cache(async () => {
   }
 });
 
-export async function getDoctorBySlug(slug: string) {
+export const getDoctorBySlug = cache(async (slug: string) => {
   const doctors = await getDoctors();
   return doctors.find((doctor) => doctor.slug === slug) ?? null;
-}
+});
 
 function seedServiceCategories(): ServiceCategoryRecord[] {
   const names = Array.from(
@@ -2742,23 +2742,25 @@ export const getServices = cache(async () => {
   }
 });
 
-export async function getServiceBySlug(slug: string) {
+export const getServiceBySlug = cache(async (slug: string) => {
   const services = await getServices();
   return services.find((service) => service.slug === slug) ?? null;
-}
+});
 
-export async function getServiceByReference(reference?: string | null) {
-  const value = reference?.trim();
-  if (!value) return null;
-  const normalized = value.toLowerCase();
-  const services = await getServices();
-  return (
-    services.find((service) => service.slug.toLowerCase() === normalized) ??
-    services.find((service) => service.name.trim() === value) ??
-    services.find((service) => service.nameEn?.trim() === value) ??
-    null
-  );
-}
+export const getServiceByReference = cache(
+  async (reference?: string | null) => {
+    const value = reference?.trim();
+    if (!value) return null;
+    const normalized = value.toLowerCase();
+    const services = await getServices();
+    return (
+      services.find((service) => service.slug.toLowerCase() === normalized) ??
+      services.find((service) => service.name.trim() === value) ??
+      services.find((service) => service.nameEn?.trim() === value) ??
+      null
+    );
+  },
+);
 
 export const getDevices = cache(async () => {
   if (!canUseDatabase()) {
@@ -2891,10 +2893,10 @@ export const getJournalPosts = cache(async () => {
   }
 });
 
-export async function getJournalPostBySlug(slug: string) {
+export const getJournalPostBySlug = cache(async (slug: string) => {
   const posts = await getJournalPosts();
   return posts.find((post) => post.slug === slug) ?? null;
-}
+});
 
 export async function getCrmSubmissions(): Promise<CrmRecord[]> {
   if (!canUseDatabase()) {

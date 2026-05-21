@@ -8,9 +8,10 @@ import {
   useRef,
   useState,
 } from "react";
-import type { Lang } from "@/lib/translations";
 
 /* ── Context ────────────────────────────────────────────── */
+type Lang = "ar" | "en";
+
 type LanguageCtx = {
   lang: Lang;
   switchLanguage: () => void;
