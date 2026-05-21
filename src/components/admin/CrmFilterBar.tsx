@@ -544,7 +544,7 @@ export function CrmFilterBar({
               <span>اضغط على أي صف لعرض التفاصيل الكاملة وتعديلها.</span>
             </div>
             <div className="admin-crm-sheet__scroll">
-              <table>
+              <table className="table-hover table align-middle">
                 <thead>
                   <tr>
                     <th>#</th>
@@ -656,7 +656,7 @@ export function CrmFilterBar({
             aria-label="إغلاق التفاصيل"
             onClick={() => setSelectedLeadId(null)}
           />
-          <div className="admin-modal__panel modal-dialog modal-xl modal-dialog-scrollable">
+          <div className="admin-modal__panel modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div className="modal-content">
               <header className="admin-modal__header modal-header">
                 <div className="admin-crm-lead-main">
