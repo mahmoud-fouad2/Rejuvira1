@@ -199,10 +199,10 @@ export function DoctorCreateForm({
           </span>
         </label>
         <select name="status" defaultValue="DRAFT" className="admin-input">
-          <option value="DRAFT">DRAFT</option>
-          <option value="REVIEW">REVIEW</option>
-          <option value="PUBLISHED">PUBLISHED</option>
-          <option value="ARCHIVED">ARCHIVED</option>
+          <option value="DRAFT">مسودة / Draft</option>
+          <option value="REVIEW">مراجعة / Review</option>
+          <option value="PUBLISHED">منشور / Published</option>
+          <option value="ARCHIVED">مؤرشف / Archived</option>
         </select>
       </div>
       {state.message ? (

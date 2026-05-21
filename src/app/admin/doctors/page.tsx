@@ -139,7 +139,7 @@ export default async function AdminDoctorsPage() {
           </div>
           <AdminListControls targetId="admin-doctors-list" tabs={tabs} />
           <div
-            className="admin-resource-grid"
+            className="admin-resource-grid admin-doctors-grid"
             data-admin-list="admin-doctors-list"
           >
             {doctors.map((doctor) => {
@@ -148,52 +148,110 @@ export default async function AdminDoctorsPage() {
                 const service = serviceBySlug.get(slug);
                 return service ? [service] : [];
               });
+              const servicePreview = linkedServices.slice(0, 3);
+              const remainingServices =
+                linkedServices.length - servicePreview.length;
+              const languagePreview = doctor.languages.slice(0, 3);
+              const linkedCategories = Array.from(
+                new Set(
+                  linkedServices
+                    .map((service) => service.category)
+                    .filter(Boolean),
+                ),
+              );
               return (
                 <details
                   key={doctor.id}
-                  className="admin-resource-card"
+                  className="admin-resource-card admin-doctor-card"
                   data-admin-row
                   data-admin-status={doctor.status}
                   data-admin-search={[
                     doctor.name,
                     doctor.slug,
+                    doctor.title,
                     doctor.specialty,
+                    doctor.languages.join(" "),
                     doctor.serviceSlugs.join(" "),
+                    linkedServices
+                      .map((service) => `${service.name} ${service.category}`)
+                      .join(" "),
                   ]
                     .filter(Boolean)
                     .join(" ")}
                 >
-                  <summary className="admin-resource-card__summary">
-                    <div className="admin-resource-card__media is-avatar">
+                  <summary className="admin-resource-card__summary admin-doctor-card__summary">
+                    <div className="admin-doctor-card__photo">
                       <Image
                         src={doctor.photoUrl}
                         alt={doctor.name}
                         fill
                         className="object-cover"
-                        sizes="48px"
+                        sizes="(max-width: 720px) 100vw, 360px"
                       />
+                      <span className={`admin-status-badge ${meta.className}`}>
+                        <span className="lang-ar">{meta.labelAr}</span>
+                        <span className="lang-en">{meta.labelEn}</span>
+                      </span>
                     </div>
-                    <div className="admin-resource-card__body">
-                      <p className="admin-data-row__title truncate">
-                        {doctor.name}
+                    <div className="admin-doctor-card__content">
+                      <div className="admin-doctor-card__identity">
+                        <span>{doctor.specialty}</span>
+                        <h2>{doctor.name}</h2>
+                        <p>{doctor.title}</p>
+                      </div>
+
+                      <p className="admin-doctor-card__summary-text">
+                        {doctor.summary}
                       </p>
-                      <p className="admin-data-row__meta truncate">
-                        {doctor.specialty}
-                      </p>
-                      <div className="admin-resource-card__chips">
-                        <span>{doctor.yearsExperience} سنوات خبرة</span>
-                        <span>{doctor.serviceSlugs.length} خدمات</span>
+
+                      <div className="admin-doctor-card__metrics">
+                        <span>
+                          <strong>{doctor.yearsExperience}</strong>
+                          <span>سنوات خبرة</span>
+                        </span>
+                        <span>
+                          <strong>{linkedServices.length}</strong>
+                          <span>خدمات</span>
+                        </span>
+                        <span>
+                          <strong>{linkedCategories.length}</strong>
+                          <span>أقسام</span>
+                        </span>
+                      </div>
+
+                      <div className="admin-doctor-card__chips">
+                        {languagePreview.map((language) => (
+                          <span key={language}>{language}</span>
+                        ))}
+                        {doctor.languages.length > languagePreview.length ? (
+                          <span>
+                            +{doctor.languages.length - languagePreview.length}
+                          </span>
+                        ) : null}
                         {doctor.featured ? <span>مميز</span> : null}
                       </div>
+
+                      <div className="admin-doctor-card__services">
+                        {servicePreview.length ? (
+                          servicePreview.map((service) => (
+                            <span key={service.slug}>{service.name}</span>
+                          ))
+                        ) : (
+                          <span className="is-muted">غير مرتبط بخدمات</span>
+                        )}
+                        {remainingServices > 0 ? (
+                          <span>+{remainingServices}</span>
+                        ) : null}
+                      </div>
                     </div>
-                    <span className={`admin-status-badge ${meta.className}`}>
-                      <span className="lang-ar">{meta.labelAr}</span>
-                      <span className="lang-en">{meta.labelEn}</span>
+                    <span className="admin-doctor-card__expand">
+                      <span className="lang-ar">إدارة</span>
+                      <span className="lang-en">Manage</span>
                     </span>
                   </summary>
 
                   <div
-                    className="mt-4 grid gap-4 border-t pt-4"
+                    className="admin-doctor-card__drawer grid gap-4 border-t pt-4"
                     style={{ borderColor: "var(--admin-border)" }}
                   >
                     <DoctorEditorForm
@@ -224,21 +282,12 @@ export default async function AdminDoctorsPage() {
                     </div>
                     {linkedServices.length ? (
                       <div className="admin-edit-context">
-                        <span>أقسام نشطة: {linkedServices.length}</span>
-                        <span>
-                          {Array.from(
-                            new Set(
-                              linkedServices.map((service) => service.category),
-                            ),
-                          )
-                            .filter(Boolean)
-                            .slice(0, 3)
-                            .join(" · ")}
-                        </span>
+                        <span>خدمات مرتبطة: {linkedServices.length}</span>
+                        <span>{linkedCategories.slice(0, 3).join(" · ")}</span>
                       </div>
                     ) : null}
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="admin-doctor-card__status-actions">
                       {[
                         ContentStatus.DRAFT,
                         ContentStatus.REVIEW,
