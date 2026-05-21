@@ -2,6 +2,16 @@ import type { ReactNode } from "react";
 
 type DailyPoint = { day: string; count: number };
 
+function chartId(input: string) {
+  return (
+    input
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 48) || "chart"
+  );
+}
+
 function bucketByDay(
   isoDates: ReadonlyArray<string>,
   windowDays = 14,
@@ -49,6 +59,7 @@ export function LineChart({
     })
     .join(" ");
   const area = `${path} L${(points.length - 1) * stepX},${height} L0,${height} Z`;
+  const gradientId = `rv-line-grad-${chartId(ariaLabel)}-${windowDays}-${height}`;
 
   return (
     <svg
@@ -59,12 +70,12 @@ export function LineChart({
       preserveAspectRatio="none"
     >
       <defs>
-        <linearGradient id="rv-line-grad" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="rgba(201,168,124,0.45)" />
           <stop offset="100%" stopColor="rgba(201,168,124,0)" />
         </linearGradient>
       </defs>
-      <path d={area} fill="url(#rv-line-grad)" stroke="none" />
+      <path d={area} fill={`url(#${gradientId})`} stroke="none" />
       <path
         d={path}
         fill="none"

@@ -550,13 +550,32 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-page-header {
+  position: relative;
   align-items: center;
   gap: 0.72rem;
   padding: 0.7rem 0.82rem;
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-density-radius);
-  background: var(--admin-panel);
-  box-shadow: var(--admin-shadow-soft);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--admin-accent) 7%, transparent),
+      transparent 36%
+    ),
+    var(--admin-panel);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    var(--admin-shadow-soft);
+  overflow: hidden;
+}
+
+.admin-page-header::before {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 0.22rem;
+  content: "";
+  background: linear-gradient(180deg, var(--admin-accent), var(--admin-gold));
 }
 
 .admin-page-header h1 {
@@ -571,12 +590,34 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-card {
+  position: relative;
   border: 1px solid var(--admin-border) !important;
-  box-shadow: var(--admin-shadow-soft) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), transparent 8rem),
+    var(--admin-panel);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.72) inset,
+    var(--admin-shadow-soft) !important;
   overflow: hidden;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-card:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 18%,
+    var(--admin-border)
+  ) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.78) inset,
+    0 16px 38px rgba(31, 16, 64, 0.08) !important;
 }
 
 .admin-card__header {
+  position: relative;
   min-height: 3rem;
   padding: 0.62rem 0.82rem;
   background: linear-gradient(
@@ -584,6 +625,17 @@ html[dir="rtl"] .admin-shell .main-sidebar {
     var(--admin-panel-soft),
     var(--admin-panel)
   );
+}
+
+.admin-card__header::after {
+  position: absolute;
+  inset-block-end: -1px;
+  inset-inline-start: 0.82rem;
+  width: 2rem;
+  height: 0.16rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-accent) 38%, transparent);
+  content: "";
 }
 
 .admin-card__body {
@@ -603,10 +655,34 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-data-row {
+  position: relative;
   gap: 0.6rem;
   padding: 0.68rem 0.82rem;
   border-top: 0;
   border-bottom: 1px solid var(--admin-border);
+  background: transparent;
+  transition:
+    background 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.admin-data-row::before {
+  position: absolute;
+  inset-block: 0.52rem;
+  inset-inline-start: 0;
+  width: 0.16rem;
+  border-radius: 999px;
+  content: "";
+  background: transparent;
+}
+
+.admin-data-row:hover {
+  background: color-mix(in srgb, var(--admin-accent) 6%, var(--admin-panel));
+}
+
+.admin-data-row:hover::before {
+  background: color-mix(in srgb, var(--admin-accent) 58%, transparent);
 }
 
 .admin-data-row:last-child {
@@ -622,20 +698,34 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   margin: 0;
   min-width: 58rem;
   border-color: var(--admin-border);
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .admin-table-wrap th {
   padding: 0.58rem 0.65rem;
-  background: var(--admin-panel-soft);
+  background: color-mix(in srgb, var(--admin-panel-soft) 88%, #fff);
   color: var(--admin-text-soft);
   font-size: 0.7rem;
   font-weight: 900;
   white-space: nowrap;
+  text-transform: none;
 }
 
 .admin-table-wrap td {
   padding: 0.58rem 0.65rem;
   vertical-align: middle;
+}
+
+.admin-table-wrap tbody tr {
+  transition:
+    background 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.admin-table-wrap tbody tr:hover {
+  background: color-mix(in srgb, var(--admin-accent) 5%, var(--admin-panel));
+  box-shadow: inset 0.18rem 0 0 var(--admin-accent);
 }
 
 .admin-empty-state {
@@ -1175,20 +1265,43 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   position: relative;
   overflow: hidden;
   border: 1px solid var(--admin-border);
-  box-shadow: var(--admin-shadow-soft);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--admin-accent) 6%, transparent),
+      transparent 55%
+    ),
+    var(--admin-panel);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.78) inset,
+    var(--admin-shadow-soft);
+  isolation: isolate;
 }
 
 .admin-kpi::after {
   position: absolute;
   inset-block: 0;
   inset-inline-end: 0;
-  width: 0.22rem;
+  width: 0.18rem;
   content: "";
   background: linear-gradient(180deg, var(--admin-accent), var(--admin-gold));
-  opacity: 0.9;
+  opacity: 0.78;
+}
+
+.admin-kpi:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 24%,
+    var(--admin-border)
+  );
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.84) inset,
+    0 14px 32px rgba(31, 16, 64, 0.09);
 }
 
 .admin-kpi__value {
+  display: block;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1214,9 +1327,65 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-kpi__icon {
+  display: grid;
   width: 2.18rem;
   height: 2.18rem;
+  place-items: center;
   border-radius: 0.54rem;
+  color: var(--admin-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.admin-kpi__icon.is-gold {
+  color: var(--admin-gold);
+}
+
+.admin-kpi__icon.is-success {
+  color: var(--admin-success);
+}
+
+.admin-kpi__icon.is-danger {
+  color: var(--admin-danger);
+}
+
+.admin-pipeline-stat {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.54rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.68), transparent 72%),
+    var(--admin-panel-soft);
+  padding: 0.62rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+.admin-pipeline-stat::after {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: 0.18rem;
+  content: "";
+  background: var(--admin-accent);
+  opacity: 0.54;
+}
+
+.admin-pipeline-stat[data-status="follow_up"]::after,
+.admin-pipeline-stat[data-status="contacted"]::after {
+  background: var(--admin-gold);
+}
+
+.admin-pipeline-stat[data-status="booked"]::after {
+  background: var(--admin-success);
+}
+
+.admin-pipeline-stat[data-status="closed"]::after {
+  background: var(--admin-danger);
+}
+
+.admin-mini-chart {
+  overflow: visible;
+  filter: drop-shadow(0 8px 14px rgba(31, 16, 64, 0.08));
 }
 
 .admin-list-controls {
@@ -1290,7 +1459,23 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-crm-filter-panel {
-  box-shadow: var(--admin-shadow-soft);
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 14%,
+    var(--admin-border)
+  );
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--admin-accent) 5%, transparent),
+      transparent 46%
+    ),
+    var(--admin-panel);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.76) inset,
+    var(--admin-shadow-soft);
 }
 
 .admin-crm-filter-panel__head {
@@ -1307,14 +1492,60 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 
 .admin-crm-quickbar {
   border-top: 1px solid var(--admin-border);
-  padding-top: 0.8rem;
+  padding-top: 0.62rem;
+}
+
+.admin-crm-quickbar button {
+  min-height: 1.95rem;
+  padding: 0.34rem 0.62rem;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    transform 140ms ease;
+}
+
+.admin-crm-quickbar button:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 26%,
+    var(--admin-border)
+  );
 }
 
 .admin-crm-database-stats article {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), transparent),
+    var(--admin-panel-soft);
   box-shadow: var(--admin-shadow-soft);
 }
 
+.admin-crm-ops-strip {
+  margin-block: 0.72rem;
+}
+
+.admin-crm-ops-strip > div,
+.admin-crm-lead-intel > div {
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 12%,
+    var(--admin-border)
+  );
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.58),
+      color-mix(in srgb, var(--admin-panel-soft) 88%, transparent)
+    ),
+    var(--admin-panel-soft);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
 .admin-crm-pipeline__column {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), transparent 7rem),
+    var(--admin-panel);
   box-shadow: var(--admin-shadow-soft);
 }
 
@@ -1330,11 +1561,12 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   top: 0;
   z-index: 2;
   text-transform: none;
-  background: var(--admin-panel-soft);
+  background: color-mix(in srgb, var(--admin-panel-soft) 92%, #fff);
   color: var(--admin-text-soft);
   font-size: 0.68rem;
   font-weight: 850;
   white-space: nowrap;
+  box-shadow: 0 1px 0 var(--admin-border);
 }
 
 .admin-crm-sheet td {
@@ -1345,6 +1577,9 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 .admin-crm-sheet tbody tr {
   outline: 0;
   cursor: pointer;
+  transition:
+    background 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .admin-crm-sheet tbody tr:focus-visible {
@@ -1353,6 +1588,9 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 
 .admin-crm-sheet__scroll {
   max-height: min(64dvh, 48rem);
+  scrollbar-color: color-mix(in srgb, var(--admin-accent) 28%, transparent)
+    transparent;
+  scrollbar-width: thin;
 }
 
 .admin-crm-sheet__lead-button {
@@ -1725,9 +1963,31 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-command-center {
+  position: relative;
   gap: 0.72rem;
   padding: 0.78rem;
   border-radius: 0.58rem;
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 22%,
+    var(--admin-border)
+  );
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--admin-accent) 12%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--admin-gold) 8%, transparent),
+      transparent 70%
+    ),
+    var(--admin-panel);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.78) inset,
+    0 18px 42px rgba(31, 16, 64, 0.08);
+  overflow: hidden;
 }
 
 .admin-command-center h2 {
@@ -1740,9 +2000,24 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-command-action {
+  position: relative;
   gap: 0.52rem;
   padding: 0.62rem;
   border-radius: 0.52rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.62), transparent),
+    color-mix(in srgb, var(--admin-panel) 88%, var(--admin-accent) 4%);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+}
+
+.admin-command-action::after {
+  position: absolute;
+  inset-block: 0.5rem;
+  inset-inline-end: 0;
+  width: 0.14rem;
+  border-radius: 999px;
+  content: "";
+  background: color-mix(in srgb, var(--admin-accent) 38%, transparent);
 }
 
 .admin-command-action strong {
@@ -1750,6 +2025,7 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   height: 2.18rem;
   border-radius: 0.46rem;
   font-size: 0.82rem;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 16%, transparent);
 }
 
 .admin-command-action span {

@@ -354,11 +354,8 @@ export default async function AdminPage() {
               {pipelineCounts.map(({ status, count }) => (
                 <div
                   key={status}
-                  className="rounded-xl border p-3"
-                  style={{
-                    borderColor: "var(--admin-border)",
-                    background: "var(--admin-panel-soft)",
-                  }}
+                  className="admin-pipeline-stat"
+                  data-status={status.toLowerCase()}
                 >
                   <p className="text-[10px] font-semibold tracking-[0.16em] text-[color:var(--admin-text-faint)] uppercase">
                     {status}
