@@ -336,8 +336,10 @@ export async function POST(request: Request) {
         phone: parsed.data.phone,
         email: parsed.data.email || undefined,
         message: parsed.data.message || undefined,
-        serviceSlug:
+        serviceSlug: serviceArabicName,
+        serviceSlugRaw:
           selectedService?.slug || parsed.data.serviceSlug || undefined,
+        serviceReference: serviceReference || undefined,
         service: serviceArabicName,
         serviceName: serviceArabicName,
         serviceLabel: serviceArabicName,
