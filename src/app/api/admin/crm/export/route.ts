@@ -85,8 +85,6 @@ function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
     utmMedium: submission.utmMedium ?? "",
     utmCampaign: submission.utmCampaign ?? "",
     utmContent: submission.utmContent ?? "",
-    preferredAppointment: submission.preferredAppointmentAt ?? "",
-    appointmentNotes: submission.appointmentNotes ?? "",
     message: submission.message ?? "",
     notes: submission.notes ?? "",
     tags: submission.tags.join("، "),
@@ -166,17 +164,6 @@ async function createPdfBuffer(
     );
     cursorY -= 14;
     page.drawText(
-      `الموعد: ${submission.preferredAppointmentAt ?? "غير محدد"}`,
-      {
-        x: 40,
-        y: cursorY,
-        size: 10,
-        font: customFont,
-        color: rgb(0.35, 0.33, 0.31),
-      },
-    );
-    cursorY -= 14;
-    page.drawText(
       `الخدمة: ${submission.serviceLabel ?? "غير محددة"} | المصدر: ${submission.source}`,
       {
         x: 40,
@@ -229,8 +216,6 @@ export async function GET(request: NextRequest) {
       { key: "utmMedium", label: "utm_medium" },
       { key: "utmCampaign", label: "utm_campaign" },
       { key: "utmContent", label: "utm_content" },
-      { key: "preferredAppointment", label: "الموعد المفضل" },
-      { key: "appointmentNotes", label: "ملاحظات الموعد" },
       { key: "message", label: "رسالة العميل" },
       { key: "notes", label: "ملاحظات داخلية" },
       { key: "tags", label: "الوسوم" },

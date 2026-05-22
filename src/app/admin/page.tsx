@@ -124,9 +124,9 @@ export default async function AdminPage() {
   const recentLeads = submissions.slice(0, 6);
 
   const healthPills = [
-    { key: "Database", state: checks.database.ok },
-    { key: "Storage (R2)", state: checks.r2.ok },
-    { key: "reCAPTCHA", state: checks.recaptcha.ok },
+    { key: "النظام", state: checks.database.ok },
+    { key: "الملفات", state: checks.r2.ok },
+    { key: "الحماية", state: checks.recaptcha.ok },
   ];
   const contentIssues = [
     {
@@ -302,7 +302,7 @@ export default async function AdminPage() {
             href={"/admin/media" as Route}
             className="admin-command-action is-soft"
           >
-            <strong>ICO</strong>
+            <strong>شعار</strong>
             <span>
               <span className="lang-ar">الفافيكون موحد</span>
               <span className="lang-en">Unified favicon</span>
@@ -338,7 +338,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">CRM</div>
+              <div className="admin-card__subtitle">الطلبات</div>
               <div className="admin-card__title">
                 <span className="lang-ar">مسار الطلبات</span>
                 <span className="lang-en">Lead pipeline</span>
@@ -358,7 +358,7 @@ export default async function AdminPage() {
                   data-status={status.toLowerCase()}
                 >
                   <p className="text-[10px] font-semibold tracking-[0.16em] text-[color:var(--admin-text-faint)] uppercase">
-                    {status}
+                    المرحلة
                   </p>
                   <p className="mt-1 text-[0.8rem] font-semibold text-[color:var(--admin-text-soft)]">
                     <span className="lang-ar">{pipelineLabelsAr[status]}</span>
@@ -388,7 +388,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Leads</div>
+              <div className="admin-card__subtitle">المتابعة</div>
               <div className="admin-card__title">
                 <span className="lang-ar">آخر الطلبات</span>
                 <span className="lang-en">Latest leads</span>
@@ -444,7 +444,7 @@ export default async function AdminPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-3">
-        <ChartCard title="آخر 14 يوم — Page views" subtitle="Analytics">
+        <ChartCard title="زيارات آخر 14 يوم" subtitle="الزيارات">
           <div style={{ height: 110 }}>
             <LineChart
               isoDates={analytics.items.map((item) => item.createdAt)}
@@ -454,7 +454,7 @@ export default async function AdminPage() {
             />
           </div>
         </ChartCard>
-        <ChartCard title="توزيع الطلبات حسب المرحلة" subtitle="Pipeline">
+        <ChartCard title="توزيع الطلبات حسب المرحلة" subtitle="المتابعة">
           <BarChart
             data={pipelineCounts.map(({ status, count }) => ({
               label: pipelineLabelsEn[status],
@@ -467,7 +467,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Sources</div>
+              <div className="admin-card__subtitle">المصادر</div>
               <div className="admin-card__title">
                 <span className="lang-ar">مصادر الزيارات</span>
                 <span className="lang-en">Traffic sources</span>
@@ -494,7 +494,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Analytics</div>
+              <div className="admin-card__subtitle">الزيارات</div>
               <div className="admin-card__title">
                 <span className="lang-ar">الصفحات الأكثر زيارة</span>
                 <span className="lang-en">Top pages</span>
@@ -520,7 +520,7 @@ export default async function AdminPage() {
           </div>
         </article>
 
-        <ChartCard title="حالة المحتوى" subtitle="Content">
+        <ChartCard title="حالة المحتوى" subtitle="المحتوى">
           <BarChart
             data={[
               {
@@ -560,7 +560,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Content</div>
+              <div className="admin-card__subtitle">المحتوى</div>
               <div className="admin-card__title">
                 <span className="lang-ar">حالة الأطباء</span>
                 <span className="lang-en">Doctors status</span>
@@ -592,7 +592,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Content</div>
+              <div className="admin-card__subtitle">المحتوى</div>
               <div className="admin-card__title">
                 <span className="lang-ar">حالة الخدمات</span>
                 <span className="lang-en">Services status</span>
@@ -624,7 +624,7 @@ export default async function AdminPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Content</div>
+              <div className="admin-card__subtitle">المحتوى</div>
               <div className="admin-card__title">
                 <span className="lang-ar">حالة الأجهزة</span>
                 <span className="lang-en">Devices status</span>

@@ -61,10 +61,32 @@ export type CustomPageEditorFormProps = {
     htmlContent: string;
     seoTitle?: string | null;
     seoDescription?: string | null;
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    keywords?: readonly string[] | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: string | null;
+    seoSlug?: string | null;
+    hashtags?: readonly string[] | null;
+    formConfig?: unknown;
     status: ContentStatus;
     noindex: boolean;
   };
 };
+
+function listValue(value?: readonly string[] | null) {
+  return value?.filter(Boolean).join(", ") ?? "";
+}
+
+function jsonValue(value: unknown) {
+  if (!value) return "";
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return "";
+  }
+}
 
 export function CustomPageEditorForm({
   mode,
@@ -241,6 +263,116 @@ export function CustomPageEditorForm({
           />
         </label>
       </div>
+
+      <section className="custom-page-editor-form__seo">
+        <div>
+          <span className="admin-field-label">SEO المتقدم</span>
+          <p className="text-muted-foreground text-xs">
+            هذه الحقول تتحكم في عنوان المتصفح، وصف نتائج البحث، وبيانات المشاركة
+            في الشبكات الاجتماعية.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="grid gap-1">
+            <span className="admin-field-label">Meta Title</span>
+            <input
+              name="metaTitle"
+              maxLength={160}
+              defaultValue={initial?.metaTitle ?? initial?.seoTitle ?? ""}
+              className="admin-input"
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">SEO Slug</span>
+            <input
+              name="seoSlug"
+              dir="ltr"
+              maxLength={80}
+              pattern="[a-z0-9]+(-[a-z0-9]+)*"
+              defaultValue={initial?.seoSlug ?? ""}
+              className="admin-input"
+              placeholder="campaign-rhinoplasty"
+            />
+          </label>
+        </div>
+        <label className="grid gap-1">
+          <span className="admin-field-label">Meta Description</span>
+          <textarea
+            name="metaDescription"
+            rows={3}
+            maxLength={500}
+            defaultValue={
+              initial?.metaDescription ?? initial?.seoDescription ?? ""
+            }
+            className="admin-input"
+          />
+        </label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="grid gap-1">
+            <span className="admin-field-label">Keywords</span>
+            <textarea
+              name="keywords"
+              rows={3}
+              defaultValue={listValue(initial?.keywords)}
+              className="admin-input"
+              placeholder="تجميل الأنف, الرياض, ريجوفيرا"
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">Hashtags</span>
+            <textarea
+              name="hashtags"
+              rows={3}
+              defaultValue={listValue(initial?.hashtags)}
+              className="admin-input"
+              placeholder="#ريجوفيرا, #تجميل_الأنف"
+            />
+          </label>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="grid gap-1">
+            <span className="admin-field-label">OG Title</span>
+            <input
+              name="ogTitle"
+              maxLength={160}
+              defaultValue={initial?.ogTitle ?? ""}
+              className="admin-input"
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">OG Image</span>
+            <input
+              name="ogImage"
+              dir="ltr"
+              type="url"
+              defaultValue={initial?.ogImage ?? ""}
+              className="admin-input"
+              placeholder="https://rejuvera.sa/media/..."
+            />
+          </label>
+        </div>
+        <label className="grid gap-1">
+          <span className="admin-field-label">OG Description</span>
+          <textarea
+            name="ogDescription"
+            rows={3}
+            maxLength={500}
+            defaultValue={initial?.ogDescription ?? ""}
+            className="admin-input"
+          />
+        </label>
+        <details className="custom-page-editor-form__advanced">
+          <summary>تهيئة الفورم المتقدمة JSON</summary>
+          <textarea
+            name="formConfig"
+            rows={8}
+            dir="ltr"
+            className="admin-input font-mono text-xs leading-relaxed"
+            defaultValue={jsonValue(initial?.formConfig)}
+            placeholder='{"fields":[{"name":"phone","type":"phone","required":true}]}'
+          />
+        </details>
+      </section>
 
       <section className="grid gap-1">
         <div className="flex flex-wrap items-center justify-between gap-2">

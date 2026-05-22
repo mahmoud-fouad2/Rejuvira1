@@ -1,5 +1,6 @@
 ﻿import { ContentStatus, SubmissionStatus, UserRole } from "@prisma/client";
 import { cache } from "react";
+import type { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
@@ -127,8 +128,6 @@ export type CrmRecord = {
   status: SubmissionStatus;
   source: string;
   createdAt: string;
-  preferredAppointmentAt?: string | undefined;
-  appointmentNotes?: string | undefined;
   notes?: string | undefined;
   tags: readonly string[];
   assignedToId?: string | undefined;
@@ -157,6 +156,15 @@ export type CustomPageRecord = {
   htmlContent: string;
   seoTitle?: string | null;
   seoDescription?: string | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  keywords: readonly string[];
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  seoSlug?: string | null;
+  hashtags: readonly string[];
+  formConfig?: Prisma.JsonValue | null;
   status: ContentStatus;
   noindex: boolean;
   createdAt: string;
@@ -483,8 +491,6 @@ export type CreateContactInput = {
   phone: string;
   email?: string | undefined;
   message?: string | undefined;
-  preferredAppointmentAt?: string | undefined;
-  appointmentNotes?: string | undefined;
   serviceSlug?: string | undefined;
   preferredLanguage?: string | undefined;
   source?: string | undefined;
@@ -502,8 +508,6 @@ export type UpdateCrmSubmissionInput = {
   fullName?: string | undefined;
   phone?: string | undefined;
   email?: string | null | undefined;
-  preferredAppointmentAt?: string | null | undefined;
-  appointmentNotes?: string | null | undefined;
   serviceSlug?: string | null | undefined;
   tags?: readonly string[] | undefined;
   assignedToId?: string | null | undefined;
@@ -516,6 +520,15 @@ export type CreateCustomPageInput = {
   htmlContent: string;
   seoTitle?: string | undefined;
   seoDescription?: string | undefined;
+  metaTitle?: string | undefined;
+  metaDescription?: string | undefined;
+  keywords?: readonly string[] | undefined;
+  ogTitle?: string | undefined;
+  ogDescription?: string | undefined;
+  ogImage?: string | undefined;
+  seoSlug?: string | undefined;
+  hashtags?: readonly string[] | undefined;
+  formConfig?: Prisma.InputJsonValue | undefined;
   status?: ContentStatus | undefined;
   noindex?: boolean | undefined;
 };
@@ -1670,7 +1683,6 @@ const seedCrmRecords: CrmRecord[] = [
     status: SubmissionStatus.NEW,
     source: "Home contact form",
     createdAt: "2026-05-10T10:30:00.000Z",
-    preferredAppointmentAt: "2026-05-18T10:00:00.000Z",
     notes: "تحتاج متابعة خلال 12 ساعة.",
     tags: ["VIP", "Skin"],
     comments: [],
@@ -1683,7 +1695,6 @@ const seedCrmRecords: CrmRecord[] = [
     status: SubmissionStatus.CONTACTED,
     source: "WhatsApp CTA",
     createdAt: "2026-05-09T13:15:00.000Z",
-    preferredAppointmentAt: "2026-05-19T15:30:00.000Z",
     notes: "تم الرد وإرسال مواعيد مبدئية.",
     tags: ["Laser"],
     comments: [],
@@ -1696,7 +1707,6 @@ const seedCrmRecords: CrmRecord[] = [
     status: SubmissionStatus.BOOKED,
     source: "Doctor page",
     createdAt: "2026-05-08T08:45:00.000Z",
-    preferredAppointmentAt: "2026-05-20T12:00:00.000Z",
     notes: "تم تأكيد الموعد الأول.",
     tags: ["Booked"],
     comments: [],
@@ -2932,8 +2942,6 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
       status: submission.status,
       source: submission.source ?? "الموقع الإلكتروني",
       createdAt: submission.createdAt.toISOString(),
-      preferredAppointmentAt: submission.preferredAppointmentAt?.toISOString(),
-      appointmentNotes: submission.appointmentNotes ?? undefined,
       notes: submission.internalNotes ?? undefined,
       tags: submission.tags ?? [],
       assignedToId: submission.assignedTo?.id,
@@ -4220,15 +4228,6 @@ export async function deleteGalleryItem(id: string) {
   return { mode: "database" as const, item };
 }
 
-function parseAppointmentDate(value?: string | null): Date | null {
-  if (!value) return null;
-  const normalized = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)
-    ? `${value}:00+03:00`
-    : value;
-  const date = new Date(normalized);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
 export async function createContactLead(
   input: CreateContactInput & {
     webhookId?: string | undefined;
@@ -4252,22 +4251,12 @@ export async function createContactLead(
         select: { id: true },
       })
     : null;
-  const preferredAppointment = parseAppointmentDate(
-    input.preferredAppointmentAt,
-  );
-
   const submission = await prisma.contactSubmission.create({
     data: {
       fullName: input.fullName,
       phone: input.phone,
       preferredLanguage: input.preferredLanguage ?? "ar",
       source: input.source ?? "Website form",
-      ...(preferredAppointment
-        ? { preferredAppointmentAt: preferredAppointment }
-        : {}),
-      ...(input.appointmentNotes
-        ? { appointmentNotes: input.appointmentNotes }
-        : {}),
       status: input.status ?? SubmissionStatus.NEW,
       ...(input.utmSource ? { utmSource: input.utmSource } : {}),
       ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
@@ -4431,10 +4420,6 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
       serviceUpdate = { serviceId: service?.id ?? null };
     }
   }
-  const preferredAppointment = parseAppointmentDate(
-    input.preferredAppointmentAt ?? undefined,
-  );
-
   const submission = await prisma.contactSubmission.update({
     where: { id: input.id },
     data: {
@@ -4445,14 +4430,6 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
       ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
       ...(input.phone !== undefined ? { phone: input.phone } : {}),
       ...(input.email !== undefined ? { email: input.email || null } : {}),
-      ...(input.preferredAppointmentAt !== undefined
-        ? {
-            preferredAppointmentAt: preferredAppointment,
-          }
-        : {}),
-      ...(input.appointmentNotes !== undefined
-        ? { appointmentNotes: input.appointmentNotes || null }
-        : {}),
       ...(input.tags !== undefined ? { tags: [...input.tags] } : {}),
       ...(input.assignedToId !== undefined
         ? { assignedToId: input.assignedToId || null }
@@ -4502,25 +4479,83 @@ export async function deleteCrmComment(id: string) {
 
 /* ── Custom Pages ────────────────────────────────────────── */
 
+function mapCustomPageRecord(p: {
+  id: string;
+  slug: string;
+  titleAr: string;
+  titleEn: string | null;
+  htmlContent: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  keywords: string[];
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogImage: string | null;
+  seoSlug: string | null;
+  hashtags: string[];
+  formConfig: Prisma.JsonValue | null;
+  status: ContentStatus;
+  noindex: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}): CustomPageRecord {
+  return {
+    id: p.id,
+    slug: p.slug,
+    titleAr: p.titleAr,
+    titleEn: p.titleEn,
+    htmlContent: p.htmlContent,
+    seoTitle: p.seoTitle,
+    seoDescription: p.seoDescription,
+    metaTitle: p.metaTitle,
+    metaDescription: p.metaDescription,
+    keywords: p.keywords,
+    ogTitle: p.ogTitle,
+    ogDescription: p.ogDescription,
+    ogImage: p.ogImage,
+    seoSlug: p.seoSlug,
+    hashtags: p.hashtags,
+    formConfig: p.formConfig,
+    status: p.status,
+    noindex: p.noindex,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
+  };
+}
+
+function customPageData(input: CreateCustomPageInput) {
+  const seoTitle = input.seoTitle || input.metaTitle || null;
+  const seoDescription = input.seoDescription || input.metaDescription || null;
+  return {
+    slug: input.slug,
+    titleAr: input.titleAr,
+    titleEn: input.titleEn || null,
+    htmlContent: input.htmlContent,
+    seoTitle,
+    seoDescription,
+    metaTitle: input.metaTitle || seoTitle,
+    metaDescription: input.metaDescription || seoDescription,
+    keywords: [...(input.keywords ?? [])],
+    ogTitle: input.ogTitle || null,
+    ogDescription: input.ogDescription || null,
+    ogImage: input.ogImage || null,
+    seoSlug: input.seoSlug || null,
+    hashtags: [...(input.hashtags ?? [])],
+    ...(input.formConfig !== undefined ? { formConfig: input.formConfig } : {}),
+    status: input.status ?? ContentStatus.DRAFT,
+    noindex: input.noindex ?? false,
+  };
+}
+
 export async function getCustomPages(): Promise<CustomPageRecord[]> {
   if (!canUseDatabase()) return [];
   try {
     const items = await prisma.customPage.findMany({
       orderBy: [{ updatedAt: "desc" }],
     });
-    return items.map((p) => ({
-      id: p.id,
-      slug: p.slug,
-      titleAr: p.titleAr,
-      titleEn: p.titleEn,
-      htmlContent: p.htmlContent,
-      seoTitle: p.seoTitle,
-      seoDescription: p.seoDescription,
-      status: p.status,
-      noindex: p.noindex,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-    }));
+    return items.map(mapCustomPageRecord);
   } catch {
     return [];
   }
@@ -4531,21 +4566,11 @@ export async function getCustomPageBySlug(
 ): Promise<CustomPageRecord | null> {
   if (!canUseDatabase()) return null;
   try {
-    const p = await prisma.customPage.findUnique({ where: { slug } });
+    const p = await prisma.customPage.findFirst({
+      where: { OR: [{ slug }, { seoSlug: slug }] },
+    });
     if (!p) return null;
-    return {
-      id: p.id,
-      slug: p.slug,
-      titleAr: p.titleAr,
-      titleEn: p.titleEn,
-      htmlContent: p.htmlContent,
-      seoTitle: p.seoTitle,
-      seoDescription: p.seoDescription,
-      status: p.status,
-      noindex: p.noindex,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-    };
+    return mapCustomPageRecord(p);
   } catch {
     return null;
   }
@@ -4558,19 +4583,7 @@ export async function getCustomPageById(
   try {
     const p = await prisma.customPage.findUnique({ where: { id } });
     if (!p) return null;
-    return {
-      id: p.id,
-      slug: p.slug,
-      titleAr: p.titleAr,
-      titleEn: p.titleEn,
-      htmlContent: p.htmlContent,
-      seoTitle: p.seoTitle,
-      seoDescription: p.seoDescription,
-      status: p.status,
-      noindex: p.noindex,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-    };
+    return mapCustomPageRecord(p);
   } catch {
     return null;
   }
@@ -4579,16 +4592,7 @@ export async function getCustomPageById(
 export async function createCustomPage(input: CreateCustomPageInput) {
   if (!canUseDatabase()) return { mode: "preview" as const, input };
   const item = await prisma.customPage.create({
-    data: {
-      slug: input.slug,
-      titleAr: input.titleAr,
-      titleEn: input.titleEn || null,
-      htmlContent: input.htmlContent,
-      seoTitle: input.seoTitle || null,
-      seoDescription: input.seoDescription || null,
-      status: input.status ?? ContentStatus.DRAFT,
-      noindex: input.noindex ?? false,
-    },
+    data: customPageData(input),
   });
   return { mode: "database" as const, item };
 }
@@ -4597,43 +4601,18 @@ export async function updateCustomPage(input: UpdateCustomPageInput) {
   if (!canUseDatabase()) return { mode: "preview" as const, input };
   const item = await prisma.customPage.update({
     where: { id: input.id },
-    data: {
-      slug: input.slug,
-      titleAr: input.titleAr,
-      titleEn: input.titleEn || null,
-      htmlContent: input.htmlContent,
-      seoTitle: input.seoTitle || null,
-      seoDescription: input.seoDescription || null,
-      status: input.status ?? ContentStatus.DRAFT,
-      noindex: input.noindex ?? false,
-    },
+    data: customPageData(input),
   });
   return { mode: "database" as const, item };
 }
 
 export async function upsertCustomPageBySlug(input: UpsertCustomPageInput) {
   if (!canUseDatabase()) return { mode: "preview" as const, input };
+  const data = customPageData(input);
   const item = await prisma.customPage.upsert({
     where: { slug: input.slug },
-    create: {
-      slug: input.slug,
-      titleAr: input.titleAr,
-      titleEn: input.titleEn || null,
-      htmlContent: input.htmlContent,
-      seoTitle: input.seoTitle || null,
-      seoDescription: input.seoDescription || null,
-      status: input.status ?? ContentStatus.DRAFT,
-      noindex: input.noindex ?? false,
-    },
-    update: {
-      titleAr: input.titleAr,
-      titleEn: input.titleEn || null,
-      htmlContent: input.htmlContent,
-      seoTitle: input.seoTitle || null,
-      seoDescription: input.seoDescription || null,
-      status: input.status ?? ContentStatus.DRAFT,
-      noindex: input.noindex ?? false,
-    },
+    create: data,
+    update: data,
   });
   return { mode: "database" as const, item };
 }

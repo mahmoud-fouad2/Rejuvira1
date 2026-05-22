@@ -3,10 +3,6 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import {
-  isValidAppointmentSlot,
-  parsePreferredAppointment as parseAppointmentSlot,
-} from "@/lib/appointment-slots";
-import {
   createContactLead,
   getWebhookByToken,
   recordWebhookEvent,
@@ -33,10 +29,6 @@ const payloadSchema = z
     serviceLabel: z.string().max(120).optional(),
     serviceType: z.string().max(120).optional(),
     serviceTypeAr: z.string().max(120).optional(),
-    preferredAppointmentAt: z.string().max(80).optional(),
-    preferredDate: z.string().max(40).optional(),
-    preferredTime: z.string().max(20).optional(),
-    appointmentNotes: z.string().max(500).optional(),
     tags: z.union([z.string(), z.array(z.string())]).optional(),
     preferredLanguage: z.string().min(2).max(10).optional(),
     utmSource: z.string().max(120).optional(),
@@ -128,24 +120,6 @@ function normaliseTags(value: unknown): string[] {
       .filter(Boolean);
   }
   return [];
-}
-
-function parsePreferredAppointment(data: Record<string, unknown>) {
-  const direct = pickFirst(data, [
-    "preferredAppointmentAt",
-    "appointmentAt",
-    "appointment",
-  ]);
-  if (direct) {
-    const parsed = new Date(direct);
-    if (!Number.isNaN(parsed.getTime())) return parsed.toISOString();
-  }
-  const date = pickFirst(data, ["preferredDate", "appointmentDate", "date"]);
-  if (!date) return undefined;
-  const time =
-    pickFirst(data, ["preferredTime", "appointmentTime", "time"]) ?? "14:00";
-  if (!isValidAppointmentSlot(date, time)) return undefined;
-  return parseAppointmentSlot(date, time);
 }
 
 type RouteContext = {
@@ -262,11 +236,6 @@ async function handleIngest(request: Request, context: RouteContext) {
 
   const email = pickFirst(data, ["email"]);
   const message = pickFirst(data, ["message", "note"]);
-  const preferredAppointmentAt = parsePreferredAppointment(data);
-  const appointmentNotes = pickFirst(data, [
-    "appointmentNotes",
-    "appointmentNote",
-  ]);
   const sourceLabel =
     pickFirst(data, ["source"]) ?? webhook.defaultSource ?? "Webhook";
   const serviceSlug =
@@ -301,8 +270,6 @@ async function handleIngest(request: Request, context: RouteContext) {
       ...(pickFirst(data, ["utmContent", "utm_content"])
         ? { utmContent: pickFirst(data, ["utmContent", "utm_content"]) }
         : {}),
-      ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
-      ...(appointmentNotes ? { appointmentNotes } : {}),
       source: sourceLabel,
       ...(serviceSlug ? { serviceSlug } : {}),
       preferredLanguage: pickFirst(data, ["preferredLanguage"]) ?? "ar",
@@ -400,9 +367,6 @@ export async function GET(_request: Request, context: RouteContext) {
       "serviceLabel",
       "serviceType",
       "serviceTypeAr",
-      "preferredDate",
-      "preferredTime",
-      "preferredAppointmentAt",
       "tags",
       "utmSource",
       "utmMedium",

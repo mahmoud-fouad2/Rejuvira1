@@ -62,15 +62,15 @@ export default async function AdminWebhooksPage() {
       <div className="admin-page-header">
         <div>
           <h1>
-            <span className="lang-ar">ويب هوكس</span>
-            <span className="lang-en">Webhooks</span>
+            <span className="lang-ar">مصادر الطلبات</span>
+            <span className="lang-en">Lead sources</span>
           </h1>
           <p>
             <span className="lang-ar">
-              {webhooks.length} نقطة استقبال · ربط مباشر مع CRM
+              {webhooks.length} مصدر استقبال مرتبط بالطلبات
             </span>
             <span className="lang-en">
-              {webhooks.length} endpoints · directly piped into CRM
+              {webhooks.length} lead intake sources
             </span>
           </p>
         </div>
@@ -78,17 +78,17 @@ export default async function AdminWebhooksPage() {
 
       <section className="admin-kpi-grid--compact mb-4">
         <div className="admin-kpi-card">
-          <span className="admin-kpi-card__label">نقاط مفعلة</span>
+          <span className="admin-kpi-card__label">مصادر فعّالة</span>
           <strong>
             {activeCount}/{webhooks.length}
           </strong>
         </div>
         <div className="admin-kpi-card">
-          <span className="admin-kpi-card__label">إجمالي الأحداث</span>
+          <span className="admin-kpi-card__label">طلبات مستقبلة</span>
           <strong>{totalEvents}</strong>
         </div>
         <div className="admin-kpi-card">
-          <span className="admin-kpi-card__label">أخطاء حديثة</span>
+          <span className="admin-kpi-card__label">محاولات غير مكتملة</span>
           <strong>{recentFailureCount}</strong>
         </div>
         <div className="admin-kpi-card">
@@ -103,10 +103,10 @@ export default async function AdminWebhooksPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">New</div>
+              <div className="admin-card__subtitle">إضافة مصدر</div>
               <div className="admin-card__title">
-                <span className="lang-ar">إضافة ويب هوك</span>
-                <span className="lang-en">Add webhook</span>
+                <span className="lang-ar">إضافة مصدر طلبات</span>
+                <span className="lang-en">Add source</span>
               </div>
             </div>
           </div>
@@ -115,13 +115,10 @@ export default async function AdminWebhooksPage() {
             <p className="text-muted-foreground mt-3 text-xs">
               <span className="lang-ar">
                 بعد الإنشاء انسخ رابط الاستقبال داخل منصة الإعلانات أو النموذج
-                الخارجي. كل طلب ناجح يدخل مباشرة إلى CRM بنفس الحالة والوسوم
-                والخدمة الافتراضية المحددة هنا.
+                الخارجي. كل طلب ناجح يظهر تلقائيًا في شاشة الطلبات.
               </span>
               <span className="lang-en">
-                After creating, copy the link into Meta/Snap/Google or any
-                external form. POST JSON or form-data with fullName, phone,
-                email, message.
+                Copy the intake link into your campaign or external form.
               </span>
             </p>
           </div>
@@ -130,10 +127,10 @@ export default async function AdminWebhooksPage() {
         <article className="admin-card">
           <div className="admin-card__header">
             <div>
-              <div className="admin-card__subtitle">Library</div>
+              <div className="admin-card__subtitle">المصادر الحالية</div>
               <div className="admin-card__title">
-                <span className="lang-ar">الويب هوكس الموجودة</span>
-                <span className="lang-en">Existing webhooks</span>
+                <span className="lang-ar">مصادر الطلبات الحالية</span>
+                <span className="lang-en">Current sources</span>
               </div>
             </div>
           </div>
@@ -144,8 +141,8 @@ export default async function AdminWebhooksPage() {
           >
             {webhooks.length === 0 ? (
               <p className="text-muted-foreground px-2 py-6 text-sm">
-                <span className="lang-ar">لا توجد ويب هوكس بعد.</span>
-                <span className="lang-en">No webhooks yet.</span>
+                <span className="lang-ar">لا توجد مصادر طلبات بعد.</span>
+                <span className="lang-en">No sources yet.</span>
               </p>
             ) : null}
             {webhooks.map((webhook) => (
@@ -175,8 +172,7 @@ export default async function AdminWebhooksPage() {
                       ) : null}
                     </p>
                     <p className="admin-data-row__meta truncate">
-                      {webhook.totalEvents} hit
-                      {webhook.totalEvents === 1 ? "" : "s"} ·{" "}
+                      {webhook.totalEvents} طلب ·{" "}
                       {formatDate(webhook.updatedAt)}
                     </p>
                   </div>
@@ -198,34 +194,9 @@ export default async function AdminWebhooksPage() {
                   <div className="grid gap-2">
                     <span className="admin-field-label">
                       <span className="lang-ar">رابط الاستقبال</span>
-                      <span className="lang-en">Endpoint URL</span>
+                      <span className="lang-en">Intake link</span>
                     </span>
                     <WebhookCopyLink token={webhook.token} />
-                    <details className="text-xs">
-                      <summary className="text-muted-foreground cursor-pointer">
-                        <span className="lang-ar">نموذج طلب POST</span>
-                        <span className="lang-en">Sample POST payload</span>
-                      </summary>
-                      <pre
-                        className="mt-2 overflow-auto rounded-lg p-3 text-[11px] leading-relaxed"
-                        style={{
-                          background: "var(--admin-panel-soft)",
-                          border: "1px solid var(--admin-border)",
-                        }}
-                      >
-                        {`{
-  "fullName": "Sara Aljohani",
-  "phone": "+9665XXXXXXXX",
-  "email": "sara@example.com",
-  "message": "أرغب باستشارة جلدية",
-  "preferredDate": "2026-05-20",
-  "preferredTime": "17:30",
-  "appointmentNotes": "Prefers an evening callback",
-  "source": "Meta Ads",
-  "tags": ["VIP", "Skin"]
-}`}
-                      </pre>
-                    </details>
                   </div>
 
                   <WebhookEditor
@@ -251,8 +222,8 @@ export default async function AdminWebhooksPage() {
                   {webhook.recentEvents.length > 0 ? (
                     <div className="grid gap-2">
                       <span className="admin-field-label">
-                        <span className="lang-ar">آخر الأحداث</span>
-                        <span className="lang-en">Recent events</span>
+                        <span className="lang-ar">آخر الطلبات المستقبلة</span>
+                        <span className="lang-en">Recent intake</span>
                       </span>
                       <ul className="grid gap-1 text-xs">
                         {webhook.recentEvents.map((evt) => (
@@ -263,14 +234,14 @@ export default async function AdminWebhooksPage() {
                             <span
                               className={`admin-status-badge ${evt.statusCode < 300 ? "is-published" : "is-archived"}`}
                             >
-                              {evt.statusCode}
+                              {evt.statusCode < 300 ? "نجح" : "تعذر"}
                             </span>
                             <span className="text-muted-foreground">
                               {formatDate(evt.createdAt)}
                             </span>
                             {evt.errorMessage ? (
                               <span className="truncate text-red-500">
-                                {evt.errorMessage}
+                                لم يكتمل الاستقبال
                               </span>
                             ) : null}
                           </li>
@@ -284,14 +255,14 @@ export default async function AdminWebhooksPage() {
                       <input type="hidden" name="id" value={webhook.id} />
                       <button type="submit" className="admin-btn-secondary">
                         <span className="lang-ar">تجديد الرابط</span>
-                        <span className="lang-en">Rotate token</span>
+                        <span className="lang-en">Refresh link</span>
                       </button>
                     </form>
                     <form action={deleteWebhookAction}>
                       <input type="hidden" name="id" value={webhook.id} />
                       <button type="submit" className="admin-btn-danger">
-                        <span className="lang-ar">حذف الويب هوك</span>
-                        <span className="lang-en">Delete webhook</span>
+                        <span className="lang-ar">حذف المصدر</span>
+                        <span className="lang-en">Delete source</span>
                       </button>
                     </form>
                   </div>

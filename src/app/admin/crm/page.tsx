@@ -40,9 +40,8 @@ export default async function AdminCrmPage() {
   const bookedCount = submissions.filter((i) => i.status === "BOOKED").length;
   const closedCount = submissions.filter((i) => i.status === "CLOSED").length;
   const assignedCount = submissions.filter((i) => i.assignedToId).length;
-  const todayAppointmentCount = submissions.filter((item) => {
-    if (!item.preferredAppointmentAt) return false;
-    const date = new Date(item.preferredAppointmentAt);
+  const todayLeadCount = submissions.filter((item) => {
+    const date = new Date(item.createdAt);
     return (
       date.getFullYear() === today.getFullYear() &&
       date.getMonth() === today.getMonth() &&
@@ -66,7 +65,7 @@ export default async function AdminCrmPage() {
           <h1>قاعدة بيانات الليدز</h1>
           <p>
             {submissions.length} ليد محفوظة مع متابعة الحالات، المصادر، الحملات،
-            والمواعيد.
+            والمسؤولين.
           </p>
         </div>
         {canManage ? (
@@ -79,11 +78,11 @@ export default async function AdminCrmPage() {
             </Link>
             <form action={importCrmCsvAction} className="admin-crm-import-form">
               <label>
-                <span>استيراد CSV</span>
+                <span>استيراد ملف عملاء</span>
                 <input name="file" type="file" accept=".csv,text/csv" />
               </label>
               <button type="submit" className="admin-btn-primary">
-                رفع الليدز
+                رفع الملف
               </button>
             </form>
           </div>
@@ -150,8 +149,8 @@ export default async function AdminCrmPage() {
           <span className="admin-field-label">
             <span className="lang-ar">اليوم</span>
           </span>
-          <strong>{todayAppointmentCount}</strong>
-          <p>مواعيد تحتاج تأكيد أو متابعة.</p>
+          <strong>{todayLeadCount}</strong>
+          <p>طلبات جديدة وصلت اليوم وتحتاج توزيع سريع.</p>
         </div>
         <div>
           <span className="admin-field-label">خط العمل المفتوح</span>

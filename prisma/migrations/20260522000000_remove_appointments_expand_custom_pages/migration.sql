@@ -1,0 +1,16 @@
+DROP INDEX IF EXISTS "ContactSubmission_preferredAppointmentAt_idx";
+
+ALTER TABLE "ContactSubmission"
+  DROP COLUMN IF EXISTS "preferredAppointmentAt",
+  DROP COLUMN IF EXISTS "appointmentNotes";
+
+ALTER TABLE "CustomPage"
+  ADD COLUMN IF NOT EXISTS "metaTitle" TEXT,
+  ADD COLUMN IF NOT EXISTS "metaDescription" TEXT,
+  ADD COLUMN IF NOT EXISTS "keywords" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+  ADD COLUMN IF NOT EXISTS "ogTitle" TEXT,
+  ADD COLUMN IF NOT EXISTS "ogDescription" TEXT,
+  ADD COLUMN IF NOT EXISTS "ogImage" TEXT,
+  ADD COLUMN IF NOT EXISTS "seoSlug" TEXT,
+  ADD COLUMN IF NOT EXISTS "hashtags" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[],
+  ADD COLUMN IF NOT EXISTS "formConfig" JSONB;

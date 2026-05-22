@@ -105,7 +105,7 @@ export async function GET() {
           (page) => page.status === ContentStatus.PUBLISHED && !page.noindex,
         )
         .map((page) => ({
-          path: `/p/${page.slug}`,
+          path: `/p/${page.seoSlug || page.slug}`,
           priority: 0.5,
           changeFrequency: "monthly" as const,
         })),

@@ -183,8 +183,14 @@ export default async function AdminCustomPagesPage({
                 page.titleAr,
                 page.titleEn,
                 page.slug,
+                page.seoSlug,
                 page.seoTitle,
                 page.seoDescription,
+                page.metaTitle,
+                page.metaDescription,
+                page.ogTitle,
+                page.keywords.join(" "),
+                page.hashtags.join(" "),
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -208,7 +214,9 @@ export default async function AdminCustomPagesPage({
                 </div>
                 <p className="custom-page-list-card__excerpt">
                   {page.seoDescription ||
+                    page.metaDescription ||
                     page.seoTitle ||
+                    page.metaTitle ||
                     "صفحة مخصصة قابلة للبناء والتعديل من PageCraft."}
                 </p>
                 <div className="custom-page-list-card__meta">

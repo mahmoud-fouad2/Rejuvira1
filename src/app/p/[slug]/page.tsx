@@ -26,9 +26,35 @@ export async function generateMetadata({
     return { title: "Rejuvera" };
   }
   const robots = page.noindex ? "noindex,nofollow" : undefined;
+  const title = page.metaTitle || page.seoTitle || page.titleAr;
+  const description =
+    page.metaDescription || page.seoDescription || page.titleEn || undefined;
+  const canonicalSlug = page.seoSlug || page.slug;
+  const ogTitle = page.ogTitle || title;
+  const ogDescription = page.ogDescription || description;
   return {
-    title: page.seoTitle || page.titleAr,
-    description: page.seoDescription ?? undefined,
+    title,
+    description,
+    keywords: page.keywords.length ? [...page.keywords] : undefined,
+    alternates: {
+      canonical: `/p/${canonicalSlug}`,
+    },
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription,
+      url: `/p/${canonicalSlug}`,
+      type: "website",
+      ...(page.ogImage ? { images: [{ url: page.ogImage }] } : {}),
+    },
+    twitter: {
+      card: page.ogImage ? "summary_large_image" : "summary",
+      title: ogTitle,
+      description: ogDescription,
+      ...(page.ogImage ? { images: [page.ogImage] } : {}),
+    },
+    other: page.hashtags.length
+      ? { "article:tag": page.hashtags.join(", ") }
+      : undefined,
     ...(robots ? { robots } : {}),
   };
 }
@@ -71,7 +97,7 @@ export default async function CustomPage({
           >
             {query.lead === "success"
               ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريباً."
-              : "تعذر إرسال الطلب. يرجى مراجعة البيانات واختيار موعد من السبت إلى الخميس بين 2:00 م و10:00 م."}
+              : "تعذر إرسال الطلب. يرجى مراجعة البيانات والمحاولة مرة أخرى."}
           </div>
         ) : null}
         <article

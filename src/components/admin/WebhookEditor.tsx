@@ -60,14 +60,14 @@ export function WebhookEditor({
       ) : null}
       <label className="grid gap-1">
         <span className="admin-field-label">
-          <span className="lang-ar">الاسم الداخلي</span>
-          <span className="lang-en">Internal name</span>
+          <span className="lang-ar">اسم المصدر</span>
+          <span className="lang-en">Source name</span>
         </span>
         <input
           name="name"
           required
           defaultValue={initial?.name ?? ""}
-          placeholder="Meta Ads — Skin Lead Form"
+          placeholder="حملة سناب شات — خدمات الجلدية"
           className="admin-input"
         />
       </label>
@@ -84,20 +84,20 @@ export function WebhookEditor({
           >
             {STATUS_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
-                {option.ar} · {option.en}
+                {option.ar}
               </option>
             ))}
           </select>
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
-            <span className="lang-ar">المصدر الافتراضي</span>
-            <span className="lang-en">Default source</span>
+            <span className="lang-ar">اسم القناة</span>
+            <span className="lang-en">Channel name</span>
           </span>
           <input
             name="defaultSource"
             defaultValue={initial?.defaultSource ?? ""}
-            placeholder="Meta Ads / Snapchat / Google"
+            placeholder="سناب شات / جوجل / انستغرام"
             className="admin-input"
           />
         </label>
@@ -123,14 +123,14 @@ export function WebhookEditor({
         </label>
         <label className="grid gap-1">
           <span className="admin-field-label">
-            <span className="lang-ar">وسوم افتراضية (مفصولة بفاصلة)</span>
-            <span className="lang-en">Default tags (comma separated)</span>
+            <span className="lang-ar">وسوم الطلبات</span>
+            <span className="lang-en">Lead labels</span>
           </span>
           <input
             name="defaultTags"
             value={tagsRaw}
             onChange={(event) => setTagsRaw(event.target.value)}
-            placeholder="Meta Ads, Skin"
+            placeholder="حملة مدفوعة، جلدية"
             className="admin-input"
           />
         </label>
@@ -153,10 +153,10 @@ export function WebhookEditor({
       <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
         <button type="submit" className="admin-btn-primary" disabled={pending}>
           <span className="lang-ar">
-            {mode === "create" ? "إنشاء ويب هوك" : "حفظ التغييرات"}
+            {mode === "create" ? "إنشاء المصدر" : "حفظ التغييرات"}
           </span>
           <span className="lang-en">
-            {mode === "create" ? "Create webhook" : "Save"}
+            {mode === "create" ? "Create source" : "Save"}
           </span>
         </button>
         {state.message ? (

@@ -4,10 +4,6 @@ import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
 import {
-  isValidAppointmentSlot,
-  parsePreferredAppointment,
-} from "@/lib/appointment-slots";
-import {
   createContactLead,
   getRuntimeSettings,
   getServiceByReference,
@@ -25,9 +21,6 @@ const contactSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().max(1000).optional().or(z.literal("")),
   serviceSlug: z.string().optional().or(z.literal("")),
-  preferredDate: z.string().optional().or(z.literal("")),
-  preferredTime: z.string().optional().or(z.literal("")),
-  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   preferredLanguage: z.string().optional().or(z.literal("")),
   recaptchaToken: z.string().optional().or(z.literal("")),
   source: z.string().max(120).optional().or(z.literal("")),
@@ -86,9 +79,6 @@ export async function POST(request: Request) {
     email: formString(formData, "email"),
     message: formString(formData, "message"),
     serviceSlug: formString(formData, "serviceSlug"),
-    preferredDate: formString(formData, "preferredDate"),
-    preferredTime: formString(formData, "preferredTime"),
-    appointmentNotes: formString(formData, "appointmentNotes"),
     preferredLanguage: formString(formData, "preferredLanguage"),
     recaptchaToken: formString(formData, "recaptchaToken"),
     source: formString(formData, "source"),
@@ -168,24 +158,6 @@ export async function POST(request: Request) {
     }
   }
 
-  if (
-    !isValidAppointmentSlot(
-      parsed.data.preferredDate,
-      parsed.data.preferredTime,
-    )
-  ) {
-    return response(
-      request,
-      "error",
-      "يرجى اختيار موعد من السبت إلى الخميس بين 2:00 م و10:00 م. / Please choose Sat-Thu between 2:00 PM and 10:00 PM.",
-      { status: 400 },
-    );
-  }
-
-  const preferredAppointmentAt = parsePreferredAppointment(
-    parsed.data.preferredDate,
-    parsed.data.preferredTime,
-  );
   const selectedService = parsed.data.serviceSlug
     ? await getServiceByReference(parsed.data.serviceSlug)
     : null;
@@ -198,10 +170,6 @@ export async function POST(request: Request) {
       phone: parsed.data.phone,
       preferredLanguage: parsed.data.preferredLanguage || "ar",
       source: parsed.data.source || "Website contact form",
-      ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
-      ...(parsed.data.appointmentNotes
-        ? { appointmentNotes: parsed.data.appointmentNotes }
-        : {}),
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
       ...(parsed.data.serviceSlug
@@ -246,8 +214,6 @@ export async function POST(request: Request) {
         utm_medium: parsed.data.utmMedium || undefined,
         utm_campaign: parsed.data.utmCampaign || undefined,
         utm_content: parsed.data.utmContent || undefined,
-        preferredAppointmentAt,
-        appointmentNotes: parsed.data.appointmentNotes || undefined,
         preferredLanguage: parsed.data.preferredLanguage || "ar",
       },
     });

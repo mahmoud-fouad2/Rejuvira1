@@ -132,6 +132,8 @@ export function HtmlLandingPageUploadForm() {
     formData.set("titleEn", title || cleanSlug);
     formData.set("seoTitle", title || cleanSlug);
     formData.set("seoDescription", `Landing page: ${title || cleanSlug}`);
+    formData.set("metaTitle", title || cleanSlug);
+    formData.set("metaDescription", `Landing page: ${title || cleanSlug}`);
     formData.set(
       "htmlContent",
       wrapUploadedHtml(html, { showHeader, showFooter }),

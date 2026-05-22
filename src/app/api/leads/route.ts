@@ -4,10 +4,6 @@ import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
 import {
-  isValidAppointmentSlot,
-  parsePreferredAppointment,
-} from "@/lib/appointment-slots";
-import {
   createContactLead,
   getRuntimeSettings,
   getServiceByReference,
@@ -28,9 +24,6 @@ const leadSchema = z.object({
   serviceLabel: z.string().optional().or(z.literal("")),
   serviceType: z.string().optional().or(z.literal("")),
   serviceTypeAr: z.string().optional().or(z.literal("")),
-  preferredDate: z.string().optional().or(z.literal("")),
-  preferredTime: z.string().optional().or(z.literal("")),
-  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   preferredLanguage: z.string().optional().or(z.literal("")),
   source: z.string().max(120).optional().or(z.literal("")),
   utmSource: z.string().max(120).optional().or(z.literal("")),
@@ -89,9 +82,6 @@ async function readLeadPayload(request: Request) {
       serviceLabel: payloadString(payload, "serviceLabel"),
       serviceType: payloadString(payload, "serviceType"),
       serviceTypeAr: payloadString(payload, "serviceTypeAr"),
-      preferredDate: payloadString(payload, "preferredDate"),
-      preferredTime: payloadString(payload, "preferredTime"),
-      appointmentNotes: payloadString(payload, "appointmentNotes"),
       preferredLanguage: payloadString(payload, "preferredLanguage"),
       source: payloadString(payload, "source"),
       utmSource:
@@ -126,9 +116,6 @@ async function readLeadPayload(request: Request) {
     serviceLabel: formString(formData, "serviceLabel"),
     serviceType: formString(formData, "serviceType"),
     serviceTypeAr: formString(formData, "serviceTypeAr"),
-    preferredDate: formString(formData, "preferredDate"),
-    preferredTime: formString(formData, "preferredTime"),
-    appointmentNotes: formString(formData, "appointmentNotes"),
     preferredLanguage: formString(formData, "preferredLanguage"),
     source: formString(formData, "source"),
     utmSource:
@@ -216,29 +203,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    const hasAppointment =
-      Boolean(parsed.data.preferredDate) || Boolean(parsed.data.preferredTime);
-    if (
-      hasAppointment &&
-      !isValidAppointmentSlot(
-        parsed.data.preferredDate,
-        parsed.data.preferredTime,
-      )
-    ) {
-      return response(
-        request,
-        "error",
-        "يرجى اختيار موعد من السبت إلى الخميس بين 2:00 م و10:00 م. / Please choose Sat-Thu between 2 PM and 10 PM.",
-        { status: 400 },
-      );
-    }
-
-    const preferredAppointmentAt = hasAppointment
-      ? parsePreferredAppointment(
-          parsed.data.preferredDate,
-          parsed.data.preferredTime,
-        )
-      : undefined;
     const serviceReference =
       parsed.data.serviceSlug ||
       parsed.data.serviceTypeAr ||
@@ -262,10 +226,6 @@ export async function POST(request: Request) {
       phone: parsed.data.phone,
       preferredLanguage: parsed.data.preferredLanguage || "ar",
       source: parsed.data.source || "Landing page form",
-      ...(preferredAppointmentAt ? { preferredAppointmentAt } : {}),
-      ...(parsed.data.appointmentNotes
-        ? { appointmentNotes: parsed.data.appointmentNotes }
-        : {}),
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
       ...(selectedService?.slug || parsed.data.serviceSlug
@@ -311,8 +271,6 @@ export async function POST(request: Request) {
         utm_medium: parsed.data.utmMedium || undefined,
         utm_campaign: parsed.data.utmCampaign || undefined,
         utm_content: parsed.data.utmContent || undefined,
-        preferredAppointmentAt,
-        appointmentNotes: parsed.data.appointmentNotes || undefined,
         preferredLanguage: parsed.data.preferredLanguage || "ar",
       },
     });
@@ -361,9 +319,6 @@ export async function GET() {
       "serviceLabel",
       "serviceType",
       "serviceTypeAr",
-      "preferredDate",
-      "preferredTime",
-      "appointmentNotes",
       "preferredLanguage",
       "source",
       "utmSource",

@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
-import { isValidAppointmentSlot } from "@/lib/appointment-slots";
 import {
   addCrmComment,
   deleteCrmComment,
@@ -32,8 +31,6 @@ const updateSchema = z.object({
   fullName: z.string().min(2).max(160).optional(),
   phone: z.string().min(4).max(40).optional(),
   email: z.string().email().max(160).optional().or(z.literal("")),
-  preferredAppointmentAt: z.string().optional().or(z.literal("")),
-  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   serviceSlug: z.string().max(120).optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   tags: tagsSchema,
@@ -80,34 +77,6 @@ function isMissingRecord(error: unknown) {
   );
 }
 
-function isValidAdminAppointment(value?: string) {
-  if (!value) return true;
-  const localMatch = value.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
-  if (localMatch) {
-    return isValidAppointmentSlot(localMatch[1], localMatch[2]);
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return false;
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Riyadh",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .formatToParts(parsed)
-    .reduce<Record<string, string>>((acc, part) => {
-      if (part.type !== "literal") acc[part.type] = part.value;
-      return acc;
-    }, {});
-  return isValidAppointmentSlot(
-    `${parts.year}-${parts.month}-${parts.day}`,
-    `${parts.hour}:${parts.minute}`,
-  );
-}
-
 function readFormString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value : "";
@@ -126,8 +95,6 @@ export async function PUT(request: Request) {
     fullName: formData.get("fullName") || undefined,
     phone: formData.get("phone") || undefined,
     email: formData.get("email"),
-    preferredAppointmentAt: formData.get("preferredAppointmentAt"),
-    appointmentNotes: formData.get("appointmentNotes"),
     serviceSlug: formData.get("serviceSlug"),
     assignedToId: formData.get("assignedToId"),
     tags: readFormString(formData, "tagsCsv") || undefined,
@@ -141,14 +108,6 @@ export async function PUT(request: Request) {
     );
   }
 
-  if (!isValidAdminAppointment(parsed.data.preferredAppointmentAt || "")) {
-    return json(
-      "error",
-      "الموعد يجب أن يكون من السبت إلى الخميس بين 2:00 مساء و10:00 مساء. / Choose Sat-Thu between 2 PM and 10 PM.",
-      { status: 400 },
-    );
-  }
-
   try {
     const result = await updateCrmSubmission({
       id: parsed.data.id,
@@ -158,12 +117,6 @@ export async function PUT(request: Request) {
       ...(parsed.data.phone ? { phone: parsed.data.phone } : {}),
       ...(parsed.data.email !== undefined
         ? { email: parsed.data.email || null }
-        : {}),
-      ...(parsed.data.preferredAppointmentAt !== undefined
-        ? { preferredAppointmentAt: parsed.data.preferredAppointmentAt || null }
-        : {}),
-      ...(parsed.data.appointmentNotes !== undefined
-        ? { appointmentNotes: parsed.data.appointmentNotes || null }
         : {}),
       ...(parsed.data.serviceSlug !== undefined
         ? { serviceSlug: parsed.data.serviceSlug || null }

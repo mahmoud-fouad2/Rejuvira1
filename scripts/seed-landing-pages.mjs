@@ -11,26 +11,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const timeOptions = [
-  ["14:00", "2:00 م"],
-  ["14:30", "2:30 م"],
-  ["15:00", "3:00 م"],
-  ["15:30", "3:30 م"],
-  ["16:00", "4:00 م"],
-  ["16:30", "4:30 م"],
-  ["17:00", "5:00 م"],
-  ["17:30", "5:30 م"],
-  ["18:00", "6:00 م"],
-  ["18:30", "6:30 م"],
-  ["19:00", "7:00 م"],
-  ["19:30", "7:30 م"],
-  ["20:00", "8:00 م"],
-  ["20:30", "8:30 م"],
-  ["21:00", "9:00 م"],
-  ["21:30", "9:30 م"],
-  ["22:00", "10:00 م"],
-];
-
 const pages = [
   {
     slug: "campaign-rhinoplasty-riyadh",
@@ -177,10 +157,6 @@ function buildLandingPage(page) {
     .map((item) => `<span>${escapeHtml(item)}</span>`)
     .join("");
 
-  const timeSelect = timeOptions
-    .map(([value, label]) => `<option value="${value}">${label}</option>`)
-    .join("");
-
   return `
 <style>
 .rv-ad-lp{--accent:${page.accent};--ink:#24143d;--muted:#756986;--surface:#fff;--soft:#f7f2fb;direction:rtl;text-align:right;color:var(--ink);font-family:inherit;background:linear-gradient(180deg,#fff 0%,var(--soft) 100%);border-radius:1.5rem;overflow:hidden}
@@ -252,22 +228,11 @@ function buildLandingPage(page) {
         <input name="email" type="email" dir="ltr" placeholder="name@example.com" />
       </div>
       <div class="rv-ad-lp__field">
-        <label>تاريخ الموعد المفضل</label>
-        <input name="preferredDate" type="date" />
-      </div>
-      <div class="rv-ad-lp__field">
-        <label>الوقت المفضل</label>
-        <select name="preferredTime">
-          <option value="">اختاري الوقت</option>
-          ${timeSelect}
-        </select>
-      </div>
-      <div class="rv-ad-lp__field">
         <label>ملاحظات مختصرة</label>
-        <textarea name="appointmentNotes" placeholder="اكتبي أي تفاصيل مهمة للفريق الطبي"></textarea>
+        <textarea name="message" placeholder="اكتبي أي تفاصيل مهمة للفريق الطبي"></textarea>
       </div>
       <button class="rv-ad-lp__submit" type="submit">${escapeHtml(page.cta)}</button>
-      <p class="rv-ad-lp__note">مواعيدنا من السبت إلى الخميس من 2:00 م إلى 10:00 م. الجمعة إجازة.</p>
+      <p class="rv-ad-lp__note">سيتم تسجيل الطلب في لوحة التحكم والتواصل معك من فريق ريجوفيرا.</p>
     </form>
   </div>
   <p class="rv-ad-lp__footer">Rejuvera Medical Center · الرياض · info@rejuvera.sa</p>

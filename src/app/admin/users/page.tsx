@@ -9,7 +9,6 @@ import { AdminUserCreateForm } from "@/components/forms/AdminUserCreateForm";
 import { AdminUserRoleForm } from "@/components/forms/AdminUserRoleForm";
 import {
   getRoleLabel,
-  permissionMatrix,
   roleDescriptions,
   roleLabels,
 } from "@/lib/admin-permissions";
@@ -40,7 +39,7 @@ export default async function AdminUsersPage() {
     ...groupedUsers.map((group) => ({
       value: group.role,
       labelAr: roleLabels[group.role],
-      labelEn: group.role.replace("_", " "),
+      labelEn: roleLabels[group.role],
       count: group.users.length,
     })),
     {
@@ -81,7 +80,7 @@ export default async function AdminUsersPage() {
       <article className="admin-card admin-users-overview">
         <div className="admin-card__header">
           <div>
-            <div className="admin-card__subtitle">By role</div>
+            <div className="admin-card__subtitle">الصلاحيات</div>
             <div className="admin-card__title">
               <span className="lang-ar">توزيع الحسابات</span>
               <span className="lang-en">Accounts by role</span>
@@ -93,7 +92,7 @@ export default async function AdminUsersPage() {
             <div key={group.role} className="admin-role-stat">
               <div>
                 <span className="admin-chip">{group.label}</span>
-                <p dir="ltr">{group.role}</p>
+                <p>{group.users.length} حساب</p>
               </div>
               <strong>{group.users.length}</strong>
               <small>{roleDescriptions[group.role].summary}</small>
@@ -105,7 +104,7 @@ export default async function AdminUsersPage() {
       <article className="admin-card admin-users-card">
         <div className="admin-card__header">
           <div>
-            <div className="admin-card__subtitle">DataTable</div>
+            <div className="admin-card__subtitle">الدليل</div>
             <div className="admin-card__title">
               <span className="lang-ar">قاعدة المستخدمين</span>
               <span className="lang-en">User directory</span>
@@ -241,7 +240,7 @@ export default async function AdminUsersPage() {
       <details className="admin-card admin-collapsible-card">
         <summary className="admin-card__header">
           <div>
-            <div className="admin-card__subtitle">Access profiles</div>
+            <div className="admin-card__subtitle">مستويات الوصول</div>
             <div className="admin-card__title">
               <span className="lang-ar">ملخص الصلاحيات حسب الدور</span>
               <span className="lang-en">Role access summary</span>
@@ -256,9 +255,8 @@ export default async function AdminUsersPage() {
               <section key={role} className="admin-role-profile">
                 <header>
                   <span className="admin-chip">{roleLabels[role]}</span>
-                  <small dir="ltr">{role}</small>
+                  <small>{description.summary}</small>
                 </header>
-                <p>{description.summary}</p>
                 <div>
                   <strong>مسموح</strong>
                   <ul>
@@ -269,7 +267,7 @@ export default async function AdminUsersPage() {
                 </div>
                 {description.restricted.length ? (
                   <div>
-                    <strong>ممنوع</strong>
+                    <strong>غير متاح</strong>
                     <ul>
                       {description.restricted.map((item) => (
                         <li key={item}>{item}</li>
@@ -280,38 +278,6 @@ export default async function AdminUsersPage() {
               </section>
             );
           })}
-        </div>
-      </details>
-
-      <details className="admin-card admin-collapsible-card">
-        <summary className="admin-card__header">
-          <div>
-            <div className="admin-card__subtitle">Matrix</div>
-            <div className="admin-card__title">
-              <span className="lang-ar">مصفوفة الصلاحيات</span>
-              <span className="lang-en">Permission matrix</span>
-            </div>
-          </div>
-          <span className="admin-btn-ghost">عرض / إخفاء</span>
-        </summary>
-        <div className="admin-data-list">
-          {permissionMatrix.map((rule) => (
-            <div key={rule.prefix} className="admin-data-row">
-              <div>
-                <p className="admin-data-row__title">{rule.label}</p>
-                <p className="admin-data-row__meta" dir="ltr">
-                  {rule.prefix}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {rule.roles.map((role) => (
-                  <span key={role} className="admin-chip">
-                    {roleLabels[role]}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
       </details>
     </>

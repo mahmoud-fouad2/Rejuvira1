@@ -3,10 +3,6 @@
 import { useMemo, useState } from "react";
 
 import { ImagePicker } from "@/components/admin/ImagePicker";
-import {
-  APPOINTMENT_TIME_OPTIONS,
-  buildAppointmentDateOptions,
-} from "@/lib/appointment-slots";
 
 type BlockKind =
   | "hero"
@@ -29,6 +25,14 @@ type BlockKind =
 
 type Tone = "light" | "soft" | "dark";
 type Align = "right" | "center" | "left";
+type FormFieldType =
+  | "text"
+  | "email"
+  | "phone"
+  | "textarea"
+  | "select"
+  | "checkbox"
+  | "radio";
 
 type BuilderBlock = {
   id: string;
@@ -45,7 +49,6 @@ type BuilderBlock = {
   serviceSlug?: string;
   serviceName?: string;
   formEmailMode?: "hidden" | "optional" | "required";
-  formShowAppointment?: boolean;
   formShowMessage?: boolean;
   formFields?: string;
   formActionUrl?: string;
@@ -199,7 +202,6 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     tone: "soft",
     align: "right",
     formEmailMode: "optional",
-    formShowAppointment: true,
     formShowMessage: true,
   },
   contact: {
@@ -261,24 +263,6 @@ function escapeHtml(value = "") {
     .replace(/"/g, "&quot;");
 }
 
-function appointmentDateSelect(disabled: string) {
-  const options = buildAppointmentDateOptions()
-    .map(
-      (date) =>
-        `<option value="${date.value}">${escapeHtml(date.labelAr)}</option>`,
-    )
-    .join("");
-  return `<select name="preferredDate"${disabled}><option value="">اختاري اليوم</option>${options}</select>`;
-}
-
-function appointmentTimeSelect(disabled: string) {
-  const options = APPOINTMENT_TIME_OPTIONS.map(
-    (slot) =>
-      `<option value="${slot.value}">${escapeHtml(slot.labelAr)}</option>`,
-  ).join("");
-  return `<select name="preferredTime"${disabled}><option value="">اختاري الوقت</option>${options}</select>`;
-}
-
 function trackingHiddenInputs() {
   return [
     "utm_source",
@@ -303,27 +287,120 @@ function safeFieldName(value: string, fallback: string) {
   return normalized || fallback;
 }
 
+function parseFieldType(value: string): FormFieldType {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "tel") return "phone";
+  if (
+    [
+      "text",
+      "email",
+      "phone",
+      "textarea",
+      "select",
+      "checkbox",
+      "radio",
+    ].includes(normalized)
+  ) {
+    return normalized as FormFieldType;
+  }
+  return "text";
+}
+
+function parseOptions(value = "") {
+  return value
+    .split(/[,\n؛;،]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const [label = "", rawValue = ""] = item.split(":");
+      const optionLabel = label.trim();
+      return {
+        label: optionLabel,
+        value: (rawValue.trim() || optionLabel).trim(),
+      };
+    })
+    .filter((item) => item.label);
+}
+
+function validationAttributes(value = "", disabled = "") {
+  const attrs: string[] = [];
+  value
+    .split(/[;,،]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .forEach((rule) => {
+      const [key = "", raw = ""] = rule.split(":");
+      const name = key.trim().toLowerCase();
+      const val = raw.trim();
+      if (!val) return;
+      if (["min", "minlength"].includes(name)) {
+        attrs.push(` minlength="${escapeHtml(val)}"`);
+      }
+      if (["max", "maxlength"].includes(name)) {
+        attrs.push(` maxlength="${escapeHtml(val)}"`);
+      }
+      if (name === "pattern") {
+        attrs.push(` pattern="${escapeHtml(val)}"`);
+      }
+    });
+  return disabled ? "" : attrs.join("");
+}
+
 function renderExtraFormFields(value = "", disabled: string) {
   return value
     .split(/\n+/)
     .map((line, index) => {
-      const [label = "", rawName = "", rawType = "text", rawRequired = ""] =
-        line.split("|");
+      const [
+        label = "",
+        rawName = "",
+        rawType = "text",
+        rawRequired = "",
+        rawPlaceholder = "",
+        rawOptions = "",
+        rawValidation = "",
+      ] = line.split("|");
       const safeLabel = label.trim();
       if (!safeLabel) return "";
       const name = escapeHtml(safeFieldName(rawName, `extraField${index + 1}`));
-      const type = rawType.trim().toLowerCase();
+      const type = parseFieldType(rawType);
       const isRequired =
         rawRequired.trim().toLowerCase() === "required" ||
         rawRequired.trim() === "مطلوب";
       const required = isRequired && !disabled ? " required" : "";
-      if (type === "textarea" || type === "message") {
-        return `<label><span>${escapeHtml(safeLabel)}</span><textarea name="${name}" rows="3"${required}${disabled}></textarea></label>`;
+      const placeholder = rawPlaceholder.trim()
+        ? ` placeholder="${escapeHtml(rawPlaceholder.trim())}"`
+        : "";
+      const validation = validationAttributes(rawValidation, disabled);
+      if (type === "textarea") {
+        return `<label><span>${escapeHtml(safeLabel)}</span><textarea name="${name}" rows="3"${required}${placeholder}${validation}${disabled}></textarea></label>`;
       }
-      const inputType = ["email", "tel", "number", "date", "url"].includes(type)
-        ? type
-        : "text";
-      return `<label><span>${escapeHtml(safeLabel)}</span><input name="${name}" type="${inputType}"${required}${disabled}></label>`;
+      if (type === "select") {
+        const options = parseOptions(rawOptions)
+          .map(
+            (option) =>
+              `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`,
+          )
+          .join("");
+        return `<label><span>${escapeHtml(safeLabel)}</span><select name="${name}"${required}${disabled}><option value="">اختاري</option>${options}</select></label>`;
+      }
+      if (type === "radio" || type === "checkbox") {
+        const options = parseOptions(rawOptions);
+        if (options.length === 0 && type === "checkbox") {
+          return `<label class="rv-builder-check-field"><input name="${name}" type="checkbox" value="yes"${required}${disabled}><span>${escapeHtml(safeLabel)}</span></label>`;
+        }
+        const controls = options
+          .map(
+            (option) =>
+              `<label class="rv-builder-option-field"><input name="${name}" type="${type}" value="${escapeHtml(option.value)}"${required}${disabled}><span>${escapeHtml(option.label)}</span></label>`,
+          )
+          .join("");
+        return `<fieldset class="rv-builder-choice-group"><legend>${escapeHtml(safeLabel)}</legend>${controls}</fieldset>`;
+      }
+      const inputType =
+        type === "email" ? "email" : type === "phone" ? "tel" : "text";
+      const phoneAttrs =
+        type === "phone" ? ' inputmode="tel" autocomplete="tel"' : "";
+      return `<label><span>${escapeHtml(safeLabel)}</span><input name="${name}" type="${inputType}"${phoneAttrs}${required}${placeholder}${validation}${disabled}></label>`;
     })
     .join("");
 }
@@ -519,7 +596,6 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     const disabled = mode === "preview" ? " disabled" : "";
     const required = mode === "preview" ? "" : " required";
     const emailMode = block.formEmailMode ?? "optional";
-    const showAppointment = block.formShowAppointment ?? true;
     const showMessage = block.formShowMessage ?? true;
     const controls =
       (mode === "preview"
@@ -527,19 +603,13 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
         : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${block.serviceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(block.serviceSlug)}">` : ""}${block.serviceName ? `<input type="hidden" name="service" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(block.serviceName)}">` : ""}`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
-      (showAppointment
-        ? `<label><span>تاريخ الموعد المفضل</span>${appointmentDateSelect(disabled)}</label><label><span>الوقت المفضل</span>${appointmentTimeSelect(disabled)}</label>`
-        : "") +
       (emailMode === "hidden"
         ? ""
         : `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${emailMode === "required" ? required : ""}${disabled} placeholder="name@example.com"></label>`) +
       (showMessage
-        ? `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو الموعد المناسب"></textarea></label>`
+        ? `<label><span>تفاصيل الطلب</span><textarea name="message" rows="4"${disabled} placeholder="اكتبي الخدمة أو التفاصيل المهمة"></textarea></label>`
         : "") +
       renderExtraFormFields(block.formFields, disabled) +
-      (mode === "preview"
-        ? ""
-        : `<input type="hidden" name="appointmentNotes" value="Landing page appointment request">`) +
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
     return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
   }
@@ -915,18 +985,6 @@ export function CustomPageBuilder({
                 <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                   <input
                     type="checkbox"
-                    checked={selected.formShowAppointment ?? true}
-                    onChange={(event) =>
-                      update(selected.id, {
-                        formShowAppointment: event.target.checked,
-                      })
-                    }
-                  />
-                  <span>إظهار تاريخ ووقت الموعد</span>
-                </label>
-                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                  <input
-                    type="checkbox"
                     checked={selected.formShowMessage ?? true}
                     onChange={(event) =>
                       update(selected.id, {
@@ -997,15 +1055,21 @@ export function CustomPageBuilder({
                   />
                 </label>
                 <label>
-                  <span>حقول إضافية</span>
+                  <span>حقول إضافية ديناميكية</span>
                   <textarea
                     value={selected.formFields ?? ""}
                     rows={5}
                     onChange={(event) =>
                       update(selected.id, { formFields: event.target.value })
                     }
-                    placeholder="العمر|age|number&#10;ملاحظات إضافية|extra_notes|textarea|مطلوب"
+                    placeholder="العمر|age|text||مثال: 35| |min:1&#10;طريقة التواصل|contact_method|select|مطلوب|اختاري|واتساب,اتصال&#10;هل لديك حساسية؟|allergy|radio|| |نعم,لا"
                   />
+                  <small>
+                    الصيغة:
+                    label|name|type|required|placeholder|options|validation.
+                    الأنواع: text, email, phone, textarea, select, checkbox,
+                    radio.
+                  </small>
                 </label>
               </div>
             ) : null}

@@ -36,11 +36,10 @@ const STATUS_ORDER: SubmissionStatus[] = [
 ];
 
 type FilterStatus = SubmissionStatus | "ALL";
-type AppointmentFilter = "ALL" | "WITH_DATE" | "TODAY" | "UPCOMING" | "NO_DATE";
 type RangePreset = "today" | "7d" | "30d" | "90d" | "all";
 
 function formatArabicDateTime(iso?: string) {
-  if (!iso) return "بدون موعد";
+  if (!iso) return "غير محدد";
   try {
     return new Intl.DateTimeFormat("ar-SA", {
       dateStyle: "medium",
@@ -146,7 +145,6 @@ export function CrmFilterBar({
   const [service, setService] = useState("ALL");
   const [tag, setTag] = useState("ALL");
   const [owner, setOwner] = useState("ALL");
-  const [appointment, setAppointment] = useState<AppointmentFilter>("ALL");
   const [range, setRange] = useState<RangePreset>("all");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -202,26 +200,6 @@ export function CrmFilterBar({
       if (presetCutoff && created < presetCutoff) return false;
       if (fromTime && created < fromTime) return false;
       if (toTime && created > toTime) return false;
-      if (appointment !== "ALL") {
-        const rawAppointment = submission.preferredAppointmentAt;
-        const appointmentTime = rawAppointment
-          ? new Date(rawAppointment).getTime()
-          : null;
-        if (appointment === "WITH_DATE" && !appointmentTime) return false;
-        if (appointment === "NO_DATE" && appointmentTime) return false;
-        if (
-          appointment === "UPCOMING" &&
-          (!appointmentTime || appointmentTime < nowSnapshot)
-        ) {
-          return false;
-        }
-        if (
-          appointment === "TODAY" &&
-          !withinSameSaudiDay(rawAppointment, nowSnapshot)
-        ) {
-          return false;
-        }
-      }
       if (term) {
         const haystack = [
           submission.fullName,
@@ -229,7 +207,6 @@ export function CrmFilterBar({
           submission.email ?? "",
           submission.serviceLabel ?? "",
           submission.source,
-          submission.appointmentNotes ?? "",
           submission.message ?? "",
           submission.notes ?? "",
           submission.utmSource ?? "",
@@ -245,7 +222,6 @@ export function CrmFilterBar({
       return true;
     });
   }, [
-    appointment,
     fromDate,
     nowSnapshot,
     owner,
@@ -315,7 +291,6 @@ export function CrmFilterBar({
     setService("ALL");
     setTag("ALL");
     setOwner("ALL");
-    setAppointment("ALL");
     setRange("all");
     setFromDate("");
     setToDate("");
@@ -334,13 +309,13 @@ export function CrmFilterBar({
               className="admin-btn-secondary"
               href={`/api/admin/crm/export?format=csv${exportQuery ? `&${exportQuery}` : ""}`}
             >
-              تصدير CSV
+              تنزيل البيانات
             </a>
             <a
               className="admin-btn-secondary"
               href={`/api/admin/crm/export?format=pdf${exportQuery ? `&${exportQuery}` : ""}`}
             >
-              تصدير PDF
+              تقرير مختصر
             </a>
           </div>
         </div>
@@ -352,7 +327,7 @@ export function CrmFilterBar({
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="اسم / جوال / خدمة / حملة / ملاحظات"
+              placeholder="اسم / جوال / خدمة / مصدر"
               className="admin-input"
             />
           </label>
@@ -417,22 +392,6 @@ export function CrmFilterBar({
                   {person.name}
                 </option>
               ))}
-            </select>
-          </label>
-          <label>
-            <span>الموعد</span>
-            <select
-              className="admin-input"
-              value={appointment}
-              onChange={(event) =>
-                setAppointment(event.target.value as AppointmentFilter)
-              }
-            >
-              <option value="ALL">كل المواعيد</option>
-              <option value="WITH_DATE">له موعد</option>
-              <option value="TODAY">موعد اليوم</option>
-              <option value="UPCOMING">مواعيد قادمة</option>
-              <option value="NO_DATE">بدون موعد</option>
             </select>
           </label>
           <label>
@@ -548,39 +507,27 @@ export function CrmFilterBar({
           <div className="admin-crm-sheet">
             <div className="admin-crm-sheet__toolbar">
               <div>
-                <span className="admin-field-label">جدول الليدز</span>
+                <span className="admin-field-label">قائمة الطلبات</span>
                 <strong>{filtered.length} سجل</strong>
               </div>
-              <span>اضغط على أي صف لعرض التفاصيل الكاملة وتعديلها.</span>
+              <span>افتح الطلب لمتابعة التفاصيل والإجراءات.</span>
             </div>
             <div className="admin-crm-sheet__scroll">
               <table className="table-hover table align-middle">
                 <thead>
                   <tr>
-                    <th>#</th>
                     <th>العميل</th>
                     <th>الجوال</th>
-                    <th>الخدمة</th>
                     <th>الحالة</th>
                     <th>المصدر</th>
-                    <th>الحملة</th>
-                    <th>المسؤول</th>
-                    <th>الموعد</th>
+                    <th>آخر تفاعل</th>
                     <th>تاريخ الدخول</th>
                     <th>إجراء</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((submission, index) => {
+                  {filtered.map((submission) => {
                     const isSelected = submission.id === selectedSubmission?.id;
-                    const campaign =
-                      [
-                        submission.utmSource,
-                        submission.utmMedium,
-                        submission.utmCampaign,
-                      ]
-                        .filter(Boolean)
-                        .join(" / ") || "لا يوجد";
                     return (
                       <tr
                         key={submission.id}
@@ -595,7 +542,6 @@ export function CrmFilterBar({
                           }
                         }}
                       >
-                        <td>{index + 1}</td>
                         <td>
                           <button
                             type="button"
@@ -612,7 +558,6 @@ export function CrmFilterBar({
                           </button>
                         </td>
                         <td dir="ltr">{submission.phone}</td>
-                        <td>{submission.serviceLabel ?? "غير محددة"}</td>
                         <td>
                           <span
                             className={`admin-status-badge ${STATUS_BADGE[submission.status]}`}
@@ -621,14 +566,8 @@ export function CrmFilterBar({
                           </span>
                         </td>
                         <td>{translateSource(submission.source)}</td>
-                        <td>{campaign}</td>
-                        <td>{submission.assignedToName ?? "غير محدد"}</td>
                         <td>
-                          {submission.preferredAppointmentAt
-                            ? formatArabicDateTime(
-                                submission.preferredAppointmentAt,
-                              )
-                            : "بدون موعد"}
+                          {formatTimeAgo(submission.createdAt, nowSnapshot)}
                         </td>
                         <td>{formatArabicDate(submission.createdAt)}</td>
                         <td>
@@ -712,14 +651,6 @@ export function CrmFilterBar({
                     <span className="admin-field-label">تاريخ الدخول</span>
                     <strong>
                       {formatArabicDate(selectedSubmission.createdAt)}
-                    </strong>
-                  </div>
-                  <div>
-                    <span className="admin-field-label">الموعد المفضل</span>
-                    <strong>
-                      {formatArabicDateTime(
-                        selectedSubmission.preferredAppointmentAt,
-                      )}
                     </strong>
                   </div>
                   <div>
@@ -827,7 +758,7 @@ export function CrmFilterBar({
                 </div>
 
                 <div className="admin-crm-modal__timeline">
-                  <div className="admin-card__subtitle">Timeline</div>
+                  <div className="admin-card__subtitle">سجل المتابعة</div>
                   <ol>
                     <li>
                       <strong>تم استقبال الليد</strong>
@@ -835,16 +766,6 @@ export function CrmFilterBar({
                         {formatArabicDateTime(selectedSubmission.createdAt)}
                       </span>
                     </li>
-                    {selectedSubmission.preferredAppointmentAt ? (
-                      <li>
-                        <strong>موعد مفضل</strong>
-                        <span>
-                          {formatArabicDateTime(
-                            selectedSubmission.preferredAppointmentAt,
-                          )}
-                        </span>
-                      </li>
-                    ) : null}
                     {selectedSubmission.comments.slice(0, 4).map((comment) => (
                       <li key={comment.id}>
                         <strong>{comment.authorName ?? "ملاحظة داخلية"}</strong>

@@ -4,15 +4,10 @@ import {
   type FormEvent,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import {
-  APPOINTMENT_TIME_OPTIONS,
-  buildAppointmentDateOptions,
-} from "@/lib/appointment-slots";
 import type { ServiceRecord } from "@/lib/content-repository";
 
 type ContactActionState = {
@@ -88,7 +83,6 @@ export function ContactForm({
   const formRef = useRef<HTMLFormElement | null>(null);
   const tokenInputRef = useRef<HTMLInputElement | null>(null);
   const siteKey = recaptchaSiteKey ?? "";
-  const appointmentDates = useMemo(() => buildAppointmentDateOptions(), []);
 
   useEffect(() => {
     if (!siteKey) return;
@@ -217,60 +211,6 @@ export function ContactForm({
           ))}
         </select>
       </label>
-      <div className="grid gap-5 md:grid-cols-2">
-        <label className="grid gap-2">
-          <span className="text-ink-strong text-sm font-semibold tracking-tight">
-            <span className="lang-ar">تاريخ الموعد المفضل</span>
-            <span className="lang-en">Preferred date</span>
-          </span>
-          <select
-            name="preferredDate"
-            className="field-public cursor-pointer"
-            defaultValue=""
-          >
-            <option value="">
-              {lang === "ar" ? "اختاري اليوم" : "Select a day"}
-            </option>
-            {appointmentDates.map((date) => (
-              <option key={date.value} value={date.value}>
-                {lang === "ar" ? date.labelAr : date.labelEn}
-              </option>
-            ))}
-          </select>
-          <span className="text-ink-faint text-xs">
-            <span className="lang-ar">
-              الجمعة إجازة. الحجز متاح السبت إلى الخميس.
-            </span>
-            <span className="lang-en">
-              Friday is closed. Booking is Sat-Thu.
-            </span>
-          </span>
-        </label>
-        <label className="grid gap-2">
-          <span className="text-ink-strong text-sm font-semibold tracking-tight">
-            <span className="lang-ar">الوقت المفضل</span>
-            <span className="lang-en">Preferred time</span>
-          </span>
-          <select
-            name="preferredTime"
-            className="field-public cursor-pointer"
-            defaultValue=""
-          >
-            <option value="">
-              {lang === "ar" ? "اختاري الوقت" : "Select a time"}
-            </option>
-            {APPOINTMENT_TIME_OPTIONS.map((slot) => (
-              <option key={slot.value} value={slot.value}>
-                {lang === "ar" ? slot.labelAr : slot.labelEn}
-              </option>
-            ))}
-          </select>
-          <span className="text-ink-faint text-xs">
-            <span className="lang-ar">ساعات العمل: 2:00 م إلى 10:00 م.</span>
-            <span className="lang-en">Working hours: 2:00 PM to 10:00 PM.</span>
-          </span>
-        </label>
-      </div>
       {compact ? null : (
         <label className="grid gap-2">
           <span className="text-ink-strong text-sm font-semibold tracking-tight">
@@ -289,15 +229,6 @@ export function ContactForm({
           />
         </label>
       )}
-      <input
-        type="hidden"
-        name="appointmentNotes"
-        value={
-          compact
-            ? "Preferred appointment requested from compact booking form."
-            : ""
-        }
-      />
       <input type="hidden" name="preferredLanguage" value={lang} />
       <input type="hidden" name="source" value={source} />
       <input type="hidden" name="utm_source" defaultValue="" />

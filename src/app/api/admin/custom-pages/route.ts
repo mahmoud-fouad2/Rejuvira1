@@ -24,6 +24,20 @@ const baseSchema = z.object({
   htmlContent: z.string().min(1).max(1_000_000),
   seoTitle: z.string().max(160).optional().or(z.literal("")),
   seoDescription: z.string().max(360).optional().or(z.literal("")),
+  metaTitle: z.string().max(160).optional().or(z.literal("")),
+  metaDescription: z.string().max(500).optional().or(z.literal("")),
+  keywords: z.string().max(1000).optional().or(z.literal("")),
+  ogTitle: z.string().max(160).optional().or(z.literal("")),
+  ogDescription: z.string().max(500).optional().or(z.literal("")),
+  ogImage: z.string().url().max(500).optional().or(z.literal("")),
+  seoSlug: z
+    .string()
+    .max(80)
+    .regex(slugRegex, { message: "Invalid SEO slug" })
+    .optional()
+    .or(z.literal("")),
+  hashtags: z.string().max(1000).optional().or(z.literal("")),
+  formConfig: z.string().max(50_000).optional().or(z.literal("")),
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
   noindex: z.coerce.boolean().optional().default(false),
 });
@@ -56,6 +70,23 @@ function revalidate(slug?: string, oldSlug?: string) {
   revalidatePath("/sitemap.xml");
 }
 
+function parseList(value?: string) {
+  return (value ?? "")
+    .split(/[,\n،]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseFormConfig(value?: string) {
+  if (!value?.trim()) return undefined;
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function POST(request: Request) {
   if (!(await requireAdmin())) {
     return json("error", "Unauthorized", { status: 401 });
@@ -69,6 +100,15 @@ export async function POST(request: Request) {
     htmlContent: formData.get("htmlContent"),
     seoTitle: formData.get("seoTitle"),
     seoDescription: formData.get("seoDescription"),
+    metaTitle: formData.get("metaTitle"),
+    metaDescription: formData.get("metaDescription"),
+    keywords: formData.get("keywords"),
+    ogTitle: formData.get("ogTitle"),
+    ogDescription: formData.get("ogDescription"),
+    ogImage: formData.get("ogImage"),
+    seoSlug: formData.get("seoSlug"),
+    hashtags: formData.get("hashtags"),
+    formConfig: formData.get("formConfig"),
     status: formData.get("status") || ContentStatus.DRAFT,
     noindex: formData.get("noindex"),
   });
@@ -85,6 +125,16 @@ export async function POST(request: Request) {
       htmlContent: parsed.data.htmlContent,
       seoTitle: parsed.data.seoTitle,
       seoDescription: parsed.data.seoDescription,
+      metaTitle: parsed.data.metaTitle || parsed.data.seoTitle,
+      metaDescription:
+        parsed.data.metaDescription || parsed.data.seoDescription,
+      keywords: parseList(parsed.data.keywords),
+      ogTitle: parsed.data.ogTitle,
+      ogDescription: parsed.data.ogDescription,
+      ogImage: parsed.data.ogImage,
+      seoSlug: parsed.data.seoSlug,
+      hashtags: parseList(parsed.data.hashtags),
+      formConfig: parseFormConfig(parsed.data.formConfig),
       status: parsed.data.status,
       noindex: parsed.data.noindex,
     });
@@ -113,6 +163,15 @@ export async function PUT(request: Request) {
     htmlContent: formData.get("htmlContent"),
     seoTitle: formData.get("seoTitle"),
     seoDescription: formData.get("seoDescription"),
+    metaTitle: formData.get("metaTitle"),
+    metaDescription: formData.get("metaDescription"),
+    keywords: formData.get("keywords"),
+    ogTitle: formData.get("ogTitle"),
+    ogDescription: formData.get("ogDescription"),
+    ogImage: formData.get("ogImage"),
+    seoSlug: formData.get("seoSlug"),
+    hashtags: formData.get("hashtags"),
+    formConfig: formData.get("formConfig"),
     status: formData.get("status") || ContentStatus.DRAFT,
     noindex: formData.get("noindex"),
     oldSlug: formData.get("oldSlug"),
@@ -131,6 +190,16 @@ export async function PUT(request: Request) {
       htmlContent: parsed.data.htmlContent,
       seoTitle: parsed.data.seoTitle,
       seoDescription: parsed.data.seoDescription,
+      metaTitle: parsed.data.metaTitle || parsed.data.seoTitle,
+      metaDescription:
+        parsed.data.metaDescription || parsed.data.seoDescription,
+      keywords: parseList(parsed.data.keywords),
+      ogTitle: parsed.data.ogTitle,
+      ogDescription: parsed.data.ogDescription,
+      ogImage: parsed.data.ogImage,
+      seoSlug: parsed.data.seoSlug,
+      hashtags: parseList(parsed.data.hashtags),
+      formConfig: parseFormConfig(parsed.data.formConfig),
       status: parsed.data.status,
       noindex: parsed.data.noindex,
     });

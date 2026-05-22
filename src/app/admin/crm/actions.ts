@@ -13,7 +13,6 @@ import {
   deleteCrmSubmission,
   updateCrmSubmission,
 } from "@/lib/content-repository";
-import { isValidAppointmentSlot } from "@/lib/appointment-slots";
 
 export type CrmActionState = {
   status: "idle" | "success" | "error";
@@ -41,8 +40,6 @@ const updateSchema = z.object({
   fullName: z.string().min(2).max(160).optional(),
   phone: z.string().min(4).max(40).optional(),
   email: z.string().email().max(160).optional().or(z.literal("")),
-  preferredAppointmentAt: z.string().optional().or(z.literal("")),
-  appointmentNotes: z.string().max(500).optional().or(z.literal("")),
   serviceSlug: z.string().max(120).optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   tags: tagsSchema,
@@ -69,34 +66,6 @@ async function ensureCrmManager() {
   return session;
 }
 
-function isValidAdminAppointment(value?: string) {
-  if (!value) return true;
-  const localMatch = value.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/);
-  if (localMatch) {
-    return isValidAppointmentSlot(localMatch[1], localMatch[2]);
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return false;
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Riyadh",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  })
-    .formatToParts(parsed)
-    .reduce<Record<string, string>>((acc, part) => {
-      if (part.type !== "literal") acc[part.type] = part.value;
-      return acc;
-    }, {});
-  return isValidAppointmentSlot(
-    `${parts.year}-${parts.month}-${parts.day}`,
-    `${parts.hour}:${parts.minute}`,
-  );
-}
-
 export async function updateCrmSubmissionAction(
   _previousState: CrmActionState,
   formData: FormData,
@@ -117,8 +86,6 @@ export async function updateCrmSubmissionAction(
     fullName: formData.get("fullName") || undefined,
     phone: formData.get("phone") || undefined,
     email: formData.get("email"),
-    preferredAppointmentAt: formData.get("preferredAppointmentAt"),
-    appointmentNotes: formData.get("appointmentNotes"),
     serviceSlug: formData.get("serviceSlug"),
     assignedToId: formData.get("assignedToId"),
     tags: formData.getAll("tags").length
@@ -133,14 +100,6 @@ export async function updateCrmSubmissionAction(
     };
   }
 
-  if (!isValidAdminAppointment(parsed.data.preferredAppointmentAt || "")) {
-    return {
-      status: "error",
-      message:
-        "الموعد يجب أن يكون من السبت إلى الخميس بين 2:00 مساءً و10:00 مساءً.",
-    };
-  }
-
   const result = await updateCrmSubmission({
     id: parsed.data.id,
     status: parsed.data.status,
@@ -149,12 +108,6 @@ export async function updateCrmSubmissionAction(
     ...(parsed.data.phone ? { phone: parsed.data.phone } : {}),
     ...(parsed.data.email !== undefined
       ? { email: parsed.data.email || null }
-      : {}),
-    ...(parsed.data.preferredAppointmentAt !== undefined
-      ? { preferredAppointmentAt: parsed.data.preferredAppointmentAt || null }
-      : {}),
-    ...(parsed.data.appointmentNotes !== undefined
-      ? { appointmentNotes: parsed.data.appointmentNotes || null }
       : {}),
     ...(parsed.data.serviceSlug !== undefined
       ? { serviceSlug: parsed.data.serviceSlug || null }
@@ -279,11 +232,6 @@ export async function importCrmCsvAction(formData: FormData) {
       email: csvValue(row, ["email", "البريد"]) || undefined,
       message: csvValue(row, ["message", "الرسالة"]) || undefined,
       notes: csvValue(row, ["notes", "ملاحظات", "ملاحظاتداخلية"]) || undefined,
-      appointmentNotes:
-        csvValue(row, ["appointmentNotes", "ملاحظاتالموعد"]) || undefined,
-      preferredAppointmentAt:
-        csvValue(row, ["preferredAppointment", "appointment", "الموعد"]) ||
-        undefined,
       serviceSlug:
         csvValue(row, ["serviceSlug", "service", "الخدمة"]) || undefined,
       source: csvValue(row, ["source", "المصدر"]) || "استيراد CRM",

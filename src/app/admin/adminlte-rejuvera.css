@@ -37,6 +37,7 @@
 .admin-shell__sidebar {
   position: fixed;
   inset-block: 0;
+  z-index: 1041;
   width: var(--lte-sidebar-width);
   max-width: var(--lte-sidebar-width);
   height: 100dvh;
@@ -67,7 +68,7 @@
 .admin-shell__mobile-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 1037;
+  z-index: 1040;
   display: none;
   border: 0;
   background: rgba(7, 2, 20, 0.55);
@@ -95,7 +96,7 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 .admin-shell__topbar {
   position: sticky;
   top: 0;
-  z-index: 1030;
+  z-index: 1039;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(13rem, 22rem) auto;
   gap: var(--admin-density-gap);
@@ -2443,6 +2444,8 @@ html[dir="rtl"] .admin-shell .main-sidebar {
     width: min(17rem, 84vw);
     max-width: min(17rem, 84vw);
     transform: translateX(-105%);
+    will-change: transform;
+    box-shadow: 0 28px 80px rgba(7, 2, 20, 0.32);
   }
 
   html[dir="rtl"] .admin-shell .main-sidebar {
@@ -2464,6 +2467,8 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   .admin-shell .navbar,
   .admin-shell__topbar {
     grid-template-columns: minmax(0, 1fr) auto;
+    position: sticky;
+    top: 0;
   }
 
   .admin-shell__quick-search {
