@@ -4947,7 +4947,10 @@ html[data-theme="dark"] .rv-v0-footer-cta.is-secondary {
 }
 
 .rv-v0-footer-social-btn[data-social="snapchat"] {
-  --social-color: #d6a900;
+  --social-color: #f5b800;
+}
+.rv-v0-footer-social-btn[data-social="snapchat"] svg {
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.05));
 }
 
 .rv-v0-footer-social-btn[data-social="whatsapp"] {
