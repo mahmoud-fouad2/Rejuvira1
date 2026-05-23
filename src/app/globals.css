@@ -15925,3 +15925,94 @@ html[data-theme="dark"] .gallery-card__divider {
     min-height: 14rem !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   MOBILE HEADER — single row: [menu] [brand center] [actions]
+   Must be last rule to win cascade. 2026-05-23
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .rv-v0-nav {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    grid-template-rows: 1fr !important;
+    grid-template-areas: "menu brand actions" !important;
+    align-items: center !important;
+    min-height: 3.5rem !important;
+    max-height: 4rem !important;
+    padding: 0.4rem 0.75rem !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Menu button — left (RTL: right) */
+  .rv-mobile-details {
+    grid-area: menu !important;
+    justify-self: start !important;
+  }
+
+  /* Brand logo — centered */
+  .rv-nav-brand-wrap {
+    grid-area: brand !important;
+    justify-self: center !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  .rv-v0-brand {
+    width: auto !important;
+    height: auto !important;
+    max-height: 2.8rem !important;
+    padding: 0 !important;
+  }
+  .rv-v0-logo,
+  header .rv-brand-logo,
+  header .rv-brand-logo-header {
+    width: 5.5rem !important;
+    height: 2.6rem !important;
+    min-width: auto !important;
+  }
+
+  /* Actions — right (RTL: left) */
+  .rv-mobile-inline-actions {
+    grid-area: actions !important;
+    justify-self: end !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+  }
+
+  /* Hide desktop nav and desktop actions */
+  .rv-nav-menu,
+  .rv-nav-actions {
+    display: none !important;
+  }
+
+  /* Make action buttons smaller on mobile */
+  .rv-mobile-inline-actions button,
+  .rv-mobile-inline-actions .rv-v0-book {
+    height: 2.2rem !important;
+    min-height: 2.2rem !important;
+    font-size: 0.7rem !important;
+    padding-inline: 0.5rem !important;
+  }
+  .rv-mobile-inline-actions button[aria-label] {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    padding: 0 !important;
+  }
+  .rv-mobile-inline-actions .rv-lang-option {
+    width: 1.6rem !important;
+    height: 1.6rem !important;
+    font-size: 9px !important;
+  }
+}
+
+/* LTR (English) flip */
+@media (max-width: 767px) {
+  html[data-lang="en"] .rv-mobile-details {
+    justify-self: end !important;
+    grid-area: actions !important;
+  }
+  html[data-lang="en"] .rv-mobile-inline-actions {
+    justify-self: start !important;
+    grid-area: menu !important;
+  }
+}
