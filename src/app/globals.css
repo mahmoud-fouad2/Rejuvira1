@@ -15803,7 +15803,7 @@ header .rv-brand-logo-header,
   }
 }
 
-/* Prevent horizontal overflow from any element */
+/* Prevent horizontal overflow from page body only */
 html, body {
   overflow-x: clip !important;
 }
@@ -15811,7 +15811,7 @@ html, body {
 .rv-v0-nav-shell,
 .rv-v0-nav {
   max-width: 100% !important;
-  overflow-x: hidden !important;
+  overflow: visible !important;
 }
 
 /* ════════════════════════════════════════════════════════════════
