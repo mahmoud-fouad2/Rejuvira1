@@ -23,28 +23,24 @@ const V0DoctorQuotesSlider = dynamic(
     import("@/components/home/V0DoctorQuotesSlider").then(
       (m) => m.V0DoctorQuotesSlider,
     ),
-  { ssr: false },
 );
 const V0DoctorsCarousel = dynamic(
   () =>
     import("@/components/home/V0DoctorsCarousel").then(
       (m) => m.V0DoctorsCarousel,
     ),
-  { ssr: false },
 );
 const V0JournalCarousel = dynamic(
   () =>
     import("@/components/home/V0JournalCarousel").then(
       (m) => m.V0JournalCarousel,
     ),
-  { ssr: false },
 );
 const TestimonialsSplitCarousel = dynamic(
   () =>
     import("@/components/home/TestimonialsSplitCarousel").then(
       (m) => m.TestimonialsSplitCarousel,
     ),
-  { ssr: false },
 );
 
 type V0InspiredHomeProps = {
