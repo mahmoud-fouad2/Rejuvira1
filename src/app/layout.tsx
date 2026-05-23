@@ -4,20 +4,15 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import nextDynamic from "next/dynamic";
 import { LanguageProvider } from "@/components/providers/LanguageProvider";
 import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
 import { PageLoader } from "@/components/layout/PageLoader";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
 import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
+import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
 import { buildLocalBusinessJsonLd, getSiteUrl } from "@/lib/seo";
-
-const CustomCursor = nextDynamic(
-  () => import("@/components/ui/new/CustomCursor").then((m) => m.CustomCursor),
-  { ssr: false },
-);
 
 export const dynamic = "force-dynamic";
 
