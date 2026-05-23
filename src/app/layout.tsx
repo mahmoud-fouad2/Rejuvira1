@@ -4,12 +4,38 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
-import { PageLoader } from "@/components/layout/PageLoader";
-import { PageViewTracker } from "@/components/layout/PageViewTracker";
-import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
 import { LanguageProvider } from "@/components/providers/LanguageProvider";
-import { CustomCursor } from "@/components/ui/new/CustomCursor";
+import dynamic from "next/dynamic";
+
+const MaintenanceOverlay = dynamic(
+  () =>
+    import("@/components/layout/MaintenanceOverlay").then(
+      (m) => m.MaintenanceOverlay,
+    ),
+  { ssr: true },
+);
+const PageLoader = dynamic(
+  () => import("@/components/layout/PageLoader").then((m) => m.PageLoader),
+  { ssr: false },
+);
+const PageViewTracker = dynamic(
+  () =>
+    import("@/components/layout/PageViewTracker").then(
+      (m) => m.PageViewTracker,
+    ),
+  { ssr: false },
+);
+const ExternalIntegrations = dynamic(
+  () =>
+    import("@/components/layout/ExternalIntegrations").then(
+      (m) => m.ExternalIntegrations,
+    ),
+  { ssr: false },
+);
+const CustomCursor = dynamic(
+  () => import("@/components/ui/new/CustomCursor").then((m) => m.CustomCursor),
+  { ssr: false },
+);
 import { getRuntimeSettings } from "@/lib/content-repository";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
 import { buildLocalBusinessJsonLd, getSiteUrl } from "@/lib/seo";
@@ -65,7 +91,8 @@ const rejuviraSans = localFont({
   ],
   variable: "--font-rejuvira-sans",
   display: "swap",
-  preload: false,
+  preload: true,
+  fallback: ["system-ui", "Arial", "sans-serif"],
 });
 
 const rejuviraDisplay = localFont({
@@ -88,7 +115,8 @@ const rejuviraDisplay = localFont({
   ],
   variable: "--font-rejuvira-display",
   display: "swap",
-  preload: false,
+  preload: true,
+  fallback: ["Georgia", "serif"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {

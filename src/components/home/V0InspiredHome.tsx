@@ -23,28 +23,28 @@ const V0DoctorQuotesSlider = dynamic(
     import("@/components/home/V0DoctorQuotesSlider").then(
       (m) => m.V0DoctorQuotesSlider,
     ),
-  { ssr: true },
+  { ssr: false },
 );
 const V0DoctorsCarousel = dynamic(
   () =>
     import("@/components/home/V0DoctorsCarousel").then(
       (m) => m.V0DoctorsCarousel,
     ),
-  { ssr: true },
+  { ssr: false },
 );
 const V0JournalCarousel = dynamic(
   () =>
     import("@/components/home/V0JournalCarousel").then(
       (m) => m.V0JournalCarousel,
     ),
-  { ssr: true },
+  { ssr: false },
 );
 const TestimonialsSplitCarousel = dynamic(
   () =>
     import("@/components/home/TestimonialsSplitCarousel").then(
       (m) => m.TestimonialsSplitCarousel,
     ),
-  { ssr: true },
+  { ssr: false },
 );
 
 type V0InspiredHomeProps = {
@@ -392,7 +392,13 @@ export function V0InspiredHome({
                     alt={settings.brand.logoAlt}
                     fill
                     priority={index === 0}
-                    sizes="(max-width: 1024px) 90vw, 42vw"
+                    fetchPriority={index === 0 ? "high" : "low"}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    sizes={
+                      index === 0
+                        ? "(max-width: 640px) 90vw, (max-width: 1024px) 70vw, 42vw"
+                        : "(max-width: 640px) 0px, (max-width: 1024px) 40vw, 24vw"
+                    }
                     className="object-cover"
                   />
                 </div>

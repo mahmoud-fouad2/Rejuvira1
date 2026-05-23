@@ -1,16 +1,10 @@
 import type { NextConfig } from "next";
 
 /**
- * Security & performance configuration.
- *
- * Image optimization can be force-disabled by setting `IMAGE_UNOPTIMIZED=1`
- * in environments where the platform doesn't ship `sharp` reliably or where
- * server memory is constrained. Set `NEXT_IMAGE_OPTIMIZATION=1` and remove
- * `IMAGE_UNOPTIMIZED` to re-enable the Next image optimizer later.
+ * Image optimization is ON by default (Render ships sharp).
+ * Disable only by setting IMAGE_UNOPTIMIZED=1 explicitly.
  */
-const imageUnoptimized =
-  process.env.IMAGE_UNOPTIMIZED === "1" ||
-  process.env.NEXT_IMAGE_OPTIMIZATION !== "1";
+const imageUnoptimized = process.env.IMAGE_UNOPTIMIZED === "1";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -94,7 +88,13 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   compress: true,
   experimental: {
-    optimizePackageImports: ["zod", "@prisma/client", "next-auth"],
+    optimizePackageImports: [
+      "zod",
+      "@prisma/client",
+      "next-auth",
+      "lucide-react",
+      "date-fns",
+    ],
   },
   images: {
     unoptimized: imageUnoptimized,
