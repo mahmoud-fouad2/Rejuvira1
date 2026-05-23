@@ -128,8 +128,7 @@ export default async function AdminCustomPagesPage({
 
       {query.generated === "service-pages" && query.count === "0" ? (
         <div className="admin-inline-notice is-warning">
-          لم يتم حفظ صفحات جديدة لأن قاعدة البيانات غير متاحة في هذه البيئة، أو
-          لا توجد خدمات منشورة/معتمدة جاهزة للتوليد.
+          لم تُنشأ صفحات جديدة — تأكد من وجود خدمات منشورة أولاً.
         </div>
       ) : query.generated === "service-pages" ? (
         <div className="admin-inline-notice">
@@ -163,8 +162,7 @@ export default async function AdminCustomPagesPage({
         {pages.length === 0 ? (
           <article className="admin-card">
             <div className="admin-card__body text-sm text-[color:var(--admin-text-faint)]">
-              لا توجد صفحات بعد. ابدئي من زر إنشاء صفحة جديدة لبناء Landing Page
-              كاملة.
+              لا توجد صفحات مخصصة بعد — أنشئي صفحة هبوط جديدة للبدء.
             </div>
           </article>
         ) : null}

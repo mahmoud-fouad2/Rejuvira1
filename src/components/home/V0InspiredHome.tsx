@@ -1,5 +1,6 @@
 ﻿import { ContentStatus } from "@prisma/client";
 import type { Route } from "next";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -13,15 +14,38 @@ import type {
   ServiceRecord,
 } from "@/lib/content-repository";
 
-import { V0DoctorQuotesSlider } from "@/components/home/V0DoctorQuotesSlider";
-import { V0DoctorsCarousel } from "@/components/home/V0DoctorsCarousel";
 import { V0GalleryBeforeAfterCard } from "@/components/home/V0GalleryBeforeAfterCard";
-import { V0JournalCarousel } from "@/components/home/V0JournalCarousel";
 import { V0ServicesStrip } from "@/components/home/V0ServicesStrip";
-import {
-  TestimonialsSplitCarousel,
-  type TestimonialItem,
-} from "@/components/home/TestimonialsSplitCarousel";
+import type { TestimonialItem } from "@/components/home/TestimonialsSplitCarousel";
+
+const V0DoctorQuotesSlider = dynamic(
+  () =>
+    import("@/components/home/V0DoctorQuotesSlider").then(
+      (m) => m.V0DoctorQuotesSlider,
+    ),
+  { ssr: true },
+);
+const V0DoctorsCarousel = dynamic(
+  () =>
+    import("@/components/home/V0DoctorsCarousel").then(
+      (m) => m.V0DoctorsCarousel,
+    ),
+  { ssr: true },
+);
+const V0JournalCarousel = dynamic(
+  () =>
+    import("@/components/home/V0JournalCarousel").then(
+      (m) => m.V0JournalCarousel,
+    ),
+  { ssr: true },
+);
+const TestimonialsSplitCarousel = dynamic(
+  () =>
+    import("@/components/home/TestimonialsSplitCarousel").then(
+      (m) => m.TestimonialsSplitCarousel,
+    ),
+  { ssr: true },
+);
 
 type V0InspiredHomeProps = {
   settings: RuntimeSettings;

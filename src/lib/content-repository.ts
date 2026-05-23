@@ -2477,7 +2477,10 @@ async function withDatabaseRetry<T>(operation: () => Promise<T>): Promise<T> {
     console.warn(
       "[database] transient Prisma connection error; retrying once.",
     );
-    await prisma.$disconnect().catch(() => undefined);
+    /* Wait briefly for the connection pool to recover instead of
+       calling $disconnect() which kills ALL open connections and
+       causes cascading failures on concurrent requests. */
+    await new Promise((resolve) => setTimeout(resolve, 200));
     return operation();
   }
 }

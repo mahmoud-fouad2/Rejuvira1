@@ -500,7 +500,7 @@ export function CrmFilterBar({
       <section className="admin-crm-leads-list">
         {filtered.length === 0 ? (
           <p className="text-muted-foreground px-2 py-6 text-sm">
-            لا توجد ليدز مطابقة للفلاتر الحالية.
+            لا توجد نتائج مطابقة للتصفية الحالية.
           </p>
         ) : null}
         {filtered.length ? (
@@ -674,7 +674,7 @@ export function CrmFilterBar({
                   </div>
                   <div>
                     <span className="admin-field-label">رسالة العميل</span>
-                    <p>{selectedSubmission.message || "لا توجد رسالة"}</p>
+                    <p>{selectedSubmission.message || "لم يُرفق رسالة"}</p>
                   </div>
                 </div>
 

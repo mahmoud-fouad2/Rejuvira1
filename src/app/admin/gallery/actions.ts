@@ -105,7 +105,7 @@ export async function deleteGalleryItemAction(
   } catch (error) {
     return {
       success: false,
-      message: adminActionErrorMessage(error, "حدث خطأ أثناء الحذف."),
+      message: adminActionErrorMessage(error, "تعذر حذف العنصر حاليًا."),
     };
   }
 }

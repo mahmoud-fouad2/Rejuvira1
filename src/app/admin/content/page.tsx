@@ -196,8 +196,8 @@ export default async function AdminContentHubPage() {
               <div className="admin-relationship-card__body">
                 {categoryServices.length === 0 ? (
                   <p className="admin-empty-note">
-                    لا توجد خدمات داخل هذا القسم. أضف خدمة أو انقل خدمة قائمة
-                    لهذا القسم من صفحة الخدمات.
+                    لا توجد خدمات في هذا القسم بعد — أضف خدمة أو انقل واحدة من
+                    صفحة الخدمات.
                   </p>
                 ) : null}
 

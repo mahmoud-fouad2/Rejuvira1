@@ -40,7 +40,7 @@ export async function triggerBackupAction(
   if (!result.ok) {
     return {
       status: "error",
-      message: `فشل إنشاء النسخة الاحتياطية: ${result.error ?? "خطأ غير معروف"}`,
+      message: `تعذر إنشاء النسخة الاحتياطية: ${result.error ?? "خطأ غير محدد"}`,
     };
   }
   return {

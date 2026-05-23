@@ -12,13 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({ page: "gallery", path: "/gallery" });
 }
 
-const localMoodImages = [
+const moodImages = [
   "/media/reference/legacy/13.png",
   "/media/reference/legacy/18.png",
   "/media/reference/legacy/88985959.webp",
   "/media/curated/service-laser-hair-removal.jpg",
-  "/media/curated/device-laser-platform.webp",
-  "/media/reference/legacy/WhatsApp-Image-2024-08-12-at-4.55.56-PM.jpeg",
 ];
 
 export default async function GalleryPage() {
@@ -30,122 +28,92 @@ export default async function GalleryPage() {
       <div className="public-page-atmosphere" aria-hidden />
       <SiteHeader />
 
-      <main className="section-shell flex flex-col gap-28 pt-8 pb-32">
-        {/* ── PAGE HERO ──────────────────────────────────── */}
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
-          <article className="surface-panel flex flex-col justify-between rounded-[2.75rem] p-8 lg:p-12">
-            <div>
-              <p className="eyebrow">
-                <span className="lang-ar">معرض النتائج</span>
-                <span className="lang-en">Results Gallery</span>
-              </p>
-              <h1 className="balanced-text text-ink mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em] lg:text-6xl">
-                <span className="lang-ar">
-                  نتائج حقيقية تعكس الدقة والاهتمام بكل تفصيلة.
-                </span>
-                <span className="lang-en">
-                  Real results reflecting precision and attention to every
-                  detail.
-                </span>
-              </h1>
-              <p className="text-ink-soft mt-5 max-w-xl text-base leading-8">
-                <span className="lang-ar">
-                  هذا القسم يجمع مرجعًا بصريًا صادقًا لما يمكن تحقيقه. مقارنات
-                  قبل وبعد تُظهر النتيجة الفعلية دون مبالغة، لأن الثقة تُبنى
-                  بالوضوح لا بالإبهار.
-                </span>
-                <span className="lang-en">
-                  This section gathers an honest visual reference for what can
-                  be achieved. Before and after comparisons show real results
-                  without exaggeration, because trust is built on clarity, not
-                  spectacle.
-                </span>
-              </p>
-            </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
-                <p className="eyebrow">
+      <main className="section-shell flex flex-col gap-16 pt-8 pb-32 md:gap-24">
+        {/* ── HERO ─────────────────────────────────────── */}
+        <section className="flex flex-col gap-6">
+          <div className="surface-panel rounded-[2rem] p-6 md:rounded-[2.5rem] md:p-10 lg:p-12">
+            <p className="eyebrow">
+              <span className="lang-ar">معرض النتائج</span>
+              <span className="lang-en">Results Gallery</span>
+            </p>
+            <h1 className="balanced-text text-ink mt-4 font-serif text-3xl leading-[1.15] tracking-[-0.02em] md:text-5xl lg:text-6xl">
+              <span className="lang-ar">
+                نتائج حقيقية تعكس الدقة والاهتمام بكل تفصيلة.
+              </span>
+              <span className="lang-en">
+                Real results reflecting precision and attention to every detail.
+              </span>
+            </h1>
+            <p className="text-ink-soft mt-4 max-w-2xl text-sm leading-7 md:text-base md:leading-8">
+              <span className="lang-ar">
+                مقارنات قبل وبعد تُظهر النتيجة الفعلية دون مبالغة، لأن الثقة
+                تُبنى بالوضوح لا بالإبهار.
+              </span>
+              <span className="lang-en">
+                Before and after comparisons show real results without
+                exaggeration, because trust is built on clarity, not spectacle.
+              </span>
+            </p>
+
+            {/* Stats row */}
+            <div className="mt-8 grid grid-cols-3 gap-3 md:gap-4">
+              <div className="surface-panel rounded-[1.2rem] p-4 md:rounded-[1.5rem] md:p-5">
+                <p className="eyebrow text-[10px] md:text-xs">
                   <span className="lang-ar">حالات موثقة</span>
-                  <span className="lang-en">Documented Cases</span>
+                  <span className="lang-en">Cases</span>
                 </p>
-                <p className="text-ink mt-3 font-serif text-3xl">
+                <p className="text-ink mt-2 font-serif text-xl md:text-3xl">
                   {items.length}+
                 </p>
               </div>
-              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
-                <p className="eyebrow">
+              <div className="surface-panel rounded-[1.2rem] p-4 md:rounded-[1.5rem] md:p-5">
+                <p className="eyebrow text-[10px] md:text-xs">
                   <span className="lang-ar">أقسام العناية</span>
-                  <span className="lang-en">Care Categories</span>
+                  <span className="lang-en">Categories</span>
                 </p>
-                <p className="text-ink mt-3 font-serif text-3xl">
+                <p className="text-ink mt-2 font-serif text-xl md:text-3xl">
                   {categories.length}
                 </p>
               </div>
-              <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">
-                <p className="eyebrow">
+              <div className="surface-panel rounded-[1.2rem] p-4 md:rounded-[1.5rem] md:p-5">
+                <p className="eyebrow text-[10px] md:text-xs">
                   <span className="lang-ar">نسبة الرضا</span>
-                  <span className="lang-en">Satisfaction Rate</span>
+                  <span className="lang-en">Satisfaction</span>
                 </p>
-                <p className="text-ink mt-3 font-serif text-3xl">97%</p>
+                <p className="text-ink mt-2 font-serif text-xl md:text-3xl">
+                  97%
+                </p>
               </div>
             </div>
-          </article>
+          </div>
 
-          {/* Mood grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="surface-panel col-span-2 overflow-hidden rounded-[2.5rem]">
-              <div className="relative m-3 h-48 overflow-hidden rounded-[2rem]">
-                <Image
-                  src={localMoodImages[0]!}
-                  alt="معرض نتائج ريجوفيرا"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 44vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                <div className="absolute inset-x-5 bottom-5">
-                  <p className="eyebrow text-white/70">
-                    <span className="lang-ar">الانطباع البصري</span>
-                    <span className="lang-en">Visual Narrative</span>
-                  </p>
-                  <p className="font-serif text-2xl tracking-[-0.04em] text-white">
-                    <span className="lang-ar">
-                      مقارنات منظمة مرتبطة بالخدمة والنتيجة
-                    </span>
-                    <span className="lang-en">
-                      Real imagery tied to the service and the expected outcome
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            {localMoodImages.slice(1, 5).map((src, i) => (
+          {/* Mood images — contained grid */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+            {moodImages.map((src, i) => (
               <div
                 key={src}
-                className="surface-panel overflow-hidden rounded-[2rem]"
+                className="relative aspect-[4/3] overflow-hidden rounded-xl md:rounded-2xl"
               >
-                <div className="relative m-2.5 h-28 overflow-hidden rounded-[1.6rem]">
-                  <Image
-                    src={src}
-                    alt={`لقطة من معرض ريجوفيرا ${i + 2}`}
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 22vw"
-                    className="object-cover"
-                  />
-                </div>
+                <Image
+                  src={src}
+                  alt={`معرض ريجوفيرا ${i + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover"
+                />
               </div>
             ))}
           </div>
         </section>
 
-        {/* ── BEFORE / AFTER GRID (interactive) ───────────── */}
+        {/* ── BEFORE / AFTER GRID ──────────────────────── */}
         <section>
           <div className="mb-8">
             <p className="eyebrow">
               <span className="lang-ar">مقارنات قبل وبعد</span>
               <span className="lang-en">Before &amp; After Comparisons</span>
             </p>
-            <h2 className="balanced-text text-ink mt-3 font-serif text-5xl tracking-[-0.055em]">
+            <h2 className="balanced-text text-ink mt-3 font-serif text-2xl tracking-[-0.03em] md:text-4xl lg:text-5xl">
               <span className="lang-ar">
                 وضوح النتيجة هو أقوى دليل على جودة العناية.
               </span>
@@ -157,14 +125,14 @@ export default async function GalleryPage() {
           <GalleryGrid items={items} />
         </section>
 
-        {/* ── CTA ────────────────────────────────────────── */}
-        <section className="grid gap-5 lg:grid-cols-[0.92fr_1.08fr]">
-          <article className="surface-panel rounded-[2.4rem] p-8 lg:p-10">
+        {/* ── CTA ──────────────────────────────────────── */}
+        <section className="surface-panel grid gap-6 overflow-hidden rounded-[2rem] p-6 md:grid-cols-2 md:rounded-[2.5rem] md:p-0">
+          <div className="flex flex-col justify-center md:p-10 lg:p-12">
             <p className="eyebrow">
               <span className="lang-ar">نتيجتك القادمة</span>
               <span className="lang-en">Your Next Result</span>
             </p>
-            <h2 className="balanced-text text-ink mt-4 font-serif text-5xl tracking-[-0.055em]">
+            <h2 className="balanced-text text-ink mt-4 font-serif text-2xl tracking-[-0.03em] md:text-4xl">
               <span className="lang-ar">
                 ابدئي بخطة واضحة وشاهدي الفرق بنفسك.
               </span>
@@ -172,60 +140,42 @@ export default async function GalleryPage() {
                 Start with a clear plan and see the difference yourself.
               </span>
             </h2>
-            <p className="text-ink-soft mt-4 text-sm leading-8">
+            <p className="text-ink-soft mt-4 text-sm leading-7">
               <span className="lang-ar">
-                كل نتيجة في هذا القسم مرتبطة بخدمة وخطة علاجية محددة. ابدئي من
-                الاستشارة لمعرفة ما يناسب حالتك.
+                كل نتيجة مرتبطة بخدمة وخطة علاجية محددة. ابدئي من الاستشارة
+                لمعرفة ما يناسب حالتك.
               </span>
               <span className="lang-en">
-                Every result in this section is connected to a defined service
-                and treatment plan. Start with a consultation to understand what
-                fits your case.
+                Every result is connected to a service and treatment plan. Start
+                with a consultation to find what fits you.
               </span>
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/contact"
-                className="bg-ink text-canvas rounded-full px-7 py-3.5 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+                className="bg-ink text-canvas rounded-full px-6 py-3 text-sm font-semibold transition-transform hover:-translate-y-0.5"
               >
-                <span className="lang-ar">احجزي استشارتك الآن</span>
-                <span className="lang-en">Book Your Consultation</span>
+                <span className="lang-ar">احجزي استشارتك</span>
+                <span className="lang-en">Book Consultation</span>
               </Link>
               <Link
                 href="/services"
-                className="border-line bg-surface text-ink hover:bg-canvas rounded-full border px-7 py-3.5 text-sm font-semibold transition-colors"
+                className="border-line bg-surface text-ink hover:bg-canvas rounded-full border px-6 py-3 text-sm font-semibold transition-colors"
               >
                 <span className="lang-ar">استعرضي الخدمات</span>
                 <span className="lang-en">Browse Services</span>
               </Link>
             </div>
-          </article>
-          <div className="surface-panel overflow-hidden rounded-[2.4rem] p-4">
-            <div className="relative h-full min-h-[18rem] overflow-hidden rounded-[2rem]">
-              <Image
-                src="/media/curated/device-laser-platform.webp"
-                alt="Rejuvera Center"
-                fill
-                sizes="(max-width: 1024px) 100vw, 54vw"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-              <div className="absolute inset-x-5 bottom-5 rounded-[1.4rem] border border-white/30 bg-white/20 p-4 backdrop-blur-md">
-                <p className="eyebrow text-white/70">
-                  <span className="lang-ar">جودة التجربة</span>
-                  <span className="lang-en">Experience Quality</span>
-                </p>
-                <p className="font-serif text-2xl leading-snug tracking-[-0.04em] text-white">
-                  <span className="lang-ar">
-                    أجهزة وخطط علاجية معروضة بما يخدم فهم النتيجة المتوقعة.
-                  </span>
-                  <span className="lang-en">
-                    Devices and treatment plans presented to clarify the
-                    expected result.
-                  </span>
-                </p>
-              </div>
-            </div>
+          </div>
+          <div className="relative aspect-[4/3] overflow-hidden rounded-xl md:aspect-auto md:min-h-[20rem] md:rounded-none">
+            <Image
+              src="/media/curated/device-laser-platform.webp"
+              alt="Rejuvera Center"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
           </div>
         </section>
       </main>

@@ -2535,3 +2535,135 @@ html[dir="rtl"] .admin-shell .main-sidebar {
     width: 100%;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   DASHBOARD VISUAL POLISH — contrast, depth & modern look
+   Added 2026-05-23
+   ════════════════════════════════════════════════════════════════ */
+
+/* KPI cards: stronger visual presence */
+.admin-kpi-card,
+.admin-kpi {
+  background: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(255,255,255,0.6));
+  border: 1px solid rgba(138, 78, 193, 0.08);
+  box-shadow: 0 2px 8px rgba(31, 16, 64, 0.04), 0 0 0 1px rgba(255,255,255,0.6) inset;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.admin-kpi-card:hover,
+.admin-kpi:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(138, 78, 193, 0.08), 0 0 0 1px rgba(255,255,255,0.7) inset;
+}
+.admin-kpi-card strong,
+.admin-kpi__value {
+  color: var(--admin-accent, #8a4ec1);
+}
+
+/* Cards: cleaner borders and subtle depth */
+.admin-card {
+  border: 1px solid rgba(31, 16, 64, 0.06);
+  box-shadow: 0 1px 4px rgba(31, 16, 64, 0.03), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  border-radius: 0.75rem;
+}
+.admin-card__header {
+  border-bottom: 1px solid rgba(31, 16, 64, 0.05);
+}
+.admin-card__title {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Buttons: modern look */
+.admin-btn-primary {
+  background: linear-gradient(160deg, var(--admin-accent) 0%, color-mix(in srgb, var(--admin-accent) 80%, #000) 100%);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(138, 78, 193, 0.2);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.admin-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(138, 78, 193, 0.3);
+}
+.admin-btn-secondary {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(31, 16, 64, 0.1);
+  color: var(--admin-text);
+  font-weight: 500;
+}
+.admin-btn-secondary:hover {
+  background: rgba(255,255,255,0.95);
+  border-color: rgba(138, 78, 193, 0.2);
+}
+.admin-btn-danger {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  border: 1px solid rgba(220, 38, 38, 0.15);
+  font-weight: 500;
+}
+.admin-btn-danger:hover {
+  background: rgba(220, 38, 38, 0.14);
+}
+
+/* Status badges: refined */
+.admin-status-badge {
+  border-radius: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.admin-status-badge.is-published {
+  background: rgba(22, 163, 74, 0.1);
+  color: #16a34a;
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+.admin-status-badge.is-archived {
+  background: rgba(100, 100, 100, 0.08);
+  color: #666;
+  border: 1px solid rgba(100, 100, 100, 0.15);
+}
+.admin-status-badge.is-review {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Data rows: better hover state */
+.admin-data-row {
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  transition: background 0.15s;
+}
+.admin-data-row:hover {
+  background: rgba(138, 78, 193, 0.03);
+}
+.admin-data-row__title {
+  font-weight: 600;
+  color: var(--admin-text);
+}
+.admin-data-row__meta {
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--admin-text) 55%, transparent);
+}
+
+/* Page header: stronger hierarchy */
+.admin-page-header h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--admin-text);
+}
+.admin-page-header p {
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--admin-text) 55%, transparent);
+  margin-top: 0.25rem;
+}
+
+/* Inputs: clearer focus */
+.admin-input:focus,
+.admin-shell input.admin-input:focus,
+.admin-shell textarea.admin-input:focus,
+.admin-shell select.admin-input:focus {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 2px rgba(138, 78, 193, 0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+  outline: none;
+}

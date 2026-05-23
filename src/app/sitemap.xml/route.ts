@@ -2,9 +2,7 @@ import { ContentStatus } from "@prisma/client";
 
 import {
   getCustomPages,
-  getDevices,
   getDoctors,
-  getGalleryItems,
   getJournalPosts,
   getServices,
 } from "@/lib/content-repository";
@@ -51,13 +49,11 @@ export async function GET() {
   const now = new Date().toISOString();
 
   try {
-    const [doctors, services, journalPosts, devices, gallery, customPages] =
+    const [doctors, services, journalPosts, customPages] =
       await Promise.all([
         getDoctors(),
         getServices(),
         getJournalPosts(),
-        getDevices(),
-        getGalleryItems(),
         getCustomPages(),
       ]);
 
@@ -83,16 +79,6 @@ export async function GET() {
       ...services.filter(isPublished).map((service) => ({
         path: `/services/${service.slug}`,
         priority: 0.7,
-        changeFrequency: "monthly" as const,
-      })),
-      ...devices.filter(isPublished).map((device) => ({
-        path: `/devices/${device.slug}`,
-        priority: 0.5,
-        changeFrequency: "monthly" as const,
-      })),
-      ...gallery.filter(isPublished).map((item) => ({
-        path: `/gallery/${item.slug}`,
-        priority: 0.5,
         changeFrequency: "monthly" as const,
       })),
       ...journalPosts.filter(isPublished).map((post) => ({
