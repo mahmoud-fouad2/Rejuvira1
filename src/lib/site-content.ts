@@ -106,6 +106,14 @@ export const adminNavigation = [
     group: "ops" as AdminNavGroupKey,
   },
   {
+    label: "التكاملات",
+    labelEn: "Integrations",
+    href: "/admin/integration-tools",
+    description: "أدوات مخصصة يستخدمها وكيل الذكاء الاصطناعي",
+    descriptionEn: "Custom tools your AI agent can call",
+    group: "ops" as AdminNavGroupKey,
+  },
+  {
     label: "السجلات",
     labelEn: "Logs",
     href: "/admin/logs",

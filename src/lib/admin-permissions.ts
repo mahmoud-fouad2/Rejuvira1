@@ -84,6 +84,11 @@ export const permissionMatrix: readonly PermissionRule[] = [
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
   },
   {
+    prefix: "/admin/integration-tools",
+    label: "أدوات التكامل",
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+  },
+  {
     prefix: "/admin/crm",
     label: "الطلبات والمتابعة",
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.VIEWER],

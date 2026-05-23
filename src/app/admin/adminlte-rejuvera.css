@@ -2667,3 +2667,302 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   box-shadow: 0 0 0 2px rgba(138, 78, 193, 0.12), inset 0 1px 0 rgba(255,255,255,0.4);
   outline: none;
 }
+
+/* ───────────────────────────────────────────────────────────── */
+/* Integration tools (custom AI agent tools)                     */
+/* ───────────────────────────────────────────────────────────── */
+
+.rv-itool-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (max-width: 1100px) {
+  .rv-itool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .rv-itool-grid { grid-template-columns: 1fr; }
+}
+
+.rv-itool-card {
+  background: #ffffff;
+  border: 1px solid color-mix(in srgb, var(--admin-text) 8%, transparent);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+.rv-itool-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  border-color: color-mix(in srgb, var(--admin-accent) 22%, transparent);
+}
+.rv-itool-card__head { display: flex; flex-direction: column; gap: 0.4rem; }
+.rv-itool-card__title-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+}
+.rv-itool-card__title {
+  font-size: 0.95rem; font-weight: 700; color: var(--admin-text); margin: 0;
+  letter-spacing: -0.01em;
+  font-family: var(--font-rejuvira-display, var(--font-rejuvira-sans));
+}
+.rv-itool-card__badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.rv-itool-badge {
+  display: inline-flex; align-items: center; padding: 0.15rem 0.5rem;
+  font-size: 0.7rem; font-weight: 600; border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-accent) 8%, white);
+  color: color-mix(in srgb, var(--admin-accent) 90%, var(--admin-text));
+  border: 1px solid color-mix(in srgb, var(--admin-accent) 15%, transparent);
+}
+.rv-itool-badge--muted {
+  background: #f3f4f6;
+  color: #475569;
+  border-color: #e5e7eb;
+}
+.rv-itool-status {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.7rem; font-weight: 600;
+}
+.rv-itool-status__dot {
+  width: 0.45rem; height: 0.45rem; border-radius: 999px;
+}
+.rv-itool-status.is-active { color: #047857; }
+.rv-itool-status.is-active .rv-itool-status__dot { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+.rv-itool-status.is-inactive { color: #6b7280; }
+.rv-itool-status.is-inactive .rv-itool-status__dot { background: #9ca3af; }
+
+.rv-itool-card__desc {
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--admin-text) 65%, transparent);
+  line-height: 1.55;
+  margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rv-itool-card__foot {
+  display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;
+  padding-top: 0.6rem;
+  border-top: 1px dashed color-mix(in srgb, var(--admin-text) 10%, transparent);
+}
+.rv-itool-card__meta { font-size: 0.7rem; color: color-mix(in srgb, var(--admin-text) 55%, transparent); }
+.rv-itool-card__actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.rv-itool-card__feedback {
+  font-size: 0.72rem; padding: 0.4rem 0.55rem; border-radius: 8px;
+  background: #f8fafc; color: #1e293b; margin: 0;
+}
+
+.rv-itool-confirm {
+  margin-top: 0.5rem; padding: 0.65rem 0.75rem;
+  background: #fff7ed; border: 1px solid #fed7aa; border-radius: 10px;
+  display: flex; flex-direction: column; gap: 0.5rem;
+  font-size: 0.78rem;
+}
+.rv-itool-confirm__actions { display: flex; gap: 0.4rem; }
+
+/* Buttons */
+.rv-itool-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0.3rem; font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.7rem; border-radius: 8px;
+  border: 1px solid transparent; cursor: pointer; transition: all 0.15s ease;
+  text-decoration: none; line-height: 1;
+}
+.rv-itool-btn--small { padding: 0.3rem 0.55rem; font-size: 0.7rem; }
+.rv-itool-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+.rv-itool-btn--neutral {
+  background: white; color: #334155; border-color: #e2e8f0;
+}
+.rv-itool-btn--neutral:hover { background: #f8fafc; border-color: #cbd5e1; }
+.rv-itool-btn--primary {
+  background: var(--admin-accent, #6d28d9);
+  color: white; border-color: transparent;
+}
+.rv-itool-btn--primary:hover { filter: brightness(0.96); }
+.rv-itool-btn--success {
+  background: #ecfdf5; color: #047857; border-color: #a7f3d0;
+}
+.rv-itool-btn--success:hover { background: #d1fae5; }
+.rv-itool-btn--warn {
+  background: #fef3c7; color: #92400e; border-color: #fde68a;
+}
+.rv-itool-btn--warn:hover { background: #fde68a; }
+.rv-itool-btn--danger {
+  background: #fef2f2; color: #b91c1c; border-color: #fecaca;
+}
+.rv-itool-btn--danger:hover { background: #fee2e2; }
+
+/* Empty state */
+.rv-itool-empty {
+  text-align: center; padding: 3rem 1rem; background: white;
+  border: 1px dashed color-mix(in srgb, var(--admin-text) 15%, transparent);
+  border-radius: 14px;
+}
+.rv-itool-empty h2 { margin: 0 0 0.5rem; font-size: 1.05rem; font-weight: 700; }
+.rv-itool-empty p {
+  font-size: 0.85rem; color: color-mix(in srgb, var(--admin-text) 60%, transparent);
+  margin: 0 auto 1rem; max-width: 32rem;
+}
+.rv-itool-empty-inline {
+  font-size: 0.8rem; color: color-mix(in srgb, var(--admin-text) 50%, transparent);
+  font-style: italic;
+  padding: 0.4rem 0;
+}
+
+/* Form */
+.rv-itool-form { display: flex; flex-direction: column; gap: 1rem; }
+.rv-itool-section {
+  background: white;
+  border: 1px solid color-mix(in srgb, var(--admin-text) 8%, transparent);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.rv-itool-section__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.rv-itool-section__head h2 {
+  font-size: 0.92rem; font-weight: 700; margin: 0; color: var(--admin-text);
+}
+.rv-itool-section--test { border-color: color-mix(in srgb, var(--admin-accent) 22%, transparent); }
+.rv-itool-hint { font-size: 0.75rem; color: color-mix(in srgb, var(--admin-text) 55%, transparent); margin: 0; }
+.rv-itool-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.rv-itool-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.6rem; }
+@media (max-width: 720px) {
+  .rv-itool-grid-2, .rv-itool-grid-3 { grid-template-columns: 1fr; }
+}
+
+.rv-itool-field { display: flex; flex-direction: column; gap: 0.3rem; }
+.rv-itool-field--full { grid-column: 1 / -1; }
+.rv-itool-field--check {
+  flex-direction: row; align-items: center; gap: 0.5rem;
+  font-size: 0.8rem; color: var(--admin-text);
+}
+.rv-itool-field__label { font-size: 0.75rem; font-weight: 600; color: var(--admin-text); }
+.rv-itool-field__hint { font-size: 0.7rem; color: color-mix(in srgb, var(--admin-text) 55%, transparent); }
+.rv-itool-required { color: #dc2626; margin-inline-start: 0.2rem; font-style: normal; }
+
+.rv-itool-input,
+.rv-itool-textarea {
+  width: 100%; padding: 0.55rem 0.7rem; border-radius: 8px;
+  border: 1px solid #e2e8f0; background: white; color: var(--admin-text);
+  font-size: 0.82rem; font-family: inherit; line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.rv-itool-input:focus,
+.rv-itool-textarea:focus {
+  border-color: var(--admin-accent, #6d28d9);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent, #6d28d9) 12%, transparent);
+  outline: none;
+}
+.rv-itool-textarea--code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+}
+
+.rv-itool-radio-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+@media (max-width: 720px) { .rv-itool-radio-cards { grid-template-columns: 1fr; } }
+.rv-itool-radio-card {
+  display: flex; align-items: flex-start; gap: 0.6rem;
+  padding: 0.7rem 0.85rem; border: 1px solid #e2e8f0; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s ease;
+  background: white;
+}
+.rv-itool-radio-card:hover { border-color: color-mix(in srgb, var(--admin-accent) 30%, #e2e8f0); }
+.rv-itool-radio-card.is-active {
+  border-color: var(--admin-accent);
+  background: color-mix(in srgb, var(--admin-accent) 6%, white);
+}
+.rv-itool-radio-card input { margin-top: 0.2rem; }
+.rv-itool-radio-card strong { display: block; font-size: 0.85rem; }
+.rv-itool-radio-card p { font-size: 0.75rem; color: color-mix(in srgb, var(--admin-text) 60%, transparent); margin: 0.2rem 0 0; }
+
+.rv-itool-radio-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.rv-itool-pill {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.4rem 0.7rem; border-radius: 999px;
+  border: 1px solid #e2e8f0; background: white;
+  font-size: 0.75rem; cursor: pointer; transition: all 0.15s ease;
+}
+.rv-itool-pill input { display: none; }
+.rv-itool-pill.is-active {
+  background: color-mix(in srgb, var(--admin-accent) 10%, white);
+  color: var(--admin-accent); border-color: var(--admin-accent);
+}
+
+.rv-itool-subsection {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  padding: 0.7rem 0.8rem; border: 1px solid #f1f5f9; border-radius: 10px;
+  background: #fafbfc;
+}
+.rv-itool-subsection__head {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+  font-size: 0.78rem;
+}
+.rv-itool-row {
+  display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.4rem;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .rv-itool-row { grid-template-columns: 1fr 1fr; }
+  .rv-itool-row > button { grid-column: span 2; justify-self: end; }
+}
+
+.rv-itool-param {
+  border: 1px solid #f1f5f9; border-radius: 10px; padding: 0.7rem 0.8rem;
+  background: #fafbfc; display: flex; flex-direction: column; gap: 0.5rem;
+}
+.rv-itool-param__grid {
+  display: grid; grid-template-columns: 2fr 1fr auto auto; gap: 0.4rem; align-items: end;
+}
+@media (max-width: 720px) {
+  .rv-itool-param__grid { grid-template-columns: 1fr 1fr; }
+}
+
+.rv-itool-savebar {
+  display: flex; gap: 0.5rem; justify-content: flex-end;
+  position: sticky; bottom: 0; padding: 0.6rem;
+  background: color-mix(in srgb, white 90%, transparent);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid color-mix(in srgb, var(--admin-text) 10%, transparent);
+  z-index: 5;
+}
+
+.rv-itool-alert {
+  padding: 0.6rem 0.8rem; border-radius: 8px;
+  font-size: 0.8rem;
+  border: 1px solid transparent;
+}
+.rv-itool-alert.is-error { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+.rv-itool-alert.is-success { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+
+.rv-itool-test-result {
+  border: 1px solid #e2e8f0; border-radius: 10px;
+  padding: 0.7rem 0.85rem; background: #fafbfc;
+  display: flex; flex-direction: column; gap: 0.4rem;
+}
+.rv-itool-test-result.is-ok { background: #ecfdf5; border-color: #a7f3d0; }
+.rv-itool-test-result.is-err { background: #fef2f2; border-color: #fecaca; }
+.rv-itool-test-result p { margin: 0; font-size: 0.82rem; }
+.rv-itool-meta { font-size: 0.72rem; color: color-mix(in srgb, var(--admin-text) 55%, transparent); }
+.rv-itool-pre {
+  margin: 0; padding: 0.6rem 0.7rem; background: #0f172a; color: #e2e8f0;
+  font-size: 0.74rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  border-radius: 8px; max-height: 16rem; overflow: auto; white-space: pre-wrap; word-break: break-word;
+}
+
+.rv-itool-logs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.rv-itool-log {
+  border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.55rem 0.7rem;
+  background: white; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.rv-itool-log.is-ok { border-color: #d1fae5; background: #f0fdf4; }
+.rv-itool-log.is-err { border-color: #fecaca; background: #fef2f2; }
+.rv-itool-log__head {
+  display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem;
+}
+.rv-itool-log__dot { width: 0.45rem; height: 0.45rem; border-radius: 999px; }
+.rv-itool-log__dot--ok { background: #10b981; }
+.rv-itool-log__dot--err { background: #ef4444; }
+.rv-itool-log__err { font-size: 0.72rem; color: #991b1b; margin: 0; }

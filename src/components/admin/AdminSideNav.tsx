@@ -283,6 +283,20 @@ function iconFor(href: string) {
           <path d="m12 13 4-2" />
         </svg>
       );
+    case "/admin/integration-tools":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-3.5 w-3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          aria-hidden
+        >
+          <path d="M9 7h6a3 3 0 0 1 3 3v0a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v0a3 3 0 0 1 3-3Z" />
+          <path d="M12 13v8M8 21h8M5 3l2 4M19 3l-2 4" strokeLinecap="round" />
+        </svg>
+      );
     case "/admin/users":
       return (
         <svg

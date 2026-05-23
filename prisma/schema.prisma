@@ -31,6 +31,26 @@ enum SubmissionStatus {
   CLOSED
 }
 
+enum IntegrationToolType {
+  WEBHOOK
+  API_CALL
+}
+
+enum IntegrationAuthType {
+  NONE
+  BEARER
+  API_KEY
+  BASIC
+}
+
+enum IntegrationHttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
 model User {
   id               String              @id @default(cuid())
   name             String
@@ -326,5 +346,51 @@ model AppLog {
 
   @@index([level])
   @@index([kind])
+  @@index([createdAt])
+}
+
+/// Integration tools the AI agent can call (outbound).
+/// Distinct from `Webhook` (inbound lead-source).
+model IntegrationTool {
+  id                  String                @id @default(cuid())
+  name                String                @unique
+  description         String                @db.Text
+  type                IntegrationToolType   @default(WEBHOOK)
+  method              IntegrationHttpMethod @default(POST)
+  url                 String                @db.Text
+  headersJson         Json                  @default("[]")
+  authType            IntegrationAuthType   @default(NONE)
+  authConfigJson      Json?
+  parametersJson      Json                  @default("[]")
+  bodyTemplateJson    Json?
+  responseMappingJson Json?
+  aiInstructions      String?               @db.Text
+  timeoutMs           Int                   @default(10000)
+  isActive            Boolean               @default(true)
+  lastTestStatus      String?
+  lastTestAt          DateTime?
+  lastError           String?               @db.Text
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  logs                IntegrationToolLog[]
+
+  @@index([isActive])
+  @@index([type])
+}
+
+model IntegrationToolLog {
+  id              String          @id @default(cuid())
+  integrationId   String
+  toolName        String
+  status          String
+  httpStatus      Int?
+  requestPreview  Json?
+  responsePreview Json?
+  error           String?         @db.Text
+  executionMs     Int             @default(0)
+  createdAt       DateTime        @default(now())
+  integration     IntegrationTool @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+
+  @@index([integrationId])
   @@index([createdAt])
 }
