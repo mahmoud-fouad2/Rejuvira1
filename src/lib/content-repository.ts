@@ -503,7 +503,7 @@ export type CreateContactInput = {
 
 export type UpdateCrmSubmissionInput = {
   id: string;
-  status: SubmissionStatus;
+  status?: SubmissionStatus | undefined;
   notes?: string | undefined;
   fullName?: string | undefined;
   phone?: string | undefined;
@@ -511,6 +511,7 @@ export type UpdateCrmSubmissionInput = {
   serviceSlug?: string | null | undefined;
   tags?: readonly string[] | undefined;
   assignedToId?: string | null | undefined;
+  source?: string | null | undefined;
 };
 
 export type CreateCustomPageInput = {
@@ -2934,36 +2935,48 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
       orderBy: [{ createdAt: "desc" }],
     });
 
-    return submissions.map((submission) => ({
-      id: submission.id,
-      fullName: submission.fullName,
-      phone: submission.phone,
-      email: submission.email ?? undefined,
-      serviceLabel: submission.service?.nameAr ?? undefined,
-      serviceSlug: submission.service?.slug ?? undefined,
-      serviceId: submission.service?.id ?? undefined,
-      status: submission.status,
-      source: submission.source ?? "الموقع الإلكتروني",
-      createdAt: submission.createdAt.toISOString(),
-      notes: submission.internalNotes ?? undefined,
-      tags: submission.tags ?? [],
-      assignedToId: submission.assignedTo?.id,
-      assignedToName: submission.assignedTo?.name,
-      webhookId: submission.webhook?.id,
-      webhookName: submission.webhook?.name,
-      utmSource: submission.utmSource ?? undefined,
-      utmMedium: submission.utmMedium ?? undefined,
-      utmCampaign: submission.utmCampaign ?? undefined,
-      utmContent: submission.utmContent ?? undefined,
-      message: submission.message ?? undefined,
-      comments: submission.comments.map((c) => ({
-        id: c.id,
-        body: c.body,
-        authorId: c.author?.id,
-        authorName: c.author?.name ?? c.authorName ?? undefined,
-        createdAt: c.createdAt.toISOString(),
-      })),
-    }));
+    return submissions.map((submission) => {
+      const rawSource = submission.source?.trim();
+      const shouldUseWebhookName =
+        !rawSource ||
+        rawSource.toLowerCase() === "webhook" ||
+        rawSource === "ويب هوك";
+      const readableSource =
+        shouldUseWebhookName && submission.webhook?.name
+          ? submission.webhook.name
+          : (rawSource ?? "الموقع الإلكتروني");
+
+      return {
+        id: submission.id,
+        fullName: submission.fullName,
+        phone: submission.phone,
+        email: submission.email ?? undefined,
+        serviceLabel: submission.service?.nameAr ?? undefined,
+        serviceSlug: submission.service?.slug ?? undefined,
+        serviceId: submission.service?.id ?? undefined,
+        status: submission.status,
+        source: readableSource,
+        createdAt: submission.createdAt.toISOString(),
+        notes: submission.internalNotes ?? undefined,
+        tags: submission.tags ?? [],
+        assignedToId: submission.assignedTo?.id,
+        assignedToName: submission.assignedTo?.name,
+        webhookId: submission.webhook?.id,
+        webhookName: submission.webhook?.name,
+        utmSource: submission.utmSource ?? undefined,
+        utmMedium: submission.utmMedium ?? undefined,
+        utmCampaign: submission.utmCampaign ?? undefined,
+        utmContent: submission.utmContent ?? undefined,
+        message: submission.message ?? undefined,
+        comments: submission.comments.map((c) => ({
+          id: c.id,
+          body: c.body,
+          authorId: c.author?.id,
+          authorName: c.author?.name ?? c.authorName ?? undefined,
+          createdAt: c.createdAt.toISOString(),
+        })),
+      };
+    });
   } catch {
     return seedCrmRecords.map((entry) => ({
       ...entry,
@@ -4406,6 +4419,33 @@ export async function getAuditLogs(
   }
 }
 
+export async function recordAuditLog(input: {
+  actorUserId?: string | undefined;
+  action: string;
+  entityType: string;
+  entityId?: string | null | undefined;
+  metadata?: Record<string, unknown> | undefined;
+}) {
+  if (!canUseDatabase() || !input.actorUserId) {
+    return { mode: "skipped" as const };
+  }
+
+  try {
+    const item = await prisma.auditLog.create({
+      data: {
+        actorUserId: input.actorUserId,
+        action: input.action,
+        entityType: input.entityType,
+        entityId: input.entityId ?? null,
+        metadata: (input.metadata ?? {}) as Prisma.InputJsonValue,
+      },
+    });
+    return { mode: "database" as const, item };
+  } catch {
+    return { mode: "skipped" as const };
+  }
+}
+
 export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
   if (!canUseDatabase()) {
     return { mode: "preview" as const, input };
@@ -4426,13 +4466,14 @@ export async function updateCrmSubmission(input: UpdateCrmSubmissionInput) {
   const submission = await prisma.contactSubmission.update({
     where: { id: input.id },
     data: {
-      status: input.status,
+      ...(input.status !== undefined ? { status: input.status } : {}),
       ...(input.notes !== undefined
         ? { internalNotes: input.notes ?? null }
         : {}),
       ...(input.fullName !== undefined ? { fullName: input.fullName } : {}),
       ...(input.phone !== undefined ? { phone: input.phone } : {}),
       ...(input.email !== undefined ? { email: input.email || null } : {}),
+      ...(input.source !== undefined ? { source: input.source || null } : {}),
       ...(input.tags !== undefined ? { tags: [...input.tags] } : {}),
       ...(input.assignedToId !== undefined
         ? { assignedToId: input.assignedToId || null }

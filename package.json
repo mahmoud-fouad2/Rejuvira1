@@ -14,7 +14,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,mjs,cjs,json,md,css}\"",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
-    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:deploy": "node scripts/render-migrate-deploy.mjs",
     "prisma:migrate:deploy:retry": "node scripts/render-migrate-deploy.mjs",
     "db:push": "prisma db push",
     "seed:admin": "node scripts/seed-admin.mjs",
@@ -50,7 +50,7 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.19.0"
   },
   "overrides": {
     "postcss": "^8.5.14"

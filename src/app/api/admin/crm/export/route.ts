@@ -16,6 +16,22 @@ const STATUS_AR: Record<string, string> = {
   CLOSED: "مغلق",
 };
 
+function normalizeText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
+function normalizePhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.startsWith("966")) return digits.slice(3);
+  if (digits.startsWith("0")) return digits.slice(1);
+  return digits;
+}
+
 function filterSubmissions(
   submissions: Awaited<ReturnType<typeof getCrmSubmissions>>,
   request: NextRequest,
@@ -25,13 +41,19 @@ function filterSubmissions(
   const source = params.get("source");
   const service = params.get("service");
   const owner = params.get("owner");
+  const ids = (params.get("ids") ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean);
   const from = params.get("from");
   const to = params.get("to");
-  const search = (params.get("search") ?? "").trim().toLowerCase();
+  const search = normalizeText(params.get("search") ?? "");
+  const searchPhone = normalizePhone(params.get("search") ?? "");
   const fromTime = from ? new Date(`${from}T00:00:00+03:00`).getTime() : null;
   const toTime = to ? new Date(`${to}T23:59:59+03:00`).getTime() : null;
 
   return submissions.filter((submission) => {
+    if (ids.length && !ids.includes(submission.id)) return false;
     if (status && status !== "ALL" && submission.status !== status) {
       return false;
     }
@@ -57,6 +79,9 @@ function filterSubmissions(
         submission.email ?? "",
         submission.serviceLabel ?? "",
         submission.source,
+        submission.webhookName ?? "",
+        submission.assignedToName ?? "",
+        STATUS_AR[submission.status] ?? submission.status,
         submission.utmSource ?? "",
         submission.utmMedium ?? "",
         submission.utmCampaign ?? "",
@@ -66,7 +91,12 @@ function filterSubmissions(
       ]
         .join(" ")
         .toLowerCase();
-      if (!haystack.includes(search)) return false;
+      const phoneMatch =
+        searchPhone.length > 0 &&
+        normalizePhone(submission.phone).includes(searchPhone);
+      if (!normalizeText(haystack).includes(search) && !phoneMatch) {
+        return false;
+      }
     }
     return true;
   });
@@ -81,6 +111,7 @@ function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
     status: STATUS_AR[submission.status] ?? submission.status,
     source: submission.source,
     owner: submission.assignedToName ?? "",
+    lastInteraction: submission.comments[0]?.createdAt ?? submission.createdAt,
     utmSource: submission.utmSource ?? "",
     utmMedium: submission.utmMedium ?? "",
     utmCampaign: submission.utmCampaign ?? "",
@@ -212,6 +243,7 @@ export async function GET(request: NextRequest) {
       { key: "status", label: "الحالة" },
       { key: "source", label: "المصدر" },
       { key: "owner", label: "المسؤول" },
+      { key: "lastInteraction", label: "آخر تفاعل" },
       { key: "utmSource", label: "utm_source" },
       { key: "utmMedium", label: "utm_medium" },
       { key: "utmCampaign", label: "utm_campaign" },

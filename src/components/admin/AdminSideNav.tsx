@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
@@ -16,14 +16,22 @@ type NavItem = {
   group?: AdminNavGroupKey;
 };
 
+type LogicalAdminGroupKey =
+  | "home"
+  | "content"
+  | "medical"
+  | "operations"
+  | "reports"
+  | "system";
+
 /* ── Group metadata ── */
 const groupMeta: Record<
-  AdminNavGroupKey,
+  LogicalAdminGroupKey,
   { ar: string; en: string; icon: React.ReactNode }
 > = {
-  overview: {
-    ar: "نظرة عامة",
-    en: "Overview",
+  home: {
+    ar: "الرئيسية",
+    en: "Home",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -41,8 +49,8 @@ const groupMeta: Record<
     ),
   },
   content: {
-    ar: "المحتوى",
-    en: "Content",
+    ar: "إدارة المحتوى",
+    en: "Content Management",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -57,9 +65,29 @@ const groupMeta: Record<
       </svg>
     ),
   },
-  ops: {
-    ar: "العمليات",
-    en: "Operations",
+  medical: {
+    ar: "الخدمات الطبية",
+    en: "Medical Services",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        aria-hidden
+      >
+        <path
+          d="M12 3 3 8.5v7L12 21l9-5.5v-7L12 3Z"
+          strokeLinejoin="round"
+        />
+        <path d="M12 12 3 8.5M12 12v9M12 12l9-3.5" />
+      </svg>
+    ),
+  },
+  operations: {
+    ar: "العمليات والطلبات",
+    en: "Operations & Leads",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -78,9 +106,30 @@ const groupMeta: Record<
       </svg>
     ),
   },
-  settings: {
-    ar: "الإعدادات",
-    en: "Settings",
+  reports: {
+    ar: "التقارير والإحصائيات",
+    en: "Reports & Analytics",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        aria-hidden
+      >
+        <path d="M3 3v18h18" strokeLinecap="round" />
+        <path
+          d="M7 16l4-6 4 4 4-8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  system: {
+    ar: "إعدادات النظام",
+    en: "System Settings",
     icon: (
       <svg
         viewBox="0 0 24 24"
@@ -100,6 +149,20 @@ const groupMeta: Record<
 /* ── Per-route icon ── */
 function iconFor(href: string) {
   switch (href) {
+    case "/":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          className="h-3.5 w-3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          aria-hidden
+        >
+          <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 5h5M5 5v5M19 19h-5M19 19v-5" strokeLinecap="round" />
+        </svg>
+      );
     case "/admin":
       return (
         <svg
@@ -394,40 +457,104 @@ const ChevronIcon = ({ open }: { open: boolean }) => (
   </svg>
 );
 
+const groupOrder: LogicalAdminGroupKey[] = [
+  "home",
+  "content",
+  "medical",
+  "operations",
+  "reports",
+  "system",
+];
+
+const hrefOrderByGroup: Record<LogicalAdminGroupKey, string[]> = {
+  home: ["/admin"],
+  content: [
+    "/admin/pages",
+    "/admin/content",
+    "/admin/gallery",
+    "/admin/journal",
+    "/admin/media",
+  ],
+  medical: [
+    "/admin/services",
+    "/admin/service-categories",
+    "/admin/doctors",
+    "/admin/devices",
+  ],
+  operations: ["/admin/crm", "/admin/webhooks", "/admin/integration-tools"],
+  reports: ["/admin/stats", "/admin/logs"],
+  system: ["/admin/settings", "/admin/users", "/admin/maintenance"],
+};
+
+const visitSiteItem: NavItem = {
+  label: "زيارة الموقع",
+  labelEn: "Visit site",
+  href: "/",
+  description: "فتح الموقع العام",
+  descriptionEn: "Open the public website",
+};
+
+function fallbackGroupForItem(item: NavItem): LogicalAdminGroupKey {
+  if (item.group === "content") return "content";
+  if (item.group === "ops") return "operations";
+  if (item.group === "settings") return "system";
+  return "system";
+}
+
 export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
   const pathname = usePathname() ?? "";
 
-  const groupOrder: AdminNavGroupKey[] = [
-    "overview",
-    "content",
-    "ops",
-    "settings",
-  ];
+  const grouped = useMemo(() => {
+    const byHref = new Map<string, NavItem>();
+    for (const item of items) byHref.set(item.href, item);
 
-  /* Build a map of groupKey → items */
-  const grouped = new Map<AdminNavGroupKey, NavItem[]>();
-  for (const item of items) {
-    const key = (item.group ?? "overview") as AdminNavGroupKey;
-    const list = grouped.get(key) ?? [];
-    list.push(item);
-    grouped.set(key, list);
-  }
+    const used = new Set<string>();
+    const next = new Map<LogicalAdminGroupKey, NavItem[]>();
+
+    const push = (key: LogicalAdminGroupKey, item: NavItem) => {
+      const list = next.get(key) ?? [];
+      list.push(item);
+      next.set(key, list);
+    };
+
+    const addExisting = (key: LogicalAdminGroupKey, href: string) => {
+      const item = byHref.get(href);
+      if (!item) return;
+      used.add(href);
+      push(key, item);
+    };
+
+    for (const key of groupOrder) {
+      for (const href of hrefOrderByGroup[key]) addExisting(key, href);
+    }
+
+    push("home", visitSiteItem);
+
+    for (const item of items) {
+      if (used.has(item.href)) continue;
+      push(fallbackGroupForItem(item), item);
+    }
+
+    return next;
+  }, [items]);
 
   /* Auto-determine which groups contain the active path */
-  function groupContainsActive(key: AdminNavGroupKey) {
+  function groupContainsActive(key: LogicalAdminGroupKey) {
     return (grouped.get(key) ?? []).some((item) =>
       navActive(pathname, item.href),
     );
   }
 
   /* Initial open state — expand group that contains active route */
-  const [openGroups, setOpenGroups] = useState<Set<AdminNavGroupKey>>(() => {
-    const initial = new Set<AdminNavGroupKey>();
+  const [openGroups, setOpenGroups] = useState<Set<LogicalAdminGroupKey>>(() => {
+    const initial = new Set<LogicalAdminGroupKey>();
     for (const key of groupOrder) {
-      if (groupContainsActive(key)) initial.add(key);
+      const groupItems = grouped.get(key) ?? [];
+      if (groupItems.some((item) => navActive(pathname, item.href))) {
+        initial.add(key);
+      }
     }
-    // Always show overview open by default
-    initial.add("overview");
+    initial.add("home");
     return initial;
   });
 
@@ -436,14 +563,16 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
     setOpenGroups((prev) => {
       const next = new Set(prev);
       for (const key of groupOrder) {
-        if (groupContainsActive(key)) next.add(key);
+        const groupItems = grouped.get(key) ?? [];
+        if (groupItems.some((item) => navActive(pathname, item.href))) {
+          next.add(key);
+        }
       }
       return next;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [grouped, pathname]);
 
-  function toggleGroup(key: AdminNavGroupKey) {
+  function toggleGroup(key: LogicalAdminGroupKey) {
     setOpenGroups((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key);
@@ -484,16 +613,6 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
         const isOpen = openGroups.has(groupKey);
         const hasActive = groupContainsActive(groupKey);
 
-        /* Overview: render items directly without accordion */
-        if (groupKey === "overview") {
-          return (
-            <div key={groupKey} className="admin-snav__section nav-item">
-              {groupItems.map((item) => renderItem(item, "primary"))}
-            </div>
-          );
-        }
-
-        /* Content group: accordion with sub-items */
         return (
           <div
             key={groupKey}
@@ -527,7 +646,9 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
               }}
             >
               <div className="admin-snav__items nav nav-treeview">
-                {groupItems.map((item) => renderItem(item, "sub"))}
+                {groupItems.map((item) =>
+                  renderItem(item, groupKey === "home" ? "primary" : "sub"),
+                )}
               </div>
             </div>
           </div>

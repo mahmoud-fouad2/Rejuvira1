@@ -237,7 +237,10 @@ async function handleIngest(request: Request, context: RouteContext) {
   const email = pickFirst(data, ["email"]);
   const message = pickFirst(data, ["message", "note"]);
   const sourceLabel =
-    pickFirst(data, ["source"]) ?? webhook.defaultSource ?? "Webhook";
+    webhook.name?.trim() ||
+    webhook.defaultSource?.trim() ||
+    pickFirst(data, ["source"]) ||
+    "Webhook";
   const serviceSlug =
     pickFirst(data, [
       "serviceSlug",

@@ -29,6 +29,14 @@ export function BrandLogo({
   ...rest
 }: BrandLogoProps) {
   const baseClass = `rv-brand-logo rv-brand-logo-${variant}`;
+  const lightSrc =
+    variant === "header"
+      ? "/media/brand/logo-light-header.png"
+      : "/media/brand/logo-light.png";
+  const darkSrc =
+    variant === "header"
+      ? "/media/brand/logo-dark-header.png"
+      : "/media/brand/logo-dark.png";
 
   return (
     <span
@@ -36,7 +44,7 @@ export function BrandLogo({
       aria-hidden={false}
     >
       <Image
-        src="/media/brand/logo-light.png"
+        src={lightSrc}
         alt={alt}
         width={width}
         height={height}
@@ -46,7 +54,7 @@ export function BrandLogo({
         {...rest}
       />
       <Image
-        src="/media/brand/logo-dark.png"
+        src={darkSrc}
         alt={alt}
         width={width}
         height={height}

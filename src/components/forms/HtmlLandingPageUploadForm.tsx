@@ -1,8 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import type { Route } from "next";
-import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type UploadState = {
   status: "idle" | "success" | "error";
@@ -10,6 +16,7 @@ type UploadState = {
 };
 
 const initialState: UploadState = { status: "idle", message: "" };
+const MAX_HTML_CONTENT_CHARS = 8_000_000;
 
 function fallbackSlug() {
   return `landing-${Date.now().toString(36)}`;
@@ -61,8 +68,9 @@ function extractLandingHtml(source: string) {
       .map((css) => `<style>\n${css}\n</style>`)
       .join("\n");
     const body = doc.body?.innerHTML?.trim();
-    if (body)
+    if (body) {
       return wrapUploadedHtml([styles, body].filter(Boolean).join("\n"));
+    }
   } catch {
     return wrapUploadedHtml(source);
   }
@@ -76,6 +84,7 @@ async function readHtmlFile(file: File) {
 
 export function HtmlLandingPageUploadForm() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [html, setHtml] = useState("");
@@ -86,6 +95,10 @@ export function HtmlLandingPageUploadForm() {
   const [state, setState] = useState<UploadState>(initialState);
 
   const publicUrl = useMemo(() => (slug ? `/p/${slug}` : "/p/..."), [slug]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -99,21 +112,33 @@ export function HtmlLandingPageUploadForm() {
     }
 
     const content = await readHtmlFile(file);
-    const nextTitle = title || titleFromFile(file.name);
-    const nextSlug = slug || slugify(nextTitle || file.name) || fallbackSlug();
+    if (content.length > MAX_HTML_CONTENT_CHARS) {
+      setState({
+        status: "error",
+        message: `حجم ملف HTML بعد التجهيز أكبر من ${(MAX_HTML_CONTENT_CHARS / 1_000_000).toFixed(1)}MB. ارفع الصور كروابط خارجية بدل تضمينها داخل الملف.`,
+      });
+      return;
+    }
+
+    const nextTitle = (title || titleFromFile(file.name)).slice(0, 160);
+    const nextSlug =
+      slug || slugify(file.name) || slugify(nextTitle) || fallbackSlug();
     setFileName(file.name);
     setHtml(content);
     setTitle(nextTitle);
     setSlug(nextSlug);
     setState({
       status: "success",
-      message: "تم تحميل الملف داخل النموذج. راجع البيانات ثم احفظ الصفحة.",
+      message:
+        "تم تحميل الملف داخل النموذج. راجع اسم الصفحة والرابط ثم احفظ الصفحة.",
     });
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanSlug = slugify(slug);
+    const wrappedHtml = wrapUploadedHtml(html, { showHeader, showFooter });
+
     if (!html.trim()) {
       setState({ status: "error", message: "ارفع ملف HTML قبل الحفظ." });
       return;
@@ -121,23 +146,35 @@ export function HtmlLandingPageUploadForm() {
     if (!cleanSlug) {
       setState({
         status: "error",
-        message: "اكتب رابطا بالإنجليزية مثل ramadan-campaign.",
+        message: "اكتب رابطًا بالإنجليزية مثل ramadan-campaign.",
+      });
+      return;
+    }
+    if (wrappedHtml.length > MAX_HTML_CONTENT_CHARS) {
+      setState({
+        status: "error",
+        message: `حجم صفحة HTML أكبر من ${(MAX_HTML_CONTENT_CHARS / 1_000_000).toFixed(1)}MB. قلل CSS/JS المضمن أو استخدم روابط للصور.`,
       });
       return;
     }
 
+    const pageTitle = title || cleanSlug;
     const formData = new FormData();
     formData.set("slug", cleanSlug);
-    formData.set("titleAr", title || cleanSlug);
-    formData.set("titleEn", title || cleanSlug);
-    formData.set("seoTitle", title || cleanSlug);
-    formData.set("seoDescription", `Landing page: ${title || cleanSlug}`);
-    formData.set("metaTitle", title || cleanSlug);
-    formData.set("metaDescription", `Landing page: ${title || cleanSlug}`);
-    formData.set(
-      "htmlContent",
-      wrapUploadedHtml(html, { showHeader, showFooter }),
-    );
+    formData.set("titleAr", pageTitle);
+    formData.set("titleEn", pageTitle);
+    formData.set("seoTitle", pageTitle);
+    formData.set("seoDescription", `Landing page: ${pageTitle}`);
+    formData.set("metaTitle", pageTitle);
+    formData.set("metaDescription", `Landing page: ${pageTitle}`);
+    formData.set("keywords", "");
+    formData.set("ogTitle", "");
+    formData.set("ogDescription", "");
+    formData.set("ogImage", "");
+    formData.set("seoSlug", "");
+    formData.set("hashtags", "");
+    formData.set("formConfig", "");
+    formData.set("htmlContent", wrappedHtml);
     formData.set("status", "PUBLISHED");
     formData.set("noindex", "false");
 
@@ -175,6 +212,18 @@ export function HtmlLandingPageUploadForm() {
     }
   }
 
+  if (!mounted) {
+    return (
+      <div className="html-upload-card" suppressHydrationWarning>
+        <div>
+          <span className="admin-card__subtitle">HTML upload</span>
+          <h2>رفع Landing Page جاهزة</h2>
+          <p>جار تجهيز نموذج رفع صفحات الحملات...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="html-upload-card">
       <div>
@@ -201,6 +250,7 @@ export function HtmlLandingPageUploadForm() {
           <span className="admin-field-label">اسم الصفحة</span>
           <input
             required
+            maxLength={160}
             value={title}
             onChange={(event) => {
               const value = event.target.value;

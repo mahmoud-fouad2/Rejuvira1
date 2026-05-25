@@ -49,13 +49,6 @@ export default async function AdminLayout({
       <nav className="admin-shell__nav" aria-label="Admin navigation">
         <AdminSideNav items={availableNavigation} />
       </nav>
-
-      <div className="admin-shell__sidebar-footer">
-        <Link href={"/" as Route} className="admin-shell__sidebar-link">
-          <span className="lang-ar">زيارة الموقع</span>
-          <span className="lang-en">View site</span>
-        </Link>
-      </div>
     </>
   );
 

@@ -4,7 +4,7 @@
  * resolve it before that command runs so Prisma can apply the fixed SQL.
  */
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -18,10 +18,40 @@ const migrationPath = path.join(
 );
 
 if (!process.env.DATABASE_URL || !existsSync(migrationPath)) {
-  process.exit(0);
+  loadEnvFile(path.join(process.cwd(), ".env"));
+  loadEnvFile(path.join(process.cwd(), "prisma", ".env"));
+  if (!process.env.DATABASE_URL || !existsSync(migrationPath)) {
+    process.exit(0);
+  }
+}
+
+if (!process.env.DIRECT_URL) {
+  process.env.DIRECT_URL = process.env.DATABASE_URL;
 }
 
 const require = createRequire(import.meta.url);
+
+function loadEnvFile(filePath) {
+  if (!existsSync(filePath)) return;
+  const lines = readFileSync(filePath, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const separator = trimmed.indexOf("=");
+    if (separator <= 0) continue;
+    const key = trimmed.slice(0, separator).trim();
+    let value = trimmed.slice(separator + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (key && process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
 
 function prismaSpawnArgs() {
   try {

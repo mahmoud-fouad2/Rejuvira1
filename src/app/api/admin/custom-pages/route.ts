@@ -15,13 +15,14 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const MAX_HTML_CONTENT_CHARS = 8_000_000;
 const slugRegex = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
 
 const baseSchema = z.object({
-  slug: z.string().min(2).max(80).regex(slugRegex, { message: "Invalid slug" }),
+  slug: z.string().min(2).max(80).regex(slugRegex),
   titleAr: z.string().min(2).max(160),
   titleEn: z.string().max(160).optional().or(z.literal("")),
-  htmlContent: z.string().min(1).max(1_000_000),
+  htmlContent: z.string().min(1).max(MAX_HTML_CONTENT_CHARS),
   seoTitle: z.string().max(160).optional().or(z.literal("")),
   seoDescription: z.string().max(360).optional().or(z.literal("")),
   metaTitle: z.string().max(160).optional().or(z.literal("")),
@@ -30,12 +31,7 @@ const baseSchema = z.object({
   ogTitle: z.string().max(160).optional().or(z.literal("")),
   ogDescription: z.string().max(500).optional().or(z.literal("")),
   ogImage: z.string().url().max(500).optional().or(z.literal("")),
-  seoSlug: z
-    .string()
-    .max(80)
-    .regex(slugRegex, { message: "Invalid SEO slug" })
-    .optional()
-    .or(z.literal("")),
+  seoSlug: z.string().max(80).regex(slugRegex).optional().or(z.literal("")),
   hashtags: z.string().max(1000).optional().or(z.literal("")),
   formConfig: z.string().max(50_000).optional().or(z.literal("")),
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
@@ -59,7 +55,7 @@ async function requireAdmin() {
   const session = await auth();
   return Boolean(
     session?.user?.role &&
-    canAccessAdminRoute("/admin/pages", session.user.role),
+      canAccessAdminRoute("/admin/pages", session.user.role),
   );
 }
 
@@ -87,34 +83,132 @@ function parseFormConfig(value?: string) {
   }
 }
 
+function formString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function formHtmlString(formData: FormData, key: string) {
+  const value = formData.get(key);
+  return typeof value === "string" ? value : "";
+}
+
+function formBoolean(formData: FormData, key: string) {
+  const value = formData.get(key);
+  if (typeof value !== "string") return false;
+  return ["1", "true", "on", "yes"].includes(value.toLowerCase());
+}
+
+function truncate(value: string, max: number) {
+  return value.length > max ? value.slice(0, max).trim() : value;
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/\.html?$/i, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function normalizeOptionalUrl(value: string) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) ? url.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+function normalizeStatus(value: string) {
+  const statuses = Object.values(ContentStatus) as string[];
+  return statuses.includes(value) ? value : ContentStatus.DRAFT;
+}
+
+function customPagePayload(formData: FormData) {
+  const rawTitle = formString(formData, "titleAr");
+  const titleAr = truncate(rawTitle || "Landing Page", 160);
+  const titleEn = truncate(formString(formData, "titleEn") || titleAr, 160);
+  const slug =
+    slugify(formString(formData, "slug")) ||
+    slugify(titleEn) ||
+    `landing-${Date.now().toString(36)}`;
+  const seoTitle = truncate(formString(formData, "seoTitle") || titleAr, 160);
+  const seoDescription = truncate(
+    formString(formData, "seoDescription") || `Landing page: ${titleAr}`,
+    360,
+  );
+  const metaTitle = truncate(formString(formData, "metaTitle") || seoTitle, 160);
+  const metaDescription = truncate(
+    formString(formData, "metaDescription") || seoDescription,
+    500,
+  );
+
+  return {
+    slug,
+    titleAr,
+    titleEn,
+    htmlContent: formHtmlString(formData, "htmlContent"),
+    seoTitle,
+    seoDescription,
+    metaTitle,
+    metaDescription,
+    keywords: formString(formData, "keywords"),
+    ogTitle: truncate(formString(formData, "ogTitle"), 160),
+    ogDescription: truncate(formString(formData, "ogDescription"), 500),
+    ogImage: normalizeOptionalUrl(formString(formData, "ogImage")),
+    seoSlug: slugify(formString(formData, "seoSlug")),
+    hashtags: formString(formData, "hashtags"),
+    formConfig: formHtmlString(formData, "formConfig"),
+    status: normalizeStatus(formString(formData, "status")),
+    noindex: formBoolean(formData, "noindex"),
+  };
+}
+
+function validationMessage(error: z.ZodError) {
+  const firstIssue = error.issues[0];
+  const field = String(firstIssue?.path?.[0] ?? "");
+
+  if (field === "htmlContent") {
+    return `ملف HTML مطلوب، والحد الأقصى ${(MAX_HTML_CONTENT_CHARS / 1_000_000).toFixed(1)}MB. إذا كان الملف يحتوي صور Base64 كبيرة، ارفع الصور كروابط خارجية.`;
+  }
+  if (field === "slug" || field === "seoSlug") {
+    return "الرابط يجب أن يكون إنجليزيًا فقط مثل ramadan-campaign وبدون /p/.";
+  }
+  if (field === "titleAr") {
+    return "اسم الصفحة مطلوب ويجب أن يكون حرفين على الأقل.";
+  }
+  if (field === "formConfig") {
+    return "إعدادات الفورم غير صحيحة. جرّب حفظ الصفحة بدون إعدادات الفورم ثم عدّلها.";
+  }
+
+  return `تعذر حفظ الصفحة بسبب حقل ${field || "غير معروف"}. راجع البيانات ثم حاول مرة أخرى.`;
+}
+
+function logValidationError(action: "create" | "update", error: z.ZodError) {
+  console.warn(
+    `[custom-pages] invalid ${action} payload:`,
+    error.issues.map((issue) => ({
+      field: issue.path.join("."),
+      code: issue.code,
+      message: issue.message,
+    })),
+  );
+}
+
 export async function POST(request: Request) {
   if (!(await requireAdmin())) {
     return json("error", "Unauthorized", { status: 401 });
   }
 
   const formData = await request.formData();
-  const parsed = baseSchema.safeParse({
-    slug: formData.get("slug"),
-    titleAr: formData.get("titleAr"),
-    titleEn: formData.get("titleEn"),
-    htmlContent: formData.get("htmlContent"),
-    seoTitle: formData.get("seoTitle"),
-    seoDescription: formData.get("seoDescription"),
-    metaTitle: formData.get("metaTitle"),
-    metaDescription: formData.get("metaDescription"),
-    keywords: formData.get("keywords"),
-    ogTitle: formData.get("ogTitle"),
-    ogDescription: formData.get("ogDescription"),
-    ogImage: formData.get("ogImage"),
-    seoSlug: formData.get("seoSlug"),
-    hashtags: formData.get("hashtags"),
-    formConfig: formData.get("formConfig"),
-    status: formData.get("status") || ContentStatus.DRAFT,
-    noindex: formData.get("noindex"),
-  });
+  const parsed = baseSchema.safeParse(customPagePayload(formData));
 
   if (!parsed.success) {
-    return json("error", "بيانات الصفحة غير صحيحة.", { status: 400 });
+    logValidationError("create", parsed.error);
+    return json("error", validationMessage(parsed.error), { status: 400 });
   }
 
   try {
@@ -156,29 +250,14 @@ export async function PUT(request: Request) {
 
   const formData = await request.formData();
   const parsed = updateSchema.safeParse({
-    id: formData.get("id"),
-    slug: formData.get("slug"),
-    titleAr: formData.get("titleAr"),
-    titleEn: formData.get("titleEn"),
-    htmlContent: formData.get("htmlContent"),
-    seoTitle: formData.get("seoTitle"),
-    seoDescription: formData.get("seoDescription"),
-    metaTitle: formData.get("metaTitle"),
-    metaDescription: formData.get("metaDescription"),
-    keywords: formData.get("keywords"),
-    ogTitle: formData.get("ogTitle"),
-    ogDescription: formData.get("ogDescription"),
-    ogImage: formData.get("ogImage"),
-    seoSlug: formData.get("seoSlug"),
-    hashtags: formData.get("hashtags"),
-    formConfig: formData.get("formConfig"),
-    status: formData.get("status") || ContentStatus.DRAFT,
-    noindex: formData.get("noindex"),
-    oldSlug: formData.get("oldSlug"),
+    ...customPagePayload(formData),
+    id: formString(formData, "id"),
+    oldSlug: formString(formData, "oldSlug"),
   });
 
   if (!parsed.success) {
-    return json("error", "تعذّر تحديث الصفحة.", { status: 400 });
+    logValidationError("update", parsed.error);
+    return json("error", validationMessage(parsed.error), { status: 400 });
   }
 
   try {

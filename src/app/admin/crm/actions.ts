@@ -11,6 +11,7 @@ import {
   createContactLead,
   deleteCrmComment,
   deleteCrmSubmission,
+  recordAuditLog,
   updateCrmSubmission,
 } from "@/lib/content-repository";
 
@@ -43,6 +44,24 @@ const updateSchema = z.object({
   serviceSlug: z.string().max(120).optional().or(z.literal("")),
   assignedToId: z.string().optional().or(z.literal("")),
   tags: tagsSchema,
+});
+
+const bulkIdsSchema = z
+  .string()
+  .transform((value) =>
+    value
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean),
+  )
+  .pipe(z.array(z.string().min(3)).min(1).max(500));
+
+const bulkSchema = z.object({
+  action: z.enum(["status", "assign", "source", "archive", "delete"]),
+  ids: bulkIdsSchema,
+  status: z.nativeEnum(SubmissionStatus).optional(),
+  assignedToId: z.string().optional().or(z.literal("")),
+  source: z.string().max(160).optional().or(z.literal("")),
 });
 
 function revalidate() {
@@ -299,6 +318,103 @@ export async function deleteCrmSubmissionAction(formData: FormData) {
   if (typeof id !== "string" || !id) return;
   await deleteCrmSubmission(id);
   revalidate();
+}
+
+export async function bulkCrmSubmissionsAction(
+  formData: FormData,
+): Promise<CrmActionState & { affected?: number }> {
+  let session;
+  try {
+    session = await ensureCrmManager();
+  } catch {
+    return {
+      status: "error",
+      message: "لا تتوفر صلاحية كافية لتنفيذ إجراء جماعي على الطلبات.",
+    };
+  }
+
+  const parsed = bulkSchema.safeParse({
+    action: formData.get("action"),
+    ids: formData.get("ids"),
+    status: formData.get("status") || undefined,
+    assignedToId: formData.get("assignedToId"),
+    source: formData.get("source"),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: "اختر طلبًا واحدًا على الأقل وتأكد من بيانات الإجراء.",
+    };
+  }
+
+  const { action, ids } = parsed.data;
+  try {
+    if (action === "status") {
+      if (!parsed.data.status) {
+        return { status: "error", message: "اختر الحالة الجديدة أولًا." };
+      }
+      await Promise.all(
+        ids.map((id) => updateCrmSubmission({ id, status: parsed.data.status })),
+      );
+    }
+
+    if (action === "assign") {
+      await Promise.all(
+        ids.map((id) =>
+          updateCrmSubmission({
+            id,
+            assignedToId: parsed.data.assignedToId || null,
+          }),
+        ),
+      );
+    }
+
+    if (action === "source") {
+      const source = parsed.data.source?.trim();
+      if (!source) {
+        return { status: "error", message: "اكتب المصدر الجديد أولًا." };
+      }
+      await Promise.all(ids.map((id) => updateCrmSubmission({ id, source })));
+    }
+
+    if (action === "archive") {
+      await Promise.all(
+        ids.map((id) =>
+          updateCrmSubmission({ id, status: SubmissionStatus.CLOSED }),
+        ),
+      );
+    }
+
+    if (action === "delete") {
+      await Promise.all(ids.map((id) => deleteCrmSubmission(id)));
+    }
+
+    await recordAuditLog({
+      actorUserId: session?.user?.id,
+      action: `crm.bulk.${action}`,
+      entityType: "ContactSubmission",
+      metadata: {
+        affected: ids.length,
+        ids,
+        status: parsed.data.status,
+        assignedToId: parsed.data.assignedToId || null,
+        source: parsed.data.source || null,
+      },
+    });
+
+    revalidate();
+    return {
+      status: "success",
+      message: `تم تنفيذ الإجراء على ${ids.length} طلب.`,
+      affected: ids.length,
+    };
+  } catch {
+    return {
+      status: "error",
+      message: "تعذر تنفيذ الإجراء الجماعي. راجع الطلبات وحاول مرة أخرى.",
+    };
+  }
 }
 
 export async function setCrmStatusAction(formData: FormData) {
