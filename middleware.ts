@@ -54,6 +54,27 @@ export default auth((request) => {
     );
   }
 
+  if (nextUrl.pathname === "/career") {
+    return new Response(null, {
+      status: 308,
+      headers: { Location: `${getRequestOrigin(request, nextUrl)}/career/` },
+    });
+  }
+
+  if (
+    nextUrl.pathname !== "/" &&
+    nextUrl.pathname.endsWith("/") &&
+    !nextUrl.pathname.startsWith("/career/")
+  ) {
+    const path = nextUrl.pathname.replace(/\/+$/, "") || "/";
+    return new Response(null, {
+      status: 308,
+      headers: {
+        Location: `${getRequestOrigin(request, nextUrl)}${path}${nextUrl.search}`,
+      },
+    });
+  }
+
   const requestId = request.headers.get("x-request-id") ?? generateRequestId();
   const currentOrigin = getRequestOrigin(request, nextUrl);
 
@@ -126,6 +147,6 @@ export default auth((request) => {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|sitemap2.xml|sitemap-index.xml|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|xml|webmanifest)$).*)",
+    "/((?!career(?:/|$)|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|sitemap2.xml|sitemap-index.xml|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|txt|xml|webmanifest)$).*)",
   ],
 };

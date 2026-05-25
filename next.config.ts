@@ -49,6 +49,25 @@ const publicCsp = buildCsp(
   "frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googleusercontent.com",
 );
 const adminCsp = buildCsp("frame-ancestors 'none'");
+const careerCsp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
+  "script-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
+  "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm",
+  "connect-src 'self' https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
+  "frame-src 'self'",
+  "media-src 'self' https: data:",
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
 
 const securityHeaders = [
   { key: "Content-Security-Policy", value: publicCsp },
@@ -83,6 +102,7 @@ const adminFrameProtectionHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  skipTrailingSlashRedirect: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   typedRoutes: true,
@@ -116,8 +136,16 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: "/((?!career(?:/|$)).*)",
         headers: securityHeaders,
+      },
+      {
+        source: "/career/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: careerCsp },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Career-Proxy", value: "dralsalmi.com" },
+        ],
       },
       {
         source: "/admin/:path*",
