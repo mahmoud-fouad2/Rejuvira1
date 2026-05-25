@@ -228,9 +228,13 @@ function compareValues(
   return String(left).localeCompare(String(right), "ar") * modifier;
 }
 
-function buildExportUrl(ids: readonly string[], query = "") {
+function buildExportUrl(
+  ids: readonly string[],
+  query = "",
+  format: "csv" | "xlsx" = "xlsx",
+) {
   const params = new URLSearchParams(query);
-  params.set("format", "csv");
+  params.set("format", format);
   if (ids.length) params.set("ids", ids.join(","));
   return `/api/admin/crm/export?${params.toString()}`;
 }
@@ -743,6 +747,9 @@ export function CrmFilterBar({
           </div>
           <div className="admin-crm-filter-panel__exports">
             <a className="admin-btn-secondary" href={buildExportUrl([], exportQuery)}>
+              Excel منسق
+            </a>
+            <a className="admin-btn-secondary" href={buildExportUrl([], exportQuery, "csv")}>
               CSV
             </a>
             <a
@@ -1039,7 +1046,7 @@ export function CrmFilterBar({
               </button>
             </label>
             <a className="admin-btn-secondary" href={buildExportUrl(selectedIds)}>
-              تصدير CSV
+              تصدير Excel
             </a>
             <button
               type="button"

@@ -7,6 +7,11 @@ import { auth } from "@/auth";
 import { canManageCrm } from "@/lib/admin-permissions";
 import { buildCsv } from "@/lib/backup";
 import { getCrmSubmissions } from "@/lib/content-repository";
+import {
+  buildStyledXlsx,
+  xlsxContentType,
+  type XlsxColumn,
+} from "@/lib/xlsx-export";
 
 const STATUS_AR: Record<string, string> = {
   NEW: "جديد",
@@ -15,6 +20,25 @@ const STATUS_AR: Record<string, string> = {
   BOOKED: "محجوز",
   CLOSED: "مغلق",
 };
+
+const CRM_EXPORT_COLUMNS: readonly XlsxColumn[] = [
+  { key: "name", label: "الاسم", width: 24 },
+  { key: "phone", label: "الجوال", width: 18 },
+  { key: "service", label: "الخدمة", width: 28 },
+  { key: "status", label: "الحالة", width: 16 },
+  { key: "source", label: "المصدر", width: 28 },
+  { key: "owner", label: "المسؤول", width: 20 },
+  { key: "createdAt", label: "تاريخ الدخول", width: 22 },
+  { key: "lastInteraction", label: "آخر تفاعل", width: 22 },
+  { key: "email", label: "البريد الإلكتروني", width: 28 },
+  { key: "message", label: "رسالة العميل", width: 36 },
+  { key: "notes", label: "ملاحظات داخلية", width: 36 },
+  { key: "tags", label: "الوسوم", width: 22 },
+  { key: "utmSource", label: "utm_source", width: 18 },
+  { key: "utmMedium", label: "utm_medium", width: 18 },
+  { key: "utmCampaign", label: "utm_campaign", width: 22 },
+  { key: "utmContent", label: "utm_content", width: 22 },
+];
 
 function normalizeText(value: string) {
   return value
@@ -106,21 +130,52 @@ function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
   return submissions.map((submission) => ({
     name: submission.fullName,
     phone: submission.phone,
-    email: submission.email ?? "",
     service: submission.serviceLabel ?? "",
     status: STATUS_AR[submission.status] ?? submission.status,
     source: submission.source,
     owner: submission.assignedToName ?? "",
-    lastInteraction: submission.comments[0]?.createdAt ?? submission.createdAt,
+    createdAt: new Date(submission.createdAt),
+    lastInteraction: new Date(
+      submission.comments[0]?.createdAt ?? submission.createdAt,
+    ),
+    email: submission.email ?? "",
+    message: submission.message ?? "",
+    notes: submission.notes ?? "",
+    tags: submission.tags.join("، "),
     utmSource: submission.utmSource ?? "",
     utmMedium: submission.utmMedium ?? "",
     utmCampaign: submission.utmCampaign ?? "",
     utmContent: submission.utmContent ?? "",
-    message: submission.message ?? "",
-    notes: submission.notes ?? "",
-    tags: submission.tags.join("، "),
-    createdAt: submission.createdAt,
   }));
+}
+
+function buildFilterSubtitle(request: NextRequest, rowCount: number) {
+  const params = request.nextUrl.searchParams;
+  const filters = [
+    params.get("status") && params.get("status") !== "ALL"
+      ? `الحالة: ${STATUS_AR[params.get("status") ?? ""] ?? params.get("status")}`
+      : "",
+    params.get("source") && params.get("source") !== "ALL"
+      ? `المصدر: ${params.get("source")}`
+      : "",
+    params.get("service") && params.get("service") !== "ALL"
+      ? `الخدمة: ${params.get("service")}`
+      : "",
+    params.get("owner") && params.get("owner") !== "ALL"
+      ? `المسؤول: ${params.get("owner") === "_unassigned" ? "بدون مسؤول" : params.get("owner")}`
+      : "",
+    params.get("from") ? `من: ${params.get("from")}` : "",
+    params.get("to") ? `إلى: ${params.get("to")}` : "",
+    params.get("search") ? `بحث: ${params.get("search")}` : "",
+    params.get("ids") ? "تصدير عناصر محددة" : "",
+  ].filter(Boolean);
+
+  return `${rowCount} طلب مطابق${filters.length ? ` | ${filters.join(" | ")}` : ""}`;
+}
+
+function exportFilename(extension: "csv" | "pdf" | "xlsx") {
+  const date = new Date().toISOString().slice(0, 10);
+  return `rejuvera-crm-leads-${date}.${extension}`;
 }
 
 async function createPdfBuffer(
@@ -233,32 +288,35 @@ export async function GET(request: NextRequest) {
   const format = request.nextUrl.searchParams.get("format") ?? "csv";
   const submissions = filterSubmissions(await getCrmSubmissions(), request);
 
-  if (format === "csv" || format === "xlsx") {
+  if (format === "xlsx") {
     const rows = buildRows(submissions);
-    const csv = buildCsv(rows, [
-      { key: "name", label: "الاسم" },
-      { key: "phone", label: "الجوال" },
-      { key: "email", label: "البريد الإلكتروني" },
-      { key: "service", label: "الخدمة" },
-      { key: "status", label: "الحالة" },
-      { key: "source", label: "المصدر" },
-      { key: "owner", label: "المسؤول" },
-      { key: "lastInteraction", label: "آخر تفاعل" },
-      { key: "utmSource", label: "utm_source" },
-      { key: "utmMedium", label: "utm_medium" },
-      { key: "utmCampaign", label: "utm_campaign" },
-      { key: "utmContent", label: "utm_content" },
-      { key: "message", label: "رسالة العميل" },
-      { key: "notes", label: "ملاحظات داخلية" },
-      { key: "tags", label: "الوسوم" },
-      { key: "createdAt", label: "تاريخ الإنشاء" },
-    ]);
+    const buffer = buildStyledXlsx({
+      title: "تقرير طلبات Rejuvera CRM",
+      subtitle: buildFilterSubtitle(request, rows.length),
+      sheetName: "طلبات CRM",
+      columns: CRM_EXPORT_COLUMNS,
+      rows,
+    });
+
+    return new NextResponse(new Uint8Array(buffer), {
+      headers: {
+        "Content-Type": xlsxContentType(),
+        "Content-Disposition": `attachment; filename="${exportFilename("xlsx")}"; filename*=UTF-8''${encodeURIComponent(exportFilename("xlsx"))}`,
+        "Cache-Control": "no-store",
+      },
+    });
+  }
+
+  if (format === "csv") {
+    const rows = buildRows(submissions);
+    const csv = buildCsv(rows, [...CRM_EXPORT_COLUMNS]);
     const buffer = Buffer.from(`\uFEFF${csv}`, "utf8");
 
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="rejuvera-crm-export.csv"',
+        "Content-Disposition": `attachment; filename="${exportFilename("csv")}"`,
+        "Cache-Control": "no-store",
       },
     });
   }
@@ -269,7 +327,8 @@ export async function GET(request: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="rejuvera-crm-export.pdf"',
+        "Content-Disposition": `attachment; filename="${exportFilename("pdf")}"`,
+        "Cache-Control": "no-store",
       },
     });
   }
