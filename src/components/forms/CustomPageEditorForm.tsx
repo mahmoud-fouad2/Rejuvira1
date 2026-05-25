@@ -18,7 +18,10 @@ const initialState: CustomPageActionState = { status: "idle", message: "" };
 type PageChromeOptions = {
   showHeader: boolean;
   showFooter: boolean;
+  layout: PageLayoutMode;
 };
+
+type PageLayoutMode = "theme" | "full" | "blank" | "canvas" | "custom";
 
 const STATUS_OPTIONS: Array<{ value: ContentStatus; ar: string; en: string }> =
   [
@@ -30,23 +33,60 @@ const STATUS_OPTIONS: Array<{ value: ContentStatus; ar: string; en: string }> =
   ];
 
 function initialChromeOptions(htmlContent?: string): PageChromeOptions {
+  const header = htmlContent?.match(/data-header="false"/) ? false : true;
+  const footer = htmlContent?.match(/data-footer="false"/) ? false : true;
+  const layoutMatch = htmlContent?.match(
+    /data-layout="(theme|full|blank|canvas|custom)"/,
+  )?.[1] as PageLayoutMode | undefined;
   return {
-    showHeader: htmlContent?.match(/data-header="false"/) ? false : true,
-    showFooter: htmlContent?.match(/data-footer="false"/) ? false : true,
+    showHeader: header,
+    showFooter: footer,
+    layout:
+      layoutMatch ??
+      (header && footer ? "theme" : !header && !footer ? "canvas" : "custom"),
   };
 }
 
 function stripUploadedWrapper(htmlContent: string) {
   const trimmed = htmlContent.trim();
+  if (typeof DOMParser !== "undefined") {
+    try {
+      const doc = new DOMParser().parseFromString(trimmed, "text/html");
+      const wrapper = doc.querySelector(
+        "[data-custom-page-shell='true'], [data-uploaded-html='true']",
+      );
+      if (wrapper?.innerHTML?.trim()) return wrapper.innerHTML.trim();
+    } catch {
+      // Fall back to the string parser below.
+    }
+  }
   const match = trimmed.match(
-    /^<div\b[^>]*data-uploaded-html="true"[^>]*>\s*([\s\S]*?)\s*<\/div>\s*$/i,
+    /^<div\b[^>]*(?:data-custom-page-shell|data-uploaded-html)="true"[^>]*>\s*([\s\S]*)\s*<\/div>\s*$/i,
   );
   return match?.[1]?.trim() ?? trimmed;
 }
 
-function wrapHtmlPage(htmlContent: string, chrome: PageChromeOptions) {
+function layoutPreset(layout: PageLayoutMode): PageChromeOptions {
+  if (layout === "theme") {
+    return { layout, showHeader: true, showFooter: true };
+  }
+  if (layout === "full") {
+    return { layout, showHeader: true, showFooter: true };
+  }
+  if (layout === "blank" || layout === "canvas") {
+    return { layout, showHeader: false, showFooter: false };
+  }
+  return { layout, showHeader: true, showFooter: true };
+}
+
+function wrapCustomPage(
+  htmlContent: string,
+  chrome: PageChromeOptions,
+  options: { uploaded?: boolean } = {},
+) {
   const body = stripUploadedWrapper(htmlContent);
-  return `<div class="rv-uploaded-html-page" data-uploaded-html="true" data-header="${chrome.showHeader ? "true" : "false"}" data-footer="${chrome.showFooter ? "true" : "false"}">\n${body}\n</div>`;
+  const uploadedAttrs = options.uploaded ? ' data-uploaded-html="true"' : "";
+  return `<div class="rv-custom-page-shell${options.uploaded ? " rv-uploaded-html-page" : ""}" data-custom-page-shell="true"${uploadedAttrs} data-layout="${chrome.layout}" data-header="${chrome.showHeader ? "true" : "false"}" data-footer="${chrome.showFooter ? "true" : "false"}">\n${body}\n</div>`;
 }
 
 export type CustomPageEditorFormProps = {
@@ -113,11 +153,14 @@ export function CustomPageEditorForm({
 
     try {
       const formData = new FormData(event.currentTarget);
-      if (editorMode === "html") {
-        const htmlContent = formData.get("htmlContent");
-        if (typeof htmlContent === "string") {
-          formData.set("htmlContent", wrapHtmlPage(htmlContent, htmlChrome));
-        }
+      const htmlContent = formData.get("htmlContent");
+      if (typeof htmlContent === "string") {
+        formData.set(
+          "htmlContent",
+          wrapCustomPage(htmlContent, htmlChrome, {
+            uploaded: editorMode === "html",
+          }),
+        );
       }
       const response = await fetch("/api/admin/custom-pages", {
         method: mode === "create" ? "POST" : "PUT",
@@ -374,6 +417,103 @@ export function CustomPageEditorForm({
         </details>
       </section>
 
+      <section className="custom-page-editor-form__layout">
+        <div>
+          <span className="admin-field-label">Page Layout</span>
+          <h3>طريقة عرض الصفحة</h3>
+          <p>
+            استخدم Elementor Canvas أو Blank Page لصفحات الحملات الجاهزة حتى تظهر
+            مثل التصميم بدون هيدر/فوتر أو مساحات من الثيم.
+          </p>
+        </div>
+        <div className="custom-page-layout-options" role="radiogroup">
+          {[
+            {
+              value: "theme",
+              title: "Rejuvera Theme",
+              hint: "هيدر وفوتر الموقع مع عرض طبيعي.",
+            },
+            {
+              value: "full",
+              title: "Full Width",
+              hint: "هيدر وفوتر مع محتوى بعرض الصفحة.",
+            },
+            {
+              value: "blank",
+              title: "Blank Page",
+              hint: "بدون هيدر وفوتر وبخلفية نظيفة.",
+            },
+            {
+              value: "canvas",
+              title: "Elementor Canvas",
+              hint: "الأفضل للـ HTML الجاهز واللاندرز.",
+            },
+            {
+              value: "custom",
+              title: "Custom",
+              hint: "تحكم يدوي في الهيدر والفوتر.",
+            },
+          ].map((option) => (
+            <label
+              key={option.value}
+              className={htmlChrome.layout === option.value ? "is-active" : ""}
+            >
+              <input
+                type="radio"
+                name="pageLayoutChoice"
+                value={option.value}
+                checked={htmlChrome.layout === option.value}
+                onChange={() =>
+                  setHtmlChrome((current) => {
+                    if (option.value === "custom") {
+                      return { ...current, layout: "custom" };
+                    }
+                    return {
+                      ...current,
+                      ...layoutPreset(option.value as PageLayoutMode),
+                    };
+                  })
+                }
+              />
+              <span>
+                <strong>{option.title}</strong>
+                <small>{option.hint}</small>
+              </span>
+            </label>
+          ))}
+        </div>
+        <div className="pagecraft-options">
+          <label>
+            <input
+              type="checkbox"
+              checked={htmlChrome.showHeader}
+              onChange={(event) =>
+                setHtmlChrome((current) => ({
+                  ...current,
+                  layout: "custom",
+                  showHeader: event.target.checked,
+                }))
+              }
+            />
+            <span>Show site header</span>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={htmlChrome.showFooter}
+              onChange={(event) =>
+                setHtmlChrome((current) => ({
+                  ...current,
+                  layout: "custom",
+                  showFooter: event.target.checked,
+                }))
+              }
+            />
+            <span>Show site footer</span>
+          </label>
+        </div>
+      </section>
+
       <section className="grid gap-1">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="admin-field-label">محتوى الصفحة</span>
@@ -402,34 +542,6 @@ export function CustomPageEditorForm({
           />
         ) : (
           <div className="grid gap-3">
-            <div className="pagecraft-options">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={htmlChrome.showHeader}
-                  onChange={(event) =>
-                    setHtmlChrome((current) => ({
-                      ...current,
-                      showHeader: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Show site header</span>
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={htmlChrome.showFooter}
-                  onChange={(event) =>
-                    setHtmlChrome((current) => ({
-                      ...current,
-                      showFooter: event.target.checked,
-                    }))
-                  }
-                />
-                <span>Show site footer</span>
-              </label>
-            </div>
             <textarea
               name="htmlContent"
               required

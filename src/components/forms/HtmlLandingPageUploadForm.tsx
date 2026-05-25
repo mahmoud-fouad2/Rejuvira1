@@ -15,6 +15,8 @@ type UploadState = {
   message: string;
 };
 
+type PageLayoutMode = "theme" | "full" | "blank" | "canvas" | "custom";
+
 const initialState: UploadState = { status: "idle", message: "" };
 const MAX_HTML_CONTENT_CHARS = 8_000_000;
 
@@ -43,23 +45,49 @@ function titleFromFile(fileName: string) {
 
 function stripUploadedWrapper(content: string) {
   const trimmed = content.trim();
+  if (typeof DOMParser !== "undefined") {
+    try {
+      const doc = new DOMParser().parseFromString(trimmed, "text/html");
+      const wrapper = doc.querySelector(
+        "[data-custom-page-shell='true'], [data-uploaded-html='true']",
+      );
+      if (wrapper?.innerHTML?.trim()) return wrapper.innerHTML.trim();
+    } catch {
+      // Fall back to the string parser below.
+    }
+  }
   const match = trimmed.match(
-    /^<div\b[^>]*data-uploaded-html="true"[^>]*>\s*([\s\S]*?)\s*<\/div>\s*$/i,
+    /^<div\b[^>]*(?:data-custom-page-shell|data-uploaded-html)="true"[^>]*>\s*([\s\S]*)\s*<\/div>\s*$/i,
   );
   return match?.[1]?.trim() ?? trimmed;
 }
 
 function wrapUploadedHtml(
   content: string,
-  options: { showHeader?: boolean; showFooter?: boolean } = {},
+  options: {
+    showHeader?: boolean;
+    showFooter?: boolean;
+    layout?: PageLayoutMode;
+  } = {},
 ) {
-  const showHeader = options.showHeader ?? true;
-  const showFooter = options.showFooter ?? true;
-  return `<div class="rv-uploaded-html-page" data-uploaded-html="true" data-header="${showHeader ? "true" : "false"}" data-footer="${showFooter ? "true" : "false"}">\n${stripUploadedWrapper(content)}\n</div>`;
+  const showHeader = options.showHeader ?? false;
+  const showFooter = options.showFooter ?? false;
+  const layout = options.layout ?? "canvas";
+  return `<div class="rv-custom-page-shell rv-uploaded-html-page" data-custom-page-shell="true" data-uploaded-html="true" data-layout="${layout}" data-header="${showHeader ? "true" : "false"}" data-footer="${showFooter ? "true" : "false"}">\n${stripUploadedWrapper(content)}\n</div>`;
+}
+
+function layoutPreset(layout: PageLayoutMode) {
+  if (layout === "theme" || layout === "full") {
+    return { layout, showHeader: true, showFooter: true };
+  }
+  if (layout === "blank" || layout === "canvas") {
+    return { layout, showHeader: false, showFooter: false };
+  }
+  return { layout, showHeader: false, showFooter: false };
 }
 
 function extractLandingHtml(source: string) {
-  if (typeof DOMParser === "undefined") return wrapUploadedHtml(source);
+  if (typeof DOMParser === "undefined") return source;
   try {
     const doc = new DOMParser().parseFromString(source, "text/html");
     const styles = Array.from(doc.querySelectorAll("style"))
@@ -67,14 +95,34 @@ function extractLandingHtml(source: string) {
       .filter(Boolean)
       .map((css) => `<style>\n${css}\n</style>`)
       .join("\n");
+    const stylesheets = Array.from(
+      doc.querySelectorAll<HTMLLinkElement>('link[rel~="stylesheet"][href]'),
+    )
+      .map((link) => {
+        const href = link.getAttribute("href")?.trim();
+        if (!href || !/^(https?:\/\/|\/)/i.test(href)) return "";
+        const media = link.getAttribute("media")?.trim();
+        return `<link rel="stylesheet" href="${href.replace(/"/g, "&quot;")}"${media ? ` media="${media.replace(/"/g, "&quot;")}"` : ""}>`;
+      })
+      .filter(Boolean)
+      .join("\n");
     const body = doc.body?.innerHTML?.trim();
+    const bodyClass = doc.body?.getAttribute("class")?.trim();
+    const bodyStyle = doc.body?.getAttribute("style")?.trim();
     if (body) {
-      return wrapUploadedHtml([styles, body].filter(Boolean).join("\n"));
+      const bodyAttrs = [
+        bodyClass ? `class="${bodyClass.replace(/"/g, "&quot;")}"` : "",
+        bodyStyle ? `style="${bodyStyle.replace(/"/g, "&quot;")}"` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      const bodyMarkup = bodyAttrs ? `<div ${bodyAttrs}>\n${body}\n</div>` : body;
+      return [stylesheets, styles, bodyMarkup].filter(Boolean).join("\n");
     }
   } catch {
-    return wrapUploadedHtml(source);
+    return source;
   }
-  return wrapUploadedHtml(source);
+  return source;
 }
 
 async function readHtmlFile(file: File) {
@@ -89,8 +137,9 @@ export function HtmlLandingPageUploadForm() {
   const [slug, setSlug] = useState("");
   const [html, setHtml] = useState("");
   const [fileName, setFileName] = useState("");
-  const [showHeader, setShowHeader] = useState(true);
-  const [showFooter, setShowFooter] = useState(true);
+  const [layout, setLayout] = useState<PageLayoutMode>("canvas");
+  const [showHeader, setShowHeader] = useState(false);
+  const [showFooter, setShowFooter] = useState(false);
   const [pending, setPending] = useState(false);
   const [state, setState] = useState<UploadState>(initialState);
 
@@ -137,7 +186,11 @@ export function HtmlLandingPageUploadForm() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanSlug = slugify(slug);
-    const wrappedHtml = wrapUploadedHtml(html, { showHeader, showFooter });
+    const wrappedHtml = wrapUploadedHtml(html, {
+      showHeader,
+      showFooter,
+      layout,
+    });
 
     if (!html.trim()) {
       setState({ status: "error", message: "ارفع ملف HTML قبل الحفظ." });
@@ -280,9 +333,68 @@ export function HtmlLandingPageUploadForm() {
       <div className="pagecraft-options">
         <label>
           <input
+            type="radio"
+            name="uploadLayout"
+            checked={layout === "canvas"}
+            onChange={() => {
+              const next = layoutPreset("canvas");
+              setLayout(next.layout);
+              setShowHeader(next.showHeader);
+              setShowFooter(next.showFooter);
+            }}
+          />
+          <span>Elementor Canvas</span>
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="uploadLayout"
+            checked={layout === "blank"}
+            onChange={() => {
+              const next = layoutPreset("blank");
+              setLayout(next.layout);
+              setShowHeader(next.showHeader);
+              setShowFooter(next.showFooter);
+            }}
+          />
+          <span>Blank Page</span>
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="uploadLayout"
+            checked={layout === "full"}
+            onChange={() => {
+              const next = layoutPreset("full");
+              setLayout(next.layout);
+              setShowHeader(next.showHeader);
+              setShowFooter(next.showFooter);
+            }}
+          />
+          <span>Full Width</span>
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="uploadLayout"
+            checked={layout === "theme"}
+            onChange={() => {
+              const next = layoutPreset("theme");
+              setLayout(next.layout);
+              setShowHeader(next.showHeader);
+              setShowFooter(next.showFooter);
+            }}
+          />
+          <span>Rejuvera Theme</span>
+        </label>
+        <label>
+          <input
             type="checkbox"
             checked={showHeader}
-            onChange={(event) => setShowHeader(event.target.checked)}
+            onChange={(event) => {
+              setLayout("custom");
+              setShowHeader(event.target.checked);
+            }}
           />
           <span>Show site header</span>
         </label>
@@ -290,7 +402,10 @@ export function HtmlLandingPageUploadForm() {
           <input
             type="checkbox"
             checked={showFooter}
-            onChange={(event) => setShowFooter(event.target.checked)}
+            onChange={(event) => {
+              setLayout("custom");
+              setShowFooter(event.target.checked);
+            }}
           />
           <span>Show site footer</span>
         </label>

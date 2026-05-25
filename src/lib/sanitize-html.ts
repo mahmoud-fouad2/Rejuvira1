@@ -44,6 +44,7 @@ const ALLOWED_TAGS = new Set([
   "input",
   "label",
   "li",
+  "link",
   "main",
   "mark",
   "nav",
@@ -117,6 +118,10 @@ const ALLOWED_ATTR = new Set([
   "datetime",
   "colspan",
   "rowspan",
+  "media",
+  "integrity",
+  "crossorigin",
+  "referrerpolicy",
 ]);
 
 function isAllowedAttr(attr: string): boolean {
@@ -188,7 +193,7 @@ export function sanitizeHtml(input: string): string {
 
   // Remove standalone tags that can import remote behavior or affect the page head.
   html = html.replace(
-    /<\/?(?:script|iframe|object|embed|link|meta|base|template)\b[^>]*>/gi,
+    /<\/?(?:script|iframe|object|embed|meta|base|template)\b[^>]*>/gi,
     "",
   );
   // Remove HTML comments (which can hide payloads in some sniffers).
@@ -200,6 +205,14 @@ export function sanitizeHtml(input: string): string {
       const tag = tagRaw.toLowerCase();
       if (!ALLOWED_TAGS.has(tag)) {
         return "";
+      }
+      if (tag === "link") {
+        const rel = attrsRaw.match(/\brel\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/i);
+        const href = attrsRaw.match(/\bhref\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/i);
+        const relValue = (rel?.[2] ?? rel?.[3] ?? rel?.[4] ?? "").toLowerCase();
+        const hrefValue = href?.[2] ?? href?.[3] ?? href?.[4] ?? "";
+        if (!relValue.split(/\s+/).includes("stylesheet")) return "";
+        if (!sanitizeUrl(hrefValue, "href")) return "";
       }
 
       const cleanAttrs: string[] = [];

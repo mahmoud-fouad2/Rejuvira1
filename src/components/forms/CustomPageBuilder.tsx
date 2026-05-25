@@ -14,6 +14,9 @@ type BlockKind =
   | "devices"
   | "gallery"
   | "beforeAfter"
+  | "trustBar"
+  | "comparison"
+  | "pricing"
   | "faq"
   | "steps"
   | "offer"
@@ -71,6 +74,9 @@ const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
   { kind: "devices", label: "Devices", hint: "أجهزة مرتبطة بالخدمة" },
   { kind: "gallery", label: "Gallery", hint: "صور متعددة" },
   { kind: "beforeAfter", label: "Before/After", hint: "حالات قبل وبعد" },
+  { kind: "trustBar", label: "Trust Bar", hint: "اعتمادات ومؤشرات ثقة" },
+  { kind: "comparison", label: "Comparison", hint: "مقارنة خيارات أو باقات" },
+  { kind: "pricing", label: "Packages", hint: "باقات حملة أو عروض" },
   { kind: "faq", label: "FAQ", hint: "أسئلة شائعة" },
   { kind: "steps", label: "Steps", hint: "مسار زيارة أو علاج" },
   { kind: "offer", label: "Offer", hint: "عرض أو باقة للحملة" },
@@ -148,6 +154,30 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     body: "الحالة الأولى|||أضيفي صور قبل وبعد الحقيقية من محرر الصفحة قبل إطلاق الإعلان",
     accent: "#4a2476",
     tone: "soft",
+    align: "right",
+  },
+  trustBar: {
+    title: "لماذا يثق العملاء في ريجوفيرا؟",
+    body: "تقييم طبي واضح|شرح الخيارات المناسبة قبل الحجز\nفريق متخصص|أطباء وخبرات متعددة داخل المركز\nمتابعة منظمة|تواصل واضح بعد إرسال الطلب\nخصوصية وراحة|تجربة هادئة وسرية",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
+  comparison: {
+    title: "اختاري الخطة الأنسب",
+    body: "الهدف|استشارة سريعة|خطة متكاملة\nالمناسب لـ|سؤال محدد أو بداية قرار|حالة تحتاج تقييم وربط خدمة وطبيب\nالمتابعة|تواصل أولي|متابعة منظمة مع الفريق\nالنتيجة|توجيه مبدئي|مسار أوضح قبل الحجز",
+    accent: "#4a2476",
+    tone: "soft",
+    align: "right",
+  },
+  pricing: {
+    title: "باقات الحملة",
+    subtitle: "قابلة للتعديل حسب العرض",
+    body: "استشارة أولية|تقييم مناسب للحالة|ابدئي الآن\nخطة علاجية|ربط الخدمة بالطبيب والمتابعة|الأكثر طلبًا\nمتابعة خاصة|تنسيق أولويات ومواعيد|تواصلي معنا",
+    buttonLabel: "طلب تفاصيل الباقة",
+    buttonHref: "#lead-form",
+    accent: "#4a2476",
+    tone: "light",
     align: "right",
   },
   faq: {
@@ -235,6 +265,8 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
       "doctors",
       "devices",
       "beforeAfter",
+      "trustBar",
+      "comparison",
       "faq",
       "leadForm",
       "cta",
@@ -242,11 +274,11 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
   },
   {
     label: "Lead page",
-    blocks: ["hero", "offer", "testimonial", "gallery", "leadForm", "faq"],
+    blocks: ["hero", "offer", "trustBar", "pricing", "leadForm", "faq"],
   },
   {
     label: "حملة حجز",
-    blocks: ["hero", "text", "gallery", "leadForm", "contact", "faq"],
+    blocks: ["hero", "text", "trustBar", "gallery", "leadForm", "contact", "faq"],
   },
   { label: "تعريف طبي", blocks: ["hero", "text", "video", "services", "cta"] },
 ];
@@ -521,6 +553,44 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
       )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-before-after")}" ${style}><h2>${title}</h2><div>${cases}</div></section>`;
+  }
+
+  if (block.kind === "trustBar") {
+    const items = parsePairs(body)
+      .map(
+        (item) =>
+          `<article><span>✓</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></article>`,
+      )
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-trust")}" ${style}><h2>${title}</h2><div>${items}</div></section>`;
+  }
+
+  if (block.kind === "comparison") {
+    const rows = body
+      .split(/\n+/)
+      .map((line) => line.split("|").map((cell) => cell.trim()))
+      .filter((cells) => cells.length >= 2 && cells[0])
+      .map(
+        (cells, index) =>
+          `<tr>${cells.map((cell) => {
+            const tag = index === 0 ? "th" : "td";
+            return `<${tag}>${escapeHtml(cell)}</${tag}>`;
+          }).join("")}</tr>`,
+      )
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-comparison")}" ${style}><h2>${title}</h2><div><table>${rows}</table></div></section>`;
+  }
+
+  if (block.kind === "pricing") {
+    const cards = body
+      .split(/\n+/)
+      .map((line) => line.split("|").map((part) => part.trim()))
+      .filter(([name]) => name)
+      .map(([name = "", description = "", badge = ""], index) => {
+        return `<article class="${index === 1 ? "is-featured" : ""}">${badge ? `<small>${escapeHtml(badge)}</small>` : ""}<h3>${escapeHtml(name)}</h3><p>${escapeHtml(description)}</p><a href="${buttonHref}">${buttonLabel}</a></article>`;
+      })
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-pricing")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2></div><div>${cards}</div></section>`;
   }
 
   if (block.kind === "steps") {

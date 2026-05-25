@@ -15,6 +15,11 @@ function readBuilderBoolean(html: string, attr: "header" | "footer") {
   return match[1] !== "false";
 }
 
+function readPageLayout(html: string) {
+  const match = html.match(/data-layout="(theme|full|blank|canvas|custom)"/);
+  return match?.[1] ?? "theme";
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -77,13 +82,14 @@ export default async function CustomPage({
   const isUploadedHtml = page.htmlContent.includes("data-uploaded-html");
   const showHeader = readBuilderBoolean(page.htmlContent, "header");
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
+  const pageLayout = readPageLayout(page.htmlContent);
   const safeHtml = sanitizeHtml(page.htmlContent);
 
   return (
     <>
       {showHeader ? <SiteHeader /> : null}
       <main
-        className={`rv-custom-page ${
+        className={`rv-custom-page rv-custom-page--${pageLayout} ${
           isUploadedHtml ? "rv-custom-page--uploaded" : ""
         }`}
       >
