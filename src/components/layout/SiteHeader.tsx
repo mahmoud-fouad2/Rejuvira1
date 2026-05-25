@@ -1,4 +1,4 @@
-import { ContentStatus } from "@prisma/client";
+﻿import { ContentStatus } from "@/lib/prisma-enums";
 import Link from "next/link";
 import { cookies } from "next/headers";
 

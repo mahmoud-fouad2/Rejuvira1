@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Route } from "next";
 
-import type { IntegrationToolDTO } from "@/lib/integration-tools";
+import type { IntegrationToolDTO } from "@/lib/integration-tools-shared";
 
 interface Props {
   tool: IntegrationToolDTO;

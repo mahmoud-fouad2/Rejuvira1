@@ -1,6 +1,6 @@
 "use client";
 
-import { ContentStatus } from "@prisma/client";
+import { ContentStatus } from "@/lib/prisma-enums";
 import { useActionState } from "react";
 
 import {

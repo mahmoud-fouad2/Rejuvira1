@@ -12,8 +12,8 @@ import type {
   IntegrationAuthConfig,
   IntegrationResponseMapping,
   ParameterType,
-} from "@/lib/integration-tools";
-import { isValidToolName } from "@/lib/integration-tools";
+} from "@/lib/integration-tools-shared";
+import { isValidToolName } from "@/lib/integration-tools-shared";
 
 type ToolType = "WEBHOOK" | "API_CALL";
 type AuthType = "NONE" | "BEARER" | "API_KEY" | "BASIC";

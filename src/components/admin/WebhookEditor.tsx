@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { SubmissionStatus } from "@prisma/client";
+import { SubmissionStatus } from "@/lib/prisma-enums";
 
 import {
   createWebhookAction,

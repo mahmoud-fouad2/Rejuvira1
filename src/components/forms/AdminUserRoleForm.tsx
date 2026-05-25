@@ -1,6 +1,6 @@
 "use client";
 
-import { UserRole } from "@prisma/client";
+import { UserRole } from "@/lib/prisma-enums";
 import { useActionState } from "react";
 
 import {

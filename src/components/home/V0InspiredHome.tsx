@@ -1,4 +1,4 @@
-﻿import { ContentStatus } from "@prisma/client";
+﻿import { ContentStatus } from "@/lib/prisma-enums";
 import type { Route } from "next";
 import dynamic from "next/dynamic";
 import Image from "next/image";
