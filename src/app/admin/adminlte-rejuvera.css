@@ -2247,15 +2247,25 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .admin-crm-confirm .admin-modal__panel {
+  display: block;
   width: min(30rem, calc(100vw - 1.25rem));
+  height: auto;
+  min-height: 0;
   max-height: min(88dvh, 34rem);
   margin: 0;
   pointer-events: auto;
 }
 
 .admin-crm-confirm .modal-content {
+  display: block;
+  max-height: min(88dvh, 34rem);
   overflow: hidden;
   border-radius: inherit;
+}
+
+.admin-crm-confirm .admin-modal__body {
+  max-height: calc(min(88dvh, 34rem) - 4rem);
+  overflow: auto;
 }
 
 .admin-crm-confirm .admin-modal__body p {
@@ -2302,7 +2312,16 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 
   .admin-crm-confirm .admin-modal__panel {
     width: 100%;
+    min-height: 0;
     max-height: 86dvh;
+  }
+
+  .admin-crm-confirm .modal-content {
+    max-height: 86dvh;
+  }
+
+  .admin-crm-confirm .admin-modal__body {
+    max-height: calc(86dvh - 4rem);
   }
 
   .admin-crm-confirm__actions {

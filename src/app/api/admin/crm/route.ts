@@ -186,11 +186,11 @@ export async function PATCH(request: Request) {
 
   const formData = await request.formData();
   const parsed = bulkSchema.safeParse({
-    action: formData.get("action"),
-    ids: formData.get("ids"),
-    status: formData.get("status") || undefined,
-    assignedToId: formData.get("assignedToId"),
-    source: formData.get("source"),
+    action: readFormString(formData, "action"),
+    ids: readFormString(formData, "ids"),
+    status: readFormString(formData, "status") || undefined,
+    assignedToId: readFormString(formData, "assignedToId") || undefined,
+    source: readFormString(formData, "source") || undefined,
   });
 
   if (!parsed.success) {
