@@ -6,6 +6,11 @@ import {
   saveSettingsAction,
   type SettingsActionState,
 } from "@/app/admin/settings/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  ABOUT_PROFILE_DEFAULTS,
+  ABOUT_SECTION_DEFAULTS,
+} from "@/lib/about-content";
 import type { SettingsGroup } from "@/lib/content-repository";
 
 const initialState: SettingsActionState = {
@@ -502,6 +507,193 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />
+      </div>
+      <div className="admin-form-section">
+        <p className="text-ink font-semibold">محتوى صفحة من نحن</p>
+        <p className="text-ink-soft mt-2 text-sm leading-7">
+          كلمة CEO، المدير العام، طاقم الدكاترة، وطاقم التمريض مع صور قابلة
+          للرفع والتغيير.
+        </p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <input
+          name="aboutEyebrowAr"
+          defaultValue={
+            getFieldValue(groups, "about", "eyebrowAr") ||
+            ABOUT_SECTION_DEFAULTS.eyebrowAr
+          }
+          placeholder="عنوان فرعي لقسم من نحن"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+        />
+        <input
+          name="aboutEyebrowEn"
+          defaultValue={
+            getFieldValue(groups, "about", "eyebrowEn") ||
+            ABOUT_SECTION_DEFAULTS.eyebrowEn
+          }
+          placeholder="About section eyebrow"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          dir="ltr"
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <textarea
+          name="aboutTitleAr"
+          rows={2}
+          defaultValue={
+            getFieldValue(groups, "about", "titleAr") ||
+            ABOUT_SECTION_DEFAULTS.titleAr
+          }
+          placeholder="عنوان قسم القيادة والفريق"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+        />
+        <textarea
+          name="aboutTitleEn"
+          rows={2}
+          defaultValue={
+            getFieldValue(groups, "about", "titleEn") ||
+            ABOUT_SECTION_DEFAULTS.titleEn
+          }
+          placeholder="Leadership section title"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          dir="ltr"
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <textarea
+          name="aboutDescriptionAr"
+          rows={3}
+          defaultValue={
+            getFieldValue(groups, "about", "descriptionAr") ||
+            ABOUT_SECTION_DEFAULTS.descriptionAr
+          }
+          placeholder="وصف القسم بالعربية"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+        />
+        <textarea
+          name="aboutDescriptionEn"
+          rows={3}
+          defaultValue={
+            getFieldValue(groups, "about", "descriptionEn") ||
+            ABOUT_SECTION_DEFAULTS.descriptionEn
+          }
+          placeholder="Section description in English"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          dir="ltr"
+        />
+      </div>
+      <div className="grid gap-4 xl:grid-cols-2">
+        {ABOUT_PROFILE_DEFAULTS.map((profile) => (
+          <section
+            key={profile.key}
+            className="grid gap-4 rounded-[1.35rem] border border-[color:var(--rv-line)] bg-white/55 p-4"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-ink font-semibold">{profile.labelAr}</p>
+                <p className="text-ink-soft text-xs">{profile.labelEn}</p>
+              </div>
+              <label className="admin-input flex w-auto items-center gap-2 px-3 py-2">
+                <input
+                  type="hidden"
+                  name={`${profile.key}Visible`}
+                  value="false"
+                />
+                <input
+                  type="checkbox"
+                  name={`${profile.key}Visible`}
+                  value="true"
+                  defaultChecked={
+                    getFieldValue(groups, "about", `${profile.key}Visible`) !==
+                    "false"
+                  }
+                />
+                <span className="text-xs">إظهار</span>
+              </label>
+            </div>
+            <ImagePicker
+              name={`${profile.key}ImageUrl`}
+              defaultValue={
+                getFieldValue(groups, "about", `${profile.key}ImageUrl`) ||
+                profile.imageUrl
+              }
+              namespace="media/uploads"
+              label="الصورة"
+              aspect={4 / 3}
+            />
+            <div className="grid gap-3 md:grid-cols-2">
+              <input
+                name={`${profile.key}NameAr`}
+                defaultValue={
+                  getFieldValue(groups, "about", `${profile.key}NameAr`) ||
+                  profile.nameAr
+                }
+                placeholder="الاسم بالعربية"
+                className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              />
+              <input
+                name={`${profile.key}NameEn`}
+                defaultValue={
+                  getFieldValue(groups, "about", `${profile.key}NameEn`) ||
+                  profile.nameEn
+                }
+                placeholder="Name in English"
+                className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+                dir="ltr"
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <input
+                name={`${profile.key}TitleAr`}
+                defaultValue={
+                  getFieldValue(groups, "about", `${profile.key}TitleAr`) ||
+                  profile.titleAr
+                }
+                placeholder="المسمى أو العنوان بالعربية"
+                className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              />
+              <input
+                name={`${profile.key}TitleEn`}
+                defaultValue={
+                  getFieldValue(groups, "about", `${profile.key}TitleEn`) ||
+                  profile.titleEn
+                }
+                placeholder="Title in English"
+                className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+                dir="ltr"
+              />
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <textarea
+                name={`${profile.key}DescriptionAr`}
+                rows={4}
+                defaultValue={
+                  getFieldValue(
+                    groups,
+                    "about",
+                    `${profile.key}DescriptionAr`,
+                  ) || profile.descriptionAr
+                }
+                placeholder="النص بالعربية"
+                className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+              />
+              <textarea
+                name={`${profile.key}DescriptionEn`}
+                rows={4}
+                defaultValue={
+                  getFieldValue(
+                    groups,
+                    "about",
+                    `${profile.key}DescriptionEn`,
+                  ) || profile.descriptionEn
+                }
+                placeholder="Description in English"
+                className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+                dir="ltr"
+              />
+            </div>
+          </section>
+        ))}
       </div>
       <div className="admin-form-section">
         <p className="text-ink font-semibold">الصفحة الرئيسية</p>

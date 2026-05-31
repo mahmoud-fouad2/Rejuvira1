@@ -2,6 +2,10 @@
 import { cache } from "react";
 import type { Prisma } from "@prisma/client";
 
+import {
+  ABOUT_PROFILE_DEFAULTS,
+  ABOUT_SECTION_DEFAULTS,
+} from "@/lib/about-content";
 import { prisma } from "@/lib/prisma";
 
 export type DoctorRecord = {
@@ -249,6 +253,30 @@ type ContactFaqItem = {
   answerEn: string;
 };
 
+export type AboutProfileRecord = {
+  key: string;
+  labelAr: string;
+  labelEn: string;
+  nameAr: string;
+  nameEn: string;
+  titleAr: string;
+  titleEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  imageUrl: string;
+  visible: boolean;
+};
+
+export type AboutSettings = {
+  eyebrowAr: string;
+  eyebrowEn: string;
+  titleAr: string;
+  titleEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  profiles: AboutProfileRecord[];
+};
+
 export type HomePageSettings = {
   heroTitle: string;
   heroTitleAccent: string;
@@ -360,6 +388,7 @@ export type RuntimeSettings = {
   };
   media: MediaSelections;
   homepage: HomePageSettings;
+  about: AboutSettings;
   social: SocialSettings;
   seo: SeoSettings;
   socialVisibility: Record<string, boolean>;
@@ -3461,6 +3490,54 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
           ),
           "/media/curated/fallback-portrait.jpg",
         ),
+      })),
+    },
+    about: {
+      eyebrowAr: getValue(
+        "about",
+        "eyebrowAr",
+        ABOUT_SECTION_DEFAULTS.eyebrowAr,
+      ),
+      eyebrowEn: getValue(
+        "about",
+        "eyebrowEn",
+        ABOUT_SECTION_DEFAULTS.eyebrowEn,
+      ),
+      titleAr: getValue("about", "titleAr", ABOUT_SECTION_DEFAULTS.titleAr),
+      titleEn: getValue("about", "titleEn", ABOUT_SECTION_DEFAULTS.titleEn),
+      descriptionAr: getValue(
+        "about",
+        "descriptionAr",
+        ABOUT_SECTION_DEFAULTS.descriptionAr,
+      ),
+      descriptionEn: getValue(
+        "about",
+        "descriptionEn",
+        ABOUT_SECTION_DEFAULTS.descriptionEn,
+      ),
+      profiles: ABOUT_PROFILE_DEFAULTS.map((profile) => ({
+        key: profile.key,
+        labelAr: profile.labelAr,
+        labelEn: profile.labelEn,
+        nameAr: getValue("about", `${profile.key}NameAr`, profile.nameAr),
+        nameEn: getValue("about", `${profile.key}NameEn`, profile.nameEn),
+        titleAr: getValue("about", `${profile.key}TitleAr`, profile.titleAr),
+        titleEn: getValue("about", `${profile.key}TitleEn`, profile.titleEn),
+        descriptionAr: getValue(
+          "about",
+          `${profile.key}DescriptionAr`,
+          profile.descriptionAr,
+        ),
+        descriptionEn: getValue(
+          "about",
+          `${profile.key}DescriptionEn`,
+          profile.descriptionEn,
+        ),
+        imageUrl: toDisplayAsset(
+          getValue("about", `${profile.key}ImageUrl`, profile.imageUrl),
+          profile.imageUrl,
+        ),
+        visible: getValue("about", `${profile.key}Visible`, "true") !== "false",
       })),
     },
     social: {

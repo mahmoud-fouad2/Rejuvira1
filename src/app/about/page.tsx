@@ -79,6 +79,9 @@ const milestones = [
 
 export default async function AboutPage() {
   const runtimeSettings = await getRuntimeSettings();
+  const aboutProfiles = runtimeSettings.about.profiles.filter(
+    (profile) => profile.visible,
+  );
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
@@ -302,74 +305,75 @@ export default async function AboutPage() {
         </section>
 
         {/* ════════════════════════════════════════
-            TEAM INTRO
+            EDITABLE LEADERSHIP + TEAMS
         ════════════════════════════════════════ */}
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <article className="surface-panel overflow-hidden rounded-[2.5rem] shadow-sm">
-            <div className="relative h-80">
-              <Image
-                src="/media/curated/doctor-team.jpg"
-                alt="إجراء مرتبط بالتخصصات الطبية"
-                fill
-                sizes="(max-width: 1024px) 100vw, 48vw"
-                className="object-cover"
-              />
-              <div className="from-ink-strong/60 absolute inset-0 bg-gradient-to-t to-transparent mix-blend-multiply" />
-            </div>
-            <div className="p-8 lg:p-10">
-              <p className="eyebrow">
-                <span className="lang-ar">الفريق الطبي</span>
-                <span className="lang-en">Medical Team</span>
-              </p>
-              <h2 className="balanced-text text-ink-strong mt-4 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
-                <span className="lang-ar">
-                  فريق طبي يؤمن بأن النتيجة الجيدة تبدأ بإنصات دقيق وتشخيص متزن.
-                </span>
-                <span className="lang-en">
-                  A medical team that believes strong results begin with careful
-                  listening and balanced diagnosis.
-                </span>
-              </h2>
-              <p className="text-ink-soft mt-5 text-base leading-8">
-                <span className="lang-ar">
-                  تعرض ملفات الأطباء التخصص، الخبرة، والخدمات المرتبطة بكل طبيب
-                  بصورة مختصرة تساعد على الاختيار الواعي.
-                </span>
-                <span className="lang-en">
-                  Doctor profiles present specialty, experience, and related
-                  services in a concise format that supports informed selection.
-                </span>
-              </p>
-              <Link href="/doctors" className="btn-primary mt-8">
-                <span className="lang-ar">تعرّف على الفريق الطبي</span>
-                <span className="lang-en">Meet the Medical Team</span>
-              </Link>
-            </div>
-          </article>
-          <div className="surface-panel relative overflow-hidden rounded-[2.5rem] shadow-sm">
-            <Image
-              src={runtimeSettings.media.brandLogo}
-              alt={runtimeSettings.brand.logoAlt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 40vw"
-              className="bg-surface-strong object-contain p-10"
-            />
-            <div className="from-ink-strong/70 via-ink-strong/20 absolute inset-0 bg-gradient-to-t to-transparent mix-blend-multiply" />
-            <div className="relative flex h-full flex-col justify-end p-8 lg:p-10">
-              <p className="eyebrow text-white/80">
-                <span className="lang-ar">هوية المركز</span>
-                <span className="lang-en">Brand Identity</span>
-              </p>
-              <p className="mt-4 font-serif text-4xl leading-snug tracking-[-0.02em] text-white">
-                <span className="lang-ar">
-                  هوية بصرية متسقة ترتبط فعليًا بالخدمة والعلامة وتجربة المراجع.
-                </span>
-                <span className="lang-en">
-                  A consistent visual identity tied directly to the service, the
-                  brand, and the patient journey.
-                </span>
-              </p>
-            </div>
+        <section className="grid gap-8">
+          <div className="max-w-3xl">
+            <p className="eyebrow">
+              <span className="lang-ar">{runtimeSettings.about.eyebrowAr}</span>
+              <span className="lang-en">{runtimeSettings.about.eyebrowEn}</span>
+            </p>
+            <h2 className="balanced-text text-ink-strong mt-4 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
+              <span className="lang-ar">{runtimeSettings.about.titleAr}</span>
+              <span className="lang-en">{runtimeSettings.about.titleEn}</span>
+            </h2>
+            <p className="text-ink-soft mt-5 text-base leading-8">
+              <span className="lang-ar">
+                {runtimeSettings.about.descriptionAr}
+              </span>
+              <span className="lang-en">
+                {runtimeSettings.about.descriptionEn}
+              </span>
+            </p>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-2">
+            {aboutProfiles.map((profile, index) => (
+              <article
+                key={profile.key}
+                className="surface-panel grid overflow-hidden rounded-[2.5rem] shadow-sm md:grid-cols-[0.86fr_1.14fr]"
+              >
+                <div className="relative min-h-72 overflow-hidden bg-[color:var(--rv-surface-strong)]">
+                  <Image
+                    src={profile.imageUrl}
+                    alt={profile.nameAr}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 24vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+                </div>
+                <div className="flex flex-col justify-center p-8 lg:p-10">
+                  <p className="eyebrow">
+                    <span className="lang-ar">{profile.labelAr}</span>
+                    <span className="lang-en">{profile.labelEn}</span>
+                  </p>
+                  <h3 className="text-ink-strong mt-4 font-serif text-3xl leading-snug tracking-[-0.02em]">
+                    <span className="lang-ar">{profile.nameAr}</span>
+                    <span className="lang-en">{profile.nameEn}</span>
+                  </h3>
+                  <p className="text-gold mt-3 text-sm font-semibold">
+                    <span className="lang-ar">{profile.titleAr}</span>
+                    <span className="lang-en">{profile.titleEn}</span>
+                  </p>
+                  <p className="text-ink-soft mt-5 text-sm leading-8">
+                    <span className="lang-ar">{profile.descriptionAr}</span>
+                    <span className="lang-en">{profile.descriptionEn}</span>
+                  </p>
+                  {profile.key === "medicalTeam" ? (
+                    <Link href="/doctors" className="btn-secondary mt-7 w-fit">
+                      <span className="lang-ar">تعرّف على الأطباء</span>
+                      <span className="lang-en">Meet the doctors</span>
+                    </Link>
+                  ) : index === 0 ? (
+                    <Link href="/contact" className="btn-secondary mt-7 w-fit">
+                      <span className="lang-ar">تواصلي معنا</span>
+                      <span className="lang-en">Contact us</span>
+                    </Link>
+                  ) : null}
+                </div>
+              </article>
+            ))}
           </div>
         </section>
 

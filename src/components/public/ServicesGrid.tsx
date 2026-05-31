@@ -34,13 +34,13 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
   const [activeTab, setActiveTab] = useState<string>(ALL_KEY);
 
   const allGroups: CategoryGroup[] = [
-    ...categoryGroups.map((g) => ({
+    ...categoryGroups.map((group) => ({
       category: {
-        id: g.category.id,
-        name: g.category.name,
-        nameEn: g.category.nameEn ?? null,
-      } satisfies CategoryLike,
-      services: g.services,
+        id: group.category.id,
+        name: group.category.name,
+        nameEn: group.category.nameEn ?? null,
+      },
+      services: group.services,
     })),
     ...(remainingServices.length > 0
       ? [
@@ -49,7 +49,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
               id: "uncategorized",
               name: "خدمات أخرى",
               nameEn: "Other services",
-            } satisfies CategoryLike,
+            },
             services: remainingServices,
           },
         ]
@@ -59,13 +59,15 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
   const visibleGroups =
     activeTab === ALL_KEY
       ? allGroups
-      : allGroups.filter((g) => g.category.id === activeTab);
+      : allGroups.filter((group) => group.category.id === activeTab);
 
-  const totalServices = allGroups.reduce((s, g) => s + g.services.length, 0);
+  const totalServices = allGroups.reduce(
+    (sum, group) => sum + group.services.length,
+    0,
+  );
 
   return (
     <div className="flex flex-col gap-10">
-      {/* ── Tab strip ─────────────────────────────────── */}
       <div
         className="services-tab-strip"
         role="tablist"
@@ -98,7 +100,6 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
         ))}
       </div>
 
-      {/* ── Category sections ─────────────────────────── */}
       <div className="flex flex-col gap-16">
         {visibleGroups.map(({ category, services }) => (
           <section key={category.id}>
@@ -139,8 +140,11 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
   const benefits = service.benefits.slice(0, 3);
 
   return (
-    <article className="service-card group">
-      {/* Image */}
+    <Link
+      href={`/services/${service.slug}`}
+      className="service-card group"
+      aria-label={`تفاصيل خدمة ${service.name}`}
+    >
       <div className="service-card__image">
         <Image
           src={service.coverImageUrl}
@@ -153,7 +157,6 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
         <span className="service-card__category-chip">{service.category}</span>
       </div>
 
-      {/* Body */}
       <div className="service-card__body">
         <h3 className="text-ink font-serif text-xl leading-snug tracking-[-0.015em]">
           {service.name}
@@ -176,11 +179,7 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
           </div>
         ) : null}
 
-        <Link
-          href={`/services/${service.slug}`}
-          className="service-card__cta"
-          aria-label={`تفاصيل خدمة ${service.name}`}
-        >
+        <span className="service-card__cta">
           <span className="lang-ar">عرض التفاصيل</span>
           <span className="lang-en">View details</span>
           <svg
@@ -197,8 +196,8 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
               strokeLinejoin="round"
             />
           </svg>
-        </Link>
+        </span>
       </div>
-    </article>
+    </Link>
   );
 }

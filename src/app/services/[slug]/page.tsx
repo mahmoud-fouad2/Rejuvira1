@@ -23,23 +23,27 @@ export async function generateMetadata({
 
   if (!service) {
     return {
-      title: "الخدمة غير موجودة",
+      title: "الخدمة غير موجودة | Service not found",
     };
   }
 
   return {
-    title: service.name,
-    description: service.excerpt,
+    title: service.nameEn ? `${service.name} | ${service.nameEn}` : service.name,
+    description: service.excerptEn
+      ? `${service.excerpt} ${service.excerptEn}`
+      : service.excerpt,
     keywords: [
       service.name,
+      service.nameEn ?? "",
       service.category,
+      service.categoryEn ?? "",
       "ريجوفيرا",
       "Rejuvera Medical Center",
       "مركز تجميل الرياض",
       "Aesthetic clinic Riyadh",
       ...service.doctorSlugs,
       ...service.deviceSlugs,
-    ],
+    ].filter(Boolean),
     openGraph: {
       title: service.name,
       description: service.excerpt,
@@ -72,6 +76,7 @@ export default async function ServiceDetailPage({
   const relatedDevices = devices.filter((device) =>
     deviceSlugSet.has(device.slug),
   );
+  const serviceUrl = `${getSiteUrl()}/services/${service.slug}`;
 
   return (
     <div className="min-h-screen">
@@ -83,156 +88,218 @@ export default async function ServiceDetailPage({
             "@context": "https://schema.org",
             "@type": "MedicalProcedure",
             name: service.name,
+            alternateName: service.nameEn,
             description: service.excerpt,
             image: service.coverImageUrl,
-            url: `${getSiteUrl()}/services/${service.slug}`,
+            url: serviceUrl,
             procedureType: service.category,
           }),
         }}
       />
       <SiteHeader />
-      <main className="mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-28 px-6 pt-16 pb-32 lg:px-10">
+      <main className="mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-20 px-6 pt-16 pb-32 lg:px-10">
         <section className="grid gap-6 lg:grid-cols-[1.02fr_0.98fr]">
           <article className="surface-panel flex flex-col justify-center rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-            <p className="eyebrow text-ink-soft">{service.category}</p>
+            <p className="eyebrow text-ink-soft">
+              <span className="lang-ar">{service.category}</span>
+              <span className="lang-en">
+                {service.categoryEn ?? service.category}
+              </span>
+            </p>
             <h1 className="text-ink-strong mt-5 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
-              {service.name}
+              <span className="lang-ar">{service.name}</span>
+              <span className="lang-en">{service.nameEn ?? service.name}</span>
             </h1>
             <p className="text-ink-soft mt-6 text-lg leading-8">
-              {service.description}
+              <span className="lang-ar">{service.description}</span>
+              <span className="lang-en">
+                {service.descriptionEn ?? service.description}
+              </span>
             </p>
+
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               <div className="surface-panel rounded-[1.8rem] p-6 shadow-sm">
-                <p className="text-ink-soft text-sm font-medium">الفئة</p>
+                <p className="text-ink-soft text-sm font-medium">
+                  <span className="lang-ar">القسم</span>
+                  <span className="lang-en">Category</span>
+                </p>
                 <p className="text-ink-strong mt-2 font-serif text-lg tracking-[-0.01em]">
-                  {service.category}
+                  <span className="lang-ar">{service.category}</span>
+                  <span className="lang-en">
+                    {service.categoryEn ?? service.category}
+                  </span>
                 </p>
               </div>
               <div className="surface-panel rounded-[1.8rem] p-6 shadow-sm">
-                <p className="text-ink-soft text-sm font-medium">الأطباء</p>
+                <p className="text-ink-soft text-sm font-medium">
+                  <span className="lang-ar">الأطباء</span>
+                  <span className="lang-en">Doctors</span>
+                </p>
                 <p className="text-ink-strong mt-2 font-serif text-lg tracking-[-0.01em]">
                   {relatedDoctors.length}
                 </p>
               </div>
               <div className="surface-panel rounded-[1.8rem] p-6 shadow-sm">
-                <p className="text-ink-soft text-sm font-medium">التقنيات</p>
+                <p className="text-ink-soft text-sm font-medium">
+                  <span className="lang-ar">الأجهزة</span>
+                  <span className="lang-en">Devices</span>
+                </p>
                 <p className="text-ink-strong mt-2 font-serif text-lg tracking-[-0.01em]">
-                  {Math.max(relatedDevices.length, 1)}
+                  {relatedDevices.length}
                 </p>
               </div>
             </div>
-            <div className="mt-10 grid gap-3 md:grid-cols-2">
-              {service.benefits.map((benefit) => (
-                <div
-                  key={benefit}
-                  className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-5 py-4 text-sm"
-                >
-                  {benefit}
-                </div>
-              ))}
-            </div>
+
             <div className="mt-10 flex flex-wrap gap-4">
               <Link href="/contact" className="btn-primary">
-                احجزي استشارة لهذه الخدمة
+                <span className="lang-ar">احجزي استشارة لهذه الخدمة</span>
+                <span className="lang-en">Book this service</span>
               </Link>
-              <Link href="/journal" className="btn-secondary">
-                اقرأ مقالات مرتبطة
+              <Link href="/services" className="btn-secondary">
+                <span className="lang-ar">كل الخدمات</span>
+                <span className="lang-en">All services</span>
               </Link>
             </div>
           </article>
+
           <div className="surface-panel overflow-hidden rounded-[2.5rem] p-5 shadow-sm">
-            <div className="grid h-full gap-5">
-              <div className="relative min-h-[30rem] overflow-hidden rounded-[2rem]">
-                <Image
-                  src={service.coverImageUrl}
-                  alt={service.name}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 44vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div className="rounded-[2rem] bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(255,255,255,0.7))] p-6 shadow-sm">
-                  <p className="text-ink-faint font-sans text-[10px] tracking-[0.24em] uppercase">
-                    خطة العلاج
-                  </p>
-                  <p className="text-ink-strong mt-4 font-serif text-3xl leading-snug tracking-[-0.02em]">
-                    تقييم منظم يحدد مدى ملاءمة الخدمة وخطواتها المتوقعة قبل
-                    البدء.
-                  </p>
-                </div>
-                <div className="relative min-h-56 overflow-hidden rounded-[2rem]">
-                  <Image
-                    src={
-                      relatedDoctors[0]?.photoUrl ??
-                      "/media/curated/doctor-team.jpg"
-                    }
-                    alt={
-                      relatedDoctors[0]?.name ??
-                      `مشهد مرتبط بخدمة ${service.name}`
-                    }
-                    fill
-                    sizes="(max-width: 640px) 100vw, 24vw"
-                    className="bg-[radial-gradient(circle_at_top,rgba(201,162,106,0.2),rgba(255,255,255,0.98))] object-contain p-4"
-                  />
-                </div>
+            <div className="relative min-h-[36rem] overflow-hidden rounded-[2rem]">
+              <Image
+                src={service.coverImageUrl}
+                alt={service.name}
+                fill
+                sizes="(max-width: 1024px) 100vw, 44vw"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-x-4 bottom-4 rounded-[1.5rem] bg-white/88 p-5 shadow-sm backdrop-blur">
+                <p className="text-ink-strong font-serif text-2xl leading-snug">
+                  <span className="lang-ar">{service.excerpt}</span>
+                  <span className="lang-en">
+                    {service.excerptEn ?? service.excerpt}
+                  </span>
+                </p>
               </div>
             </div>
           </div>
         </section>
-        <section className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr]">
+
+        <section className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
           <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-12">
-            <p className="eyebrow text-ink-soft">نبذة عن الخدمة</p>
+            <p className="eyebrow text-ink-soft">
+              <span className="lang-ar">تفاصيل الخدمة</span>
+              <span className="lang-en">Service Details</span>
+            </p>
             <h2 className="text-ink-strong mt-5 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
-              ليست كل خدمة مناسبة لكل حالة، ولذلك يبدأ القرار من التقييم الهادئ.
+              <span className="lang-ar">
+                صفحة قابلة للتحديث من لوحة التحكم لكل خدمة.
+              </span>
+              <span className="lang-en">
+                An editable detail page for every service.
+              </span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              يقدم هذا القسم ملخصًا واضحًا عن نطاق الخدمة، ما الذي تعالجه، وكيف
-              يتم تحديد ملاءمتها للحالة قبل اعتمادها ضمن الخطة العلاجية.
+              <span className="lang-ar">
+                يتم التحكم في اسم الخدمة، التصنيف، الصورة، الملخص، الوصف،
+                الأطباء، والأجهزة من لوحة التحكم مباشرة.
+              </span>
+              <span className="lang-en">
+                The admin panel controls the service name, category, image,
+                excerpt, description, doctors, and devices directly.
+              </span>
             </p>
-          </article>
-          <div className="grid gap-6 lg:grid-cols-2">
-            <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-10">
-              <p className="eyebrow text-ink-soft">الأطباء المناسبون</p>
-              <div className="mt-6 grid gap-4">
-                {relatedDoctors.map((doctor) => (
-                  <Link
-                    key={doctor.id}
-                    href={`/doctors/${doctor.slug}`}
-                    className="border-line bg-surface text-ink-soft hover:text-ink rounded-[1.5rem] border px-5 py-5 text-sm transition-colors"
+
+            {service.benefits.length > 0 ? (
+              <div className="mt-8 grid gap-3">
+                {service.benefits.map((benefit) => (
+                  <div
+                    key={benefit}
+                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-5 py-4 text-sm"
                   >
-                    <span className="text-ink-strong block font-semibold">
-                      {doctor.name}
-                    </span>
-                    <span className="mt-2 block leading-6">
-                      {doctor.specialty}
-                    </span>
-                  </Link>
+                    {benefit}
+                  </div>
                 ))}
               </div>
-            </article>
+            ) : null}
+          </article>
+
+          <div className="grid gap-6 lg:grid-cols-2">
             <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-10">
-              <p className="eyebrow text-ink-soft">الأجهزة الداعمة</p>
+              <p className="eyebrow text-ink-soft">
+                <span className="lang-ar">الأطباء المرتبطون</span>
+                <span className="lang-en">Linked Doctors</span>
+              </p>
+              <div className="mt-6 grid gap-4">
+                {relatedDoctors.length > 0 ? (
+                  relatedDoctors.map((doctor) => (
+                    <Link
+                      key={doctor.id}
+                      href={`/doctors/${doctor.slug}`}
+                      className="border-line bg-surface text-ink-soft hover:text-ink rounded-[1.5rem] border px-5 py-5 text-sm transition-colors"
+                    >
+                      <span className="text-ink-strong block font-semibold">
+                        <span className="lang-ar">{doctor.name}</span>
+                        <span className="lang-en">
+                          {doctor.nameEn ?? doctor.name}
+                        </span>
+                      </span>
+                      <span className="mt-2 block leading-6">
+                        <span className="lang-ar">{doctor.specialty}</span>
+                        <span className="lang-en">
+                          {doctor.specialtyEn ?? doctor.specialty}
+                        </span>
+                      </span>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="border-line bg-surface text-ink-soft rounded-[1.5rem] border px-5 py-5 text-sm">
+                    <span className="lang-ar">
+                      يمكن ربط الأطباء بهذه الخدمة من لوحة التحكم.
+                    </span>
+                    <span className="lang-en">
+                      Doctors can be linked to this service from the admin panel.
+                    </span>
+                  </p>
+                )}
+              </div>
+            </article>
+
+            <article className="surface-panel rounded-[2.5rem] p-8 shadow-sm lg:p-10">
+              <p className="eyebrow text-ink-soft">
+                <span className="lang-ar">الأجهزة المرتبطة</span>
+                <span className="lang-en">Linked Devices</span>
+              </p>
               <div className="mt-6 grid gap-4">
                 {relatedDevices.length > 0 ? (
                   relatedDevices.map((device) => (
-                    <div
+                    <Link
                       key={device.id}
-                      className="border-line bg-surface text-ink-soft rounded-[1.5rem] border px-5 py-5 text-sm"
+                      href="/devices"
+                      className="border-line bg-surface text-ink-soft hover:text-ink rounded-[1.5rem] border px-5 py-5 text-sm transition-colors"
                     >
                       <span className="text-ink-strong block font-semibold">
-                        {device.name}
+                        <span className="lang-ar">{device.name}</span>
+                        <span className="lang-en">
+                          {device.nameEn ?? device.name}
+                        </span>
                       </span>
                       <span className="mt-2 block leading-6">
-                        {device.excerpt}
+                        <span className="lang-ar">{device.excerpt}</span>
+                        <span className="lang-en">
+                          {device.excerptEn ?? device.excerpt}
+                        </span>
                       </span>
-                    </div>
+                    </Link>
                   ))
                 ) : (
-                  <div className="border-line bg-surface text-ink-soft rounded-[1.5rem] border px-5 py-5 text-sm">
-                    يتم اعتماد الجهاز المناسب بعد مراجعة الحالة وتحديد الأولوية
-                    العلاجية.
-                  </div>
+                  <p className="border-line bg-surface text-ink-soft rounded-[1.5rem] border px-5 py-5 text-sm">
+                    <span className="lang-ar">
+                      لا توجد أجهزة مرتبطة بهذه الخدمة حاليًا.
+                    </span>
+                    <span className="lang-en">
+                      No devices are currently linked to this service.
+                    </span>
+                  </p>
                 )}
               </div>
             </article>

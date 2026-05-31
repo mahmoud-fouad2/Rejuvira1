@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import {
+  ABOUT_PROFILE_DEFAULTS,
+  ABOUT_SECTION_DEFAULTS,
+} from "@/lib/about-content";
 import { saveSettingsGroup } from "@/lib/content-repository";
 
 export type SettingsActionState = {
@@ -111,6 +115,44 @@ const settingsSchema = z.object({
   testimonial3QuoteAr: z.string().min(10),
   testimonial3QuoteEn: z.string().min(10),
   testimonial3Avatar: z.string().min(5),
+  aboutEyebrowAr: z.string(),
+  aboutEyebrowEn: z.string(),
+  aboutTitleAr: z.string(),
+  aboutTitleEn: z.string(),
+  aboutDescriptionAr: z.string(),
+  aboutDescriptionEn: z.string(),
+  ceoVisible: z.enum(["true", "false"]),
+  ceoImageUrl: z.string(),
+  ceoNameAr: z.string(),
+  ceoNameEn: z.string(),
+  ceoTitleAr: z.string(),
+  ceoTitleEn: z.string(),
+  ceoDescriptionAr: z.string(),
+  ceoDescriptionEn: z.string(),
+  gmVisible: z.enum(["true", "false"]),
+  gmImageUrl: z.string(),
+  gmNameAr: z.string(),
+  gmNameEn: z.string(),
+  gmTitleAr: z.string(),
+  gmTitleEn: z.string(),
+  gmDescriptionAr: z.string(),
+  gmDescriptionEn: z.string(),
+  medicalTeamVisible: z.enum(["true", "false"]),
+  medicalTeamImageUrl: z.string(),
+  medicalTeamNameAr: z.string(),
+  medicalTeamNameEn: z.string(),
+  medicalTeamTitleAr: z.string(),
+  medicalTeamTitleEn: z.string(),
+  medicalTeamDescriptionAr: z.string(),
+  medicalTeamDescriptionEn: z.string(),
+  nursingTeamVisible: z.enum(["true", "false"]),
+  nursingTeamImageUrl: z.string(),
+  nursingTeamNameAr: z.string(),
+  nursingTeamNameEn: z.string(),
+  nursingTeamTitleAr: z.string(),
+  nursingTeamTitleEn: z.string(),
+  nursingTeamDescriptionAr: z.string(),
+  nursingTeamDescriptionEn: z.string(),
   socialInstagram: z.string(),
   socialTwitter: z.string(),
   socialSnapchat: z.string(),
@@ -123,6 +165,15 @@ export async function saveSettingsAction(
   _previousState: SettingsActionState,
   formData: FormData,
 ): Promise<SettingsActionState> {
+  const field = (name: string, fallback?: string) => {
+    const value = formData.get(name);
+    return typeof value === "string" && value.trim() ? value : (fallback ?? "");
+  };
+  const checked = (name: string) =>
+    formData.getAll(name).includes("true") ? "true" : "false";
+  const aboutDefault = (key: string) =>
+    ABOUT_PROFILE_DEFAULTS.find((profile) => profile.key === key);
+
   const parsed = settingsSchema.safeParse({
     phone: formData.get("phone"),
     phoneSecondary: formData.get("phoneSecondary"),
@@ -217,6 +268,110 @@ export async function saveSettingsAction(
     testimonial3QuoteAr: formData.get("testimonial3QuoteAr"),
     testimonial3QuoteEn: formData.get("testimonial3QuoteEn"),
     testimonial3Avatar: formData.get("testimonial3Avatar"),
+    aboutEyebrowAr: field(
+      "aboutEyebrowAr",
+      ABOUT_SECTION_DEFAULTS.eyebrowAr,
+    ),
+    aboutEyebrowEn: field(
+      "aboutEyebrowEn",
+      ABOUT_SECTION_DEFAULTS.eyebrowEn,
+    ),
+    aboutTitleAr: field("aboutTitleAr", ABOUT_SECTION_DEFAULTS.titleAr),
+    aboutTitleEn: field("aboutTitleEn", ABOUT_SECTION_DEFAULTS.titleEn),
+    aboutDescriptionAr: field(
+      "aboutDescriptionAr",
+      ABOUT_SECTION_DEFAULTS.descriptionAr,
+    ),
+    aboutDescriptionEn: field(
+      "aboutDescriptionEn",
+      ABOUT_SECTION_DEFAULTS.descriptionEn,
+    ),
+    ceoVisible: checked("ceoVisible"),
+    ceoImageUrl: field("ceoImageUrl", aboutDefault("ceo")?.imageUrl),
+    ceoNameAr: field("ceoNameAr", aboutDefault("ceo")?.nameAr),
+    ceoNameEn: field("ceoNameEn", aboutDefault("ceo")?.nameEn),
+    ceoTitleAr: field("ceoTitleAr", aboutDefault("ceo")?.titleAr),
+    ceoTitleEn: field("ceoTitleEn", aboutDefault("ceo")?.titleEn),
+    ceoDescriptionAr: field(
+      "ceoDescriptionAr",
+      aboutDefault("ceo")?.descriptionAr,
+    ),
+    ceoDescriptionEn: field(
+      "ceoDescriptionEn",
+      aboutDefault("ceo")?.descriptionEn,
+    ),
+    gmVisible: checked("gmVisible"),
+    gmImageUrl: field("gmImageUrl", aboutDefault("gm")?.imageUrl),
+    gmNameAr: field("gmNameAr", aboutDefault("gm")?.nameAr),
+    gmNameEn: field("gmNameEn", aboutDefault("gm")?.nameEn),
+    gmTitleAr: field("gmTitleAr", aboutDefault("gm")?.titleAr),
+    gmTitleEn: field("gmTitleEn", aboutDefault("gm")?.titleEn),
+    gmDescriptionAr: field(
+      "gmDescriptionAr",
+      aboutDefault("gm")?.descriptionAr,
+    ),
+    gmDescriptionEn: field(
+      "gmDescriptionEn",
+      aboutDefault("gm")?.descriptionEn,
+    ),
+    medicalTeamVisible: checked("medicalTeamVisible"),
+    medicalTeamImageUrl: field(
+      "medicalTeamImageUrl",
+      aboutDefault("medicalTeam")?.imageUrl,
+    ),
+    medicalTeamNameAr: field(
+      "medicalTeamNameAr",
+      aboutDefault("medicalTeam")?.nameAr,
+    ),
+    medicalTeamNameEn: field(
+      "medicalTeamNameEn",
+      aboutDefault("medicalTeam")?.nameEn,
+    ),
+    medicalTeamTitleAr: field(
+      "medicalTeamTitleAr",
+      aboutDefault("medicalTeam")?.titleAr,
+    ),
+    medicalTeamTitleEn: field(
+      "medicalTeamTitleEn",
+      aboutDefault("medicalTeam")?.titleEn,
+    ),
+    medicalTeamDescriptionAr: field(
+      "medicalTeamDescriptionAr",
+      aboutDefault("medicalTeam")?.descriptionAr,
+    ),
+    medicalTeamDescriptionEn: field(
+      "medicalTeamDescriptionEn",
+      aboutDefault("medicalTeam")?.descriptionEn,
+    ),
+    nursingTeamVisible: checked("nursingTeamVisible"),
+    nursingTeamImageUrl: field(
+      "nursingTeamImageUrl",
+      aboutDefault("nursingTeam")?.imageUrl,
+    ),
+    nursingTeamNameAr: field(
+      "nursingTeamNameAr",
+      aboutDefault("nursingTeam")?.nameAr,
+    ),
+    nursingTeamNameEn: field(
+      "nursingTeamNameEn",
+      aboutDefault("nursingTeam")?.nameEn,
+    ),
+    nursingTeamTitleAr: field(
+      "nursingTeamTitleAr",
+      aboutDefault("nursingTeam")?.titleAr,
+    ),
+    nursingTeamTitleEn: field(
+      "nursingTeamTitleEn",
+      aboutDefault("nursingTeam")?.titleEn,
+    ),
+    nursingTeamDescriptionAr: field(
+      "nursingTeamDescriptionAr",
+      aboutDefault("nursingTeam")?.descriptionAr,
+    ),
+    nursingTeamDescriptionEn: field(
+      "nursingTeamDescriptionEn",
+      aboutDefault("nursingTeam")?.descriptionEn,
+    ),
     socialInstagram: formData.get("socialInstagram") ?? "",
     socialTwitter: formData.get("socialTwitter") ?? "",
     socialSnapchat: formData.get("socialSnapchat") ?? "",
@@ -237,6 +392,7 @@ export async function saveSettingsAction(
     brandResult,
     mediaResult,
     homepageResult,
+    aboutResult,
     socialResult,
   ] = await Promise.all([
     saveSettingsGroup("contact", {
@@ -341,6 +497,46 @@ export async function saveSettingsAction(
       testimonial3QuoteEn: parsed.data.testimonial3QuoteEn,
       testimonial3Avatar: parsed.data.testimonial3Avatar,
     }),
+    saveSettingsGroup("about", {
+      eyebrowAr: parsed.data.aboutEyebrowAr,
+      eyebrowEn: parsed.data.aboutEyebrowEn,
+      titleAr: parsed.data.aboutTitleAr,
+      titleEn: parsed.data.aboutTitleEn,
+      descriptionAr: parsed.data.aboutDescriptionAr,
+      descriptionEn: parsed.data.aboutDescriptionEn,
+      ceoVisible: parsed.data.ceoVisible,
+      ceoImageUrl: parsed.data.ceoImageUrl,
+      ceoNameAr: parsed.data.ceoNameAr,
+      ceoNameEn: parsed.data.ceoNameEn,
+      ceoTitleAr: parsed.data.ceoTitleAr,
+      ceoTitleEn: parsed.data.ceoTitleEn,
+      ceoDescriptionAr: parsed.data.ceoDescriptionAr,
+      ceoDescriptionEn: parsed.data.ceoDescriptionEn,
+      gmVisible: parsed.data.gmVisible,
+      gmImageUrl: parsed.data.gmImageUrl,
+      gmNameAr: parsed.data.gmNameAr,
+      gmNameEn: parsed.data.gmNameEn,
+      gmTitleAr: parsed.data.gmTitleAr,
+      gmTitleEn: parsed.data.gmTitleEn,
+      gmDescriptionAr: parsed.data.gmDescriptionAr,
+      gmDescriptionEn: parsed.data.gmDescriptionEn,
+      medicalTeamVisible: parsed.data.medicalTeamVisible,
+      medicalTeamImageUrl: parsed.data.medicalTeamImageUrl,
+      medicalTeamNameAr: parsed.data.medicalTeamNameAr,
+      medicalTeamNameEn: parsed.data.medicalTeamNameEn,
+      medicalTeamTitleAr: parsed.data.medicalTeamTitleAr,
+      medicalTeamTitleEn: parsed.data.medicalTeamTitleEn,
+      medicalTeamDescriptionAr: parsed.data.medicalTeamDescriptionAr,
+      medicalTeamDescriptionEn: parsed.data.medicalTeamDescriptionEn,
+      nursingTeamVisible: parsed.data.nursingTeamVisible,
+      nursingTeamImageUrl: parsed.data.nursingTeamImageUrl,
+      nursingTeamNameAr: parsed.data.nursingTeamNameAr,
+      nursingTeamNameEn: parsed.data.nursingTeamNameEn,
+      nursingTeamTitleAr: parsed.data.nursingTeamTitleAr,
+      nursingTeamTitleEn: parsed.data.nursingTeamTitleEn,
+      nursingTeamDescriptionAr: parsed.data.nursingTeamDescriptionAr,
+      nursingTeamDescriptionEn: parsed.data.nursingTeamDescriptionEn,
+    }),
     saveSettingsGroup("social", {
       instagram: parsed.data.socialInstagram,
       twitter: parsed.data.socialTwitter,
@@ -370,6 +566,7 @@ export async function saveSettingsAction(
       brandResult.mode === "database" &&
       mediaResult.mode === "database" &&
       homepageResult.mode === "database" &&
+      aboutResult.mode === "database" &&
       socialResult.mode === "database"
         ? "تم حفظ الإعدادات واعتمادها على الواجهة بنجاح."
         : "تم تحديث الإعدادات داخل بيئة العمل الحالية بنجاح.",
