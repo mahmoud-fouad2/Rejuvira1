@@ -4,12 +4,6 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { SubmissionStatus } from "@/lib/prisma-enums";
 
-import {
-  bulkCrmSubmissionsAction,
-  deleteCrmSubmissionAction,
-  setCrmStatusAction,
-} from "@/app/admin/crm/actions";
-import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import { CrmSubmissionEditor } from "@/components/forms/CrmSubmissionEditor";
 import type { CrmRecord } from "@/lib/content-repository";
 
@@ -43,6 +37,11 @@ type SortKey = "createdAt" | "lastInteraction" | "status" | "source" | "owner";
 type SortDirection = "asc" | "desc";
 type BulkAction = "status" | "assign" | "source" | "archive" | "delete";
 type ToastState = { type: "success" | "error" | "info"; message: string };
+type CrmApiResult = {
+  status: "success" | "error";
+  message: string;
+  affected?: number;
+};
 type AdvancedFilters = {
   last24: boolean;
   last7: boolean;
@@ -313,8 +312,13 @@ export function CrmFilterBar({
   const [bulkAssignee, setBulkAssignee] = useState("");
   const [bulkSource, setBulkSource] = useState("");
   const [confirmAction, setConfirmAction] = useState<BulkAction | null>(null);
+  const [deleteCandidate, setDeleteCandidate] = useState<CrmRecord | null>(
+    null,
+  );
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isBulkPending, startBulkTransition] = useTransition();
+  const [isDeletePending, setIsDeletePending] = useState(false);
+  const [statusUpdateId, setStatusUpdateId] = useState<string | null>(null);
   const [isSearchPending, setIsSearchPending] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   const [nowSnapshot] = useState(initialNow);
@@ -610,6 +614,23 @@ export function CrmFilterBar({
     };
   }, [selectedSubmission]);
 
+  useEffect(() => {
+    if (!confirmAction && !deleteCandidate) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setConfirmAction(null);
+        setDeleteCandidate(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [confirmAction, deleteCandidate]);
+
   const exportQuery = useMemo(() => {
     const params = new URLSearchParams();
     if (status !== "ALL") params.set("status", status);
@@ -696,17 +717,99 @@ export function CrmFilterBar({
     if (action === "source") formData.set("source", bulkSource);
 
     startBulkTransition(async () => {
-      const result = await bulkCrmSubmissionsAction(formData);
-      setToast({
-        type: result.status === "success" ? "success" : "error",
-        message: result.message,
-      });
-      if (result.status === "success") {
-        setSelectedIds([]);
-        setConfirmAction(null);
-        router.refresh();
+      try {
+        const response = await fetch("/api/admin/crm", {
+          method: "PATCH",
+          body: formData,
+        });
+        const result = (await response.json().catch(() => null)) as
+          | CrmApiResult
+          | null;
+        const succeeded = response.ok && result?.status === "success";
+        setToast({
+          type: succeeded ? "success" : "error",
+          message:
+            result?.message ??
+            "تعذر تنفيذ الإجراء الجماعي. الرجاء المحاولة مرة أخرى.",
+        });
+        if (succeeded) {
+          setSelectedIds([]);
+          setConfirmAction(null);
+          router.refresh();
+        }
+      } catch {
+        setToast({
+          type: "error",
+          message: "تعذر الاتصال بالخادم لتنفيذ الإجراء الجماعي.",
+        });
       }
     });
+  };
+
+  const deleteLead = async (submission: CrmRecord) => {
+    if (!canDelete || isDeletePending) return;
+    setIsDeletePending(true);
+    try {
+      const response = await fetch(
+        `/api/admin/crm?id=${encodeURIComponent(submission.id)}&type=lead`,
+        { method: "DELETE" },
+      );
+      const result = (await response.json().catch(() => null)) as
+        | CrmApiResult
+        | null;
+      const succeeded = response.ok && result?.status === "success";
+      setToast({
+        type: succeeded ? "success" : "error",
+        message:
+          result?.message ??
+          "تعذر حذف الطلب. الرجاء تحديث الصفحة والمحاولة مرة أخرى.",
+      });
+      if (succeeded) {
+        setDeleteCandidate(null);
+        setSelectedLeadId(null);
+        setSelectedIds((ids) => ids.filter((id) => id !== submission.id));
+        router.refresh();
+      }
+    } catch {
+      setToast({
+        type: "error",
+        message: "تعذر الاتصال بالخادم لحذف الطلب.",
+      });
+    } finally {
+      setIsDeletePending(false);
+    }
+  };
+
+  const updateLeadStatus = async (formData: FormData) => {
+    const id = String(formData.get("id") ?? "");
+    if (!id || statusUpdateId) return;
+    setStatusUpdateId(id);
+    try {
+      const response = await fetch("/api/admin/crm", {
+        method: "PUT",
+        body: formData,
+      });
+      const result = (await response.json().catch(() => null)) as
+        | CrmApiResult
+        | null;
+      const succeeded = response.ok && result?.status === "success";
+      setToast({
+        type: succeeded ? "success" : "error",
+        message:
+          result?.message ??
+          "تعذر تحديث حالة الطلب. الرجاء المحاولة مرة أخرى.",
+      });
+      if (succeeded) {
+        router.refresh();
+      }
+    } catch {
+      setToast({
+        type: "error",
+        message: "تعذر الاتصال بالخادم لتحديث حالة الطلب.",
+      });
+    } finally {
+      setStatusUpdateId(null);
+    }
   };
 
   const advancedOptions: Array<{
@@ -1258,7 +1361,14 @@ export function CrmFilterBar({
                               >
                                 واتساب
                               </a>
-                              <form action={setCrmStatusAction}>
+                              <form
+                                onSubmit={(event) => {
+                                  event.preventDefault();
+                                  void updateLeadStatus(
+                                    new FormData(event.currentTarget),
+                                  );
+                                }}
+                              >
                                 <input type="hidden" name="id" value={submission.id} />
                                 <select
                                   name="status"
@@ -1271,7 +1381,14 @@ export function CrmFilterBar({
                                     </option>
                                   ))}
                                 </select>
-                                <button type="submit">تحديث الحالة</button>
+                                <button
+                                  type="submit"
+                                  disabled={statusUpdateId === submission.id}
+                                >
+                                  {statusUpdateId === submission.id
+                                    ? "جاري التحديث..."
+                                    : "تحديث الحالة"}
+                                </button>
                               </form>
                             </div>
                           </details>
@@ -1378,6 +1495,67 @@ export function CrmFilterBar({
                       : confirmAction === "delete"
                         ? "حذف المحدد"
                         : "أرشفة المحدد"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {deleteCandidate ? (
+        <div
+          className="admin-modal admin-crm-confirm admin-crm-delete-confirm modal fade show"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`delete-lead-title-${deleteCandidate.id}`}
+        >
+          <button
+            type="button"
+            className="admin-modal__backdrop modal-backdrop fade show"
+            aria-label="إغلاق تأكيد الحذف"
+            onClick={() => setDeleteCandidate(null)}
+          />
+          <div className="admin-modal__panel modal-dialog modal-sm modal-dialog-centered">
+            <div className="modal-content">
+              <header className="admin-modal__header modal-header">
+                <h2
+                  id={`delete-lead-title-${deleteCandidate.id}`}
+                  className="admin-modal__title modal-title"
+                >
+                  تأكيد حذف الطلب
+                </h2>
+                <button
+                  type="button"
+                  className="admin-modal__close btn-close"
+                  aria-label="إغلاق"
+                  onClick={() => setDeleteCandidate(null)}
+                >
+                  ×
+                </button>
+              </header>
+              <div className="admin-modal__body modal-body">
+                <p>
+                  هل أنت متأكد من حذف طلب{" "}
+                  <strong>{deleteCandidate.fullName}</strong> نهائيًا؟ سيتم حذف
+                  سجل المتابعة المرتبط به أيضًا.
+                </p>
+                <div className="admin-crm-confirm__actions">
+                  <button
+                    type="button"
+                    className="admin-btn-secondary"
+                    disabled={isDeletePending}
+                    onClick={() => setDeleteCandidate(null)}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn-danger"
+                    disabled={isDeletePending}
+                    onClick={() => void deleteLead(deleteCandidate)}
+                  >
+                    {isDeletePending ? "جاري الحذف..." : "حذف نهائي"}
                   </button>
                 </div>
               </div>
@@ -1503,7 +1681,12 @@ export function CrmFilterBar({
                       نسخ الرقم
                     </button>
                   </div>
-                  <form action={setCrmStatusAction}>
+                  <form
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      void updateLeadStatus(new FormData(event.currentTarget));
+                    }}
+                  >
                     <input type="hidden" name="id" value={selectedSubmission.id} />
                     <select
                       name="status"
@@ -1519,25 +1702,21 @@ export function CrmFilterBar({
                     <button
                       type="submit"
                       className="admin-btn-secondary btn btn-outline-primary btn-sm"
+                      disabled={statusUpdateId === selectedSubmission.id}
                     >
-                      تحديث الحالة
+                      {statusUpdateId === selectedSubmission.id
+                        ? "جاري التحديث..."
+                        : "تحديث الحالة"}
                     </button>
                   </form>
                   {canDelete ? (
-                    <form action={deleteCrmSubmissionAction}>
-                      <input type="hidden" name="id" value={selectedSubmission.id} />
-                      <AdminConfirmSubmitButton
-                        className="admin-btn-danger btn btn-outline-danger btn-sm"
-                        titleArabic="حذف الطلب"
-                        titleEnglish="Delete lead"
-                        messageArabic="سيتم حذف هذا الطلب نهائيًا مع سجل المتابعة المرتبط به."
-                        messageEnglish="This lead and its follow-up history will be permanently deleted."
-                        confirmArabic="حذف نهائي"
-                        confirmEnglish="Delete"
-                      >
-                        حذف الطلب
-                      </AdminConfirmSubmitButton>
-                    </form>
+                    <button
+                      type="button"
+                      className="admin-btn-danger btn btn-outline-danger btn-sm"
+                      onClick={() => setDeleteCandidate(selectedSubmission)}
+                    >
+                      حذف الطلب
+                    </button>
                   ) : null}
                 </div>
 

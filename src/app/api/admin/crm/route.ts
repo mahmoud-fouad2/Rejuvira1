@@ -4,11 +4,12 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/auth";
-import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import { canAccessAdminRoute, canManageCrm } from "@/lib/admin-permissions";
 import {
   addCrmComment,
   deleteCrmComment,
   deleteCrmSubmission,
+  recordAuditLog,
   updateCrmSubmission,
 } from "@/lib/content-repository";
 
@@ -46,6 +47,24 @@ const deleteSchema = z.object({
   type: z.enum(["lead", "comment"]).default("lead"),
 });
 
+const bulkIdsSchema = z
+  .string()
+  .transform((value) =>
+    value
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean),
+  )
+  .pipe(z.array(z.string().min(3)).min(1).max(500));
+
+const bulkSchema = z.object({
+  action: z.enum(["status", "assign", "source", "archive", "delete"]),
+  ids: bulkIdsSchema,
+  status: z.nativeEnum(SubmissionStatus).optional(),
+  assignedToId: z.string().optional().or(z.literal("")),
+  source: z.string().max(160).optional().or(z.literal("")),
+});
+
 function json(
   status: "success" | "error",
   message: string,
@@ -60,6 +79,14 @@ async function requireAdmin() {
     !session?.user?.role ||
     !canAccessAdminRoute("/admin/crm", session.user.role)
   ) {
+    return null;
+  }
+  return session;
+}
+
+async function requireCrmManager() {
+  const session = await requireAdmin();
+  if (!session?.user?.role || !canManageCrm(session.user.role)) {
     return null;
   }
   return session;
@@ -151,6 +178,104 @@ export async function PUT(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  const session = await requireCrmManager();
+  if (!session) {
+    return json("error", "Unauthorized", { status: 401 });
+  }
+
+  const formData = await request.formData();
+  const parsed = bulkSchema.safeParse({
+    action: formData.get("action"),
+    ids: formData.get("ids"),
+    status: formData.get("status") || undefined,
+    assignedToId: formData.get("assignedToId"),
+    source: formData.get("source"),
+  });
+
+  if (!parsed.success) {
+    return json(
+      "error",
+      "اختر طلبًا واحدًا على الأقل وتأكد من بيانات الإجراء. / Invalid bulk action.",
+      { status: 400 },
+    );
+  }
+
+  const { action, ids } = parsed.data;
+
+  try {
+    if (action === "status") {
+      if (!parsed.data.status) {
+        return json("error", "اختر الحالة الجديدة أولًا. / Choose a status.", {
+          status: 400,
+        });
+      }
+      for (const id of ids) {
+        await updateCrmSubmission({ id, status: parsed.data.status });
+      }
+    }
+
+    if (action === "assign") {
+      for (const id of ids) {
+        await updateCrmSubmission({
+          id,
+          assignedToId: parsed.data.assignedToId || null,
+        });
+      }
+    }
+
+    if (action === "source") {
+      const source = parsed.data.source?.trim();
+      if (!source) {
+        return json("error", "اكتب المصدر الجديد أولًا. / Enter a source.", {
+          status: 400,
+        });
+      }
+      for (const id of ids) {
+        await updateCrmSubmission({ id, source });
+      }
+    }
+
+    if (action === "archive") {
+      for (const id of ids) {
+        await updateCrmSubmission({ id, status: SubmissionStatus.CLOSED });
+      }
+    }
+
+    if (action === "delete") {
+      for (const id of ids) {
+        await deleteCrmSubmission(id);
+      }
+    }
+
+    await recordAuditLog({
+      actorUserId: session.user?.id,
+      action: `crm.bulk.${action}`,
+      entityType: "ContactSubmission",
+      metadata: {
+        affected: ids.length,
+        ids,
+        status: parsed.data.status,
+        assignedToId: parsed.data.assignedToId || null,
+        source: parsed.data.source || null,
+      },
+    });
+
+    revalidate();
+    return NextResponse.json({
+      status: "success",
+      message: `تم تنفيذ الإجراء على ${ids.length} طلب. / Bulk action completed.`,
+      affected: ids.length,
+    });
+  } catch {
+    return json(
+      "error",
+      "تعذر تنفيذ الإجراء الجماعي. راجع الطلبات وحاول مرة أخرى. / Bulk action failed.",
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(request: Request) {
   const session = await requireAdmin();
   if (!session) {
@@ -191,7 +316,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await requireAdmin())) {
+  if (!(await requireCrmManager())) {
     return json("error", "Unauthorized", { status: 401 });
   }
 
