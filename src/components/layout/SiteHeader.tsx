@@ -166,7 +166,7 @@ export async function SiteHeader() {
               doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
               devices={publishedDevices.length > 0 ? publishedDevices : devices}
             />
-            {(["/gallery", "/journal", "/about", "/contact"] as const).map(
+            {(["/gallery", "/journal", "/about", "/career", "/contact"] as const).map(
               (href) => {
                 const link = linkByHref[href];
                 return (
@@ -180,11 +180,6 @@ export async function SiteHeader() {
           </nav>
 
           <div className="rv-nav-actions">
-            <Link href="/career" className="rv-v0-book rv-v0-career-cta">
-              <span className="lang-ar">التوظيف</span>
-              <span className="lang-en">Careers</span>
-              <Icon path="M10 6V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v1M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Zm0 4h16" />
-            </Link>
             <BookingModal
               services={
                 publishedServices.length > 0 ? publishedServices : services

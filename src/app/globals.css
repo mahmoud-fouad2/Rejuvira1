@@ -1823,20 +1823,6 @@ main {
   filter: saturate(1.08);
 }
 
-.rv-v0-career-cta {
-  background: rgba(255, 255, 255, 0.88) !important;
-  border-color: rgba(74, 36, 118, 0.2) !important;
-  color: var(--rv-purple-strong) !important;
-  box-shadow: 0 12px 28px rgba(74, 36, 118, 0.14) !important;
-  min-height: 2.75rem;
-  padding-inline: 1rem;
-}
-
-.rv-v0-career-cta:hover {
-  background: #fff !important;
-  color: var(--rv-purple) !important;
-}
-
 .rv-v0-menu-button {
   border: 1px solid var(--rv-line);
   border-radius: 999px;
