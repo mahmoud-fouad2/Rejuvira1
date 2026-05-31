@@ -14454,6 +14454,100 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .rv-builder-faq summary {
   cursor: pointer;
 }
+
+/* PageCraft dark tone must stay readable in both editor preview and published pages. */
+.rv-builder-section.is-dark,
+.rv-builder-section.is-dark.rv-builder-text,
+.rv-builder-section.is-dark.rv-builder-cta,
+.rv-builder-section.is-dark.rv-builder-services,
+.rv-builder-section.is-dark.rv-builder-doctors,
+.rv-builder-section.is-dark.rv-builder-devices,
+.rv-builder-section.is-dark.rv-builder-before-after,
+.rv-builder-section.is-dark.rv-builder-trust,
+.rv-builder-section.is-dark.rv-builder-comparison,
+.rv-builder-section.is-dark.rv-builder-pricing,
+.rv-builder-section.is-dark.rv-builder-gallery,
+.rv-builder-section.is-dark.rv-builder-stats,
+.rv-builder-section.is-dark.rv-builder-steps,
+.rv-builder-section.is-dark.rv-builder-offer,
+.rv-builder-section.is-dark.rv-builder-testimonial,
+.rv-builder-section.is-dark.rv-builder-video,
+.rv-builder-section.is-dark.rv-builder-lead-form,
+.rv-builder-section.is-dark.rv-builder-contact,
+.rv-builder-section.is-dark.rv-builder-faq {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  background:
+    radial-gradient(
+      circle at 12% 0%,
+      color-mix(in srgb, var(--builder-accent) 34%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(135deg, var(--builder-accent), #16082c) !important;
+  color: #fff !important;
+}
+
+.rv-builder-section.is-dark :is(
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  li,
+  small,
+  span,
+  strong,
+  blockquote,
+  figcaption,
+  summary,
+  label
+) {
+  color: #fff !important;
+}
+
+.rv-builder-section.is-dark :is(
+  .rv-builder-lead-form-fields,
+  .rv-builder-services article,
+  .rv-builder-doctors article,
+  .rv-builder-devices article,
+  .rv-builder-trust article,
+  .rv-builder-pricing article,
+  .rv-builder-stats article,
+  .rv-builder-steps article,
+  .rv-builder-faq details,
+  .rv-builder-comparison > div,
+  .rv-builder-before-after article,
+  .rv-builder-gallery figure
+) {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.09) !important;
+  color: #fff !important;
+}
+
+.rv-builder-section.is-dark :is(input, textarea, select) {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #fff !important;
+}
+
+.rv-builder-section.is-dark :is(input, textarea, select)::placeholder {
+  color: rgba(255, 255, 255, 0.62) !important;
+}
+
+.rv-builder-section.is-dark :is(
+  .rv-builder-trust article > span,
+  .rv-builder-stats strong,
+  .rv-builder-pricing article small,
+  .rv-builder-before-after figure small,
+  .rv-builder-video figure span
+) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--builder-accent) !important;
+}
+
+.rv-builder-section.is-dark .rv-builder-contact a {
+  background: #fff !important;
+  color: var(--builder-accent) !important;
+}
 @media (max-width: 860px) {
   .rv-builder-hero,
   .rv-builder-services > div,
