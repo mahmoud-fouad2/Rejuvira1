@@ -24,6 +24,7 @@ const navLinks = [
   { href: "/gallery", labelAr: "معرض الصور", labelEn: "Gallery" },
   { href: "/journal", labelAr: "المجلة", labelEn: "Journal" },
   { href: "/about", labelAr: "من نحن", labelEn: "About" },
+  { href: "/career", labelAr: "التوظيف", labelEn: "Careers" },
   { href: "/contact", labelAr: "تواصلي معنا", labelEn: "Contact" },
 ] as const;
 
@@ -179,6 +180,11 @@ export async function SiteHeader() {
           </nav>
 
           <div className="rv-nav-actions">
+            <Link href="/career" className="rv-v0-book rv-v0-career-cta">
+              <span className="lang-ar">التوظيف</span>
+              <span className="lang-en">Careers</span>
+              <Icon path="M10 6V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v1M4 8h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Zm0 4h16" />
+            </Link>
             <BookingModal
               services={
                 publishedServices.length > 0 ? publishedServices : services

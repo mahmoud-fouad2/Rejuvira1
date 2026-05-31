@@ -16,6 +16,7 @@ const quickLinks = [
   { href: "/devices", labelAr: "أجهزتنا", labelEn: "Devices" },
   { href: "/gallery", labelAr: "معرض الصور", labelEn: "Gallery" },
   { href: "/journal", labelAr: "المجلة الطبية", labelEn: "Journal" },
+  { href: "/career", labelAr: "التوظيف", labelEn: "Careers" },
   { href: "/contact", labelAr: "تواصلي معنا", labelEn: "Contact" },
 ] as const;
 
@@ -673,6 +674,11 @@ export async function SiteFooter() {
             <Link href="/terms" className="hover:text-[color:var(--rv-ink)]">
               <span className="lang-ar">الشروط والأحكام</span>
               <span className="lang-en">Terms</span>
+            </Link>
+            <span aria-hidden>·</span>
+            <Link href="/career" className="hover:text-[color:var(--rv-ink)]">
+              <span className="lang-ar">التوظيف</span>
+              <span className="lang-en">Careers</span>
             </Link>
             <span aria-hidden>·</span>
             <Link href="/contact" className="hover:text-[color:var(--rv-ink)]">
