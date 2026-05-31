@@ -508,7 +508,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           required
         />
       </div>
-      <div className="admin-form-section">
+      <div id="about-settings" className="admin-form-section scroll-mt-24">
         <p className="text-ink font-semibold">محتوى صفحة من نحن</p>
         <p className="text-ink-soft mt-2 text-sm leading-7">
           كلمة CEO، المدير العام، طاقم الدكاترة، وطاقم التمريض مع صور قابلة

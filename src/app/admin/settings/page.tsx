@@ -40,10 +40,16 @@ export default async function AdminSettingsPage() {
               <span className="lang-en">Edit settings</span>
             </div>
           </div>
-          <a href="/admin/media" className="admin-btn-secondary">
-            <span className="lang-ar">الصور</span>
-            <span className="lang-en">Media</span>
-          </a>
+          <div className="flex flex-wrap gap-2">
+            <a href="#about-settings" className="admin-btn-primary">
+              <span className="lang-ar">تحرير من نحن</span>
+              <span className="lang-en">Edit About</span>
+            </a>
+            <a href="/admin/media" className="admin-btn-secondary">
+              <span className="lang-ar">الصور</span>
+              <span className="lang-en">Media</span>
+            </a>
+          </div>
         </div>
         <div className="admin-card__body">
           <SettingsForm groups={groups} />

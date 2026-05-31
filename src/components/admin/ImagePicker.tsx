@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 type Namespace =
@@ -32,6 +32,14 @@ type ImagePickerProps = {
   /** Show free-form aspect option. Default true. */
   allowFreeAspect?: boolean;
   onChange?: (value: string) => void;
+};
+
+type MediaLibraryItem = {
+  url: string;
+  label: string;
+  category: string;
+  source: string;
+  updatedAt?: string;
 };
 
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
@@ -158,6 +166,13 @@ export function ImagePicker({
   const [croppedArea, setCroppedArea] = useState<Area | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryItems, setLibraryItems] = useState<MediaLibraryItem[]>([]);
+  const [libraryStatus, setLibraryStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
+  const [librarySearch, setLibrarySearch] = useState("");
+  const [libraryCategory, setLibraryCategory] = useState("all");
 
   const updateValue = useCallback(
     (next: string) => {
@@ -188,6 +203,52 @@ export function ImagePicker({
   function openPicker() {
     fileInputRef.current?.click();
   }
+
+  async function openLibrary() {
+    setLibraryOpen(true);
+    if (libraryStatus === "ready" || libraryStatus === "loading") return;
+    setLibraryStatus("loading");
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/media-library", {
+        headers: { accept: "application/json" },
+      });
+      const payload = (await response.json()) as
+        | { ok: true; items: MediaLibraryItem[] }
+        | { ok: false; error: string };
+      if (!response.ok || !payload.ok) {
+        throw new Error("error" in payload ? payload.error : "Library failed");
+      }
+      setLibraryItems(payload.items);
+      setLibraryStatus("ready");
+    } catch (err) {
+      setLibraryStatus("error");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not load the media library.",
+      );
+    }
+  }
+
+  const libraryCategories = useMemo(() => {
+    return Array.from(new Set(libraryItems.map((item) => item.category))).sort(
+      (left, right) => left.localeCompare(right),
+    );
+  }, [libraryItems]);
+
+  const filteredLibraryItems = useMemo(() => {
+    const query = librarySearch.trim().toLowerCase();
+    return libraryItems.filter((item) => {
+      if (libraryCategory !== "all" && item.category !== libraryCategory) {
+        return false;
+      }
+      if (!query) return true;
+      return `${item.label} ${item.category} ${item.source} ${item.url}`
+        .toLowerCase()
+        .includes(query);
+    });
+  }, [libraryCategory, libraryItems, librarySearch]);
 
   async function handleFile(file: File) {
     setError(null);
@@ -334,6 +395,15 @@ export function ImagePicker({
           <span className="lang-ar">رفع صورة</span>
           <span className="lang-en">Upload image</span>
         </button>
+        <button
+          type="button"
+          className="admin-btn-secondary"
+          onClick={() => void openLibrary()}
+          disabled={busy}
+        >
+          <span className="lang-ar">اختيار من المكتبة</span>
+          <span className="lang-en">Choose from library</span>
+        </button>
         {value ? (
           <>
             <button
@@ -376,6 +446,124 @@ export function ImagePicker({
         <p className="mt-1 text-[11px]" style={{ color: "#b3334b" }}>
           {error}
         </p>
+      ) : null}
+
+      {libraryOpen ? (
+        <div
+          className="rv-image-picker__library"
+          role="dialog"
+          aria-modal="true"
+        >
+          <button
+            type="button"
+            className="rv-image-picker__editor-backdrop"
+            aria-label="Close media library"
+            onClick={() => setLibraryOpen(false)}
+          />
+          <div className="rv-image-picker__library-panel">
+            <header className="rv-image-picker__editor-header">
+              <div>
+                <h3>
+                  <span className="lang-ar">اختيار صورة من المكتبة</span>
+                  <span className="lang-en">Choose from media library</span>
+                </h3>
+                <p className="rv-image-picker__library-subtitle">
+                  <span className="lang-ar">
+                    صور مرفوعة سابقًا ومستخدمة داخل الموقع.
+                  </span>
+                  <span className="lang-en">
+                    Previously uploaded and site-used images.
+                  </span>
+                </p>
+              </div>
+              <button
+                type="button"
+                className="admin-modal__close"
+                onClick={() => setLibraryOpen(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </header>
+
+            <div className="rv-image-picker__library-toolbar">
+              <input
+                value={librarySearch}
+                onChange={(event) => setLibrarySearch(event.target.value)}
+                placeholder="بحث باسم الصورة أو المصدر / Search media"
+                className="admin-input"
+              />
+              <div className="rv-image-picker__library-chips" role="list">
+                <button
+                  type="button"
+                  className={libraryCategory === "all" ? "is-active" : ""}
+                  onClick={() => setLibraryCategory("all")}
+                >
+                  الكل
+                </button>
+                {libraryCategories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    className={libraryCategory === category ? "is-active" : ""}
+                    onClick={() => setLibraryCategory(category)}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rv-image-picker__library-body">
+              {libraryStatus === "loading" ? (
+                <p className="rv-image-picker__library-state">
+                  جاري تحميل مكتبة الصور...
+                </p>
+              ) : libraryStatus === "error" ? (
+                <p className="rv-image-picker__library-state is-error">
+                  تعذر تحميل مكتبة الصور. يمكنك الاستمرار بالرفع أو الرابط اليدوي.
+                </p>
+              ) : filteredLibraryItems.length === 0 ? (
+                <p className="rv-image-picker__library-state">
+                  لا توجد صور مطابقة للبحث الحالي.
+                </p>
+              ) : (
+                <div className="rv-image-picker__library-grid">
+                  {filteredLibraryItems.map((item) => (
+                    <button
+                      key={item.url}
+                      type="button"
+                      className={`rv-image-picker__library-card ${
+                        value === item.url ? "is-selected" : ""
+                      }`}
+                      onClick={() => {
+                        updateValue(item.url);
+                        setLibraryOpen(false);
+                      }}
+                    >
+                      <span className="rv-image-picker__library-thumb">
+                        <Image
+                          src={item.url}
+                          alt={item.label}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 44vw, 160px"
+                          unoptimized
+                        />
+                      </span>
+                      <span className="rv-image-picker__library-title">
+                        {item.label}
+                      </span>
+                      <span className="rv-image-picker__library-meta">
+                        {item.category}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       ) : null}
 
       {editorOpen && editorSource ? (
