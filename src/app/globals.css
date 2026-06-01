@@ -13904,6 +13904,15 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   font-size: 0.68rem;
   line-height: 1.6;
 }
+.pagecraft-mini-panel summary {
+  cursor: pointer;
+  color: var(--admin-text);
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+.pagecraft-mini-panel[open] summary {
+  margin-bottom: 0.55rem;
+}
 .pagecraft-inline-actions {
   display: flex;
   flex-wrap: wrap;

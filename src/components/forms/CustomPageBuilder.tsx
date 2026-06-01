@@ -869,6 +869,9 @@ export function CustomPageBuilder({
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
+  const [galleryDraftImage, setGalleryDraftImage] = useState("");
+  const [beforeDraftImage, setBeforeDraftImage] = useState("");
+  const [afterDraftImage, setAfterDraftImage] = useState("");
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
   const html = useMemo(() => renderPage(blocks), [blocks]);
   const allServiceLines = useMemo(
@@ -926,6 +929,36 @@ export function CustomPageBuilder({
         allServiceLines,
       ),
     });
+  }
+
+  function appendGalleryImage() {
+    if (!selected || selected.kind !== "gallery" || !galleryDraftImage) return;
+    update(selected.id, {
+      body: [selected.body, `${galleryDraftImage}|صورة الحملة`]
+        .filter(Boolean)
+        .join("\n"),
+    });
+    setGalleryDraftImage("");
+  }
+
+  function appendBeforeAfterCase() {
+    if (
+      !selected ||
+      selected.kind !== "beforeAfter" ||
+      (!beforeDraftImage && !afterDraftImage)
+    ) {
+      return;
+    }
+    update(selected.id, {
+      body: [
+        selected.body,
+        `حالة جديدة|${beforeDraftImage}|${afterDraftImage}|وصف مختصر للحالة`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+    });
+    setBeforeDraftImage("");
+    setAfterDraftImage("");
   }
 
   function duplicate(id: string) {
@@ -1141,6 +1174,64 @@ export function CustomPageBuilder({
               />
             </label>
 
+            {selected.kind === "gallery" ? (
+              <div className="pagecraft-mini-panel">
+                <ImagePicker
+                  name={`builder-${selected.id}-gallery-draft`}
+                  label="إضافة صورة للمعرض"
+                  defaultValue={galleryDraftImage}
+                  namespace="pages"
+                  aspect={16 / 10}
+                  onChange={setGalleryDraftImage}
+                />
+                <div className="pagecraft-inline-actions">
+                  <button
+                    type="button"
+                    onClick={appendGalleryImage}
+                    disabled={!galleryDraftImage}
+                  >
+                    إضافة الصورة للمعرض
+                  </button>
+                </div>
+                <small>
+                  سيتم إضافة سطر جاهز في المحتوى، ويمكنك تعديل الوصف بعد الإضافة.
+                </small>
+              </div>
+            ) : null}
+
+            {selected.kind === "beforeAfter" ? (
+              <div className="pagecraft-mini-panel">
+                <ImagePicker
+                  name={`builder-${selected.id}-before-draft`}
+                  label="صورة قبل"
+                  defaultValue={beforeDraftImage}
+                  namespace="pages"
+                  aspect={4 / 5}
+                  onChange={setBeforeDraftImage}
+                />
+                <ImagePicker
+                  name={`builder-${selected.id}-after-draft`}
+                  label="صورة بعد"
+                  defaultValue={afterDraftImage}
+                  namespace="pages"
+                  aspect={4 / 5}
+                  onChange={setAfterDraftImage}
+                />
+                <div className="pagecraft-inline-actions">
+                  <button
+                    type="button"
+                    onClick={appendBeforeAfterCase}
+                    disabled={!beforeDraftImage && !afterDraftImage}
+                  >
+                    إضافة حالة قبل/بعد
+                  </button>
+                </div>
+                <small>
+                  سيتم إضافة الحالة كسطر جاهز: العنوان | قبل | بعد | الوصف.
+                </small>
+              </div>
+            ) : null}
+
             {selected.kind === "hero" ||
             selected.kind === "image" ||
             selected.kind === "video" ? (
@@ -1341,27 +1432,30 @@ export function CustomPageBuilder({
                     <small>كل سطر: اسم الخدمة للزائر | slug الخدمة.</small>
                   </div>
                 ) : null}
-                <label>
-                  <span>Slug الخدمة</span>
-                  <input
-                    dir="ltr"
-                    value={selected.serviceSlug ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, { serviceSlug: event.target.value })
-                    }
-                    placeholder="rhinoplasty"
-                  />
-                </label>
-                <label>
-                  <span>اسم الخدمة العربي</span>
-                  <input
-                    value={selected.serviceName ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, { serviceName: event.target.value })
-                    }
-                    placeholder="تجميل الأنف"
-                  />
-                </label>
+                <details className="pagecraft-mini-panel">
+                  <summary>إعدادات الخدمة اليدوية</summary>
+                  <label>
+                    <span>Slug الخدمة</span>
+                    <input
+                      dir="ltr"
+                      value={selected.serviceSlug ?? ""}
+                      onChange={(event) =>
+                        update(selected.id, { serviceSlug: event.target.value })
+                      }
+                      placeholder="rhinoplasty"
+                    />
+                  </label>
+                  <label>
+                    <span>اسم الخدمة العربي</span>
+                    <input
+                      value={selected.serviceName ?? ""}
+                      onChange={(event) =>
+                        update(selected.id, { serviceName: event.target.value })
+                      }
+                      placeholder="تجميل الأنف"
+                    />
+                  </label>
+                </details>
                 <label>
                   <span>Webhook داخلي</span>
                   <select
