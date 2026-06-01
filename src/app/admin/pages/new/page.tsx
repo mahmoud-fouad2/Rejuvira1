@@ -3,10 +3,10 @@ import type { Route } from "next";
 
 import { CustomPageEditorForm } from "@/components/forms/CustomPageEditorForm";
 import { HtmlLandingPageUploadForm } from "@/components/forms/HtmlLandingPageUploadForm";
-import { getWebhooks } from "@/lib/content-repository";
+import { getServices, getWebhooks } from "@/lib/content-repository";
 
 export default async function NewCustomPagePage() {
-  const webhooks = await getWebhooks();
+  const [webhooks, services] = await Promise.all([getWebhooks(), getServices()]);
   return (
     <>
       <div className="admin-page-header admin-page-header--hero">
@@ -32,6 +32,12 @@ export default async function NewCustomPagePage() {
           token: webhook.token,
           name: webhook.name,
           isActive: webhook.isActive,
+        }))}
+        serviceOptions={services.map((service) => ({
+          slug: service.slug,
+          name: service.name,
+          nameEn: service.nameEn ?? null,
+          category: service.category ?? null,
         }))}
       />
     </>

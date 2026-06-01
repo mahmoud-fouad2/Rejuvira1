@@ -28,6 +28,11 @@ type BlockKind =
 
 type Tone = "light" | "soft" | "dark";
 type Align = "right" | "center" | "left";
+type FontSize = "sm" | "md" | "lg" | "xl";
+type FormServiceMode = "hidden" | "select" | "custom" | "none";
+type ImageSize = "small" | "medium" | "large" | "full";
+type ImageAspect = "wide" | "square" | "portrait" | "natural";
+type ImageFit = "cover" | "contain";
 type FormFieldType =
   | "text"
   | "email"
@@ -49,8 +54,16 @@ type BuilderBlock = {
   accent?: string;
   tone?: Tone;
   align?: Align;
+  fontSize?: FontSize;
+  titleColor?: string;
+  textColor?: string;
+  imageSize?: ImageSize;
+  imageAspect?: ImageAspect;
+  imageFit?: ImageFit;
   serviceSlug?: string;
   serviceName?: string;
+  formServiceMode?: FormServiceMode;
+  formServiceOptions?: string;
   formEmailMode?: "hidden" | "optional" | "required";
   formShowMessage?: boolean;
   formFields?: string;
@@ -62,6 +75,13 @@ type WebhookOption = {
   token: string;
   name: string;
   isActive: boolean;
+};
+
+type ServiceOption = {
+  slug: string;
+  name: string;
+  nameEn?: string | null;
+  category?: string | null;
 };
 
 const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
@@ -113,6 +133,9 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     accent: "#4a2476",
     tone: "light",
     align: "center",
+    imageSize: "large",
+    imageAspect: "wide",
+    imageFit: "cover",
   },
   stats: {
     title: "مؤشرات الثقة",
@@ -231,6 +254,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     accent: "#4a2476",
     tone: "soft",
     align: "right",
+    formServiceMode: "custom",
     formEmailMode: "optional",
     formShowMessage: true,
   },
@@ -475,6 +499,46 @@ function parseBeforeAfter(value = "") {
     .filter((item) => item.title);
 }
 
+function parseServiceOptions(value = "") {
+  return value
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [label = "", slug = ""] = line.split("|");
+      const safeLabel = label.trim();
+      return {
+        label: safeLabel,
+        slug: (slug.trim() || safeLabel).trim(),
+      };
+    })
+    .filter((item) => item.label);
+}
+
+function serviceOptionLine(option: ServiceOption) {
+  return `${option.name}|${option.slug}`;
+}
+
+function mergeServiceOptionLines(current = "", additions: string[]) {
+  const lines = [...current.split(/\n+/), ...additions]
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const seen = new Set<string>();
+  return lines
+    .filter((line) => {
+      const key = line.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .join("\n");
+}
+
+function cssHexColor(value?: string) {
+  const color = value?.trim();
+  return color && /^#[0-9a-f]{6}$/i.test(color) ? color : "";
+}
+
 function mediaSlot(src: string, label: string) {
   const safeSrc = escapeHtml(src);
   const safeLabel = escapeHtml(label);
@@ -488,11 +552,21 @@ function mediaSlot(src: string, label: string) {
 }
 
 function classes(block: BuilderBlock, base: string) {
-  return `${base} is-${block.tone ?? "light"} align-${block.align ?? "right"}`;
+  return [
+    base,
+    `is-${block.tone ?? "light"}`,
+    `align-${block.align ?? "right"}`,
+    `font-${block.fontSize ?? "md"}`,
+    `image-size-${block.imageSize ?? "large"}`,
+    `image-aspect-${block.imageAspect ?? "wide"}`,
+    `image-fit-${block.imageFit ?? "cover"}`,
+  ].join(" ");
 }
 
 function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
   const accent = escapeHtml(block.accent || "#4a2476");
+  const titleColor = cssHexColor(block.titleColor);
+  const textColor = cssHexColor(block.textColor);
   const title = escapeHtml(block.title);
   const subtitle = escapeHtml(block.subtitle || "");
   const body = block.body || "";
@@ -501,7 +575,14 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
   );
   const buttonLabel = escapeHtml(block.buttonLabel || "احجزي موعدك");
   const buttonHref = escapeHtml(block.buttonHref || "/contact");
-  const style = `style="--builder-accent:${accent}"`;
+  const styleVars = [
+    `--builder-accent:${accent}`,
+    titleColor ? `--builder-title-color:${titleColor}` : "",
+    textColor ? `--builder-text-color:${textColor}` : "",
+  ]
+    .filter(Boolean)
+    .join(";");
+  const style = `style="${styleVars}"${titleColor ? ' data-title-color="true"' : ""}${textColor ? ' data-text-color="true"' : ""}`;
 
   if (block.kind === "hero") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-hero")}" ${style}><div><small>${subtitle}</small><h1>${title}</h1>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></div><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"></figure></section>`;
@@ -667,10 +748,32 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     const required = mode === "preview" ? "" : " required";
     const emailMode = block.formEmailMode ?? "optional";
     const showMessage = block.formShowMessage ?? true;
-    const controls =
+    const serviceMode =
+      block.formServiceMode ??
+      (block.serviceSlug || block.serviceName ? "hidden" : "custom");
+    const serviceOptions = parseServiceOptions(block.formServiceOptions);
+    const selectedService = block.serviceSlug || block.serviceName || "";
+    const serviceSelectOptions = serviceOptions
+      .map((option) => {
+        const value = option.slug || option.label;
+        const isSelected =
+          selectedService &&
+          (selectedService === option.slug || selectedService === option.label);
+        return `<option value="${escapeHtml(value)}"${isSelected ? " selected" : ""}>${escapeHtml(option.label)}</option>`;
+      })
+      .join("");
+    const visibleServiceControl =
+      serviceMode === "select"
+        ? `<label><span>الخدمة المطلوبة</span><select name="serviceSlug"${required}${disabled}><option value="">اختاري الخدمة</option>${serviceSelectOptions}</select></label>`
+        : serviceMode === "custom"
+          ? `<label><span>الخدمة المطلوبة</span><input name="serviceName" autocomplete="off"${required}${disabled} placeholder="اكتبي الخدمة المطلوبة" value="${mode === "preview" ? escapeHtml(block.serviceName || "") : ""}"></label>`
+          : "";
+    const hiddenServiceSlug = serviceMode === "hidden" ? block.serviceSlug : "";
+    const hiddenServiceName = serviceMode === "hidden" ? block.serviceName : "";
+    let controls =
       (mode === "preview"
         ? ""
-        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${block.serviceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(block.serviceSlug)}">` : ""}${block.serviceName ? `<input type="hidden" name="service" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(block.serviceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(block.serviceName)}">` : ""}`) +
+        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
       (emailMode === "hidden"
@@ -681,6 +784,16 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
         : "") +
       renderExtraFormFields(block.formFields, disabled) +
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
+    if (visibleServiceControl) {
+      const phoneIndex = controls.indexOf('name="phone"');
+      const insertAfter = phoneIndex >= 0 ? controls.indexOf("</label>", phoneIndex) : -1;
+      if (insertAfter >= 0) {
+        controls =
+          controls.slice(0, insertAfter + "</label>".length) +
+          visibleServiceControl +
+          controls.slice(insertAfter + "</label>".length);
+      }
+    }
     return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><${tag} ${attrs}>${controls}</${tag}></section>`;
   }
 
@@ -742,10 +855,12 @@ export function CustomPageBuilder({
   name,
   defaultValue = "",
   webhooks = [],
+  serviceOptions = [],
 }: {
   name: string;
   defaultValue?: string;
   webhooks?: WebhookOption[];
+  serviceOptions?: ServiceOption[];
 }) {
   const [blocks, setBlocks] = useState<BuilderBlock[]>(() =>
     initialBlocks(defaultValue),
@@ -756,6 +871,10 @@ export function CustomPageBuilder({
   const [showCode, setShowCode] = useState(false);
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
   const html = useMemo(() => renderPage(blocks), [blocks]);
+  const allServiceLines = useMemo(
+    () => serviceOptions.map(serviceOptionLine),
+    [serviceOptions],
+  );
 
   function add(kind: BlockKind) {
     const next = createBlock(kind);
@@ -775,6 +894,38 @@ export function CustomPageBuilder({
         block.id === id ? { ...block, ...patch } : block,
       ),
     );
+  }
+
+  function selectLinkedService(slug: string) {
+    if (!selected) return;
+    const service = serviceOptions.find((item) => item.slug === slug);
+    update(selected.id, {
+      serviceSlug: service?.slug ?? "",
+      serviceName: service?.name ?? "",
+    });
+  }
+
+  function addSelectedServiceToFormOptions() {
+    if (!selected?.serviceSlug) return;
+    const service = serviceOptions.find((item) => item.slug === selected.serviceSlug);
+    const line = service
+      ? serviceOptionLine(service)
+      : `${selected.serviceName || selected.serviceSlug}|${selected.serviceSlug}`;
+    update(selected.id, {
+      formServiceOptions: mergeServiceOptionLines(selected.formServiceOptions, [
+        line,
+      ]),
+    });
+  }
+
+  function addAllServicesToFormOptions() {
+    if (!selected || allServiceLines.length === 0) return;
+    update(selected.id, {
+      formServiceOptions: mergeServiceOptionLines(
+        selected.formServiceOptions,
+        allServiceLines,
+      ),
+    });
   }
 
   function duplicate(id: string) {
@@ -1004,6 +1155,59 @@ export function CustomPageBuilder({
             ) : null}
 
             {selected.kind === "hero" ||
+            selected.kind === "image" ||
+            selected.kind === "video" ? (
+              <div className="pagecraft-mini-panel">
+                <label>
+                  <span>حجم الصورة</span>
+                  <select
+                    value={selected.imageSize ?? "large"}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        imageSize: event.target.value as ImageSize,
+                      })
+                    }
+                  >
+                    <option value="small">صغير</option>
+                    <option value="medium">متوسط</option>
+                    <option value="large">كبير</option>
+                    <option value="full">عرض كامل</option>
+                  </select>
+                </label>
+                <label>
+                  <span>نسبة الصورة</span>
+                  <select
+                    value={selected.imageAspect ?? "wide"}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        imageAspect: event.target.value as ImageAspect,
+                      })
+                    }
+                  >
+                    <option value="wide">16:10 عريضة</option>
+                    <option value="square">مربعة</option>
+                    <option value="portrait">طولية</option>
+                    <option value="natural">طبيعية</option>
+                  </select>
+                </label>
+                <label>
+                  <span>ملء الصورة</span>
+                  <select
+                    value={selected.imageFit ?? "cover"}
+                    onChange={(event) =>
+                      update(selected.id, {
+                        imageFit: event.target.value as ImageFit,
+                      })
+                    }
+                  >
+                    <option value="cover">تملأ المساحة</option>
+                    <option value="contain">تظهر كاملة</option>
+                  </select>
+                </label>
+              </div>
+            ) : null}
+
+            {selected.kind === "hero" ||
             selected.kind === "cta" ||
             selected.kind === "contact" ||
             selected.kind === "offer" ||
@@ -1064,6 +1268,79 @@ export function CustomPageBuilder({
                   />
                   <span>إظهار تفاصيل الطلب</span>
                 </label>
+                <label>
+                  <span>طريقة ظهور الخدمة داخل الفورم</span>
+                  <select
+                    value={
+                      selected.formServiceMode ??
+                      (selected.serviceSlug || selected.serviceName
+                        ? "hidden"
+                        : "custom")
+                    }
+                    onChange={(event) =>
+                      update(selected.id, {
+                        formServiceMode: event.target.value as FormServiceMode,
+                      })
+                    }
+                  >
+                    <option value="custom">حقل كتابة للزائر</option>
+                    <option value="select">قائمة اختيار خدمات</option>
+                    <option value="hidden">خدمة مخفية مرتبطة بالصفحة</option>
+                    <option value="none">إخفاء الخدمة بالكامل</option>
+                  </select>
+                </label>
+                <label>
+                  <span>الخدمة المرتبطة</span>
+                  <select
+                    value={selected.serviceSlug ?? ""}
+                    onChange={(event) => selectLinkedService(event.target.value)}
+                  >
+                    <option value="">بدون خدمة محددة</option>
+                    {serviceOptions.map((service) => (
+                      <option key={service.slug} value={service.slug}>
+                        {service.name}
+                        {service.category ? ` · ${service.category}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {(selected.formServiceMode ??
+                  (selected.serviceSlug || selected.serviceName
+                    ? "hidden"
+                    : "custom")) === "select" ? (
+                  <div className="pagecraft-mini-panel">
+                    <div className="pagecraft-inline-actions">
+                      <button
+                        type="button"
+                        onClick={addSelectedServiceToFormOptions}
+                        disabled={!selected.serviceSlug}
+                      >
+                        إضافة الخدمة المختارة
+                      </button>
+                      <button
+                        type="button"
+                        onClick={addAllServicesToFormOptions}
+                        disabled={allServiceLines.length === 0}
+                      >
+                        إضافة كل الخدمات
+                      </button>
+                    </div>
+                    <label>
+                      <span>خيارات قائمة الخدمات</span>
+                      <textarea
+                        value={selected.formServiceOptions ?? ""}
+                        rows={5}
+                        onChange={(event) =>
+                          update(selected.id, {
+                            formServiceOptions: event.target.value,
+                          })
+                        }
+                        placeholder="تجميل الأنف|rhinoplasty"
+                      />
+                    </label>
+                    <small>كل سطر: اسم الخدمة للزائر | slug الخدمة.</small>
+                  </div>
+                ) : null}
                 <label>
                   <span>Slug الخدمة</span>
                   <input
@@ -1171,6 +1448,61 @@ export function CustomPageBuilder({
                   {tone}
                 </button>
               ))}
+            </div>
+
+            <div className="pagecraft-mini-panel">
+              <label>
+                <span>حجم الخط</span>
+                <select
+                  value={selected.fontSize ?? "md"}
+                  onChange={(event) =>
+                    update(selected.id, {
+                      fontSize: event.target.value as FontSize,
+                    })
+                  }
+                >
+                  <option value="sm">صغير</option>
+                  <option value="md">افتراضي</option>
+                  <option value="lg">كبير</option>
+                  <option value="xl">كبير جدًا</option>
+                </select>
+              </label>
+              <div className="pagecraft-color-grid">
+                <label>
+                  <span>لون العناوين</span>
+                  <input
+                    type="color"
+                    value={selected.titleColor ?? "#1f1040"}
+                    onChange={(event) =>
+                      update(selected.id, { titleColor: event.target.value })
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => update(selected.id, { titleColor: "" })}
+                >
+                  افتراضي
+                </button>
+              </div>
+              <div className="pagecraft-color-grid">
+                <label>
+                  <span>لون النص</span>
+                  <input
+                    type="color"
+                    value={selected.textColor ?? "#5b4c7a"}
+                    onChange={(event) =>
+                      update(selected.id, { textColor: event.target.value })
+                    }
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => update(selected.id, { textColor: "" })}
+                >
+                  افتراضي
+                </button>
+              </div>
             </div>
 
             <label>

@@ -13881,7 +13881,8 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   font-weight: 800;
 }
 .pagecraft-props input,
-.pagecraft-props textarea {
+.pagecraft-props textarea,
+.pagecraft-props select {
   width: 100%;
   border: 1px solid var(--admin-border);
   border-radius: 0.45rem;
@@ -13889,6 +13890,55 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   color: var(--admin-text);
   font-size: 0.78rem;
   padding: 0.55rem 0.65rem;
+}
+.pagecraft-mini-panel {
+  display: grid;
+  gap: 0.7rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--admin-panel) 74%, transparent);
+  padding: 0.75rem;
+}
+.pagecraft-mini-panel small {
+  color: var(--admin-text-faint);
+  font-size: 0.68rem;
+  line-height: 1.6;
+}
+.pagecraft-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.pagecraft-inline-actions button,
+.pagecraft-color-grid button {
+  border: 1px solid var(--admin-border);
+  border-radius: 0.55rem;
+  background: var(--admin-panel);
+  color: var(--admin-text);
+  cursor: pointer;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+.pagecraft-inline-actions button:hover,
+.pagecraft-color-grid button:hover {
+  border-color: rgba(138, 78, 193, 0.42);
+  background: rgba(138, 78, 193, 0.08);
+}
+.pagecraft-inline-actions button:disabled,
+.pagecraft-color-grid button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+.pagecraft-color-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: end;
+}
+.pagecraft-color-grid input[type="color"] {
+  min-height: 2.35rem;
+  padding: 0.2rem;
 }
 .pagecraft-segment {
   display: grid;
@@ -13925,6 +13975,47 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .rv-builder-section {
   --builder-accent: #4a2476;
   border-radius: 1.3rem;
+}
+.rv-builder-section.font-sm {
+  font-size: 0.92rem;
+}
+.rv-builder-section.font-lg {
+  font-size: 1.08rem;
+}
+.rv-builder-section.font-xl {
+  font-size: 1.16rem;
+}
+.rv-builder-hero.font-sm h1 {
+  font-size: clamp(1.75rem, 4.4vw, 3.55rem);
+}
+.rv-builder-hero.font-lg h1 {
+  font-size: clamp(2.25rem, 5.5vw, 4.75rem);
+}
+.rv-builder-hero.font-xl h1 {
+  font-size: clamp(2.55rem, 6vw, 5.35rem);
+}
+.rv-builder-section.font-sm h2 {
+  font-size: clamp(1.25rem, 2.55vw, 2.05rem);
+}
+.rv-builder-section.font-lg h2 {
+  font-size: clamp(1.65rem, 3.25vw, 2.75rem);
+}
+.rv-builder-section.font-xl h2 {
+  font-size: clamp(1.9rem, 3.75vw, 3.15rem);
+}
+.rv-builder-section[data-title-color="true"] :is(h1, h2, h3, summary, strong) {
+  color: var(--builder-title-color) !important;
+}
+.rv-builder-section[data-text-color="true"] :is(
+  p,
+  li,
+  span,
+  small,
+  blockquote,
+  figcaption,
+  label
+) {
+  color: var(--builder-text-color) !important;
 }
 .rv-builder-section.align-center {
   text-align: center;
@@ -14014,6 +14105,35 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   overflow: hidden;
   border-radius: 1rem;
   aspect-ratio: 16 / 10;
+}
+.rv-builder-image {
+  display: grid;
+  justify-items: center;
+}
+.rv-builder-section.image-size-small.rv-builder-image figure {
+  width: min(100%, 28rem);
+}
+.rv-builder-section.image-size-medium.rv-builder-image figure {
+  width: min(100%, 42rem);
+}
+.rv-builder-section.image-size-large.rv-builder-image figure {
+  width: min(100%, 58rem);
+}
+.rv-builder-section.image-size-full.rv-builder-image figure {
+  width: 100%;
+}
+.rv-builder-section.image-aspect-square :is(.rv-builder-image figure, .rv-builder-hero figure, .rv-builder-video figure) {
+  aspect-ratio: 1 / 1;
+}
+.rv-builder-section.image-aspect-portrait :is(.rv-builder-image figure, .rv-builder-hero figure, .rv-builder-video figure) {
+  aspect-ratio: 4 / 5;
+}
+.rv-builder-section.image-aspect-natural :is(.rv-builder-image figure, .rv-builder-hero figure, .rv-builder-video figure) {
+  aspect-ratio: auto;
+}
+.rv-builder-section.image-fit-contain :is(.rv-builder-image img, .rv-builder-hero img, .rv-builder-video img) {
+  object-fit: contain;
+  background: color-mix(in srgb, var(--builder-accent) 8%, white);
 }
 .rv-builder-hero img,
 .rv-builder-image img {
@@ -14323,7 +14443,8 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   font-weight: 850;
 }
 .rv-builder-lead-form input,
-.rv-builder-lead-form textarea {
+.rv-builder-lead-form textarea,
+.rv-builder-lead-form select {
   width: 100%;
   border: 1px solid rgba(74, 36, 118, 0.16);
   border-radius: 0.75rem;

@@ -93,6 +93,12 @@ export type CustomPageEditorFormProps = {
   mode: "create" | "edit";
   previewHref?: string;
   webhooks?: Array<{ token: string; name: string; isActive: boolean }>;
+  serviceOptions?: Array<{
+    slug: string;
+    name: string;
+    nameEn?: string | null;
+    category?: string | null;
+  }>;
   initial?: {
     id: string;
     slug: string;
@@ -132,6 +138,7 @@ export function CustomPageEditorForm({
   mode,
   previewHref,
   webhooks = [],
+  serviceOptions = [],
   initial,
 }: CustomPageEditorFormProps) {
   const router = useRouter();
@@ -539,6 +546,7 @@ export function CustomPageEditorForm({
             name="htmlContent"
             defaultValue={initial?.htmlContent ?? ""}
             webhooks={webhooks}
+            serviceOptions={serviceOptions}
           />
         ) : (
           <div className="grid gap-3">

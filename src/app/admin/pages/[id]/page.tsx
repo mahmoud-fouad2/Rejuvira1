@@ -3,7 +3,11 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { CustomPageEditorForm } from "@/components/forms/CustomPageEditorForm";
-import { getCustomPageById, getWebhooks } from "@/lib/content-repository";
+import {
+  getCustomPageById,
+  getServices,
+  getWebhooks,
+} from "@/lib/content-repository";
 
 export default async function EditCustomPagePage({
   params,
@@ -11,9 +15,10 @@ export default async function EditCustomPagePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [page, webhooks] = await Promise.all([
+  const [page, webhooks, services] = await Promise.all([
     getCustomPageById(id),
     getWebhooks(),
+    getServices(),
   ]);
   if (!page) notFound();
 
@@ -50,6 +55,12 @@ export default async function EditCustomPagePage({
           token: webhook.token,
           name: webhook.name,
           isActive: webhook.isActive,
+        }))}
+        serviceOptions={services.map((service) => ({
+          slug: service.slug,
+          name: service.name,
+          nameEn: service.nameEn ?? null,
+          category: service.category ?? null,
         }))}
         initial={{
           id: page.id,
