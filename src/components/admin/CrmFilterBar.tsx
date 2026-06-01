@@ -147,6 +147,30 @@ function leadSource(submission: CrmRecord) {
   );
 }
 
+function leadUtmSource(submission: CrmRecord) {
+  return submission.utmSource?.trim() ?? "";
+}
+
+function leadSourceDisplay(submission: CrmRecord) {
+  const translated = translateSource(leadSource(submission));
+  const utmSource = leadUtmSource(submission);
+  if (!utmSource) return translated;
+
+  const normalizedTranslated = normalizeText(translated);
+  const normalizedUtmSource = normalizeText(utmSource);
+  if (normalizedUtmSource && normalizedTranslated.includes(normalizedUtmSource)) {
+    return translated;
+  }
+
+  return `${translated} · ${utmSource}`;
+}
+
+function leadSourceTitle(submission: CrmRecord) {
+  const source = leadSource(submission);
+  const utmSource = leadUtmSource(submission);
+  return utmSource ? `${source} · utm_source=${utmSource}` : source;
+}
+
 function normalizeText(value: string) {
   return value
     .toLowerCase()
@@ -1332,8 +1356,11 @@ export function CrmFilterBar({
                           </span>
                         </td>
                         <td>
-                          <span className="admin-source-badge" title={leadSource(submission)}>
-                            {translateSource(leadSource(submission))}
+                          <span
+                            className="admin-source-badge"
+                            title={leadSourceTitle(submission)}
+                          >
+                            {leadSourceDisplay(submission)}
                           </span>
                         </td>
                         <td>
@@ -1423,8 +1450,11 @@ export function CrmFilterBar({
                       <span className={`admin-status-badge ${STATUS_BADGE[submission.status]}`}>
                         {STATUS_AR[submission.status]}
                       </span>
-                      <span className="admin-source-badge">
-                        {translateSource(leadSource(submission))}
+                      <span
+                        className="admin-source-badge"
+                        title={leadSourceTitle(submission)}
+                      >
+                        {leadSourceDisplay(submission)}
                       </span>
                     </div>
                     <div className="admin-crm-mobile-card__actions">
@@ -1600,8 +1630,11 @@ export function CrmFilterBar({
                   >
                     {STATUS_AR[selectedSubmission.status]}
                   </span>
-                  <span className="admin-chip">
-                    {translateSource(leadSource(selectedSubmission))}
+                  <span
+                    className="admin-chip"
+                    title={leadSourceTitle(selectedSubmission)}
+                  >
+                    {leadSourceDisplay(selectedSubmission)}
                   </span>
                   {selectedSubmission.webhookName ? (
                     <span className="admin-chip is-accent">
@@ -1636,7 +1669,7 @@ export function CrmFilterBar({
                   </div>
                   <div>
                     <span className="admin-field-label">المصدر</span>
-                    <strong>{translateSource(leadSource(selectedSubmission))}</strong>
+                    <strong>{leadSourceDisplay(selectedSubmission)}</strong>
                   </div>
                   <div>
                     <span className="admin-field-label">الحملة</span>
