@@ -11,6 +11,7 @@ import {
 import { dispatchFormWebhook } from "@/lib/form-webhook";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
+import { mergeRequestTracking } from "@/lib/request-tracking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,25 +74,31 @@ export async function POST(request: Request) {
     );
   }
 
-  const parsed = contactSchema.safeParse({
-    fullName: formString(formData, "fullName"),
-    phone: formString(formData, "phone"),
-    email: formString(formData, "email"),
-    message: formString(formData, "message"),
-    serviceSlug: formString(formData, "serviceSlug"),
-    preferredLanguage: formString(formData, "preferredLanguage"),
-    recaptchaToken: formString(formData, "recaptchaToken"),
-    source: formString(formData, "source"),
-    utmSource:
-      formString(formData, "utmSource") || formString(formData, "utm_source"),
-    utmMedium:
-      formString(formData, "utmMedium") || formString(formData, "utm_medium"),
-    utmCampaign:
-      formString(formData, "utmCampaign") ||
-      formString(formData, "utm_campaign"),
-    utmContent:
-      formString(formData, "utmContent") || formString(formData, "utm_content"),
-  });
+  const payload = mergeRequestTracking(
+    {
+      fullName: formString(formData, "fullName"),
+      phone: formString(formData, "phone"),
+      email: formString(formData, "email"),
+      message: formString(formData, "message"),
+      serviceSlug: formString(formData, "serviceSlug"),
+      preferredLanguage: formString(formData, "preferredLanguage"),
+      recaptchaToken: formString(formData, "recaptchaToken"),
+      source: formString(formData, "source"),
+      utmSource:
+        formString(formData, "utmSource") || formString(formData, "utm_source"),
+      utmMedium:
+        formString(formData, "utmMedium") || formString(formData, "utm_medium"),
+      utmCampaign:
+        formString(formData, "utmCampaign") ||
+        formString(formData, "utm_campaign"),
+      utmContent:
+        formString(formData, "utmContent") ||
+        formString(formData, "utm_content"),
+    },
+    request,
+  );
+
+  const parsed = contactSchema.safeParse(payload);
 
   if (!parsed.success) {
     return response(

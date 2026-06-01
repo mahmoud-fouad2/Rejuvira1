@@ -10,6 +10,7 @@ import {
 } from "@/lib/content-repository";
 import { dispatchFormWebhook } from "@/lib/form-webhook";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
+import { mergeRequestTracking } from "@/lib/request-tracking";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -158,6 +159,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
+  payload = mergeRequestTracking(payload, request);
 
   const parsed = leadSchema.safeParse(payload);
 
