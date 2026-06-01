@@ -9,6 +9,11 @@ import {
   getServiceByReference,
 } from "@/lib/content-repository";
 import { dispatchFormWebhook } from "@/lib/form-webhook";
+import {
+  GENERAL_INQUIRY_SERVICE_AR,
+  GENERAL_INQUIRY_SERVICE_VALUE,
+  isGeneralInquiryService,
+} from "@/lib/general-inquiry";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { mergeRequestTracking } from "@/lib/request-tracking";
 
@@ -211,17 +216,20 @@ export async function POST(request: Request) {
       parsed.data.serviceLabel ||
       parsed.data.serviceName ||
       parsed.data.serviceType;
-    const selectedService = serviceReference
+    const isGeneralInquiry = isGeneralInquiryService(serviceReference);
+    const selectedService = serviceReference && !isGeneralInquiry
       ? await getServiceByReference(serviceReference)
       : null;
     const serviceArabicName =
-      selectedService?.name ||
-      parsed.data.serviceTypeAr ||
-      parsed.data.serviceLabel ||
-      parsed.data.serviceName ||
-      parsed.data.serviceType ||
-      parsed.data.serviceSlug ||
-      undefined;
+      isGeneralInquiry
+        ? GENERAL_INQUIRY_SERVICE_AR
+        : selectedService?.name ||
+          parsed.data.serviceTypeAr ||
+          parsed.data.serviceLabel ||
+          parsed.data.serviceName ||
+          parsed.data.serviceType ||
+          parsed.data.serviceSlug ||
+          undefined;
 
     const result = await createContactLead({
       fullName: parsed.data.fullName,
@@ -230,9 +238,10 @@ export async function POST(request: Request) {
       source: parsed.data.source || "Landing page form",
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(selectedService?.slug || parsed.data.serviceSlug
-        ? { serviceSlug: selectedService?.slug ?? parsed.data.serviceSlug }
+      ...(selectedService?.slug
+        ? { serviceSlug: selectedService.slug }
         : {}),
+      ...(isGeneralInquiry ? { tags: [GENERAL_INQUIRY_SERVICE_AR] } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),
       ...(parsed.data.utmCampaign
@@ -258,8 +267,14 @@ export async function POST(request: Request) {
         message: parsed.data.message || undefined,
         serviceSlug: serviceArabicName,
         serviceSlugRaw:
-          selectedService?.slug || parsed.data.serviceSlug || undefined,
-        serviceReference: serviceReference || undefined,
+          selectedService?.slug ||
+          (isGeneralInquiry
+            ? GENERAL_INQUIRY_SERVICE_VALUE
+            : parsed.data.serviceSlug) ||
+          undefined,
+        serviceReference: isGeneralInquiry
+          ? GENERAL_INQUIRY_SERVICE_VALUE
+          : serviceReference || undefined,
         service: serviceArabicName,
         serviceName: serviceArabicName,
         serviceLabel: serviceArabicName,

@@ -3,6 +3,11 @@
 import { useMemo, useState } from "react";
 
 import { ImagePicker } from "@/components/admin/ImagePicker";
+import {
+  GENERAL_INQUIRY_SERVICE_AR,
+  GENERAL_INQUIRY_SERVICE_VALUE,
+  isGeneralInquiryService,
+} from "@/lib/general-inquiry";
 
 type BlockKind =
   | "hero"
@@ -515,8 +520,33 @@ function parseServiceOptions(value = "") {
     .filter((item) => item.label);
 }
 
+type FormServiceOption = ReturnType<typeof parseServiceOptions>[number];
+
+function withGeneralInquiryFormOption(options: FormServiceOption[]) {
+  return options.some((option) => isGeneralInquiryService(option.slug))
+    ? options
+    : [
+        {
+          label: GENERAL_INQUIRY_SERVICE_AR,
+          slug: GENERAL_INQUIRY_SERVICE_VALUE,
+        },
+        ...options,
+      ];
+}
+
 function serviceOptionLine(option: ServiceOption) {
   return `${option.name}|${option.slug}`;
+}
+
+const generalInquiryServiceOption: ServiceOption = {
+  slug: GENERAL_INQUIRY_SERVICE_VALUE,
+  name: GENERAL_INQUIRY_SERVICE_AR,
+};
+
+function withGeneralInquiryOption(options: ServiceOption[]) {
+  return options.some((option) => isGeneralInquiryService(option.slug))
+    ? options
+    : [generalInquiryServiceOption, ...options];
 }
 
 function mergeServiceOptionLines(current = "", additions: string[]) {
@@ -751,7 +781,9 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     const serviceMode =
       block.formServiceMode ??
       (block.serviceSlug || block.serviceName ? "hidden" : "custom");
-    const serviceOptions = parseServiceOptions(block.formServiceOptions);
+    const serviceOptions = withGeneralInquiryFormOption(
+      parseServiceOptions(block.formServiceOptions),
+    );
     const selectedService = block.serviceSlug || block.serviceName || "";
     const serviceSelectOptions = serviceOptions
       .map((option) => {
@@ -874,9 +906,13 @@ export function CustomPageBuilder({
   const [afterDraftImage, setAfterDraftImage] = useState("");
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
   const html = useMemo(() => renderPage(blocks), [blocks]);
-  const allServiceLines = useMemo(
-    () => serviceOptions.map(serviceOptionLine),
+  const builderServiceOptions = useMemo(
+    () => withGeneralInquiryOption([...serviceOptions]),
     [serviceOptions],
+  );
+  const allServiceLines = useMemo(
+    () => builderServiceOptions.map(serviceOptionLine),
+    [builderServiceOptions],
   );
 
   function add(kind: BlockKind) {
@@ -901,7 +937,7 @@ export function CustomPageBuilder({
 
   function selectLinkedService(slug: string) {
     if (!selected) return;
-    const service = serviceOptions.find((item) => item.slug === slug);
+    const service = builderServiceOptions.find((item) => item.slug === slug);
     update(selected.id, {
       serviceSlug: service?.slug ?? "",
       serviceName: service?.name ?? "",
@@ -910,7 +946,9 @@ export function CustomPageBuilder({
 
   function addSelectedServiceToFormOptions() {
     if (!selected?.serviceSlug) return;
-    const service = serviceOptions.find((item) => item.slug === selected.serviceSlug);
+    const service = builderServiceOptions.find(
+      (item) => item.slug === selected.serviceSlug,
+    );
     const line = service
       ? serviceOptionLine(service)
       : `${selected.serviceName || selected.serviceSlug}|${selected.serviceSlug}`;
@@ -1387,7 +1425,7 @@ export function CustomPageBuilder({
                     onChange={(event) => selectLinkedService(event.target.value)}
                   >
                     <option value="">بدون خدمة محددة</option>
-                    {serviceOptions.map((service) => (
+                    {builderServiceOptions.map((service) => (
                       <option key={service.slug} value={service.slug}>
                         {service.name}
                         {service.category ? ` · ${service.category}` : ""}

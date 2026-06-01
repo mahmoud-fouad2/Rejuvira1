@@ -7,6 +7,10 @@ import {
   getWebhookByToken,
   recordWebhookEvent,
 } from "@/lib/content-repository";
+import {
+  GENERAL_INQUIRY_SERVICE_AR,
+  isGeneralInquiryService,
+} from "@/lib/general-inquiry";
 import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -250,9 +254,11 @@ async function handleIngest(request: Request, context: RouteContext) {
       "serviceTypeAr",
       "serviceType",
     ]) ?? webhook.service?.slug;
+  const isGeneralInquiry = isGeneralInquiryService(serviceSlug);
   const tags = [
     ...normaliseTags(data.tags),
     ...(webhook.defaultTags ?? []),
+    ...(isGeneralInquiry ? [GENERAL_INQUIRY_SERVICE_AR] : []),
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
   try {
@@ -274,7 +280,7 @@ async function handleIngest(request: Request, context: RouteContext) {
         ? { utmContent: pickFirst(data, ["utmContent", "utm_content"]) }
         : {}),
       source: sourceLabel,
-      ...(serviceSlug ? { serviceSlug } : {}),
+      ...(serviceSlug && !isGeneralInquiry ? { serviceSlug } : {}),
       preferredLanguage: pickFirst(data, ["preferredLanguage"]) ?? "ar",
       webhookId: webhook.id,
       tags,

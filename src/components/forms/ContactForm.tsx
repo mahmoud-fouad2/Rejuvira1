@@ -9,6 +9,11 @@ import {
 } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import type { ServiceRecord } from "@/lib/content-repository";
+import {
+  GENERAL_INQUIRY_SERVICE_AR,
+  GENERAL_INQUIRY_SERVICE_EN,
+  GENERAL_INQUIRY_SERVICE_VALUE,
+} from "@/lib/general-inquiry";
 
 type ContactActionState = {
   status: "idle" | "success" | "error";
@@ -83,6 +88,9 @@ export function ContactForm({
   const formRef = useRef<HTMLFormElement | null>(null);
   const tokenInputRef = useRef<HTMLInputElement | null>(null);
   const siteKey = recaptchaSiteKey ?? "";
+  const hasGeneralInquiryOption = services.some(
+    (service) => service.slug === GENERAL_INQUIRY_SERVICE_VALUE,
+  );
 
   useEffect(() => {
     if (!siteKey) return;
@@ -204,6 +212,13 @@ export function ContactForm({
               ? "اختر الخدمة (اختياري)"
               : "Select a service (optional)"}
           </option>
+          {hasGeneralInquiryOption ? null : (
+            <option value={GENERAL_INQUIRY_SERVICE_VALUE}>
+              {lang === "ar"
+                ? GENERAL_INQUIRY_SERVICE_AR
+                : GENERAL_INQUIRY_SERVICE_EN}
+            </option>
+          )}
           {services.map((service) => (
             <option key={service.id} value={service.slug}>
               {service.name}

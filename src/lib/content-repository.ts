@@ -6,6 +6,10 @@ import {
   ABOUT_PROFILE_DEFAULTS,
   ABOUT_SECTION_DEFAULTS,
 } from "@/lib/about-content";
+import {
+  GENERAL_INQUIRY_SERVICE_AR,
+  hasGeneralInquiryTag,
+} from "@/lib/general-inquiry";
 import { prisma } from "@/lib/prisma";
 
 export type DoctorRecord = {
@@ -2980,7 +2984,11 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
         fullName: submission.fullName,
         phone: submission.phone,
         email: submission.email ?? undefined,
-        serviceLabel: submission.service?.nameAr ?? undefined,
+        serviceLabel:
+          submission.service?.nameAr ??
+          (hasGeneralInquiryTag(submission.tags)
+            ? GENERAL_INQUIRY_SERVICE_AR
+            : undefined),
         serviceSlug: submission.service?.slug ?? undefined,
         serviceId: submission.service?.id ?? undefined,
         status: submission.status,

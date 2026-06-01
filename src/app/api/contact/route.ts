@@ -9,6 +9,11 @@ import {
   getServiceByReference,
 } from "@/lib/content-repository";
 import { dispatchFormWebhook } from "@/lib/form-webhook";
+import {
+  GENERAL_INQUIRY_SERVICE_AR,
+  GENERAL_INQUIRY_SERVICE_VALUE,
+  isGeneralInquiryService,
+} from "@/lib/general-inquiry";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
 import { mergeRequestTracking } from "@/lib/request-tracking";
@@ -165,11 +170,14 @@ export async function POST(request: Request) {
     }
   }
 
-  const selectedService = parsed.data.serviceSlug
+  const isGeneralInquiry = isGeneralInquiryService(parsed.data.serviceSlug);
+  const selectedService = parsed.data.serviceSlug && !isGeneralInquiry
     ? await getServiceByReference(parsed.data.serviceSlug)
     : null;
   const serviceArabicName =
-    selectedService?.name || parsed.data.serviceSlug || undefined;
+    isGeneralInquiry
+      ? GENERAL_INQUIRY_SERVICE_AR
+      : selectedService?.name || parsed.data.serviceSlug || undefined;
 
   try {
     const result = await createContactLead({
@@ -179,9 +187,10 @@ export async function POST(request: Request) {
       source: parsed.data.source || "Website contact form",
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(parsed.data.serviceSlug
-        ? { serviceSlug: parsed.data.serviceSlug }
+      ...(selectedService?.slug
+        ? { serviceSlug: selectedService.slug }
         : {}),
+      ...(isGeneralInquiry ? { tags: [GENERAL_INQUIRY_SERVICE_AR] } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),
       ...(parsed.data.utmCampaign
@@ -205,8 +214,12 @@ export async function POST(request: Request) {
         email: parsed.data.email || undefined,
         message: parsed.data.message || undefined,
         serviceSlug: serviceArabicName,
-        serviceSlugRaw: parsed.data.serviceSlug || undefined,
-        serviceReference: parsed.data.serviceSlug || undefined,
+        serviceSlugRaw: isGeneralInquiry
+          ? GENERAL_INQUIRY_SERVICE_VALUE
+          : parsed.data.serviceSlug || undefined,
+        serviceReference: isGeneralInquiry
+          ? GENERAL_INQUIRY_SERVICE_VALUE
+          : parsed.data.serviceSlug || undefined,
         service: serviceArabicName,
         serviceName: serviceArabicName,
         serviceLabel: serviceArabicName,
