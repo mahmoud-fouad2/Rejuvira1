@@ -27,7 +27,7 @@ const tagsSchema = z
 
 const updateSchema = z.object({
   id: z.string().min(3),
-  status: z.nativeEnum(SubmissionStatus),
+  status: z.nativeEnum(SubmissionStatus).optional(),
   notes: z.string().optional().or(z.literal("")),
   fullName: z.string().min(2).max(160).optional(),
   phone: z.string().min(4).max(40).optional(),
@@ -109,6 +109,10 @@ function readFormString(formData: FormData, key: string) {
   return typeof value === "string" ? value : "";
 }
 
+function readOptionalFormString(formData: FormData, key: string) {
+  return formData.has(key) ? readFormString(formData, key) : undefined;
+}
+
 export async function PUT(request: Request) {
   if (!(await requireAdmin())) {
     return json("error", "Unauthorized", { status: 401 });
@@ -118,13 +122,15 @@ export async function PUT(request: Request) {
   const parsed = updateSchema.safeParse({
     id: formData.get("id"),
     status: formData.get("status"),
-    notes: formData.get("notes"),
+    notes: readOptionalFormString(formData, "notes"),
     fullName: formData.get("fullName") || undefined,
     phone: formData.get("phone") || undefined,
-    email: formData.get("email"),
-    serviceSlug: formData.get("serviceSlug"),
-    assignedToId: formData.get("assignedToId"),
-    tags: readFormString(formData, "tagsCsv") || undefined,
+    email: readOptionalFormString(formData, "email"),
+    serviceSlug: readOptionalFormString(formData, "serviceSlug"),
+    assignedToId: readOptionalFormString(formData, "assignedToId"),
+    tags: formData.has("tagsCsv")
+      ? readFormString(formData, "tagsCsv")
+      : undefined,
   });
 
   if (!parsed.success) {
@@ -135,10 +141,30 @@ export async function PUT(request: Request) {
     );
   }
 
+  const hasUpdate =
+    parsed.data.status !== undefined ||
+    parsed.data.notes !== undefined ||
+    parsed.data.fullName !== undefined ||
+    parsed.data.phone !== undefined ||
+    parsed.data.email !== undefined ||
+    parsed.data.serviceSlug !== undefined ||
+    parsed.data.assignedToId !== undefined ||
+    parsed.data.tags !== undefined;
+
+  if (!hasUpdate) {
+    return json(
+      "error",
+      "اختر تغييرًا واحدًا على الأقل قبل الحفظ. / Choose at least one change.",
+      { status: 400 },
+    );
+  }
+
   try {
     const result = await updateCrmSubmission({
       id: parsed.data.id,
-      status: parsed.data.status,
+      ...(parsed.data.status !== undefined
+        ? { status: parsed.data.status }
+        : {}),
       ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
       ...(parsed.data.fullName ? { fullName: parsed.data.fullName } : {}),
       ...(parsed.data.phone ? { phone: parsed.data.phone } : {}),
