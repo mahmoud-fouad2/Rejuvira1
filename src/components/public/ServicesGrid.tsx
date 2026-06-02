@@ -145,13 +145,21 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
       className="service-card group"
       aria-label={`تفاصيل خدمة ${service.name}`}
     >
-      <div className="service-card__image">
+      <div className="service-card__image rv-service-art-frame">
+        <Image
+          src={service.coverImageUrl}
+          alt=""
+          aria-hidden
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="rv-service-art-bg"
+        />
         <Image
           src={service.coverImageUrl}
           alt={service.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-[1.06]"
+          className="rv-service-art-img"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         <span className="service-card__category-chip">{service.category}</span>

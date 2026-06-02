@@ -120,13 +120,22 @@ export function V0ServicesStrip({
                   href={`/services/${service.slug}` as Route}
                   className="rv-strip-card"
                 >
-                  <span className="rv-strip-image">
+                  <span className="rv-strip-image rv-service-art-frame">
+                    <Image
+                      src={service.coverImageUrl}
+                      alt=""
+                      aria-hidden
+                      fill
+                      sizes="(max-width: 768px) 88vw, 320px"
+                      className="rv-service-art-bg"
+                      loading="lazy"
+                    />
                     <Image
                       src={service.coverImageUrl}
                       alt={service.name}
                       fill
                       sizes="(max-width: 768px) 88vw, 320px"
-                      className="object-cover"
+                      className="rv-service-art-img"
                       loading="lazy"
                     />
                   </span>

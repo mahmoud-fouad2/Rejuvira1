@@ -163,23 +163,32 @@ export default async function ServiceDetailPage({
           </article>
 
           <div className="surface-panel overflow-hidden rounded-[2.5rem] p-5 shadow-sm">
-            <div className="relative min-h-[36rem] overflow-hidden rounded-[2rem]">
+            <div className="rv-service-detail-visual rv-service-art-frame relative min-h-[36rem] overflow-hidden rounded-[2rem]">
+              <Image
+                src={service.coverImageUrl}
+                alt=""
+                aria-hidden
+                fill
+                sizes="(max-width: 1024px) 100vw, 44vw"
+                className="rv-service-art-bg"
+                priority
+              />
               <Image
                 src={service.coverImageUrl}
                 alt={service.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 44vw"
-                className="object-cover"
+                className="rv-service-art-img"
                 priority
               />
-              <div className="absolute inset-x-4 bottom-4 rounded-[1.5rem] bg-white/88 p-5 shadow-sm backdrop-blur">
-                <p className="text-ink-strong font-serif text-2xl leading-snug">
-                  <span className="lang-ar">{service.excerpt}</span>
-                  <span className="lang-en">
-                    {service.excerptEn ?? service.excerpt}
-                  </span>
-                </p>
-              </div>
+            </div>
+            <div className="mt-4 rounded-[1.5rem] bg-white/88 p-5 shadow-sm backdrop-blur">
+              <p className="text-ink-strong font-serif text-2xl leading-snug">
+                <span className="lang-ar">{service.excerpt}</span>
+                <span className="lang-en">
+                  {service.excerptEn ?? service.excerpt}
+                </span>
+              </p>
             </div>
           </div>
         </section>
@@ -192,20 +201,18 @@ export default async function ServiceDetailPage({
             </p>
             <h2 className="text-ink-strong mt-5 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
               <span className="lang-ar">
-                صفحة قابلة للتحديث من لوحة التحكم لكل خدمة.
+                تفاصيل {service.name}
               </span>
               <span className="lang-en">
-                An editable detail page for every service.
+                {service.nameEn ?? service.name}
               </span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
               <span className="lang-ar">
-                يتم التحكم في اسم الخدمة، التصنيف، الصورة، الملخص، الوصف،
-                الأطباء، والأجهزة من لوحة التحكم مباشرة.
+                {service.description}
               </span>
               <span className="lang-en">
-                The admin panel controls the service name, category, image,
-                excerpt, description, doctors, and devices directly.
+                {service.descriptionEn ?? service.description}
               </span>
             </p>
 
@@ -254,10 +261,10 @@ export default async function ServiceDetailPage({
                 ) : (
                   <p className="border-line bg-surface text-ink-soft rounded-[1.5rem] border px-5 py-5 text-sm">
                     <span className="lang-ar">
-                      يمكن ربط الأطباء بهذه الخدمة من لوحة التحكم.
+                      لا يوجد طبيب مرتبط بهذه الخدمة حالياً.
                     </span>
                     <span className="lang-en">
-                      Doctors can be linked to this service from the admin panel.
+                      No doctors are currently linked to this service.
                     </span>
                   </p>
                 )}

@@ -466,13 +466,22 @@ export function V0InspiredHome({
               href={`/services/${service.slug}` as Route}
               className="rv-v0-service-card"
             >
-              <div className="rv-v0-service-image">
+              <div className="rv-v0-service-image rv-service-art-frame">
+                <Image
+                  src={service.coverImageUrl}
+                  alt=""
+                  aria-hidden
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="rv-service-art-bg"
+                  loading="lazy"
+                />
                 <Image
                   src={service.coverImageUrl}
                   alt={service.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
+                  className="rv-service-art-img"
                   loading="lazy"
                 />
                 <span>
