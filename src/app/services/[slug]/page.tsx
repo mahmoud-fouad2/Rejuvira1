@@ -166,15 +166,6 @@ export default async function ServiceDetailPage({
             <div className="rv-service-detail-visual rv-service-art-frame relative min-h-[36rem] overflow-hidden rounded-[2rem]">
               <Image
                 src={service.coverImageUrl}
-                alt=""
-                aria-hidden
-                fill
-                sizes="(max-width: 1024px) 100vw, 44vw"
-                className="rv-service-art-bg"
-                priority
-              />
-              <Image
-                src={service.coverImageUrl}
                 alt={service.name}
                 fill
                 sizes="(max-width: 1024px) 100vw, 44vw"

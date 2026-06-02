@@ -123,15 +123,6 @@ export function V0ServicesStrip({
                   <span className="rv-strip-image rv-service-art-frame">
                     <Image
                       src={service.coverImageUrl}
-                      alt=""
-                      aria-hidden
-                      fill
-                      sizes="(max-width: 768px) 88vw, 320px"
-                      className="rv-service-art-bg"
-                      loading="lazy"
-                    />
-                    <Image
-                      src={service.coverImageUrl}
                       alt={service.name}
                       fill
                       sizes="(max-width: 768px) 88vw, 320px"

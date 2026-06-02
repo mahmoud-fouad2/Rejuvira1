@@ -124,7 +124,7 @@ export function ServicesGrid({ categoryGroups, remainingServices }: Props) {
               </div>
             ) : null}
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
               {services.map((service) => (
                 <ServiceCard key={service.id} service={service} />
               ))}
@@ -148,17 +148,9 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
       <div className="service-card__image rv-service-art-frame">
         <Image
           src={service.coverImageUrl}
-          alt=""
-          aria-hidden
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="rv-service-art-bg"
-        />
-        <Image
-          src={service.coverImageUrl}
           alt={service.name}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
           className="rv-service-art-img"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />

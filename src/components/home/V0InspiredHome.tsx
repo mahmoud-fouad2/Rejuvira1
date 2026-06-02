@@ -469,15 +469,6 @@ export function V0InspiredHome({
               <div className="rv-v0-service-image rv-service-art-frame">
                 <Image
                   src={service.coverImageUrl}
-                  alt=""
-                  aria-hidden
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="rv-service-art-bg"
-                  loading="lazy"
-                />
-                <Image
-                  src={service.coverImageUrl}
                   alt={service.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 33vw"
