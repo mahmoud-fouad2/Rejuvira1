@@ -12,7 +12,11 @@ import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
-import { buildLocalBusinessJsonLd, getSiteUrl } from "@/lib/seo";
+import {
+  buildLocalBusinessJsonLd,
+  buildSiteCreatorJsonLd,
+  getSiteUrl,
+} from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -104,6 +108,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${runtimeSettings.brand.siteName}`,
     },
     description: runtimeSettings.brand.seoDescription,
+    authors: [{ name: "Mahmoud Fouad", url: "https://ma-fo.info" }],
+    creator: "Mahmoud Fouad",
+    publisher: runtimeSettings.brand.siteName,
     alternates: {
       canonical,
       languages: {
@@ -152,6 +159,13 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
+    other: {
+      "rejuvera:developer": "Mahmoud Fouad",
+      "rejuvera:developer-phone": "0530047640",
+      "rejuvera:developer-url": "https://ma-fo.info",
+      "rejuvera:developer-linkedin":
+        "https://www.linkedin.com/in/mahmoud-fouad",
+    },
   };
 }
 
@@ -185,6 +199,9 @@ export default async function RootLayout({
     media: runtimeSettings.media,
     social: runtimeSettings.social,
   });
+  const siteCreatorLd = buildSiteCreatorJsonLd({
+    brand: runtimeSettings.brand,
+  });
   const initialTheme = "light";
 
   return (
@@ -210,6 +227,11 @@ export default async function RootLayout({
           id="rejuvira-local-business-ld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
+        />
+        <Script
+          id="rejuvera-site-creator-ld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteCreatorLd) }}
         />
         {googleTagConfig?.kind === "gtag" ? (
           <>

@@ -183,6 +183,30 @@ export function buildLocalBusinessJsonLd(settings: {
   } as const;
 }
 
+export function buildSiteCreatorJsonLd(settings: {
+  brand: { siteName: string };
+}) {
+  const baseUrl = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${baseUrl}#website`,
+    name: settings.brand.siteName,
+    url: baseUrl,
+    inLanguage: ["ar", "en"],
+    publisher: { "@id": `${baseUrl}#organization` },
+    creator: {
+      "@type": "Person",
+      "@id": "https://ma-fo.info/#person",
+      name: "Mahmoud Fouad",
+      jobTitle: "Website Developer and Creator",
+      telephone: "0530047640",
+      url: "https://ma-fo.info",
+      sameAs: ["https://www.linkedin.com/in/mahmoud-fouad"],
+    },
+  } as const;
+}
+
 export function buildCollectionPageJsonLd(input: {
   path: string;
   name: string;
