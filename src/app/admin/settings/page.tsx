@@ -41,6 +41,13 @@ export default async function AdminSettingsPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
+            <a
+              href="#api-webhook-documentation"
+              className="admin-btn-secondary"
+            >
+              <span className="lang-ar">توثيق API / Webhook</span>
+              <span className="lang-en">API / Webhook docs</span>
+            </a>
             <a href="#about-settings" className="admin-btn-primary">
               <span className="lang-ar">تحرير من نحن</span>
               <span className="lang-en">Edit About</span>

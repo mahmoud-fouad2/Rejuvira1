@@ -49,11 +49,18 @@ export function AdminSettingsExtras({
     <div className="grid gap-6">
       <OperationsCard settings={settings} recaptchaSiteKey={recaptchaSiteKey} />
       <IntegrationsCard settings={settings} />
+      <ApiWebhookDocumentationCard settings={settings} />
       <ContactExtraCard settings={settings} />
       <SeoCard settings={settings} />
       <SocialChannelsCard settings={settings} />
     </div>
   );
+}
+
+function normalizeSiteOrigin(domain: string | undefined) {
+  const raw = domain?.trim() || "https://rejuvera.sa";
+  if (/^https?:\/\//i.test(raw)) return raw.replace(/\/+$/, "");
+  return `https://${raw.replace(/^\/+|\/+$/g, "")}`;
 }
 
 function OperationsCard({
@@ -242,6 +249,181 @@ function IntegrationsCard({ settings }: { settings: RuntimeSettings }) {
         <SubmitMessage pending={pending} state={state} label="حفظ التكاملات" />
       </form>
     </article>
+  );
+}
+
+function ApiWebhookDocumentationCard({
+  settings,
+}: {
+  settings: RuntimeSettings;
+}) {
+  const siteOrigin = normalizeSiteOrigin(settings.contact.domain);
+  const intakeEndpoint = `${siteOrigin}/api/webhooks/{token}`;
+  const formWebhookUrl =
+    settings.integrations.formWebhookUrl.trim() ||
+    "https://hooks.example.com/rejuvera";
+  const jsonExample = `{
+  "fullName": "Sara Ahmed",
+  "phone": "0530047640",
+  "email": "client@example.com",
+  "serviceSlug": "rhinoplasty-nose-reshaping",
+  "message": "أرغب في حجز استشارة",
+  "source": "Google Ads - Landing Page",
+  "preferredLanguage": "ar",
+  "utm_source": "google",
+  "utm_medium": "cpc",
+  "utm_campaign": "riyadh-plastic-surgery",
+  "tags": ["landing-page", "paid-campaign"]
+}`;
+  const curlExample = `curl -X POST "${intakeEndpoint}" \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json" \\
+  -d '${jsonExample.replaceAll("'", "\\'")}'`;
+  const outboundExample = `{
+  "event": "landing_lead.created",
+  "source": "Landing page form",
+  "submittedAt": "2026-06-03T12:00:00.000Z",
+  "submissionId": "lead_id",
+  "fullName": "Sara Ahmed",
+  "phone": "0530047640",
+  "serviceSlug": "rhinoplasty-nose-reshaping",
+  "serviceName": "عمليات تجميل الأنف",
+  "preferredLanguage": "ar",
+  "utmSource": "google"
+}`;
+
+  return (
+    <article
+      id="api-webhook-documentation"
+      className="surface-panel rounded-[1.85rem] p-6 scroll-mt-24"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-ink-faint text-[10px] font-semibold tracking-[0.22em] uppercase">
+            API / Webhook Docs
+          </p>
+          <h2 className="text-ink-strong mt-2 text-xl font-semibold tracking-tight">
+            توثيق استقبال وإرسال Webhooks
+          </h2>
+          <p className="text-ink-soft mt-2 max-w-3xl text-sm leading-7">
+            مرجع سريع وآمن لربط النماذج الخارجية، صفحات الهبوط، Make، Zapier،
+            n8n، أو أي نظام CRM خارجي مع طلبات Rejuvera. هذا القسم توثيقي فقط
+            ولا يغير أي إعدادات.
+          </p>
+        </div>
+        <a href="/admin/webhooks" className="admin-btn-secondary">
+          إدارة مصادر Webhook
+        </a>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4">
+          <h3 className="text-ink-strong text-base font-semibold">
+            1. Incoming Webhook لاستقبال الطلبات
+          </h3>
+          <p className="text-ink-soft mt-2 text-sm leading-7">
+            أنشئ مصدرًا من صفحة Webhooks ثم استخدم التوكن في الرابط التالي. كل
+            طلب ناجح يتم حفظه في CRM ويظهر المصدر باسم Webhook نفسه.
+          </p>
+          <div className="mt-3 grid gap-2 text-xs">
+            <DocCode label="Endpoint" value={intakeEndpoint} />
+            <DocCode label="Methods" value="POST, PUT" />
+            <DocCode
+              label="Content-Type"
+              value="application/json أو application/x-www-form-urlencoded أو multipart/form-data"
+            />
+            <DocCode label="Required" value="phone أو mobile أو phone_number" />
+          </div>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4">
+          <h3 className="text-ink-strong text-base font-semibold">
+            2. الحقول المدعومة
+          </h3>
+          <div className="mt-3 grid gap-2 text-xs">
+            <DocCode label="Name" value="fullName أو name" />
+            <DocCode label="Phone" value="phone أو mobile أو phone_number" />
+            <DocCode label="Service" value="serviceSlug, service, serviceName, serviceLabel, serviceTypeAr" />
+            <DocCode label="UTM" value="utmSource/utm_source, utmMedium/utm_medium, utmCampaign/utm_campaign, utmContent/utm_content" />
+            <DocCode label="Other" value="email, message/note, source, tags, preferredLanguage" />
+          </div>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4 xl:col-span-2">
+          <h3 className="text-ink-strong text-base font-semibold">
+            3. مثال JSON
+          </h3>
+          <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">
+            {jsonExample}
+          </pre>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4 xl:col-span-2">
+          <h3 className="text-ink-strong text-base font-semibold">
+            4. مثال cURL للاختبار
+          </h3>
+          <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">
+            {curlExample}
+          </pre>
+          <p className="text-ink-faint mt-2 text-xs leading-6">
+            استبدل {"{token}"} بتوكن المصدر الموجود داخل صفحة Webhooks.
+          </p>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4">
+          <h3 className="text-ink-strong text-base font-semibold">
+            5. Outbound Form Webhook
+          </h3>
+          <p className="text-ink-soft mt-2 text-sm leading-7">
+            عند تفعيل Webhook لكل نماذج الموقع، يرسل النظام نسخة JSON بعد حفظ
+            الطلب داخل CRM إلى الرابط التالي:
+          </p>
+          <div className="mt-3 grid gap-2 text-xs">
+            <DocCode label="URL" value={formWebhookUrl} />
+            <DocCode label="Method" value="POST" />
+            <DocCode label="Header" value="x-rejuvera-webhook-secret" />
+            <DocCode label="Timeout" value="3500ms" />
+          </div>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4">
+          <h3 className="text-ink-strong text-base font-semibold">
+            6. قواعد الأمان والاستجابة
+          </h3>
+          <ul className="text-ink-soft mt-3 grid gap-2 text-sm leading-7">
+            <li>احتفظ بالتوكن سريًا، وجدد الرابط فورًا إذا تم تسريبه.</li>
+            <li>المصدر المتوقف يرجع 410، والتوكن غير الصحيح يرجع 404.</li>
+            <li>الحد الحالي: 120 طلب لكل 10 دقائق لكل IP ولكل توكن.</li>
+            <li>أرسل Accept: application/json للحصول على JSON بدل redirect.</li>
+          </ul>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4 xl:col-span-2">
+          <h3 className="text-ink-strong text-base font-semibold">
+            7. مثال Payload صادر من نماذج الموقع
+          </h3>
+          <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">
+            {outboundExample}
+          </pre>
+        </section>
+      </div>
+    </article>
+  );
+}
+
+function DocCode({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid gap-1">
+      <span className="text-ink-faint font-semibold tracking-[0.16em] uppercase">
+        {label}
+      </span>
+      <code
+        className="border-line bg-canvas text-ink overflow-x-auto rounded-[0.8rem] border px-3 py-2 text-left"
+        dir="ltr"
+      >
+        {value}
+      </code>
+    </div>
   );
 }
 
