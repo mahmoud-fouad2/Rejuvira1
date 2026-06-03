@@ -400,7 +400,37 @@ function ApiWebhookDocumentationCard({
 
         <section className="border-line bg-surface rounded-[1.4rem] border p-4 xl:col-span-2">
           <h3 className="text-ink-strong text-base font-semibold">
-            7. مثال Payload صادر من نماذج الموقع
+            7. أحداث Google Tag Manager بعد نجاح الإرسال
+          </h3>
+          <p className="text-ink-soft mt-2 text-sm leading-7">
+            عند نجاح أي نموذج Lead داخل الموقع يتم تنفيذ
+            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
+              dataLayer.push
+            </code>
+            تلقائيًا. استخدم الحدث الأساسي
+            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
+              lead_submit
+            </code>
+            لإنشاء Conversion في GTM / Google Ads. يوجد حدث بديل باسم
+            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
+              form_success
+            </code>
+            للتوافق مع أي إعدادات قديمة.
+          </p>
+          <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">{`window.dataLayer.push({
+  event: "lead_submit",
+  formType: "contact_form",
+  source: "Header booking modal",
+  serviceSlug: "rhinoplasty-nose-reshaping",
+  utmSource: "google",
+  pagePath: "/p/plastic-surgery-riyadh",
+  pageUrl: "https://rejuvera.sa/p/plastic-surgery-riyadh?utm_source=google"
+});`}</pre>
+        </section>
+
+        <section className="border-line bg-surface rounded-[1.4rem] border p-4 xl:col-span-2">
+          <h3 className="text-ink-strong text-base font-semibold">
+            8. مثال Payload صادر من نماذج الموقع
           </h3>
           <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">
             {outboundExample}

@@ -108,6 +108,7 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   compress: true,
   experimental: {
+    cpus: Number(process.env.NEXT_BUILD_WORKERS ?? 4),
     optimizePackageImports: [
       "zod",
       "@prisma/client",

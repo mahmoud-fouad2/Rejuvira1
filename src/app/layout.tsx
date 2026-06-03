@@ -9,6 +9,7 @@ import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
 import { PageLoader } from "@/components/layout/PageLoader";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
 import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
+import { LeadConversionTracker } from "@/components/layout/LeadConversionTracker";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
@@ -272,6 +273,7 @@ export default async function RootLayout({
           </noscript>
         ) : null}
         <LanguageProvider>
+          <LeadConversionTracker />
           {showMaintenance ? (
             <MaintenanceOverlay
               brandName={runtimeSettings.brand.siteName}

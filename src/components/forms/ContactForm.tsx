@@ -14,6 +14,10 @@ import {
   GENERAL_INQUIRY_SERVICE_EN,
   GENERAL_INQUIRY_SERVICE_VALUE,
 } from "@/lib/general-inquiry";
+import {
+  leadPayloadFromForm,
+  trackLeadConversion,
+} from "@/lib/lead-conversion-tracking";
 
 type ContactActionState = {
   status: "idle" | "success" | "error";
@@ -152,6 +156,7 @@ export function ContactForm({
       const data = (await response.json()) as ContactActionState;
       setState(data);
       if (response.ok && data.status === "success") {
+        trackLeadConversion(leadPayloadFromForm(form, "contact_form"));
         form.reset();
         if (tokenInputRef.current) tokenInputRef.current.value = "";
       }
