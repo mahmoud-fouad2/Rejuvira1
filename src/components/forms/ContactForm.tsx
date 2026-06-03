@@ -18,6 +18,10 @@ import {
   leadPayloadFromForm,
   trackLeadConversion,
 } from "@/lib/lead-conversion-tracking";
+import {
+  SAUDI_MOBILE_INPUT_PATTERN,
+  SAUDI_MOBILE_INPUT_TITLE,
+} from "@/lib/saudi-phone";
 
 type ContactActionState = {
   status: "idle" | "success" | "error";
@@ -194,10 +198,16 @@ export function ContactForm({
           </span>
           <input
             name="phone"
+            type="tel"
             className="field-public"
             placeholder="05xxxxxxxx"
             inputMode="tel"
             autoComplete="tel"
+            minLength={10}
+            maxLength={13}
+            pattern={SAUDI_MOBILE_INPUT_PATTERN}
+            title={SAUDI_MOBILE_INPUT_TITLE}
+            dir="ltr"
             required
           />
         </label>

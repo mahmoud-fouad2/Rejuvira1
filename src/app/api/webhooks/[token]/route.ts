@@ -12,6 +12,11 @@ import {
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
 import { rateLimit } from "@/lib/rate-limit";
+import {
+  isValidSaudiMobileNumber,
+  normalizeSaudiMobileNumber,
+  SAUDI_MOBILE_ERROR_MESSAGE,
+} from "@/lib/saudi-phone";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -221,19 +226,20 @@ async function handleIngest(request: Request, context: RouteContext) {
 
   const fullName =
     pickFirst(data, ["fullName", "name", "full_name"]) ?? "Unknown";
-  const phone = pickFirst(data, ["phone", "mobile", "phone_number"]);
-  if (!phone) {
+  const rawPhone = pickFirst(data, ["phone", "mobile", "phone_number"]);
+  const phone = rawPhone ? normalizeSaudiMobileNumber(rawPhone) : "";
+  if (!phone || !isValidSaudiMobileNumber(phone)) {
     await recordWebhookEvent({
       webhookId: webhook.id,
       payload: raw,
       statusCode: 422,
-      errorMessage: "Missing phone",
+      errorMessage: rawPhone ? SAUDI_MOBILE_ERROR_MESSAGE : "Missing phone",
       ip,
       userAgent: ua,
     });
     return webhookResponse(
       request,
-      { error: "phone is required" },
+      { error: rawPhone ? SAUDI_MOBILE_ERROR_MESSAGE : "phone is required" },
       { status: 422 },
     );
   }

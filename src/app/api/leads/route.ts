@@ -16,13 +16,23 @@ import {
 } from "@/lib/general-inquiry";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { mergeRequestTracking } from "@/lib/request-tracking";
+import {
+  normalizeSaudiMobileNumber,
+  SAUDI_MOBILE_ERROR_MESSAGE,
+  SAUDI_MOBILE_REGEX,
+} from "@/lib/saudi-phone";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const leadSchema = z.object({
   fullName: z.string().min(3),
-  phone: z.string().min(8),
+  phone: z
+    .string()
+    .transform(normalizeSaudiMobileNumber)
+    .refine((phone) => SAUDI_MOBILE_REGEX.test(phone), {
+      message: SAUDI_MOBILE_ERROR_MESSAGE,
+    }),
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().max(1000).optional().or(z.literal("")),
   serviceSlug: z.string().optional().or(z.literal("")),
@@ -169,11 +179,16 @@ export async function POST(request: Request) {
   const parsed = leadSchema.safeParse(payload);
 
   if (!parsed.success) {
+    const phoneInvalid = parsed.error.issues.some(
+      (issue) => issue.path[0] === "phone",
+    );
     if (jsonResponse) {
       return NextResponse.json(
         {
           ok: false,
-          error: "Invalid lead payload",
+          error: phoneInvalid
+            ? SAUDI_MOBILE_ERROR_MESSAGE
+            : "Invalid lead payload",
           issues: parsed.error.issues,
         },
         { status: 400 },
@@ -182,7 +197,9 @@ export async function POST(request: Request) {
     return response(
       request,
       "error",
-      "يرجى مراجعة الاسم ورقم الجوال والخدمة المطلوبة قبل الإرسال. / Please review your details before submitting.",
+      phoneInvalid
+        ? SAUDI_MOBILE_ERROR_MESSAGE
+        : "يرجى مراجعة الاسم ورقم الجوال والخدمة المطلوبة قبل الإرسال. / Please review your details before submitting.",
       { status: 400 },
     );
   }

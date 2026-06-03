@@ -8,6 +8,10 @@ import {
   GENERAL_INQUIRY_SERVICE_VALUE,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import {
+  SAUDI_MOBILE_INPUT_PATTERN,
+  SAUDI_MOBILE_INPUT_TITLE,
+} from "@/lib/saudi-phone";
 
 type BlockKind =
   | "hero"
@@ -407,6 +411,12 @@ function validationAttributes(value = "", disabled = "") {
   return disabled ? "" : attrs.join("");
 }
 
+function phoneInputAttributes(disabled = "") {
+  return disabled
+    ? ""
+    : ` inputmode="tel" autocomplete="tel" minlength="10" maxlength="13" pattern="${escapeHtml(SAUDI_MOBILE_INPUT_PATTERN)}" title="${escapeHtml(SAUDI_MOBILE_INPUT_TITLE)}" dir="ltr"`;
+}
+
 function renderExtraFormFields(value = "", disabled: string) {
   return value
     .split(/\n+/)
@@ -459,8 +469,7 @@ function renderExtraFormFields(value = "", disabled: string) {
       }
       const inputType =
         type === "email" ? "email" : type === "phone" ? "tel" : "text";
-      const phoneAttrs =
-        type === "phone" ? ' inputmode="tel" autocomplete="tel"' : "";
+      const phoneAttrs = type === "phone" ? phoneInputAttributes(disabled) : "";
       return `<label><span>${escapeHtml(safeLabel)}</span><input name="${name}" type="${inputType}"${phoneAttrs}${required}${placeholder}${validation}${disabled}></label>`;
     })
     .join("");
@@ -807,7 +816,7 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
         ? ""
         : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
-      `<label><span>رقم الجوال</span><input name="phone" inputmode="tel" autocomplete="tel"${required}${disabled} placeholder="05xxxxxxxx"></label>` +
+      `<label><span>رقم الجوال</span><input name="phone" type="tel"${phoneInputAttributes(disabled)}${required}${disabled} placeholder="05xxxxxxxx"></label>` +
       (emailMode === "hidden"
         ? ""
         : `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${emailMode === "required" ? required : ""}${disabled} placeholder="name@example.com"></label>`) +

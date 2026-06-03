@@ -17,13 +17,23 @@ import {
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
 import { mergeRequestTracking } from "@/lib/request-tracking";
+import {
+  normalizeSaudiMobileNumber,
+  SAUDI_MOBILE_ERROR_MESSAGE,
+  SAUDI_MOBILE_REGEX,
+} from "@/lib/saudi-phone";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const contactSchema = z.object({
   fullName: z.string().min(3),
-  phone: z.string().min(8),
+  phone: z
+    .string()
+    .transform(normalizeSaudiMobileNumber)
+    .refine((phone) => SAUDI_MOBILE_REGEX.test(phone), {
+      message: SAUDI_MOBILE_ERROR_MESSAGE,
+    }),
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().max(1000).optional().or(z.literal("")),
   serviceSlug: z.string().optional().or(z.literal("")),
@@ -106,10 +116,15 @@ export async function POST(request: Request) {
   const parsed = contactSchema.safeParse(payload);
 
   if (!parsed.success) {
+    const errorMessage = parsed.error.issues.some(
+      (issue) => issue.path[0] === "phone",
+    )
+      ? SAUDI_MOBILE_ERROR_MESSAGE
+      : "يرجى مراجعة بيانات التواصل والخدمة المطلوبة قبل الإرسال. / Please review your details before submitting.";
     return response(
       request,
       "error",
-      "يرجى مراجعة بيانات التواصل والخدمة المطلوبة قبل الإرسال. / Please review your details before submitting.",
+      errorMessage,
       { status: 400 },
     );
   }
