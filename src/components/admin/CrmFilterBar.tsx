@@ -171,6 +171,40 @@ function leadSourceTitle(submission: CrmRecord) {
   return utmSource ? `${source} · utm_source=${utmSource}` : source;
 }
 
+const COUNTRY_LABELS: Record<string, string> = {
+  SA: "السعودية",
+  AE: "الإمارات",
+  EG: "مصر",
+  KW: "الكويت",
+  QA: "قطر",
+  BH: "البحرين",
+  OM: "عمان",
+  US: "الولايات المتحدة",
+  GB: "المملكة المتحدة",
+};
+
+function missingLeadMeta(value?: string) {
+  return value?.trim() || "غير متاح";
+}
+
+function countryLabel(value?: string) {
+  const clean = value?.trim();
+  if (!clean) return "غير متاح";
+  const code = clean.toUpperCase();
+  return COUNTRY_LABELS[code] ? `${COUNTRY_LABELS[code]} (${code})` : clean;
+}
+
+function compactUrl(value?: string) {
+  const clean = value?.trim();
+  if (!clean) return "غير متاح";
+  try {
+    const url = new URL(clean);
+    return `${url.hostname}${url.pathname}${url.search}`;
+  } catch {
+    return clean;
+  }
+}
+
 function normalizeText(value: string) {
   return value
     .toLowerCase()
@@ -1683,6 +1717,36 @@ export function CrmFilterBar({
                         .filter(Boolean)
                         .join(" / ") || "لا يوجد"}
                     </strong>
+                  </div>
+                  <div>
+                    <span className="admin-field-label">IP</span>
+                    <strong dir="ltr">
+                      {missingLeadMeta(selectedSubmission.ipAddress)}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className="admin-field-label">البلد</span>
+                    <strong>{countryLabel(selectedSubmission.country)}</strong>
+                  </div>
+                  <div>
+                    <span className="admin-field-label">صفحة الإرسال</span>
+                    <p dir="ltr" title={selectedSubmission.landingPageUrl}>
+                      {compactUrl(selectedSubmission.landingPageUrl)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="admin-field-label">جاي منين</span>
+                    <p dir="ltr" title={selectedSubmission.referrerUrl}>
+                      {selectedSubmission.utmSource
+                        ? `utm_source=${selectedSubmission.utmSource}`
+                        : compactUrl(selectedSubmission.referrerUrl)}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="admin-field-label">المتصفح</span>
+                    <p dir="ltr" title={selectedSubmission.userAgent}>
+                      {missingLeadMeta(selectedSubmission.userAgent)}
+                    </p>
                   </div>
                   <div>
                     <span className="admin-field-label">رسالة العميل</span>

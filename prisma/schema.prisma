@@ -218,6 +218,11 @@ model ContactSubmission {
   utmMedium         String?
   utmCampaign       String?
   utmContent        String?
+  ipAddress         String?
+  country           String?
+  referrerUrl       String?          @db.Text
+  landingPageUrl    String?          @db.Text
+  userAgent         String?          @db.Text
   status            SubmissionStatus @default(NEW)
   internalNotes     String?          @db.Text
   tags              String[]         @default([])

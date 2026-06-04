@@ -154,6 +154,7 @@ export function ContactForm({
         headers: {
           accept: "application/json",
           "x-requested-with": "fetch",
+          "x-rejuvera-current-url": window.location.href,
         },
         body: new FormData(form),
       }).catch(() => null);

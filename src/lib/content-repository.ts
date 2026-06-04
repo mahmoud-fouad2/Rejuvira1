@@ -146,6 +146,11 @@ export type CrmRecord = {
   utmMedium?: string | undefined;
   utmCampaign?: string | undefined;
   utmContent?: string | undefined;
+  ipAddress?: string | undefined;
+  country?: string | undefined;
+  referrerUrl?: string | undefined;
+  landingPageUrl?: string | undefined;
+  userAgent?: string | undefined;
   message?: string | undefined;
   comments: ReadonlyArray<{
     id: string;
@@ -531,6 +536,11 @@ export type CreateContactInput = {
   utmMedium?: string | undefined;
   utmCampaign?: string | undefined;
   utmContent?: string | undefined;
+  ipAddress?: string | undefined;
+  country?: string | undefined;
+  referrerUrl?: string | undefined;
+  landingPageUrl?: string | undefined;
+  userAgent?: string | undefined;
   notes?: string | undefined;
 };
 
@@ -3004,6 +3014,11 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
         utmMedium: submission.utmMedium ?? undefined,
         utmCampaign: submission.utmCampaign ?? undefined,
         utmContent: submission.utmContent ?? undefined,
+        ipAddress: submission.ipAddress ?? undefined,
+        country: submission.country ?? undefined,
+        referrerUrl: submission.referrerUrl ?? undefined,
+        landingPageUrl: submission.landingPageUrl ?? undefined,
+        userAgent: submission.userAgent ?? undefined,
         message: submission.message ?? undefined,
         comments: submission.comments.map((c) => ({
           id: c.id,
@@ -4411,6 +4426,11 @@ export async function createContactLead(
       ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
       ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
       ...(input.utmContent ? { utmContent: input.utmContent } : {}),
+      ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+      ...(input.country ? { country: input.country } : {}),
+      ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
+      ...(input.landingPageUrl ? { landingPageUrl: input.landingPageUrl } : {}),
+      ...(input.userAgent ? { userAgent: input.userAgent } : {}),
       ...(input.notes ? { internalNotes: input.notes } : {}),
       ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
       ...(input.webhookId ? { webhookId: input.webhookId } : {}),

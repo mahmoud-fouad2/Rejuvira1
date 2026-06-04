@@ -14,6 +14,7 @@ import {
   GENERAL_INQUIRY_SERVICE_VALUE,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import { getLeadRequestMetadata } from "@/lib/lead-request-metadata";
 import {
   evaluateLeadIntakeGuard,
   LEAD_DUPLICATE_MESSAGE,
@@ -53,6 +54,9 @@ const leadSchema = z.object({
   utmMedium: z.string().max(120).optional().or(z.literal("")),
   utmCampaign: z.string().max(120).optional().or(z.literal("")),
   utmContent: z.string().max(120).optional().or(z.literal("")),
+  pageUrl: z.string().max(1000).optional().or(z.literal("")),
+  landingPageUrl: z.string().max(1000).optional().or(z.literal("")),
+  referrerUrl: z.string().max(1000).optional().or(z.literal("")),
 });
 
 function formString(formData: FormData, key: string) {
@@ -119,6 +123,9 @@ async function readLeadPayload(request: Request) {
       utmContent:
         payloadString(payload, "utmContent") ||
         payloadString(payload, "utm_content"),
+      pageUrl: payloadString(payload, "pageUrl"),
+      landingPageUrl: payloadString(payload, "landingPageUrl"),
+      referrerUrl: payloadString(payload, "referrerUrl"),
       [LEAD_HONEYPOT_FIELD]: payloadString(payload, LEAD_HONEYPOT_FIELD),
       [LEAD_RENDERED_AT_FIELD]: payloadString(payload, LEAD_RENDERED_AT_FIELD),
     };
@@ -152,6 +159,9 @@ async function readLeadPayload(request: Request) {
       formString(formData, "utm_campaign"),
     utmContent:
       formString(formData, "utmContent") || formString(formData, "utm_content"),
+    pageUrl: formString(formData, "pageUrl"),
+    landingPageUrl: formString(formData, "landingPageUrl"),
+    referrerUrl: formString(formData, "referrerUrl"),
     [LEAD_HONEYPOT_FIELD]: formString(formData, LEAD_HONEYPOT_FIELD),
     [LEAD_RENDERED_AT_FIELD]: formString(formData, LEAD_RENDERED_AT_FIELD),
   };
@@ -295,6 +305,11 @@ export async function POST(request: Request) {
         ? { utmCampaign: parsed.data.utmCampaign }
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
+      ...getLeadRequestMetadata(request, {
+        referrerUrl: parsed.data.referrerUrl || undefined,
+        landingPageUrl:
+          parsed.data.landingPageUrl || parsed.data.pageUrl || undefined,
+      }),
     });
 
     if (result.mode === "duplicate") {

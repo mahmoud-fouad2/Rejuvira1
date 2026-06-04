@@ -14,6 +14,7 @@ import {
   GENERAL_INQUIRY_SERVICE_VALUE,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import { getLeadRequestMetadata } from "@/lib/lead-request-metadata";
 import {
   evaluateLeadIntakeGuard,
   LEAD_DUPLICATE_MESSAGE,
@@ -230,6 +231,7 @@ export async function POST(request: Request) {
         ? { utmCampaign: parsed.data.utmCampaign }
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
+      ...getLeadRequestMetadata(request),
     });
 
     if (result.mode === "duplicate") {

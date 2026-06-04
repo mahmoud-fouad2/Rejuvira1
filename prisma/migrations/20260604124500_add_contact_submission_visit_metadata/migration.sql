@@ -1,0 +1,6 @@
+ALTER TABLE "ContactSubmission"
+  ADD COLUMN IF NOT EXISTS "ipAddress" TEXT,
+  ADD COLUMN IF NOT EXISTS "country" TEXT,
+  ADD COLUMN IF NOT EXISTS "referrerUrl" TEXT,
+  ADD COLUMN IF NOT EXISTS "landingPageUrl" TEXT,
+  ADD COLUMN IF NOT EXISTS "userAgent" TEXT;

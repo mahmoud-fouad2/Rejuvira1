@@ -11,6 +11,7 @@ import {
   GENERAL_INQUIRY_SERVICE_AR,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import { getLeadRequestMetadata } from "@/lib/lead-request-metadata";
 import {
   evaluateLeadIntakeGuard,
   LEAD_DUPLICATE_MESSAGE,
@@ -53,6 +54,15 @@ const payloadSchema = z
     utm_medium: z.string().max(120).optional(),
     utm_campaign: z.string().max(120).optional(),
     utm_content: z.string().max(120).optional(),
+    ipAddress: z.string().max(120).optional(),
+    ip: z.string().max(120).optional(),
+    country: z.string().max(80).optional(),
+    countryCode: z.string().max(80).optional(),
+    referrerUrl: z.string().max(1000).optional(),
+    referer: z.string().max(1000).optional(),
+    pageUrl: z.string().max(1000).optional(),
+    landingPageUrl: z.string().max(1000).optional(),
+    userAgent: z.string().max(500).optional(),
   })
   .passthrough();
 
@@ -310,6 +320,13 @@ async function handleIngest(request: Request, context: RouteContext) {
       source: sourceLabel,
       ...(serviceSlug && !isGeneralInquiry ? { serviceSlug } : {}),
       preferredLanguage: pickFirst(data, ["preferredLanguage"]) ?? "ar",
+      ...getLeadRequestMetadata(request, {
+        ipAddress: pickFirst(data, ["ipAddress", "ip"]) ?? ip ?? undefined,
+        country: pickFirst(data, ["country", "countryCode"]),
+        referrerUrl: pickFirst(data, ["referrerUrl", "referer"]),
+        landingPageUrl: pickFirst(data, ["landingPageUrl", "pageUrl"]),
+        userAgent: pickFirst(data, ["userAgent"]) ?? ua ?? undefined,
+      }),
       webhookId: webhook.id,
       tags,
       status: webhook.defaultStatus,

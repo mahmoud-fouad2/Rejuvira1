@@ -23,6 +23,8 @@ function ensureAttr(attrs: string, name: string, value: string) {
 function formGuardFields(renderedAt: number) {
   return [
     `<input type="hidden" name="${LEAD_RENDERED_AT_FIELD}" value="${renderedAt}">`,
+    `<input type="hidden" name="pageUrl" value="">`,
+    `<input type="hidden" name="referrerUrl" value="">`,
     `<div aria-hidden="true" style="position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;">`,
     `<label>Company<input type="text" name="${LEAD_HONEYPOT_FIELD}" tabindex="-1" autocomplete="off"></label>`,
     `</div>`,
