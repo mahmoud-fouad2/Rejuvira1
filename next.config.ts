@@ -22,14 +22,22 @@ const isProd = process.env.NODE_ENV === "production";
  *   Maps embed, Google reCAPTCHA/Tag, Cloudflare R2 (image hosting).
  */
 function buildCsp(frameAncestors: string) {
+  const googleScriptOrigins = [
+    "https://www.google.com",
+    "https://www.gstatic.com",
+    "https://www.googletagmanager.com",
+    "https://www.googleadservices.com",
+    "https://googleads.g.doubleclick.net",
+  ].join(" ");
+
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co https://www.google.com https://www.gstatic.com https://www.googletagmanager.com`.trim(),
-    "script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co https://www.google.com https://www.gstatic.com https://www.googletagmanager.com",
-    "style-src 'self' 'unsafe-inline'",
-    "style-src-elem 'self' 'unsafe-inline'",
+    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins}`.trim(),
+    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins}`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
-    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.gstatic.com",
     "connect-src 'self' https: wss:",
     "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.chatbase.co https://*.chatbase.co",
     "media-src 'self' https: data:",
