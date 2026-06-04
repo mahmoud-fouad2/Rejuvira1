@@ -5,6 +5,7 @@ type DataLayerEvent = Record<string, unknown> & { event: string };
 declare global {
   interface Window {
     dataLayer?: DataLayerEvent[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -29,6 +30,14 @@ function cleanPayload(payload: LeadConversionPayload) {
   );
 }
 
+function cleanEventParams(payload: Record<string, string | undefined>) {
+  return Object.fromEntries(
+    Object.entries(payload).filter(
+      ([, value]) => typeof value === "string" && value.trim().length > 0,
+    ),
+  );
+}
+
 export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
@@ -38,10 +47,28 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
     pageUrl: window.location.href,
   };
 
+  const ga4Payload = cleanEventParams({
+    form_type: payload.formType,
+    lead_source: payload.source,
+    service_slug: payload.serviceSlug,
+    service_name: payload.serviceName,
+    preferred_language: payload.preferredLanguage,
+    utm_source: payload.utmSource,
+    utm_medium: payload.utmMedium,
+    utm_campaign: payload.utmCampaign,
+    utm_content: payload.utmContent,
+    page_path: safePayload.pagePath,
+    page_location: safePayload.pageUrl,
+  });
+
   window.dataLayer.push({
     event: "lead_submit",
     ...safePayload,
   });
+
+  if (typeof window.gtag === "function") {
+    window.gtag("event", "lead_submit", ga4Payload);
+  }
 
   window.dataLayer.push({
     event: "form_success",
