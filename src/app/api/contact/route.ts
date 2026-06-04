@@ -71,6 +71,7 @@ function response(
   status: "success" | "error",
   message: string,
   init?: ResponseInit,
+  leadState?: "success" | "error" | "duplicate",
 ) {
   if (wantsJson(request)) {
     return NextResponse.json({ status, message }, init);
@@ -78,7 +79,7 @@ function response(
 
   const referer = request.headers.get("referer") || "/contact";
   const url = new URL(referer, request.url);
-  url.searchParams.set("lead", status);
+  url.searchParams.set("lead", leadState ?? status);
   return NextResponse.redirect(url, { status: 303 });
 }
 
@@ -237,7 +238,7 @@ export async function POST(request: Request) {
     if (result.mode === "duplicate") {
       return response(request, "error", LEAD_DUPLICATE_MESSAGE, {
         status: 409,
-      });
+      }, "duplicate");
     }
 
     await dispatchFormWebhook({

@@ -94,17 +94,23 @@ export default async function CustomPage({
           isUploadedHtml ? "rv-custom-page--uploaded" : ""
         }`}
       >
-        {query.lead === "success" || query.lead === "error" ? (
+        {query.lead === "success" ||
+        query.lead === "duplicate" ||
+        query.lead === "error" ? (
           <div
             className={`mx-auto mt-6 max-w-4xl rounded-2xl border px-5 py-3 text-center text-sm font-semibold ${
               query.lead === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                : query.lead === "duplicate"
+                  ? "border-amber-200 bg-amber-50 text-amber-800"
                 : "border-red-200 bg-red-50 text-red-800"
             }`}
           >
             {query.lead === "success"
               ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريباً."
-              : "تعذر إرسال الطلب. يرجى مراجعة البيانات والمحاولة مرة أخرى."}
+              : query.lead === "duplicate"
+                ? "رقمك مسجل لدينا بالفعل، وسيتواصل معك الفريق في أقرب وقت."
+                : "تعذر إرسال الطلب. يرجى مراجعة البيانات والمحاولة مرة أخرى."}
           </div>
         ) : null}
         <article
