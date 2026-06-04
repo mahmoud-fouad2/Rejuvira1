@@ -5,6 +5,7 @@ import { ContentStatus } from "@prisma/client";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getCustomPageBySlug } from "@/lib/content-repository";
+import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 
 export const dynamic = "force-dynamic";
@@ -83,7 +84,7 @@ export default async function CustomPage({
   const showHeader = readBuilderBoolean(page.htmlContent, "header");
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
-  const safeHtml = sanitizeHtml(page.htmlContent);
+  const safeHtml = hardenCustomPageLeadForms(sanitizeHtml(page.htmlContent));
 
   return (
     <>

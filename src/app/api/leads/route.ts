@@ -14,6 +14,13 @@ import {
   GENERAL_INQUIRY_SERVICE_VALUE,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import {
+  evaluateLeadIntakeGuard,
+  LEAD_DUPLICATE_MESSAGE,
+  LEAD_HONEYPOT_FIELD,
+  LEAD_RENDERED_AT_FIELD,
+  LEAD_SPAM_GUARD_MESSAGE,
+} from "@/lib/lead-intake-guard";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { mergeRequestTracking } from "@/lib/request-tracking";
 import {
@@ -112,6 +119,8 @@ async function readLeadPayload(request: Request) {
       utmContent:
         payloadString(payload, "utmContent") ||
         payloadString(payload, "utm_content"),
+      [LEAD_HONEYPOT_FIELD]: payloadString(payload, LEAD_HONEYPOT_FIELD),
+      [LEAD_RENDERED_AT_FIELD]: payloadString(payload, LEAD_RENDERED_AT_FIELD),
     };
   }
 
@@ -143,6 +152,8 @@ async function readLeadPayload(request: Request) {
       formString(formData, "utm_campaign"),
     utmContent:
       formString(formData, "utmContent") || formString(formData, "utm_content"),
+    [LEAD_HONEYPOT_FIELD]: formString(formData, LEAD_HONEYPOT_FIELD),
+    [LEAD_RENDERED_AT_FIELD]: formString(formData, LEAD_RENDERED_AT_FIELD),
   };
 }
 
@@ -175,6 +186,25 @@ export async function POST(request: Request) {
     );
   }
   payload = mergeRequestTracking(payload, request);
+
+  const intakeGuard = evaluateLeadIntakeGuard(payload);
+  if (!intakeGuard.ok) {
+    await recordAppLog({
+      level: "warn",
+      kind: "form-spam",
+      message: "Landing page form rejected by intake guard",
+      meta: { reason: intakeGuard.reason },
+    });
+    if (jsonResponse) {
+      return NextResponse.json(
+        { ok: false, error: LEAD_SPAM_GUARD_MESSAGE },
+        { status: 400 },
+      );
+    }
+    return response(request, "error", LEAD_SPAM_GUARD_MESSAGE, {
+      status: 400,
+    });
+  }
 
   const parsed = leadSchema.safeParse(payload);
 
@@ -266,6 +296,18 @@ export async function POST(request: Request) {
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
     });
+
+    if (result.mode === "duplicate") {
+      if (jsonResponse) {
+        return NextResponse.json(
+          { ok: false, error: LEAD_DUPLICATE_MESSAGE },
+          { status: 409 },
+        );
+      }
+      return response(request, "error", LEAD_DUPLICATE_MESSAGE, {
+        status: 409,
+      });
+    }
 
     const settings = await getRuntimeSettings();
     await dispatchFormWebhook({

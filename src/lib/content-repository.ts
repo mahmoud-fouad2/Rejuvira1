@@ -4340,6 +4340,54 @@ export async function createContactLead(
     return { mode: "preview" as const, input };
   }
 
+  const duplicateWindowMinutes = Math.max(
+    0,
+    Number(process.env.LEAD_DEDUP_WINDOW_MINUTES ?? 12 * 60),
+  );
+  const shortDuplicateWindowMinutes = Math.max(
+    0,
+    Number(process.env.LEAD_SHORT_DEDUP_WINDOW_MINUTES ?? 30),
+  );
+  const source = input.source?.trim() || "Website form";
+
+  if (shortDuplicateWindowMinutes > 0) {
+    const duplicateSince = new Date(
+      Date.now() - shortDuplicateWindowMinutes * 60 * 1000,
+    );
+    const duplicate = await prisma.contactSubmission.findFirst({
+      where: {
+        phone: input.phone,
+        createdAt: { gte: duplicateSince },
+      },
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    if (duplicate) {
+      return { mode: "duplicate" as const, submission: duplicate };
+    }
+  }
+
+  if (duplicateWindowMinutes > 0) {
+    const duplicateSince = new Date(
+      Date.now() - duplicateWindowMinutes * 60 * 1000,
+    );
+    const duplicate = await prisma.contactSubmission.findFirst({
+      where: {
+        phone: input.phone,
+        createdAt: { gte: duplicateSince },
+        OR: [
+          { source },
+          ...(input.webhookId ? [{ webhookId: input.webhookId }] : []),
+        ],
+      },
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    if (duplicate) {
+      return { mode: "duplicate" as const, submission: duplicate };
+    }
+  }
+
   const service = input.serviceSlug
     ? await prisma.service.findFirst({
         where: {
@@ -4357,7 +4405,7 @@ export async function createContactLead(
       fullName: input.fullName,
       phone: input.phone,
       preferredLanguage: input.preferredLanguage ?? "ar",
-      source: input.source ?? "Website form",
+      source,
       status: input.status ?? SubmissionStatus.NEW,
       ...(input.utmSource ? { utmSource: input.utmSource } : {}),
       ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),

@@ -14,6 +14,11 @@ import {
   GENERAL_INQUIRY_SERVICE_VALUE,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import {
+  evaluateLeadIntakeGuard,
+  LEAD_DUPLICATE_MESSAGE,
+  LEAD_SPAM_GUARD_MESSAGE,
+} from "@/lib/lead-intake-guard";
 import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import { verifyRecaptchaToken } from "@/lib/recaptcha";
 import { mergeRequestTracking } from "@/lib/request-tracking";
@@ -129,6 +134,19 @@ export async function POST(request: Request) {
     );
   }
 
+  const intakeGuard = evaluateLeadIntakeGuard(formData);
+  if (!intakeGuard.ok) {
+    await recordAppLog({
+      level: "warn",
+      kind: "form-spam",
+      message: "Contact form rejected by intake guard",
+      meta: { reason: intakeGuard.reason },
+    });
+    return response(request, "error", LEAD_SPAM_GUARD_MESSAGE, {
+      status: 400,
+    });
+  }
+
   const clientIp = extractClientIp(request.headers);
   const limit = rateLimit({
     key: `contact:${clientIp}`,
@@ -213,6 +231,12 @@ export async function POST(request: Request) {
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
     });
+
+    if (result.mode === "duplicate") {
+      return response(request, "error", LEAD_DUPLICATE_MESSAGE, {
+        status: 409,
+      });
+    }
 
     await dispatchFormWebhook({
       settings,

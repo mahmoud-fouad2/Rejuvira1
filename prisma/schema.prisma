@@ -230,6 +230,8 @@ model ContactSubmission {
   assignedTo        User?            @relation("LeadOwner", fields: [assignedToId], references: [id], onDelete: SetNull)
   webhook           Webhook?         @relation(fields: [webhookId], references: [id], onDelete: SetNull)
   comments          CrmComment[]
+
+  @@index([phone, createdAt])
 }
 
 model CrmComment {

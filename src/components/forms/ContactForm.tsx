@@ -15,6 +15,10 @@ import {
   GENERAL_INQUIRY_SERVICE_VALUE,
 } from "@/lib/general-inquiry";
 import {
+  LEAD_HONEYPOT_FIELD,
+  LEAD_RENDERED_AT_FIELD,
+} from "@/lib/lead-intake-guard";
+import {
   leadPayloadFromForm,
   trackLeadConversion,
 } from "@/lib/lead-conversion-tracking";
@@ -93,12 +97,17 @@ export function ContactForm({
   const { lang } = useLanguage();
   const [state, setState] = useState<ContactActionState>(initialState);
   const [isPending, setIsPending] = useState(false);
+  const [renderedAt, setRenderedAt] = useState("");
   const formRef = useRef<HTMLFormElement | null>(null);
   const tokenInputRef = useRef<HTMLInputElement | null>(null);
   const siteKey = recaptchaSiteKey ?? "";
   const hasGeneralInquiryOption = services.some(
     (service) => service.slug === GENERAL_INQUIRY_SERVICE_VALUE,
   );
+
+  useEffect(() => {
+    setRenderedAt(String(Date.now()));
+  }, []);
 
   useEffect(() => {
     if (!siteKey) return;
@@ -269,6 +278,26 @@ export function ContactForm({
       <input type="hidden" name="utmMedium" defaultValue="" />
       <input type="hidden" name="utmCampaign" defaultValue="" />
       <input type="hidden" name="utmContent" defaultValue="" />
+      <input
+        type="hidden"
+        name={LEAD_RENDERED_AT_FIELD}
+        value={renderedAt}
+        readOnly
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute h-px w-px -translate-x-[9999px] overflow-hidden opacity-0"
+      >
+        <label>
+          Company
+          <input
+            type="text"
+            name={LEAD_HONEYPOT_FIELD}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+        </label>
+      </div>
       <input
         ref={tokenInputRef}
         type="hidden"

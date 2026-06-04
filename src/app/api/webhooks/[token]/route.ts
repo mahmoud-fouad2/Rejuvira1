@@ -11,6 +11,11 @@ import {
   GENERAL_INQUIRY_SERVICE_AR,
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
+import {
+  evaluateLeadIntakeGuard,
+  LEAD_DUPLICATE_MESSAGE,
+  LEAD_SPAM_GUARD_MESSAGE,
+} from "@/lib/lead-intake-guard";
 import { rateLimit } from "@/lib/rate-limit";
 import {
   isValidSaudiMobileNumber,
@@ -224,6 +229,23 @@ async function handleIngest(request: Request, context: RouteContext) {
   }
   const data = parsed.data;
 
+  const intakeGuard = evaluateLeadIntakeGuard(data);
+  if (!intakeGuard.ok) {
+    await recordWebhookEvent({
+      webhookId: webhook.id,
+      payload: raw,
+      statusCode: 400,
+      errorMessage: `Intake guard rejected: ${intakeGuard.reason}`,
+      ip,
+      userAgent: ua,
+    });
+    return webhookResponse(
+      request,
+      { error: LEAD_SPAM_GUARD_MESSAGE },
+      { status: 400 },
+    );
+  }
+
   const fullName =
     pickFirst(data, ["fullName", "name", "full_name"]) ?? "Unknown";
   const rawPhone = pickFirst(data, ["phone", "mobile", "phone_number"]);
@@ -268,7 +290,7 @@ async function handleIngest(request: Request, context: RouteContext) {
   ].filter((value, index, arr) => arr.indexOf(value) === index);
 
   try {
-    await createContactLead({
+    const result = await createContactLead({
       fullName,
       phone,
       ...(email ? { email } : {}),
@@ -292,6 +314,21 @@ async function handleIngest(request: Request, context: RouteContext) {
       tags,
       status: webhook.defaultStatus,
     });
+    if (result.mode === "duplicate") {
+      await recordWebhookEvent({
+        webhookId: webhook.id,
+        payload: raw,
+        statusCode: 409,
+        errorMessage: "Duplicate lead suppressed",
+        ip,
+        userAgent: ua,
+      });
+      return webhookResponse(
+        request,
+        { error: LEAD_DUPLICATE_MESSAGE },
+        { status: 409 },
+      );
+    }
     await recordWebhookEvent({
       webhookId: webhook.id,
       payload: raw,
