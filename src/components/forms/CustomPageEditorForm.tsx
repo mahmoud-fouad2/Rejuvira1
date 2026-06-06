@@ -116,6 +116,10 @@ export type CustomPageEditorFormProps = {
     seoSlug?: string | null;
     hashtags?: readonly string[] | null;
     formConfig?: unknown;
+    leadWebhookEnabled?: boolean;
+    leadWebhookUrl?: string | null;
+    leadWebhookSecret?: string | null;
+    leadWebhookLabel?: string | null;
     status: ContentStatus;
     noindex: boolean;
   };
@@ -313,6 +317,61 @@ export function CustomPageEditorForm({
           />
         </label>
       </div>
+
+      <section className="custom-page-editor-form__seo">
+        <div>
+          <span className="admin-field-label">Make Webhook لهذه الصفحة</span>
+          <p className="text-muted-foreground text-xs">
+            اختيار آمن طويل المدى: الفورم يحفظ الليد في CRM أولًا، ثم يرسل نسخة
+            إلى Webhook هذه الصفحة فقط. لا تضع رابط Make داخل action مباشر في
+            HTML.
+          </p>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="flex items-center gap-2 rounded-2xl border border-[color:var(--admin-border)] bg-white/70 px-4 py-3 text-sm font-semibold">
+            <input
+              type="checkbox"
+              name="leadWebhookEnabled"
+              defaultChecked={Boolean(initial?.leadWebhookEnabled)}
+              className="h-4 w-4"
+            />
+            تفعيل Webhook مخصص لهذه الصفحة
+          </label>
+          <label className="grid gap-1">
+            <span className="admin-field-label">اسم واضح للمصدر</span>
+            <input
+              name="leadWebhookLabel"
+              defaultValue={initial?.leadWebhookLabel ?? ""}
+              className="admin-input"
+              placeholder="Make - Eid Offers"
+            />
+          </label>
+          <label className="grid gap-1 md:col-span-2">
+            <span className="admin-field-label">Make Webhook URL</span>
+            <input
+              name="leadWebhookUrl"
+              dir="ltr"
+              defaultValue={initial?.leadWebhookUrl ?? ""}
+              className="admin-input"
+              placeholder="https://hook.eu2.make.com/..."
+            />
+            <span className="text-muted-foreground text-[11px]">
+              هذا الرابط لا يظهر للزائر. يتم استخدامه من السيرفر بعد نجاح حفظ
+              الليد فقط.
+            </span>
+          </label>
+          <label className="grid gap-1 md:col-span-2">
+            <span className="admin-field-label">Secret Header اختياري</span>
+            <input
+              name="leadWebhookSecret"
+              dir="ltr"
+              defaultValue={initial?.leadWebhookSecret ?? ""}
+              className="admin-input"
+              placeholder="optional secret sent as x-rejuvera-webhook-secret"
+            />
+          </label>
+        </div>
+      </section>
 
       <section className="custom-page-editor-form__seo">
         <div>

@@ -84,7 +84,11 @@ export default async function CustomPage({
   const showHeader = readBuilderBoolean(page.htmlContent, "header");
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
-  const safeHtml = hardenCustomPageLeadForms(sanitizeHtml(page.htmlContent));
+  const safeHtml = hardenCustomPageLeadForms(
+    sanitizeHtml(page.htmlContent),
+    undefined,
+    page.slug,
+  );
 
   return (
     <>

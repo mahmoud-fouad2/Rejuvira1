@@ -254,26 +254,30 @@ model CrmComment {
 }
 
 model CustomPage {
-  id              String        @id @default(cuid())
-  slug            String        @unique
-  titleAr         String
-  titleEn         String?
-  htmlContent     String        @db.Text
-  seoTitle        String?
-  seoDescription  String?       @db.Text
-  metaTitle       String?
-  metaDescription String?       @db.Text
-  keywords        String[]      @default([])
-  ogTitle         String?
-  ogDescription   String?       @db.Text
-  ogImage         String?
-  seoSlug         String?
-  hashtags        String[]      @default([])
-  formConfig      Json?
-  status          ContentStatus @default(DRAFT)
-  noindex         Boolean       @default(false)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                 String        @id @default(cuid())
+  slug               String        @unique
+  titleAr            String
+  titleEn            String?
+  htmlContent        String        @db.Text
+  seoTitle           String?
+  seoDescription     String?       @db.Text
+  metaTitle          String?
+  metaDescription    String?       @db.Text
+  keywords           String[]      @default([])
+  ogTitle            String?
+  ogDescription      String?       @db.Text
+  ogImage            String?
+  seoSlug            String?
+  hashtags           String[]      @default([])
+  formConfig         Json?
+  leadWebhookEnabled Boolean       @default(false)
+  leadWebhookUrl     String?       @db.Text
+  leadWebhookSecret  String?
+  leadWebhookLabel   String?
+  status             ContentStatus @default(DRAFT)
+  noindex            Boolean       @default(false)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   @@index([status])
 }

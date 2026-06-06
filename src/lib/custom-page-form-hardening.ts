@@ -20,11 +20,16 @@ function ensureAttr(attrs: string, name: string, value: string) {
   return `${attrs} ${name}="${escapeAttr(value)}"`;
 }
 
-function formGuardFields(renderedAt: number) {
+function formGuardFields(renderedAt: number, pageSlug?: string) {
   return [
     `<input type="hidden" name="${LEAD_RENDERED_AT_FIELD}" value="${renderedAt}">`,
     `<input type="hidden" name="pageUrl" value="">`,
     `<input type="hidden" name="referrerUrl" value="">`,
+    ...(pageSlug
+      ? [
+          `<input type="hidden" name="landingPageSlug" value="${escapeAttr(pageSlug)}">`,
+        ]
+      : []),
     `<div aria-hidden="true" style="position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;">`,
     `<label>Company<input type="text" name="${LEAD_HONEYPOT_FIELD}" tabindex="-1" autocomplete="off"></label>`,
     `</div>`,
@@ -46,14 +51,51 @@ function hardenPhoneInput(match: string, attrs: string) {
   return `<input${nextAttrs}${closingSlash}>`;
 }
 
-export function hardenCustomPageLeadForms(html: string, renderedAt = Date.now()) {
+function shouldRewriteUnsafeAction(attrs: string) {
+  const action = attrs.match(/\baction\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
+  const value = (action?.[1] ?? action?.[2] ?? action?.[3] ?? "").trim();
+  if (!value) return false;
+  try {
+    const url = new URL(value);
+    return (
+      (url.protocol === "http:" || url.protocol === "https:") &&
+      /(^|\.)make\.com$|(^|\.)integromat\.com$|(^|\.)zapier\.com$|(^|\.)pipedream\.net$|^hook\./i.test(
+        url.hostname,
+      )
+    );
+  } catch {
+    return false;
+  }
+}
+
+function ensureSafeLeadAction(attrs: string) {
+  let nextAttrs = attrs;
+  if (shouldRewriteUnsafeAction(nextAttrs)) {
+    nextAttrs = nextAttrs.replace(
+      /\saction\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/i,
+      "",
+    );
+  }
+  nextAttrs = ensureAttr(nextAttrs, "action", "/api/leads");
+  nextAttrs = ensureAttr(nextAttrs, "method", "post");
+  return nextAttrs;
+}
+
+export function hardenCustomPageLeadForms(
+  html: string,
+  renderedAt = Date.now(),
+  pageSlug?: string,
+) {
   if (!html || !/<form\b/i.test(html)) return html;
 
   const withGuardedForms = html.replace(
     /<form\b([^>]*)>/gi,
     (match: string, attrs: string) => {
       if (hasAttr(attrs, "data-rejuvera-guard")) return match;
-      return `<form${ensureAttr(attrs, "data-rejuvera-guard", "1")}>${formGuardFields(renderedAt)}`;
+      const safeAttrs = ensureSafeLeadAction(
+        ensureAttr(attrs, "data-rejuvera-guard", "1"),
+      );
+      return `<form${safeAttrs}>${formGuardFields(renderedAt, pageSlug)}`;
     },
   );
 

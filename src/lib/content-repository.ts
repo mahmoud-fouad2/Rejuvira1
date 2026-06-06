@@ -178,6 +178,10 @@ export type CustomPageRecord = {
   seoSlug?: string | null;
   hashtags: readonly string[];
   formConfig?: Prisma.JsonValue | null;
+  leadWebhookEnabled: boolean;
+  leadWebhookUrl?: string | null;
+  leadWebhookSecret?: string | null;
+  leadWebhookLabel?: string | null;
   status: ContentStatus;
   noindex: boolean;
   createdAt: string;
@@ -573,6 +577,10 @@ export type CreateCustomPageInput = {
   seoSlug?: string | undefined;
   hashtags?: readonly string[] | undefined;
   formConfig?: Prisma.InputJsonValue | undefined;
+  leadWebhookEnabled?: boolean | undefined;
+  leadWebhookUrl?: string | undefined;
+  leadWebhookSecret?: string | undefined;
+  leadWebhookLabel?: string | undefined;
   status?: ContentStatus | undefined;
   noindex?: boolean | undefined;
 };
@@ -4693,6 +4701,10 @@ function mapCustomPageRecord(p: {
   seoSlug: string | null;
   hashtags: string[];
   formConfig: Prisma.JsonValue | null;
+  leadWebhookEnabled: boolean;
+  leadWebhookUrl: string | null;
+  leadWebhookSecret: string | null;
+  leadWebhookLabel: string | null;
   status: ContentStatus;
   noindex: boolean;
   createdAt: Date;
@@ -4715,6 +4727,10 @@ function mapCustomPageRecord(p: {
     seoSlug: p.seoSlug,
     hashtags: p.hashtags,
     formConfig: p.formConfig,
+    leadWebhookEnabled: p.leadWebhookEnabled,
+    leadWebhookUrl: p.leadWebhookUrl,
+    leadWebhookSecret: p.leadWebhookSecret,
+    leadWebhookLabel: p.leadWebhookLabel,
     status: p.status,
     noindex: p.noindex,
     createdAt: p.createdAt.toISOString(),
@@ -4741,9 +4757,48 @@ function customPageData(input: CreateCustomPageInput) {
     seoSlug: input.seoSlug || null,
     hashtags: [...(input.hashtags ?? [])],
     ...(input.formConfig !== undefined ? { formConfig: input.formConfig } : {}),
+    leadWebhookEnabled: input.leadWebhookEnabled ?? false,
+    leadWebhookUrl: input.leadWebhookUrl?.trim() || null,
+    leadWebhookSecret: input.leadWebhookSecret?.trim() || null,
+    leadWebhookLabel: input.leadWebhookLabel?.trim() || null,
     status: input.status ?? ContentStatus.DRAFT,
     noindex: input.noindex ?? false,
   };
+}
+
+export type CustomPageLeadWebhookConfig = {
+  id: string;
+  slug: string;
+  titleAr: string;
+  leadWebhookEnabled: boolean;
+  leadWebhookUrl?: string | null;
+  leadWebhookSecret?: string | null;
+  leadWebhookLabel?: string | null;
+};
+
+export async function getCustomPageLeadWebhookBySlug(
+  slug: string,
+): Promise<CustomPageLeadWebhookConfig | null> {
+  if (!canUseDatabase()) return null;
+  const safeSlug = slug.trim();
+  if (!safeSlug) return null;
+  try {
+    const page = await prisma.customPage.findFirst({
+      where: { OR: [{ slug: safeSlug }, { seoSlug: safeSlug }] },
+      select: {
+        id: true,
+        slug: true,
+        titleAr: true,
+        leadWebhookEnabled: true,
+        leadWebhookUrl: true,
+        leadWebhookSecret: true,
+        leadWebhookLabel: true,
+      },
+    });
+    return page;
+  } catch {
+    return null;
+  }
 }
 
 export async function getCustomPages(): Promise<CustomPageRecord[]> {

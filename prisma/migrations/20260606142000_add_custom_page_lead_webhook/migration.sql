@@ -1,0 +1,5 @@
+ALTER TABLE "CustomPage"
+  ADD COLUMN IF NOT EXISTS "leadWebhookEnabled" BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS "leadWebhookUrl" TEXT,
+  ADD COLUMN IF NOT EXISTS "leadWebhookSecret" TEXT,
+  ADD COLUMN IF NOT EXISTS "leadWebhookLabel" TEXT;

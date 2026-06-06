@@ -1527,7 +1527,7 @@ export function CustomPageBuilder({
                   </select>
                 </label>
                 <label>
-                  <span>رابط Make أو Action مخصص</span>
+                  <span>Action مباشر قديم - استخدم Webhook الصفحة بالأعلى</span>
                   <input
                     dir="ltr"
                     value={selected.formActionUrl ?? ""}
@@ -1541,6 +1541,10 @@ export function CustomPageBuilder({
                     }
                     placeholder="https://hook.eu2.make.com/..."
                   />
+                  <small>
+                    للحملات الجديدة اترك هذا الحقل فارغًا، وضع رابط Make في
+                    إعدادات الصفحة حتى يتم الإرسال بعد حفظ الليد في CRM.
+                  </small>
                 </label>
                 <label>
                   <span>حقول إضافية ديناميكية</span>

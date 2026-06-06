@@ -34,6 +34,10 @@ const baseSchema = z.object({
   seoSlug: z.string().max(80).regex(slugRegex).optional().or(z.literal("")),
   hashtags: z.string().max(1000).optional().or(z.literal("")),
   formConfig: z.string().max(50_000).optional().or(z.literal("")),
+  leadWebhookEnabled: z.coerce.boolean().optional().default(false),
+  leadWebhookUrl: z.string().url().max(1000).optional().or(z.literal("")),
+  leadWebhookSecret: z.string().max(300).optional().or(z.literal("")),
+  leadWebhookLabel: z.string().max(120).optional().or(z.literal("")),
   status: z.nativeEnum(ContentStatus).default(ContentStatus.DRAFT),
   noindex: z.coerce.boolean().optional().default(false),
 });
@@ -162,9 +166,23 @@ function customPagePayload(formData: FormData) {
     seoSlug: slugify(formString(formData, "seoSlug")),
     hashtags: formString(formData, "hashtags"),
     formConfig: formHtmlString(formData, "formConfig"),
+    leadWebhookEnabled: formBoolean(formData, "leadWebhookEnabled"),
+    leadWebhookUrl: normalizeOptionalUrl(formString(formData, "leadWebhookUrl")),
+    leadWebhookSecret: formString(formData, "leadWebhookSecret"),
+    leadWebhookLabel: truncate(formString(formData, "leadWebhookLabel"), 120),
     status: normalizeStatus(formString(formData, "status")),
     noindex: formBoolean(formData, "noindex"),
   };
+}
+
+function leadWebhookValidationMessage(data: {
+  leadWebhookEnabled: boolean;
+  leadWebhookUrl?: string | undefined;
+}) {
+  if (data.leadWebhookEnabled && !data.leadWebhookUrl) {
+    return "فعّلت Webhook الصفحة، لذلك يجب إدخال رابط Make صحيح يبدأ بـ https://.";
+  }
+  return "";
 }
 
 function validationMessage(error: z.ZodError) {
@@ -210,6 +228,10 @@ export async function POST(request: Request) {
     logValidationError("create", parsed.error);
     return json("error", validationMessage(parsed.error), { status: 400 });
   }
+  const leadWebhookError = leadWebhookValidationMessage(parsed.data);
+  if (leadWebhookError) {
+    return json("error", leadWebhookError, { status: 400 });
+  }
 
   try {
     const result = await createCustomPage({
@@ -229,6 +251,10 @@ export async function POST(request: Request) {
       seoSlug: parsed.data.seoSlug,
       hashtags: parseList(parsed.data.hashtags),
       formConfig: parseFormConfig(parsed.data.formConfig),
+      leadWebhookEnabled: parsed.data.leadWebhookEnabled,
+      leadWebhookUrl: parsed.data.leadWebhookUrl,
+      leadWebhookSecret: parsed.data.leadWebhookSecret,
+      leadWebhookLabel: parsed.data.leadWebhookLabel,
       status: parsed.data.status,
       noindex: parsed.data.noindex,
     });
@@ -259,6 +285,10 @@ export async function PUT(request: Request) {
     logValidationError("update", parsed.error);
     return json("error", validationMessage(parsed.error), { status: 400 });
   }
+  const leadWebhookError = leadWebhookValidationMessage(parsed.data);
+  if (leadWebhookError) {
+    return json("error", leadWebhookError, { status: 400 });
+  }
 
   try {
     await updateCustomPage({
@@ -279,6 +309,10 @@ export async function PUT(request: Request) {
       seoSlug: parsed.data.seoSlug,
       hashtags: parseList(parsed.data.hashtags),
       formConfig: parseFormConfig(parsed.data.formConfig),
+      leadWebhookEnabled: parsed.data.leadWebhookEnabled,
+      leadWebhookUrl: parsed.data.leadWebhookUrl,
+      leadWebhookSecret: parsed.data.leadWebhookSecret,
+      leadWebhookLabel: parsed.data.leadWebhookLabel,
       status: parsed.data.status,
       noindex: parsed.data.noindex,
     });

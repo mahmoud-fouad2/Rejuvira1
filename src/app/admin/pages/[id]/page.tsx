@@ -79,6 +79,10 @@ export default async function EditCustomPagePage({
           seoSlug: page.seoSlug ?? "",
           hashtags: page.hashtags,
           formConfig: page.formConfig ?? null,
+          leadWebhookEnabled: page.leadWebhookEnabled,
+          leadWebhookUrl: page.leadWebhookUrl ?? "",
+          leadWebhookSecret: page.leadWebhookSecret ?? "",
+          leadWebhookLabel: page.leadWebhookLabel ?? "",
           status: page.status,
           noindex: page.noindex,
         }}

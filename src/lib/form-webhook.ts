@@ -15,34 +15,55 @@ type DispatchFormWebhookInput = {
   timeoutMs?: number;
 };
 
-export async function dispatchFormWebhook({
-  settings,
+type DispatchJsonWebhookInput = {
+  url: string;
+  secret?: string | null | undefined;
+  payload: Record<string, unknown>;
+  failureMessage: string;
+  timeoutMs?: number;
+  logMeta?: Record<string, unknown>;
+};
+
+export async function dispatchJsonWebhook({
+  url,
+  secret,
   payload,
   failureMessage,
   timeoutMs = 3500,
-}: DispatchFormWebhookInput) {
-  if (!settings.integrations.formWebhookEnabled) return;
-  if (!settings.integrations.formWebhookUrl.trim()) return;
+  logMeta = {},
+}: DispatchJsonWebhookInput) {
+  const webhookUrl = url.trim();
+  if (!webhookUrl) return;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    await fetch(settings.integrations.formWebhookUrl, {
+    const response = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        ...(settings.integrations.formWebhookSecret
+        ...(secret?.trim()
           ? {
-              "x-rejuvera-webhook-secret":
-                settings.integrations.formWebhookSecret,
-              "x-rejuvira-webhook-secret":
-                settings.integrations.formWebhookSecret,
+              "x-rejuvera-webhook-secret": secret.trim(),
+              "x-rejuvira-webhook-secret": secret.trim(),
             }
           : {}),
       },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
+    if (!response.ok) {
+      await recordAppLog({
+        level: "warn",
+        kind: "webhook",
+        message: failureMessage,
+        meta: {
+          httpStatus: response.status,
+          source: payload.source,
+          ...logMeta,
+        },
+      });
+    }
   } catch (error) {
     await recordAppLog({
       level: "warn",
@@ -51,9 +72,27 @@ export async function dispatchFormWebhook({
       meta: {
         error: error instanceof Error ? error.message : "unknown",
         source: payload.source,
+        ...logMeta,
       },
     });
   } finally {
     clearTimeout(timer);
   }
+}
+
+export async function dispatchFormWebhook({
+  settings,
+  payload,
+  failureMessage,
+  timeoutMs = 3500,
+}: DispatchFormWebhookInput) {
+  if (!settings.integrations.formWebhookEnabled) return;
+  await dispatchJsonWebhook({
+    url: settings.integrations.formWebhookUrl,
+    secret: settings.integrations.formWebhookSecret,
+    payload,
+    failureMessage,
+    timeoutMs,
+    logMeta: { webhookScope: "global-form" },
+  });
 }

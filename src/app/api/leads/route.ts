@@ -5,10 +5,11 @@ import { z } from "zod";
 import { recordAppLog } from "@/lib/app-log";
 import {
   createContactLead,
+  getCustomPageLeadWebhookBySlug,
   getRuntimeSettings,
   getServiceByReference,
 } from "@/lib/content-repository";
-import { dispatchFormWebhook } from "@/lib/form-webhook";
+import { dispatchFormWebhook, dispatchJsonWebhook } from "@/lib/form-webhook";
 import {
   GENERAL_INQUIRY_SERVICE_AR,
   GENERAL_INQUIRY_SERVICE_VALUE,
@@ -56,6 +57,12 @@ const leadSchema = z.object({
   utmContent: z.string().max(120).optional().or(z.literal("")),
   pageUrl: z.string().max(1000).optional().or(z.literal("")),
   landingPageUrl: z.string().max(1000).optional().or(z.literal("")),
+  landingPageSlug: z
+    .string()
+    .max(80)
+    .regex(/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/)
+    .optional()
+    .or(z.literal("")),
   referrerUrl: z.string().max(1000).optional().or(z.literal("")),
 });
 
@@ -125,6 +132,9 @@ async function readLeadPayload(request: Request) {
         payloadString(payload, "utm_content"),
       pageUrl: payloadString(payload, "pageUrl"),
       landingPageUrl: payloadString(payload, "landingPageUrl"),
+      landingPageSlug:
+        payloadString(payload, "landingPageSlug") ||
+        payloadString(payload, "pageSlug"),
       referrerUrl: payloadString(payload, "referrerUrl"),
       [LEAD_HONEYPOT_FIELD]: payloadString(payload, LEAD_HONEYPOT_FIELD),
       [LEAD_RENDERED_AT_FIELD]: payloadString(payload, LEAD_RENDERED_AT_FIELD),
@@ -161,10 +171,24 @@ async function readLeadPayload(request: Request) {
       formString(formData, "utmContent") || formString(formData, "utm_content"),
     pageUrl: formString(formData, "pageUrl"),
     landingPageUrl: formString(formData, "landingPageUrl"),
+    landingPageSlug:
+      formString(formData, "landingPageSlug") || formString(formData, "pageSlug"),
     referrerUrl: formString(formData, "referrerUrl"),
     [LEAD_HONEYPOT_FIELD]: formString(formData, LEAD_HONEYPOT_FIELD),
     [LEAD_RENDERED_AT_FIELD]: formString(formData, LEAD_RENDERED_AT_FIELD),
   };
+}
+
+function extractCustomPageSlugFromUrl(value?: string | null) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    const match = url.pathname.match(/^\/p\/([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?:\/)?$/i);
+    return match?.[1]?.toLowerCase() ?? "";
+  } catch {
+    const match = value.match(/\/p\/([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?:[/?#]|$)/i);
+    return match?.[1]?.toLowerCase() ?? "";
+  }
 }
 
 function response(
@@ -325,47 +349,82 @@ export async function POST(request: Request) {
       }, "duplicate");
     }
 
+    const landingPageUrl =
+      parsed.data.landingPageUrl ||
+      parsed.data.pageUrl ||
+      request.headers.get("referer") ||
+      "";
+    const landingPageSlug =
+      parsed.data.landingPageSlug ||
+      extractCustomPageSlugFromUrl(landingPageUrl);
+    const leadWebhookPayload = {
+      event: "landing_lead.created",
+      source: parsed.data.source || "Landing page form",
+      submittedAt: new Date().toISOString(),
+      mode: result.mode,
+      submissionId:
+        result.mode === "database" ? result.submission.id : undefined,
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone,
+      email: parsed.data.email || undefined,
+      message: parsed.data.message || undefined,
+      serviceSlug: serviceArabicName,
+      serviceSlugRaw:
+        selectedService?.slug ||
+        (isGeneralInquiry
+          ? GENERAL_INQUIRY_SERVICE_VALUE
+          : parsed.data.serviceSlug) ||
+        undefined,
+      serviceReference: isGeneralInquiry
+        ? GENERAL_INQUIRY_SERVICE_VALUE
+        : serviceReference || undefined,
+      service: serviceArabicName,
+      serviceName: serviceArabicName,
+      serviceLabel: serviceArabicName,
+      serviceType: serviceArabicName,
+      serviceTypeAr: serviceArabicName,
+      landingPageSlug: landingPageSlug || undefined,
+      landingPageUrl: landingPageUrl || undefined,
+      pageUrl: parsed.data.pageUrl || undefined,
+      referrerUrl: parsed.data.referrerUrl || undefined,
+      utmSource: parsed.data.utmSource || undefined,
+      utmMedium: parsed.data.utmMedium || undefined,
+      utmCampaign: parsed.data.utmCampaign || undefined,
+      utmContent: parsed.data.utmContent || undefined,
+      utm_source: parsed.data.utmSource || undefined,
+      utm_medium: parsed.data.utmMedium || undefined,
+      utm_campaign: parsed.data.utmCampaign || undefined,
+      utm_content: parsed.data.utmContent || undefined,
+      preferredLanguage: parsed.data.preferredLanguage || "ar",
+    };
     const settings = await getRuntimeSettings();
     await dispatchFormWebhook({
       settings,
       failureMessage: "Landing page webhook delivery failed",
-      payload: {
-        event: "landing_lead.created",
-        source: parsed.data.source || "Landing page form",
-        submittedAt: new Date().toISOString(),
-        mode: result.mode,
-        submissionId:
-          result.mode === "database" ? result.submission.id : undefined,
-        fullName: parsed.data.fullName,
-        phone: parsed.data.phone,
-        email: parsed.data.email || undefined,
-        message: parsed.data.message || undefined,
-        serviceSlug: serviceArabicName,
-        serviceSlugRaw:
-          selectedService?.slug ||
-          (isGeneralInquiry
-            ? GENERAL_INQUIRY_SERVICE_VALUE
-            : parsed.data.serviceSlug) ||
-          undefined,
-        serviceReference: isGeneralInquiry
-          ? GENERAL_INQUIRY_SERVICE_VALUE
-          : serviceReference || undefined,
-        service: serviceArabicName,
-        serviceName: serviceArabicName,
-        serviceLabel: serviceArabicName,
-        serviceType: serviceArabicName,
-        serviceTypeAr: serviceArabicName,
-        utmSource: parsed.data.utmSource || undefined,
-        utmMedium: parsed.data.utmMedium || undefined,
-        utmCampaign: parsed.data.utmCampaign || undefined,
-        utmContent: parsed.data.utmContent || undefined,
-        utm_source: parsed.data.utmSource || undefined,
-        utm_medium: parsed.data.utmMedium || undefined,
-        utm_campaign: parsed.data.utmCampaign || undefined,
-        utm_content: parsed.data.utmContent || undefined,
-        preferredLanguage: parsed.data.preferredLanguage || "ar",
-      },
+      payload: leadWebhookPayload,
     });
+    if (landingPageSlug) {
+      const pageWebhook = await getCustomPageLeadWebhookBySlug(landingPageSlug);
+      if (pageWebhook?.leadWebhookEnabled && pageWebhook.leadWebhookUrl) {
+        await dispatchJsonWebhook({
+          url: pageWebhook.leadWebhookUrl,
+          secret: pageWebhook.leadWebhookSecret,
+          failureMessage: "Custom page lead webhook delivery failed",
+          payload: {
+            ...leadWebhookPayload,
+            event: "custom_page_lead.created",
+            pageTitle: pageWebhook.titleAr,
+            pageWebhookLabel:
+              pageWebhook.leadWebhookLabel || pageWebhook.titleAr,
+          },
+          logMeta: {
+            webhookScope: "custom-page",
+            pageSlug: pageWebhook.slug,
+            pageId: pageWebhook.id,
+          },
+        });
+      }
+    }
 
     revalidatePath("/admin/crm");
     if (jsonResponse) {
