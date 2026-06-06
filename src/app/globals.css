@@ -13871,6 +13871,72 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   color: var(--admin-text-faint);
   font-size: 0.68rem;
 }
+.pagecraft-library-search {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.8rem 0.8rem 0;
+}
+.pagecraft-library-search input {
+  width: 100%;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.75rem;
+  background: var(--admin-panel);
+  color: var(--admin-text);
+  font-size: 0.76rem;
+  font-weight: 700;
+  outline: none;
+  padding: 0.7rem 0.8rem;
+}
+.pagecraft-library-search input:focus {
+  border-color: rgba(138, 78, 193, 0.52);
+  box-shadow: 0 0 0 3px rgba(138, 78, 193, 0.1);
+}
+.pagecraft-library-search span {
+  color: var(--admin-text-faint);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+.pagecraft-elements--grouped {
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+.pagecraft-element-group {
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+.pagecraft-element-group__head {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.72rem 0.78rem;
+  border-bottom: 1px solid var(--admin-border);
+  background: linear-gradient(
+    135deg,
+    rgba(138, 78, 193, 0.1),
+    rgba(201, 162, 106, 0.09)
+  );
+}
+.pagecraft-element-group__head strong {
+  color: var(--admin-text);
+  font-size: 0.78rem;
+}
+.pagecraft-element-group__head span {
+  color: var(--admin-text-faint);
+  font-size: 0.66rem;
+}
+.pagecraft-element-group__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding: 0.65rem;
+}
+.pagecraft-element-group__grid button {
+  min-height: 5.2rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.7)),
+    var(--admin-panel);
+}
 .pagecraft-devices {
   display: flex;
   gap: 0.4rem;
@@ -13894,6 +13960,40 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   background:
     radial-gradient(rgba(31, 16, 64, 0.12) 1px, transparent 1px), #edf0f4;
   background-size: 18px 18px;
+}
+.pagecraft-canvas-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  width: min(100%, 980px);
+  margin: 0 auto 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem;
+  border: 1px solid rgba(138, 78, 193, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 12px 30px rgba(31, 16, 64, 0.12);
+  backdrop-filter: blur(12px);
+}
+.pagecraft-canvas-toolbar span,
+.pagecraft-canvas-toolbar strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.65rem;
+  border-radius: 999px;
+  background: rgba(74, 36, 118, 0.07);
+  color: var(--admin-text);
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 0.22rem 0.65rem;
+}
+.pagecraft-canvas-toolbar strong {
+  background: rgba(138, 78, 193, 0.14);
+  color: var(--admin-accent);
 }
 .pagecraft-canvas {
   width: min(100%, 980px);
@@ -13963,6 +14063,27 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   display: grid;
   gap: 0.8rem;
   padding: 0.8rem;
+}
+.pagecraft-selected-card {
+  display: grid;
+  gap: 0.22rem;
+  padding: 0.82rem;
+  border: 1px solid rgba(138, 78, 193, 0.22);
+  border-radius: 0.85rem;
+  background: linear-gradient(
+    135deg,
+    rgba(138, 78, 193, 0.1),
+    rgba(201, 162, 106, 0.08)
+  );
+}
+.pagecraft-selected-card strong {
+  color: var(--admin-text);
+  font-size: 0.82rem;
+}
+.pagecraft-selected-card span {
+  color: var(--admin-text-faint);
+  font-size: 0.7rem;
+  line-height: 1.6;
 }
 .pagecraft-props label {
   display: grid;

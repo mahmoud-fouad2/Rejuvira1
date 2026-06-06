@@ -97,7 +97,19 @@ type ServiceOption = {
   category?: string | null;
 };
 
-const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
+type BlockLibraryItem = {
+  kind: BlockKind;
+  label: string;
+  hint: string;
+};
+
+type BlockLibraryGroup = {
+  label: string;
+  hint: string;
+  kinds: BlockKind[];
+};
+
+const blockLibrary: BlockLibraryItem[] = [
   { kind: "hero", label: "Hero", hint: "واجهة أولى مع صورة وزر" },
   { kind: "campaignHero", label: "Hero + Form", hint: "واجهة حملة بفورم فوري" },
   { kind: "text", label: "Text", hint: "محتوى طبي منظم" },
@@ -122,6 +134,33 @@ const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
   { kind: "leadForm", label: "Lead Form", hint: "فورم يحفظ في CRM" },
   { kind: "contact", label: "Contact", hint: "بيانات تواصل" },
   { kind: "cta", label: "CTA", hint: "دعوة للحجز" },
+];
+
+const blockLibraryByKind = new Map(
+  blockLibrary.map((item) => [item.kind, item] as const),
+);
+
+const blockGroups: BlockLibraryGroup[] = [
+  {
+    label: "حملات وتحويل",
+    hint: "Hero، عروض، فورم، ودعوة للحجز",
+    kinds: ["campaignHero", "offerGrid", "pricing", "offer", "leadForm", "cta"],
+  },
+  {
+    label: "محتوى وثقة",
+    hint: "نصوص، خطوات، أسئلة، مؤشرات وثقة",
+    kinds: ["text", "stats", "steps", "trustBar", "comparison", "faq", "seoArticle"],
+  },
+  {
+    label: "ميديا ونتائج",
+    hint: "صور، معرض، قبل/بعد، فيديو",
+    kinds: ["image", "gallery", "mediaMosaic", "beforeAfter", "video"],
+  },
+  {
+    label: "طبي وتنظيم",
+    hint: "خدمات، أطباء، أجهزة، تواصل",
+    kinds: ["hero", "services", "doctors", "devices", "testimonial", "contact"],
+  },
 ];
 
 const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
@@ -1117,11 +1156,36 @@ export function CustomPageBuilder({
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [mode, setMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [showCode, setShowCode] = useState(false);
+  const [elementSearch, setElementSearch] = useState("");
   const [galleryDraftImage, setGalleryDraftImage] = useState("");
   const [beforeDraftImage, setBeforeDraftImage] = useState("");
   const [afterDraftImage, setAfterDraftImage] = useState("");
   const selected = blocks.find((block) => block.id === selectedId) ?? blocks[0];
+  const selectedLibraryItem = selected
+    ? blockLibraryByKind.get(selected.kind)
+    : undefined;
   const html = useMemo(() => renderPage(blocks), [blocks]);
+  const groupedBlockLibrary = useMemo(() => {
+    const query = elementSearch.trim().toLowerCase();
+    return blockGroups
+      .map((group) => ({
+        ...group,
+        items: group.kinds
+          .map((kind) => blockLibraryByKind.get(kind))
+          .filter((item): item is BlockLibraryItem => Boolean(item))
+          .filter((item) => {
+            if (!query) return true;
+            return `${item.kind} ${item.label} ${item.hint} ${group.label}`
+              .toLowerCase()
+              .includes(query);
+          }),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [elementSearch]);
+  const visibleBlockCount = groupedBlockLibrary.reduce(
+    (total, group) => total + group.items.length,
+    0,
+  );
   const builderServiceOptions = useMemo(
     () => withGeneralInquiryOption([...serviceOptions]),
     [serviceOptions],
@@ -1288,17 +1352,41 @@ export function CustomPageBuilder({
         </div>
 
         <div className="pagecraft-panel__header">العناصر</div>
-        <div className="pagecraft-elements">
-          {blockLibrary.map((item) => (
-            <button
-              key={item.kind}
-              type="button"
-              onClick={() => add(item.kind)}
-            >
-              <strong>{item.label}</strong>
-              <span>{item.hint}</span>
-            </button>
+        <div className="pagecraft-library-search">
+          <input
+            value={elementSearch}
+            onChange={(event) => setElementSearch(event.target.value)}
+            placeholder="بحث عن مكون..."
+            aria-label="بحث عن مكون PageCraft"
+          />
+          <span>{visibleBlockCount} مكون متاح</span>
+        </div>
+        <div className="pagecraft-elements pagecraft-elements--grouped">
+          {groupedBlockLibrary.map((group) => (
+            <section key={group.label} className="pagecraft-element-group">
+              <div className="pagecraft-element-group__head">
+                <strong>{group.label}</strong>
+                <span>{group.hint}</span>
+              </div>
+              <div className="pagecraft-element-group__grid">
+                {group.items.map((item) => (
+                  <button
+                    key={item.kind}
+                    type="button"
+                    onClick={() => add(item.kind)}
+                  >
+                    <strong>{item.label}</strong>
+                    <span>{item.hint}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
           ))}
+          {visibleBlockCount === 0 ? (
+            <p className="pagecraft-empty">
+              لا توجد مكونات مطابقة للبحث الحالي.
+            </p>
+          ) : null}
         </div>
 
         <div className="pagecraft-panel__header">المعاينة</div>
@@ -1324,6 +1412,11 @@ export function CustomPageBuilder({
       </aside>
 
       <main className="pagecraft-canvas-wrap">
+        <div className="pagecraft-canvas-toolbar" aria-live="polite">
+          <span>{blocks.length} بلوك</span>
+          <span>{mode}</span>
+          {selectedLibraryItem ? <strong>{selectedLibraryItem.label}</strong> : null}
+        </div>
         {showCode ? (
           <textarea className="pagecraft-code" readOnly value={html} />
         ) : (
@@ -1375,6 +1468,13 @@ export function CustomPageBuilder({
         <div className="pagecraft-panel__header">الخصائص</div>
         {selected ? (
           <div className="pagecraft-props">
+            <div className="pagecraft-selected-card">
+              <strong>{selectedLibraryItem?.label ?? selected.kind}</strong>
+              <span>
+                {selectedLibraryItem?.hint ??
+                  "مكون قابل للتعديل من لوحة الخصائص."}
+              </span>
+            </div>
             <label>
               <span>العنوان</span>
               <input
