@@ -436,15 +436,9 @@ export async function POST(request: Request) {
       leadWebhookPayload: ReturnType<typeof buildLeadWebhookPayload>,
       customPageEvent: "custom_page_lead.created" | "custom_page_lead.repeated",
     ) => {
-      const settings = await getRuntimeSettings();
-      await dispatchFormWebhook({
-        settings,
-        failureMessage: "Landing page webhook delivery failed",
-        payload: leadWebhookPayload,
-      });
-      if (!landingPageSlug) return;
-
-      const pageWebhook = await getCustomPageLeadWebhookBySlug(landingPageSlug);
+      const pageWebhook = landingPageSlug
+        ? await getCustomPageLeadWebhookBySlug(landingPageSlug)
+        : null;
       if (pageWebhook?.leadWebhookEnabled && pageWebhook.leadWebhookUrl) {
         await dispatchJsonWebhook({
           url: pageWebhook.leadWebhookUrl,
@@ -463,7 +457,15 @@ export async function POST(request: Request) {
             pageId: pageWebhook.id,
           },
         });
+        return;
       }
+
+      const settings = await getRuntimeSettings();
+      await dispatchFormWebhook({
+        settings,
+        failureMessage: "Landing page webhook delivery failed",
+        payload: leadWebhookPayload,
+      });
     };
 
     if (result.mode === "duplicate") {

@@ -222,7 +222,11 @@ function normalizePhone(value: string) {
 }
 
 function getLastInteractionIso(submission: CrmRecord) {
-  return submission.comments[0]?.createdAt ?? submission.createdAt;
+  return (
+    submission.comments[0]?.createdAt ??
+    submission.updatedAt ??
+    submission.createdAt
+  );
 }
 
 function withinSameSaudiDay(iso: string | undefined, now: number) {
@@ -362,7 +366,7 @@ export function CrmFilterBar({
     useState<AdvancedFilters>(emptyAdvancedFilters);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [sortKey, setSortKey] = useState<SortKey>("createdAt");
+  const [sortKey, setSortKey] = useState<SortKey>("lastInteraction");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [bulkStatus, setBulkStatus] = useState<SubmissionStatus>(
     SubmissionStatus.CONTACTED,

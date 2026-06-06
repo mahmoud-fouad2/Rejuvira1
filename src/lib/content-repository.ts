@@ -136,6 +136,7 @@ export type CrmRecord = {
   status: SubmissionStatus;
   source: string;
   createdAt: string;
+  updatedAt?: string | undefined;
   notes?: string | undefined;
   tags: readonly string[];
   assignedToId?: string | undefined;
@@ -2983,7 +2984,7 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
           orderBy: [{ createdAt: "desc" }],
         },
       },
-      orderBy: [{ createdAt: "desc" }],
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
     });
 
     return submissions.map((submission) => {
@@ -3012,6 +3013,7 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
         status: submission.status,
         source: readableSource,
         createdAt: submission.createdAt.toISOString(),
+        updatedAt: submission.updatedAt.toISOString(),
         notes: submission.internalNotes ?? undefined,
         tags: submission.tags ?? [],
         assignedToId: submission.assignedTo?.id,
@@ -4377,6 +4379,11 @@ export async function createContactLead(
       where: { id },
       data: {
         updatedAt: new Date(),
+        fullName: input.fullName,
+        preferredLanguage: input.preferredLanguage ?? "ar",
+        source,
+        ...(input.email ? { email: input.email } : {}),
+        ...(input.message ? { message: input.message } : {}),
         ...(input.utmSource ? { utmSource: input.utmSource } : {}),
         ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
         ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
@@ -4399,7 +4406,7 @@ export async function createContactLead(
         phone: input.phone,
         createdAt: { gte: duplicateSince },
       },
-      orderBy: [{ createdAt: "desc" }],
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
     });
 
     if (duplicate) {
@@ -4423,7 +4430,7 @@ export async function createContactLead(
           ...(input.webhookId ? [{ webhookId: input.webhookId }] : []),
         ],
       },
-      orderBy: [{ createdAt: "desc" }],
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
     });
 
     if (duplicate) {
