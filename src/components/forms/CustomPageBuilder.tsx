@@ -15,6 +15,7 @@ import {
 
 type BlockKind =
   | "hero"
+  | "campaignHero"
   | "text"
   | "image"
   | "stats"
@@ -26,9 +27,12 @@ type BlockKind =
   | "trustBar"
   | "comparison"
   | "pricing"
+  | "offerGrid"
   | "faq"
   | "steps"
   | "offer"
+  | "mediaMosaic"
+  | "seoArticle"
   | "testimonial"
   | "video"
   | "leadForm"
@@ -95,6 +99,7 @@ type ServiceOption = {
 
 const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
   { kind: "hero", label: "Hero", hint: "واجهة أولى مع صورة وزر" },
+  { kind: "campaignHero", label: "Hero + Form", hint: "واجهة حملة بفورم فوري" },
   { kind: "text", label: "Text", hint: "محتوى طبي منظم" },
   { kind: "image", label: "Image", hint: "صورة أو حالة بصرية" },
   { kind: "stats", label: "Stats", hint: "أرقام ومؤشرات" },
@@ -106,9 +111,12 @@ const blockLibrary: Array<{ kind: BlockKind; label: string; hint: string }> = [
   { kind: "trustBar", label: "Trust Bar", hint: "اعتمادات ومؤشرات ثقة" },
   { kind: "comparison", label: "Comparison", hint: "مقارنة خيارات أو باقات" },
   { kind: "pricing", label: "Packages", hint: "باقات حملة أو عروض" },
+  { kind: "offerGrid", label: "Offer Grid", hint: "كروت عروض بأسعار ومزايا" },
   { kind: "faq", label: "FAQ", hint: "أسئلة شائعة" },
   { kind: "steps", label: "Steps", hint: "مسار زيارة أو علاج" },
   { kind: "offer", label: "Offer", hint: "عرض أو باقة للحملة" },
+  { kind: "mediaMosaic", label: "Media Mosaic", hint: "صور كبيرة وصغيرة بتنسيق فاخر" },
+  { kind: "seoArticle", label: "SEO Article", hint: "مقال/نص طويل منسق للسيو" },
   { kind: "testimonial", label: "Review", hint: "اقتباس وتجربة عميل" },
   { kind: "video", label: "Video", hint: "فيديو أو صورة معاينة" },
   { kind: "leadForm", label: "Lead Form", hint: "فورم يحفظ في CRM" },
@@ -127,6 +135,22 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     accent: "#4a2476",
     tone: "soft",
     align: "right",
+  },
+  campaignHero: {
+    title: "اختاري عرضك الآن وسيتم التواصل معك خلال دقائق",
+    subtitle: "عروض ريجوفيرا",
+    body: "واجهة حملة إعلانية جاهزة بفورم سريع، أزرار واضحة، ومؤشرات ثقة مختصرة تساعد الزائر على إرسال الطلب بدون تشتيت.\nاختاري الخدمة أو العرض المناسب وسيقوم فريق ريجوفيرا بالتواصل للتأكيد.",
+    imageUrl: "/media/curated/clinic-treatment-room.jpeg",
+    buttonLabel: "إرسال طلب",
+    buttonHref: "#lead-form",
+    accent: "#4a2476",
+    tone: "dark",
+    align: "right",
+    fontSize: "lg",
+    formServiceMode: "select",
+    formEmailMode: "hidden",
+    formShowMessage: false,
+    formServiceOptions: `${GENERAL_INQUIRY_SERVICE_AR}|${GENERAL_INQUIRY_SERVICE_VALUE}`,
   },
   text: {
     title: "لماذا هذه الصفحة؟",
@@ -212,6 +236,16 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     tone: "light",
     align: "right",
   },
+  offerGrid: {
+    title: "اختاري العرض المناسب لك",
+    subtitle: "عروض قابلة للتعديل",
+    body: "700|فوتونا|فوتونا للبشرة الصافية|نضارة للبشرة والتصبغات وآثار الشباب|تفتيح المسام,تحسين اللون,جلسة سريعة\n1500|مورفيوس|جلسة مورفيوس|لتحسين المسام وآثار حب الشباب|تحسين المسام,ملمس البشرة,تحفيز الكولاجين\n2000|باقة متكاملة|فوتونا + تنظيف طبي + ماسك الذهب|باقة عناية للبشرة المناسبة قبل المناسبات|تنظيف عميق,نضارة فورية,شد لطيف للبشرة\n3000|إمسكالبّت|إمسكالبّت نيو للبطن|نحت وتقوية عضلات بدون جراحة|تقوية العضلات,شد الترهلات,جلسة مريحة",
+    buttonLabel: "اختيار العرض",
+    buttonHref: "#lead-form",
+    accent: "#4a2476",
+    tone: "light",
+    align: "right",
+  },
   faq: {
     title: "أسئلة شائعة",
     body: "هل أحتاج إلى استشارة قبل الإجراء؟|نعم، التقييم يساعد على اختيار الخطة الأنسب.\nمتى تظهر النتيجة؟|يختلف ذلك حسب الإجراء وطبيعة الحالة.\nهل يمكن تعديل الصفحة لاحقًا؟|نعم، يمكن تعديل البلوكات وإعادة ترتيبها من لوحة التحكم.",
@@ -234,6 +268,26 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     buttonHref: "#lead-form",
     accent: "#4a2476",
     tone: "soft",
+    align: "right",
+  },
+  mediaMosaic: {
+    title: "صور من مركز ريجوفيرا الطبي",
+    subtitle: "بيئة طبية هادئة ومنظمة",
+    body: "/media/curated/clinic-treatment-room.jpeg|غرف علاج مجهزة|خصوصية وراحة أثناء الزيارة\n/media/curated/clinic-reception.jpeg|استقبال وتنظيم|رحلة واضحة من أول تواصل\n/media/curated/service-skin-rejuvenation.webp|تقنيات حديثة|أجهزة وخطط علاجية متكاملة",
+    imageUrl: "/media/curated/clinic-treatment-room.jpeg",
+    accent: "#4a2476",
+    tone: "soft",
+    align: "right",
+    imageFit: "cover",
+  },
+  seoArticle: {
+    title: "معلومات مهمة قبل الحجز",
+    subtitle: "محتوى قابل للتعديل للسيو والحملات",
+    body: "تساعدك هذه الصفحة على شرح العرض أو الخدمة بلغة واضحة للزائر ومحركات البحث في نفس الوقت. ابدأي بتوضيح المشكلة، ثم الحل، ثم لماذا اختيار ريجوفيرا مناسب لهذه الحالة.\nيمكنك إضافة فقرات عن المرشح المناسب، مدة الزيارة، طريقة المتابعة، وما الذي يحدث بعد إرسال الطلب. اجعل النص واضحًا، بدون وعود مبالغ فيها، ومرتبطًا بالخدمة الفعلية داخل المركز.\nاستخدمي هذا البلوك في نهاية الصفحة لدعم SEO وGoogle Ads Landing Page Quality مع الحفاظ على تجربة قراءة هادئة.",
+    buttonLabel: "طلب استشارة",
+    buttonHref: "#lead-form",
+    accent: "#4a2476",
+    tone: "light",
     align: "right",
   },
   testimonial: {
@@ -288,6 +342,25 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
 };
 
 const templates: Array<{ label: string; blocks: BlockKind[] }> = [
+  {
+    label: "Landing Pro",
+    blocks: [
+      "campaignHero",
+      "offerGrid",
+      "mediaMosaic",
+      "trustBar",
+      "beforeAfter",
+      "doctors",
+      "steps",
+      "faq",
+      "seoArticle",
+      "cta",
+    ],
+  },
+  {
+    label: "Offers Pro",
+    blocks: ["campaignHero", "offerGrid", "trustBar", "faq", "seoArticle", "cta"],
+  },
   {
     label: "صفحة خدمة",
     blocks: [
@@ -513,6 +586,49 @@ function parseBeforeAfter(value = "") {
     .filter((item) => item.title);
 }
 
+function parseOfferCards(value = "") {
+  return value
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [
+        price = "",
+        badge = "",
+        title = "",
+        body = "",
+        perks = "",
+      ] = line.split("|");
+      return {
+        price: price.trim(),
+        badge: badge.trim(),
+        title: title.trim(),
+        body: body.trim(),
+        perks: perks
+          .split(/[,\n،]+/)
+          .map((item) => item.trim())
+          .filter(Boolean),
+      };
+    })
+    .filter((item) => item.title);
+}
+
+function parseMediaItems(value = "") {
+  return value
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [image = "", title = "", body = ""] = line.split("|");
+      return {
+        image: image.trim(),
+        title: title.trim(),
+        body: body.trim(),
+      };
+    })
+    .filter((item) => item.image || item.title);
+}
+
 function parseServiceOptions(value = "") {
   return value
     .split(/\n+/)
@@ -627,8 +743,71 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-hero")}" ${style}><div><small>${subtitle}</small><h1>${title}</h1>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></div><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"></figure></section>`;
   }
 
+  if (block.kind === "campaignHero") {
+    const tag = mode === "preview" ? "div" : "form";
+    const formAction = escapeHtml(
+      block.formActionUrl?.trim() ||
+        (block.webhookToken
+          ? `/api/webhooks/${encodeURIComponent(block.webhookToken)}`
+          : "/api/leads"),
+    );
+    const disabled = mode === "preview" ? " disabled" : "";
+    const required = mode === "preview" ? "" : " required";
+    const formAttrs =
+      mode === "preview"
+        ? `class="rv-builder-campaign-form" aria-label="Campaign lead form preview"`
+        : `class="rv-builder-campaign-form" action="${formAction}" method="post"`;
+    const emailMode = block.formEmailMode ?? "hidden";
+    const showMessage = block.formShowMessage ?? false;
+    const serviceMode = block.formServiceMode ?? "select";
+    const serviceOptions = withGeneralInquiryFormOption(
+      parseServiceOptions(block.formServiceOptions),
+    );
+    const selectedService = block.serviceSlug || block.serviceName || "";
+    const serviceSelectOptions = serviceOptions
+      .map((option) => {
+        const value = option.slug || option.label;
+        const isSelected =
+          selectedService &&
+          (selectedService === option.slug || selectedService === option.label);
+        return `<option value="${escapeHtml(value)}"${isSelected ? " selected" : ""}>${escapeHtml(option.label)}</option>`;
+      })
+      .join("");
+    const hiddenServiceSlug = serviceMode === "hidden" ? block.serviceSlug : "";
+    const hiddenServiceName = serviceMode === "hidden" ? block.serviceName : "";
+    const serviceControl =
+      serviceMode === "select"
+        ? `<label><span>الخدمة المطلوبة</span><select name="serviceSlug"${required}${disabled}><option value="">اختاري الخدمة</option>${serviceSelectOptions}</select></label>`
+        : serviceMode === "custom"
+          ? `<label><span>الخدمة المطلوبة</span><input name="serviceName" autocomplete="off"${required}${disabled} placeholder="اكتبي الخدمة المطلوبة" value="${mode === "preview" ? escapeHtml(block.serviceName || "") : ""}"></label>`
+          : "";
+    const hiddenInputs =
+      mode === "preview"
+        ? ""
+        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`;
+    const formControls =
+      hiddenInputs +
+      `<div class="rv-builder-campaign-form__head"><small>${subtitle || "Lead form"}</small><strong>اتركي بياناتك وسيتواصل معك الفريق</strong></div>` +
+      `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
+      `<label><span>رقم الجوال</span><input name="phone" type="tel"${phoneInputAttributes(disabled)}${required}${disabled} placeholder="05xxxxxxxx"></label>` +
+      serviceControl +
+      (emailMode === "hidden"
+        ? ""
+        : `<label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email"${emailMode === "required" ? required : ""}${disabled} placeholder="name@example.com"></label>`) +
+      (showMessage
+        ? `<label class="rv-builder-campaign-form__wide"><span>تفاصيل الطلب</span><textarea name="message" rows="3"${disabled} placeholder="اكتبي أي تفاصيل مهمة"></textarea></label>`
+        : "") +
+      renderExtraFormFields(block.formFields, disabled) +
+      `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
+    return `<section class="${classes(block, "rv-builder-section rv-builder-campaign-hero")}" ${style}><figure><img src="${image}" alt="${title}" loading="lazy" decoding="async"></figure><div class="rv-builder-campaign-hero__copy"><small>${subtitle}</small><h1>${title}</h1>${paragraphHtml(body)}<div class="rv-builder-campaign-actions"><a href="${buttonHref}">${buttonLabel}</a><a href="#lead-form">تواصلي معنا</a></div></div><${tag} id="lead-form" ${formAttrs}>${formControls}</${tag}></section>`;
+  }
+
   if (block.kind === "text") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-text")}" ${style}><h2>${title}</h2><div>${paragraphHtml(body)}</div></section>`;
+  }
+
+  if (block.kind === "seoArticle") {
+    return `<article class="${classes(block, "rv-builder-section rv-builder-seo-article")}" ${style}><header><small>${subtitle}</small><h2>${title}</h2></header><div>${paragraphHtml(body)}</div>${buttonLabel ? `<a href="${buttonHref}">${buttonLabel}</a>` : ""}</article>`;
   }
 
   if (block.kind === "image") {
@@ -713,6 +892,18 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     return `<section class="${classes(block, "rv-builder-section rv-builder-pricing")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2></div><div>${cards}</div></section>`;
   }
 
+  if (block.kind === "offerGrid") {
+    const cards = parseOfferCards(body)
+      .map((item) => {
+        const perks = item.perks
+          .map((perk) => `<li><span>✓</span>${escapeHtml(perk)}</li>`)
+          .join("");
+        return `<article>${item.badge ? `<small>${escapeHtml(item.badge)}</small>` : ""}${item.price ? `<strong>${escapeHtml(item.price)}<em> ريال</em></strong>` : ""}<h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p>${perks ? `<ul>${perks}</ul>` : ""}<a href="${buttonHref}">${buttonLabel}</a></article>`;
+      })
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-offer-grid")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2></div><div>${cards}</div></section>`;
+  }
+
   if (block.kind === "steps") {
     const steps = parsePairs(body)
       .map(
@@ -749,6 +940,22 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
       )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-gallery")}" ${style}><h2>${title}</h2><div>${images}</div></section>`;
+  }
+
+  if (block.kind === "mediaMosaic") {
+    const items = parseMediaItems(body);
+    const featured = items[0];
+    const smallItems = items.slice(1, 5);
+    const featuredHtml = featured
+      ? `<figure class="is-featured">${mediaSlot(featured.image, featured.title || title)}<figcaption><strong>${escapeHtml(featured.title || title)}</strong>${featured.body ? `<span>${escapeHtml(featured.body)}</span>` : ""}</figcaption></figure>`
+      : `<figure class="is-featured">${mediaSlot(image, title)}<figcaption><strong>${title}</strong></figcaption></figure>`;
+    const smallHtml = smallItems
+      .map(
+        (item) =>
+          `<figure>${mediaSlot(item.image, item.title || title)}<figcaption><strong>${escapeHtml(item.title)}</strong>${item.body ? `<span>${escapeHtml(item.body)}</span>` : ""}</figcaption></figure>`,
+      )
+      .join("");
+    return `<section class="${classes(block, "rv-builder-section rv-builder-media-mosaic")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2></div><div>${featuredHtml}${smallHtml}</div></section>`;
   }
 
   if (block.kind === "faq") {
@@ -979,7 +1186,13 @@ export function CustomPageBuilder({
   }
 
   function appendGalleryImage() {
-    if (!selected || selected.kind !== "gallery" || !galleryDraftImage) return;
+    if (
+      !selected ||
+      !["gallery", "mediaMosaic"].includes(selected.kind) ||
+      !galleryDraftImage
+    ) {
+      return;
+    }
     update(selected.id, {
       body: [selected.body, `${galleryDraftImage}|صورة الحملة`]
         .filter(Boolean)
@@ -1210,7 +1423,10 @@ export function CustomPageBuilder({
                     "faq",
                     "steps",
                     "offer",
+                    "offerGrid",
                     "contact",
+                    "mediaMosaic",
+                    "seoArticle",
                   ].includes(selected.kind)
                     ? 8
                     : 5
@@ -1221,7 +1437,7 @@ export function CustomPageBuilder({
               />
             </label>
 
-            {selected.kind === "gallery" ? (
+            {selected.kind === "gallery" || selected.kind === "mediaMosaic" ? (
               <div className="pagecraft-mini-panel">
                 <ImagePicker
                   name={`builder-${selected.id}-gallery-draft`}
@@ -1280,6 +1496,7 @@ export function CustomPageBuilder({
             ) : null}
 
             {selected.kind === "hero" ||
+            selected.kind === "campaignHero" ||
             selected.kind === "image" ||
             selected.kind === "video" ? (
               <ImagePicker
@@ -1293,6 +1510,7 @@ export function CustomPageBuilder({
             ) : null}
 
             {selected.kind === "hero" ||
+            selected.kind === "campaignHero" ||
             selected.kind === "image" ||
             selected.kind === "video" ? (
               <div className="pagecraft-mini-panel">
@@ -1346,9 +1564,12 @@ export function CustomPageBuilder({
             ) : null}
 
             {selected.kind === "hero" ||
+            selected.kind === "campaignHero" ||
             selected.kind === "cta" ||
             selected.kind === "contact" ||
             selected.kind === "offer" ||
+            selected.kind === "offerGrid" ||
+            selected.kind === "seoArticle" ||
             selected.kind === "video" ||
             selected.kind === "leadForm" ? (
               <div className="grid gap-2">
@@ -1374,7 +1595,7 @@ export function CustomPageBuilder({
               </div>
             ) : null}
 
-            {selected.kind === "leadForm" ? (
+            {selected.kind === "leadForm" || selected.kind === "campaignHero" ? (
               <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white/70 p-3">
                 <label>
                   <span>حالة البريد الإلكتروني</span>
