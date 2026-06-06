@@ -338,15 +338,25 @@ export async function POST(request: Request) {
     });
 
     if (result.mode === "duplicate") {
+      revalidatePath("/admin/crm");
       if (jsonResponse) {
         return NextResponse.json(
-          { ok: false, error: LEAD_DUPLICATE_MESSAGE },
-          { status: 409 },
+          {
+            ok: true,
+            duplicate: true,
+            message: LEAD_DUPLICATE_MESSAGE,
+            submissionId: result.submission.id,
+          },
+          { status: 200 },
         );
       }
-      return response(request, "error", LEAD_DUPLICATE_MESSAGE, {
-        status: 409,
-      }, "duplicate");
+      return response(
+        request,
+        "success",
+        LEAD_DUPLICATE_MESSAGE,
+        { status: 200 },
+        "duplicate",
+      );
     }
 
     const landingPageUrl =

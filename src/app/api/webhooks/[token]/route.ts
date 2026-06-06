@@ -335,15 +335,21 @@ async function handleIngest(request: Request, context: RouteContext) {
       await recordWebhookEvent({
         webhookId: webhook.id,
         payload: raw,
-        statusCode: 409,
-        errorMessage: "Duplicate lead suppressed",
+        statusCode: 200,
         ip,
         userAgent: ua,
       });
+      revalidatePath("/admin/crm");
+      revalidatePath("/admin/webhooks");
       return webhookResponse(
         request,
-        { error: LEAD_DUPLICATE_MESSAGE },
-        { status: 409 },
+        {
+          ok: true,
+          duplicate: true,
+          message: LEAD_DUPLICATE_MESSAGE,
+          submissionId: result.submission.id,
+        },
+        { status: 200 },
       );
     }
     await recordWebhookEvent({

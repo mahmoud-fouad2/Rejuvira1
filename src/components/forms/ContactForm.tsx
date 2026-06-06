@@ -30,6 +30,7 @@ import {
 type ContactActionState = {
   status: "idle" | "success" | "error";
   message: string;
+  duplicate?: boolean;
 };
 
 const initialState: ContactActionState = {
@@ -169,7 +170,7 @@ export function ContactForm({
       }
       const data = (await response.json()) as ContactActionState;
       setState(data);
-      if (response.ok && data.status === "success") {
+      if (response.ok && data.status === "success" && !data.duplicate) {
         trackLeadConversion(leadPayloadFromForm(form, "contact_form"));
         form.reset();
         if (tokenInputRef.current) tokenInputRef.current.value = "";

@@ -2,7 +2,7 @@ export const LEAD_HONEYPOT_FIELD = "rv_hp_field";
 export const LEAD_RENDERED_AT_FIELD = "formRenderedAt";
 
 export const LEAD_DUPLICATE_MESSAGE =
-  "تم استلام طلب بهذا الرقم بالفعل مؤخرًا، وسيتواصل معك الفريق قريبًا. / A request with this phone number was already received recently.";
+  "تم استلام طلبك بالفعل مؤخرًا، وسيتواصل معك فريق ريجوفيرا قريبًا. / We already received your request recently and our team will contact you soon.";
 
 export const LEAD_SPAM_GUARD_MESSAGE =
   "تعذر إرسال الطلب الآن. الرجاء المحاولة مرة أخرى. / Could not submit your request. Please try again.";

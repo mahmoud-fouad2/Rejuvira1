@@ -236,9 +236,25 @@ export async function POST(request: Request) {
     });
 
     if (result.mode === "duplicate") {
-      return response(request, "error", LEAD_DUPLICATE_MESSAGE, {
-        status: 409,
-      }, "duplicate");
+      revalidatePath("/admin/crm");
+      if (wantsJson(request)) {
+        return NextResponse.json(
+          {
+            status: "success",
+            duplicate: true,
+            message: LEAD_DUPLICATE_MESSAGE,
+            submissionId: result.submission.id,
+          },
+          { status: 200 },
+        );
+      }
+      return response(
+        request,
+        "success",
+        LEAD_DUPLICATE_MESSAGE,
+        { status: 200 },
+        "duplicate",
+      );
     }
 
     await dispatchFormWebhook({

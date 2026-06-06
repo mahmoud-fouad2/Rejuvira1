@@ -4372,6 +4372,22 @@ export async function createContactLead(
     Number(process.env.LEAD_SHORT_DEDUP_WINDOW_MINUTES ?? 30),
   );
   const source = input.source?.trim() || "Website form";
+  const refreshDuplicate = async (id: string) =>
+    prisma.contactSubmission.update({
+      where: { id },
+      data: {
+        updatedAt: new Date(),
+        ...(input.utmSource ? { utmSource: input.utmSource } : {}),
+        ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
+        ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
+        ...(input.utmContent ? { utmContent: input.utmContent } : {}),
+        ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
+        ...(input.landingPageUrl ? { landingPageUrl: input.landingPageUrl } : {}),
+        ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+        ...(input.country ? { country: input.country } : {}),
+        ...(input.userAgent ? { userAgent: input.userAgent } : {}),
+      },
+    });
 
   if (shortDuplicateWindowMinutes > 0) {
     const duplicateSince = new Date(
@@ -4386,7 +4402,10 @@ export async function createContactLead(
     });
 
     if (duplicate) {
-      return { mode: "duplicate" as const, submission: duplicate };
+      return {
+        mode: "duplicate" as const,
+        submission: await refreshDuplicate(duplicate.id),
+      };
     }
   }
 
@@ -4407,7 +4426,10 @@ export async function createContactLead(
     });
 
     if (duplicate) {
-      return { mode: "duplicate" as const, submission: duplicate };
+      return {
+        mode: "duplicate" as const,
+        submission: await refreshDuplicate(duplicate.id),
+      };
     }
   }
 
