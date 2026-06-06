@@ -4386,6 +4386,7 @@ export async function createContactLead(
         ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
         ...(input.country ? { country: input.country } : {}),
         ...(input.userAgent ? { userAgent: input.userAgent } : {}),
+        ...(input.notes ? { internalNotes: input.notes } : {}),
       },
     });
 

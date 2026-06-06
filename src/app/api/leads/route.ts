@@ -49,14 +49,18 @@ const leadSchema = z.object({
   serviceLabel: z.string().optional().or(z.literal("")),
   serviceType: z.string().optional().or(z.literal("")),
   serviceTypeAr: z.string().optional().or(z.literal("")),
+  offerName: z.string().max(180).optional().or(z.literal("")),
+  offerPrice: z.string().max(80).optional().or(z.literal("")),
   preferredLanguage: z.string().optional().or(z.literal("")),
   source: z.string().max(120).optional().or(z.literal("")),
   utmSource: z.string().max(120).optional().or(z.literal("")),
   utmMedium: z.string().max(120).optional().or(z.literal("")),
   utmCampaign: z.string().max(120).optional().or(z.literal("")),
   utmContent: z.string().max(120).optional().or(z.literal("")),
+  utmTerm: z.string().max(120).optional().or(z.literal("")),
   pageUrl: z.string().max(1000).optional().or(z.literal("")),
   landingPageUrl: z.string().max(1000).optional().or(z.literal("")),
+  landingPagePath: z.string().max(500).optional().or(z.literal("")),
   landingPageSlug: z
     .string()
     .max(80)
@@ -116,6 +120,12 @@ async function readLeadPayload(request: Request) {
       serviceLabel: payloadString(payload, "serviceLabel"),
       serviceType: payloadString(payload, "serviceType"),
       serviceTypeAr: payloadString(payload, "serviceTypeAr"),
+      offerName:
+        payloadString(payload, "offerName") ||
+        payloadString(payload, "offer_name"),
+      offerPrice:
+        payloadString(payload, "offerPrice") ||
+        payloadString(payload, "offer_price"),
       preferredLanguage: payloadString(payload, "preferredLanguage"),
       source: payloadString(payload, "source"),
       utmSource:
@@ -130,8 +140,13 @@ async function readLeadPayload(request: Request) {
       utmContent:
         payloadString(payload, "utmContent") ||
         payloadString(payload, "utm_content"),
+      utmTerm:
+        payloadString(payload, "utmTerm") || payloadString(payload, "utm_term"),
       pageUrl: payloadString(payload, "pageUrl"),
       landingPageUrl: payloadString(payload, "landingPageUrl"),
+      landingPagePath:
+        payloadString(payload, "landingPagePath") ||
+        payloadString(payload, "landingPagePathname"),
       landingPageSlug:
         payloadString(payload, "landingPageSlug") ||
         payloadString(payload, "pageSlug"),
@@ -158,6 +173,10 @@ async function readLeadPayload(request: Request) {
     serviceLabel: formString(formData, "serviceLabel"),
     serviceType: formString(formData, "serviceType"),
     serviceTypeAr: formString(formData, "serviceTypeAr"),
+    offerName:
+      formString(formData, "offerName") || formString(formData, "offer_name"),
+    offerPrice:
+      formString(formData, "offerPrice") || formString(formData, "offer_price"),
     preferredLanguage: formString(formData, "preferredLanguage"),
     source: formString(formData, "source"),
     utmSource:
@@ -169,8 +188,13 @@ async function readLeadPayload(request: Request) {
       formString(formData, "utm_campaign"),
     utmContent:
       formString(formData, "utmContent") || formString(formData, "utm_content"),
+    utmTerm:
+      formString(formData, "utmTerm") || formString(formData, "utm_term"),
     pageUrl: formString(formData, "pageUrl"),
     landingPageUrl: formString(formData, "landingPageUrl"),
+    landingPagePath:
+      formString(formData, "landingPagePath") ||
+      formString(formData, "landingPagePathname"),
     landingPageSlug:
       formString(formData, "landingPageSlug") || formString(formData, "pageSlug"),
     referrerUrl: formString(formData, "referrerUrl"),
@@ -310,8 +334,27 @@ export async function POST(request: Request) {
           parsed.data.serviceLabel ||
           parsed.data.serviceName ||
           parsed.data.serviceType ||
+          parsed.data.offerName ||
           parsed.data.serviceSlug ||
           undefined;
+    const landingPageUrl =
+      parsed.data.landingPageUrl ||
+      parsed.data.pageUrl ||
+      request.headers.get("referer") ||
+      "";
+    const landingPageSlug =
+      parsed.data.landingPageSlug ||
+      extractCustomPageSlugFromUrl(landingPageUrl);
+    const leadNotes = [
+      parsed.data.offerName ? `Offer: ${parsed.data.offerName}` : "",
+      parsed.data.offerPrice ? `Offer price: ${parsed.data.offerPrice}` : "",
+      parsed.data.landingPagePath
+        ? `Landing page path: ${parsed.data.landingPagePath}`
+        : "",
+      parsed.data.utmTerm ? `utm_term: ${parsed.data.utmTerm}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
     const result = await createContactLead({
       fullName: parsed.data.fullName,
@@ -330,14 +373,104 @@ export async function POST(request: Request) {
         ? { utmCampaign: parsed.data.utmCampaign }
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
+      ...(leadNotes ? { notes: leadNotes } : {}),
       ...getLeadRequestMetadata(request, {
         referrerUrl: parsed.data.referrerUrl || undefined,
-        landingPageUrl:
-          parsed.data.landingPageUrl || parsed.data.pageUrl || undefined,
+        landingPageUrl: landingPageUrl || undefined,
       }),
     });
 
+    const buildLeadWebhookPayload = (
+      event: "landing_lead.created" | "landing_lead.repeated",
+      duplicate: boolean,
+    ) => ({
+      event,
+      source: parsed.data.source || "Landing page form",
+      submittedAt: new Date().toISOString(),
+      mode: result.mode,
+      duplicate,
+      submissionId:
+        result.mode === "database" || result.mode === "duplicate"
+          ? result.submission.id
+          : undefined,
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone,
+      email: parsed.data.email || undefined,
+      message: parsed.data.message || undefined,
+      offerName: parsed.data.offerName || undefined,
+      offerPrice: parsed.data.offerPrice || undefined,
+      serviceSlug: serviceArabicName,
+      serviceSlugRaw:
+        selectedService?.slug ||
+        (isGeneralInquiry
+          ? GENERAL_INQUIRY_SERVICE_VALUE
+          : parsed.data.serviceSlug) ||
+        undefined,
+      serviceReference: isGeneralInquiry
+        ? GENERAL_INQUIRY_SERVICE_VALUE
+        : serviceReference || undefined,
+      service: serviceArabicName,
+      serviceName: serviceArabicName,
+      serviceLabel: serviceArabicName,
+      serviceType: serviceArabicName,
+      serviceTypeAr: serviceArabicName,
+      landingPageSlug: landingPageSlug || undefined,
+      landingPageUrl: landingPageUrl || undefined,
+      landingPagePath: parsed.data.landingPagePath || undefined,
+      pageUrl: parsed.data.pageUrl || undefined,
+      referrerUrl: parsed.data.referrerUrl || undefined,
+      utmSource: parsed.data.utmSource || undefined,
+      utmMedium: parsed.data.utmMedium || undefined,
+      utmCampaign: parsed.data.utmCampaign || undefined,
+      utmContent: parsed.data.utmContent || undefined,
+      utmTerm: parsed.data.utmTerm || undefined,
+      utm_source: parsed.data.utmSource || undefined,
+      utm_medium: parsed.data.utmMedium || undefined,
+      utm_campaign: parsed.data.utmCampaign || undefined,
+      utm_content: parsed.data.utmContent || undefined,
+      utm_term: parsed.data.utmTerm || undefined,
+      preferredLanguage: parsed.data.preferredLanguage || "ar",
+    });
+
+    const dispatchLeadWebhooks = async (
+      leadWebhookPayload: ReturnType<typeof buildLeadWebhookPayload>,
+      customPageEvent: "custom_page_lead.created" | "custom_page_lead.repeated",
+    ) => {
+      const settings = await getRuntimeSettings();
+      await dispatchFormWebhook({
+        settings,
+        failureMessage: "Landing page webhook delivery failed",
+        payload: leadWebhookPayload,
+      });
+      if (!landingPageSlug) return;
+
+      const pageWebhook = await getCustomPageLeadWebhookBySlug(landingPageSlug);
+      if (pageWebhook?.leadWebhookEnabled && pageWebhook.leadWebhookUrl) {
+        await dispatchJsonWebhook({
+          url: pageWebhook.leadWebhookUrl,
+          secret: pageWebhook.leadWebhookSecret,
+          failureMessage: "Custom page lead webhook delivery failed",
+          payload: {
+            ...leadWebhookPayload,
+            event: customPageEvent,
+            pageTitle: pageWebhook.titleAr,
+            pageWebhookLabel:
+              pageWebhook.leadWebhookLabel || pageWebhook.titleAr,
+          },
+          logMeta: {
+            webhookScope: "custom-page",
+            pageSlug: pageWebhook.slug,
+            pageId: pageWebhook.id,
+          },
+        });
+      }
+    };
+
     if (result.mode === "duplicate") {
+      await dispatchLeadWebhooks(
+        buildLeadWebhookPayload("landing_lead.repeated", true),
+        "custom_page_lead.repeated",
+      );
       revalidatePath("/admin/crm");
       if (jsonResponse) {
         return NextResponse.json(
@@ -359,82 +492,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const landingPageUrl =
-      parsed.data.landingPageUrl ||
-      parsed.data.pageUrl ||
-      request.headers.get("referer") ||
-      "";
-    const landingPageSlug =
-      parsed.data.landingPageSlug ||
-      extractCustomPageSlugFromUrl(landingPageUrl);
-    const leadWebhookPayload = {
-      event: "landing_lead.created",
-      source: parsed.data.source || "Landing page form",
-      submittedAt: new Date().toISOString(),
-      mode: result.mode,
-      submissionId:
-        result.mode === "database" ? result.submission.id : undefined,
-      fullName: parsed.data.fullName,
-      phone: parsed.data.phone,
-      email: parsed.data.email || undefined,
-      message: parsed.data.message || undefined,
-      serviceSlug: serviceArabicName,
-      serviceSlugRaw:
-        selectedService?.slug ||
-        (isGeneralInquiry
-          ? GENERAL_INQUIRY_SERVICE_VALUE
-          : parsed.data.serviceSlug) ||
-        undefined,
-      serviceReference: isGeneralInquiry
-        ? GENERAL_INQUIRY_SERVICE_VALUE
-        : serviceReference || undefined,
-      service: serviceArabicName,
-      serviceName: serviceArabicName,
-      serviceLabel: serviceArabicName,
-      serviceType: serviceArabicName,
-      serviceTypeAr: serviceArabicName,
-      landingPageSlug: landingPageSlug || undefined,
-      landingPageUrl: landingPageUrl || undefined,
-      pageUrl: parsed.data.pageUrl || undefined,
-      referrerUrl: parsed.data.referrerUrl || undefined,
-      utmSource: parsed.data.utmSource || undefined,
-      utmMedium: parsed.data.utmMedium || undefined,
-      utmCampaign: parsed.data.utmCampaign || undefined,
-      utmContent: parsed.data.utmContent || undefined,
-      utm_source: parsed.data.utmSource || undefined,
-      utm_medium: parsed.data.utmMedium || undefined,
-      utm_campaign: parsed.data.utmCampaign || undefined,
-      utm_content: parsed.data.utmContent || undefined,
-      preferredLanguage: parsed.data.preferredLanguage || "ar",
-    };
-    const settings = await getRuntimeSettings();
-    await dispatchFormWebhook({
-      settings,
-      failureMessage: "Landing page webhook delivery failed",
-      payload: leadWebhookPayload,
-    });
-    if (landingPageSlug) {
-      const pageWebhook = await getCustomPageLeadWebhookBySlug(landingPageSlug);
-      if (pageWebhook?.leadWebhookEnabled && pageWebhook.leadWebhookUrl) {
-        await dispatchJsonWebhook({
-          url: pageWebhook.leadWebhookUrl,
-          secret: pageWebhook.leadWebhookSecret,
-          failureMessage: "Custom page lead webhook delivery failed",
-          payload: {
-            ...leadWebhookPayload,
-            event: "custom_page_lead.created",
-            pageTitle: pageWebhook.titleAr,
-            pageWebhookLabel:
-              pageWebhook.leadWebhookLabel || pageWebhook.titleAr,
-          },
-          logMeta: {
-            webhookScope: "custom-page",
-            pageSlug: pageWebhook.slug,
-            pageId: pageWebhook.id,
-          },
-        });
-      }
-    }
+    await dispatchLeadWebhooks(
+      buildLeadWebhookPayload("landing_lead.created", false),
+      "custom_page_lead.created",
+    );
 
     revalidatePath("/admin/crm");
     if (jsonResponse) {
@@ -480,16 +541,23 @@ export async function GET() {
       "serviceLabel",
       "serviceType",
       "serviceTypeAr",
+      "offerName",
+      "offerPrice",
       "preferredLanguage",
       "source",
       "utmSource",
       "utmMedium",
       "utmCampaign",
       "utmContent",
+      "utmTerm",
       "utm_source",
       "utm_medium",
       "utm_campaign",
       "utm_content",
+      "utm_term",
+      "landingPageUrl",
+      "landingPagePath",
+      "landingPageSlug",
     ],
   });
 }

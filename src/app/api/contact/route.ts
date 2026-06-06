@@ -235,7 +235,56 @@ export async function POST(request: Request) {
       ...getLeadRequestMetadata(request),
     });
 
+    const buildContactWebhookPayload = (
+      event: "contact_submission.created" | "contact_submission.repeated",
+      duplicate: boolean,
+    ) => ({
+      event,
+      source: parsed.data.source || "Website contact form",
+      submittedAt: new Date().toISOString(),
+      mode: result.mode,
+      duplicate,
+      submissionId:
+        result.mode === "database" || result.mode === "duplicate"
+          ? result.submission.id
+          : undefined,
+      fullName: parsed.data.fullName,
+      phone: parsed.data.phone,
+      email: parsed.data.email || undefined,
+      message: parsed.data.message || undefined,
+      serviceSlug: serviceArabicName,
+      serviceSlugRaw: isGeneralInquiry
+        ? GENERAL_INQUIRY_SERVICE_VALUE
+        : parsed.data.serviceSlug || undefined,
+      serviceReference: isGeneralInquiry
+        ? GENERAL_INQUIRY_SERVICE_VALUE
+        : parsed.data.serviceSlug || undefined,
+      service: serviceArabicName,
+      serviceName: serviceArabicName,
+      serviceLabel: serviceArabicName,
+      serviceType: serviceArabicName,
+      serviceTypeAr: serviceArabicName,
+      serviceCategory: selectedService?.category || undefined,
+      utmSource: parsed.data.utmSource || undefined,
+      utmMedium: parsed.data.utmMedium || undefined,
+      utmCampaign: parsed.data.utmCampaign || undefined,
+      utmContent: parsed.data.utmContent || undefined,
+      utm_source: parsed.data.utmSource || undefined,
+      utm_medium: parsed.data.utmMedium || undefined,
+      utm_campaign: parsed.data.utmCampaign || undefined,
+      utm_content: parsed.data.utmContent || undefined,
+      preferredLanguage: parsed.data.preferredLanguage || "ar",
+    });
+
     if (result.mode === "duplicate") {
+      await dispatchFormWebhook({
+        settings,
+        failureMessage: "Form webhook delivery failed",
+        payload: buildContactWebhookPayload(
+          "contact_submission.repeated",
+          true,
+        ),
+      });
       revalidatePath("/admin/crm");
       if (wantsJson(request)) {
         return NextResponse.json(
@@ -260,40 +309,7 @@ export async function POST(request: Request) {
     await dispatchFormWebhook({
       settings,
       failureMessage: "Form webhook delivery failed",
-      payload: {
-        event: "contact_submission.created",
-        source: parsed.data.source || "Website contact form",
-        submittedAt: new Date().toISOString(),
-        mode: result.mode,
-        submissionId:
-          result.mode === "database" ? result.submission.id : undefined,
-        fullName: parsed.data.fullName,
-        phone: parsed.data.phone,
-        email: parsed.data.email || undefined,
-        message: parsed.data.message || undefined,
-        serviceSlug: serviceArabicName,
-        serviceSlugRaw: isGeneralInquiry
-          ? GENERAL_INQUIRY_SERVICE_VALUE
-          : parsed.data.serviceSlug || undefined,
-        serviceReference: isGeneralInquiry
-          ? GENERAL_INQUIRY_SERVICE_VALUE
-          : parsed.data.serviceSlug || undefined,
-        service: serviceArabicName,
-        serviceName: serviceArabicName,
-        serviceLabel: serviceArabicName,
-        serviceType: serviceArabicName,
-        serviceTypeAr: serviceArabicName,
-        serviceCategory: selectedService?.category || undefined,
-        utmSource: parsed.data.utmSource || undefined,
-        utmMedium: parsed.data.utmMedium || undefined,
-        utmCampaign: parsed.data.utmCampaign || undefined,
-        utmContent: parsed.data.utmContent || undefined,
-        utm_source: parsed.data.utmSource || undefined,
-        utm_medium: parsed.data.utmMedium || undefined,
-        utm_campaign: parsed.data.utmCampaign || undefined,
-        utm_content: parsed.data.utmContent || undefined,
-        preferredLanguage: parsed.data.preferredLanguage || "ar",
-      },
+      payload: buildContactWebhookPayload("contact_submission.created", false),
     });
 
     revalidatePath("/admin/crm");

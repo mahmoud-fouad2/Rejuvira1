@@ -20,6 +20,14 @@ function ensureAttr(attrs: string, name: string, value: string) {
   return `${attrs} ${name}="${escapeAttr(value)}"`;
 }
 
+function forceAttr(attrs: string, name: string, value: string) {
+  const strippedAttrs = attrs.replace(
+    new RegExp(`\\s${name}\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+)`, "i"),
+    "",
+  );
+  return `${strippedAttrs} ${name}="${escapeAttr(value)}"`;
+}
+
 function formGuardFields(renderedAt: number, pageSlug?: string) {
   return [
     `<input type="hidden" name="${LEAD_RENDERED_AT_FIELD}" value="${renderedAt}">`,
@@ -51,34 +59,15 @@ function hardenPhoneInput(match: string, attrs: string) {
   return `<input${nextAttrs}${closingSlash}>`;
 }
 
-function shouldRewriteUnsafeAction(attrs: string) {
-  const action = attrs.match(/\baction\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
-  const value = (action?.[1] ?? action?.[2] ?? action?.[3] ?? "").trim();
-  if (!value) return false;
-  try {
-    const url = new URL(value);
-    return (
-      (url.protocol === "http:" || url.protocol === "https:") &&
-      /(^|\.)make\.com$|(^|\.)integromat\.com$|(^|\.)zapier\.com$|(^|\.)pipedream\.net$|^hook\./i.test(
-        url.hostname,
-      )
-    );
-  } catch {
-    return false;
-  }
+function ensureSafeLeadAction(attrs: string) {
+  return forceAttr(forceAttr(attrs, "action", "/api/leads"), "method", "post");
 }
 
-function ensureSafeLeadAction(attrs: string) {
-  let nextAttrs = attrs;
-  if (shouldRewriteUnsafeAction(nextAttrs)) {
-    nextAttrs = nextAttrs.replace(
-      /\saction\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/i,
-      "",
-    );
-  }
-  nextAttrs = ensureAttr(nextAttrs, "action", "/api/leads");
-  nextAttrs = ensureAttr(nextAttrs, "method", "post");
-  return nextAttrs;
+function neutralizePrematureLeadSubmitTracking(html: string) {
+  return html.replace(
+    /\bevent\s*:\s*(["'])lead_submit\1/g,
+    'event:$1lead_attempt$1',
+  );
 }
 
 export function hardenCustomPageLeadForms(
@@ -88,13 +77,13 @@ export function hardenCustomPageLeadForms(
 ) {
   if (!html || !/<form\b/i.test(html)) return html;
 
-  const withGuardedForms = html.replace(
+  const withGuardedForms = neutralizePrematureLeadSubmitTracking(html).replace(
     /<form\b([^>]*)>/gi,
     (match: string, attrs: string) => {
-      if (hasAttr(attrs, "data-rejuvera-guard")) return match;
       const safeAttrs = ensureSafeLeadAction(
         ensureAttr(attrs, "data-rejuvera-guard", "1"),
       );
+      if (hasAttr(attrs, "data-rejuvera-guard")) return `<form${safeAttrs}>`;
       return `<form${safeAttrs}>${formGuardFields(renderedAt, pageSlug)}`;
     },
   );
