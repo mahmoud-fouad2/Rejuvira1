@@ -211,6 +211,26 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        source: "/sitemap-pages.xml",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+        ],
+      },
+      {
+        source: "/sitemap-images.xml",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+        ],
+      },
+      {
         source: "/sitemap-index.xml",
         headers: [
           {
@@ -218,6 +238,17 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
+        ],
+      },
+      {
+        source: "/llms.txt",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=300, must-revalidate",
+          },
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+          { key: "X-Robots-Tag", value: "all" },
         ],
       },
       {

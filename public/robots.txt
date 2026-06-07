@@ -12,5 +12,6 @@ Disallow: /login
 Disallow: /login/
 
 Sitemap: https://rejuvera.sa/sitemap.xml
-Sitemap: https://rejuvera.sa/sitemap2.xml
 Sitemap: https://rejuvera.sa/sitemap-index.xml
+Sitemap: https://rejuvera.sa/sitemap-pages.xml
+Sitemap: https://rejuvera.sa/sitemap-images.xml
