@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import type { Route } from "next";
-import Script from "next/script";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -15,6 +14,7 @@ import {
   getRuntimeSettings,
   getServices,
 } from "@/lib/content-repository";
+import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -29,6 +29,8 @@ export async function generateMetadata({
       title: "الطبيب غير موجود",
     };
   }
+
+  const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
 
   return {
     title: doctor.name,
@@ -45,7 +47,22 @@ export async function generateMetadata({
     openGraph: {
       title: doctor.name,
       description: doctor.summary,
+      url: canonicalUrl,
+      type: "website",
       images: [doctor.coverImageUrl],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: doctor.name,
+      description: doctor.summary,
+      images: [doctor.coverImageUrl],
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -133,6 +150,47 @@ export default async function DoctorDetailPage({
     ? `https://wa.me/${waDigits}?text=${encodeURIComponent(`أرغب في حجز استشارة مع ${doctor.name}`)}`
     : null;
   const telHref = `tel:${runtimeSettings.contact.phone.replace(/\D/g, "")}`;
+  const doctorUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
+  const doctorJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Physician",
+    name: doctor.name,
+    description: doctor.summary,
+    image: doctor.photoUrl,
+    medicalSpecialty: doctor.specialty,
+    url: doctorUrl,
+    availableLanguage: [...doctor.languages],
+    telephone: runtimeSettings.contact.phone,
+    email: runtimeSettings.contact.email,
+    worksFor: {
+      "@type": "MedicalOrganization",
+      name: runtimeSettings.brand.siteName,
+    },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${getSiteUrl()}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Doctors",
+        item: `${getSiteUrl()}/doctors`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: doctor.name,
+        item: doctorUrl,
+      },
+    ],
+  };
 
   const sections: Array<{
     id: string;
@@ -154,26 +212,18 @@ export default async function DoctorDetailPage({
 
   return (
     <div className="min-h-screen">
-      <Script
+      <script
         id={`doctor-structured-data-${doctor.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Physician",
-            name: doctor.name,
-            description: doctor.summary,
-            image: doctor.photoUrl,
-            medicalSpecialty: doctor.specialty,
-            url: `https://${runtimeSettings.contact.domain || "rejuvera.sa"}/doctors/${doctor.slug}`,
-            availableLanguage: [...doctor.languages],
-            telephone: runtimeSettings.contact.phone,
-            email: runtimeSettings.contact.email,
-            worksFor: {
-              "@type": "MedicalOrganization",
-              name: runtimeSettings.brand.siteName,
-            },
-          }),
+          __html: JSON.stringify(doctorJsonLd),
+        }}
+      />
+      <script
+        id={`doctor-breadcrumb-data-${doctor.slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
       <SiteHeader />

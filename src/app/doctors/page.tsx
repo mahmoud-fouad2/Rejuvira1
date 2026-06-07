@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import Script from "next/script";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -30,7 +29,7 @@ export default async function DoctorsPage() {
 
   return (
     <div className="animate-fade-in relative z-10 min-h-screen">
-      <Script
+      <script
         id="doctors-collection-ld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(doctorsJsonLd) }}

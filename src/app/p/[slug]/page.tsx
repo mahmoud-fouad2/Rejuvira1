@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getCustomPageBySlug } from "@/lib/content-repository";
 import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
 import { sanitizeHtml } from "@/lib/sanitize-html";
+import { getSiteUrl } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ export async function generateMetadata({
   const description =
     page.metaDescription || page.seoDescription || page.titleEn || undefined;
   const canonicalSlug = page.seoSlug || page.slug;
+  const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
   const ogTitle = page.ogTitle || title;
   const ogDescription = page.ogDescription || description;
   return {
@@ -43,12 +45,12 @@ export async function generateMetadata({
     description,
     keywords: page.keywords.length ? [...page.keywords] : undefined,
     alternates: {
-      canonical: `/p/${canonicalSlug}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: ogTitle,
       description: ogDescription,
-      url: `/p/${canonicalSlug}`,
+      url: canonicalUrl,
       type: "website",
       ...(page.ogImage ? { images: [{ url: page.ogImage }] } : {}),
     },

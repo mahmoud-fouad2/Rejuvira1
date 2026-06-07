@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { ContentStatus } from "@prisma/client";
 import Link from "next/link";
-import Script from "next/script";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -30,14 +29,31 @@ export async function generateMetadata({
     };
   }
 
+  const canonicalUrl = `${getSiteUrl()}/journal/${post.slug}`;
+
   return {
     title: post.title,
     description: post.excerpt,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
+      url: canonicalUrl,
       images: [post.coverImageUrl],
       type: "article",
+      publishedTime: post.publishedAt,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.excerpt,
+      images: [post.coverImageUrl],
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -67,27 +83,60 @@ export default async function JournalDetailPage({
   const relatedDoctors = post.relatedDoctorSlugs
     .map((doctorSlug) => doctorsBySlug.get(doctorSlug))
     .filter((doctor) => doctor !== undefined);
+  const postUrl = `${getSiteUrl()}/journal/${post.slug}`;
+  const journalJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.coverImageUrl,
+    datePublished: post.publishedAt,
+    url: postUrl,
+    publisher: {
+      "@type": "Organization",
+      name: "Rejuvera Center",
+    },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${getSiteUrl()}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Journal",
+        item: `${getSiteUrl()}/journal`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: postUrl,
+      },
+    ],
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-clip">
       <div className="public-page-atmosphere" aria-hidden />
-      <Script
+      <script
         id={`journal-structured-data-${post.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            headline: post.title,
-            description: post.excerpt,
-            image: post.coverImageUrl,
-            datePublished: post.publishedAt,
-            url: `${getSiteUrl()}/journal/${post.slug}`,
-            publisher: {
-              "@type": "Organization",
-              name: "Rejuvera Center",
-            },
-          }),
+          __html: JSON.stringify(journalJsonLd),
+        }}
+      />
+      <script
+        id={`journal-breadcrumb-data-${post.slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
       <SiteHeader />

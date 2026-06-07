@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import Script from "next/script";
 import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -27,6 +26,8 @@ export async function generateMetadata({
     };
   }
 
+  const canonicalUrl = `${getSiteUrl()}/services/${service.slug}`;
+
   return {
     title: service.nameEn ? `${service.name} | ${service.nameEn}` : service.name,
     description: service.excerptEn
@@ -47,7 +48,21 @@ export async function generateMetadata({
     openGraph: {
       title: service.name,
       description: service.excerpt,
+      url: canonicalUrl,
       images: [service.coverImageUrl],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: service.name,
+      description: service.excerpt,
+      images: [service.coverImageUrl],
+    },
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -77,23 +92,55 @@ export default async function ServiceDetailPage({
     deviceSlugSet.has(device.slug),
   );
   const serviceUrl = `${getSiteUrl()}/services/${service.slug}`;
+  const serviceJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MedicalProcedure",
+    name: service.name,
+    alternateName: service.nameEn,
+    description: service.excerpt,
+    image: service.coverImageUrl,
+    url: serviceUrl,
+    procedureType: service.category,
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${getSiteUrl()}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Services",
+        item: `${getSiteUrl()}/services`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: service.name,
+        item: serviceUrl,
+      },
+    ],
+  };
 
   return (
     <div className="min-h-screen">
-      <Script
+      <script
         id={`service-structured-data-${service.slug}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "MedicalProcedure",
-            name: service.name,
-            alternateName: service.nameEn,
-            description: service.excerpt,
-            image: service.coverImageUrl,
-            url: serviceUrl,
-            procedureType: service.category,
-          }),
+          __html: JSON.stringify(serviceJsonLd),
+        }}
+      />
+      <script
+        id={`service-breadcrumb-data-${service.slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd),
         }}
       />
       <SiteHeader />

@@ -1,5 +1,7 @@
 import { randomInt } from "node:crypto";
 
+import type { Metadata } from "next";
+
 import { HomeContactSection } from "@/components/home/HomeContactSection";
 import { V0InspiredHome } from "@/components/home/V0InspiredHome";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -12,6 +14,24 @@ import {
   getRuntimeSettings,
   getServices,
 } from "@/lib/content-repository";
+import { getSiteUrl } from "@/lib/seo";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const canonical = getSiteUrl();
+
+  return {
+    alternates: {
+      canonical,
+      languages: {
+        ar: canonical,
+        "ar-SA": canonical,
+        en: `${canonical}/?lang=en`,
+        "en-US": `${canonical}/?lang=en`,
+        "x-default": canonical,
+      },
+    },
+  };
+}
 
 function rotatePosts<T>(posts: T[]) {
   if (posts.length <= 1) return posts;

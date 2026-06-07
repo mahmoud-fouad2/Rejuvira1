@@ -59,6 +59,17 @@ function normalizePath(path: string) {
   return `/${path.replace(/^\/+/, "")}`;
 }
 
+function isCleanSitemapPath(path: string) {
+  if (!path || path === "/") return true;
+  if (!path.startsWith("/")) return false;
+  if (path === "/career" || path === "/career/") return false;
+  if (path.endsWith("/")) return false;
+  if (/\s/.test(path)) return false;
+  if (/[A-Z]/.test(path)) return false;
+  if (/[^\x00-\x7F]/.test(path)) return false;
+  return true;
+}
+
 export function absoluteUrl(pathOrUrl: string) {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
   const path = normalizePath(pathOrUrl);
@@ -289,6 +300,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
 
   const entries = new Map<string, SitemapEntry>();
   for (const entry of [...staticEntries, ...dynamicEntries]) {
+    if (!isCleanSitemapPath(entry.path)) continue;
     entries.set(absoluteUrl(entry.path), entry);
   }
 

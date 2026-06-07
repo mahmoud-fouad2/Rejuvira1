@@ -1,7 +1,6 @@
 ﻿import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import Script from "next/script";
 import { ContentStatus } from "@prisma/client";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -62,7 +61,7 @@ export default async function ServicesPage() {
 
   return (
     <div className="animate-fade-in relative z-10 min-h-screen">
-      <Script
+      <script
         id="services-collection-ld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
