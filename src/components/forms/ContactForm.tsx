@@ -30,7 +30,10 @@ import {
 type ContactActionState = {
   status: "idle" | "success" | "error";
   message: string;
+  ok?: boolean;
+  error?: string;
   duplicate?: boolean;
+  submissionId?: string;
 };
 
 const initialState: ContactActionState = {
@@ -42,6 +45,40 @@ type GrecaptchaApi = {
   ready: (cb: () => void) => void;
   execute: (siteKey: string, options: { action: string }) => Promise<string>;
 };
+
+function normalizeContactActionState(
+  data: Partial<ContactActionState> | null,
+  responseOk: boolean,
+): ContactActionState {
+  if (!data || typeof data !== "object") {
+    return {
+      status: responseOk ? "success" : "error",
+      message: responseOk
+        ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريبًا. / Your request has been received."
+        : "تعذر إرسال الطلب. الرجاء المحاولة مرة أخرى. / Could not submit your request.",
+    };
+  }
+
+  const explicitStatus = data.status;
+  const status =
+    explicitStatus === "success" || explicitStatus === "error"
+      ? explicitStatus
+      : responseOk || data.ok
+        ? "success"
+        : "error";
+  const message =
+    data.message ||
+    data.error ||
+    (status === "success"
+      ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريبًا. / Your request has been received."
+      : "تعذر إرسال الطلب. الرجاء المحاولة مرة أخرى. / Could not submit your request.");
+
+  return {
+    ...data,
+    status,
+    message,
+  };
+}
 
 declare global {
   interface Window {
@@ -168,7 +205,10 @@ export function ContactForm({
         setIsPending(false);
         return;
       }
-      const data = (await response.json()) as ContactActionState;
+      const rawData = (await response.json().catch(() => null)) as
+        | Partial<ContactActionState>
+        | null;
+      const data = normalizeContactActionState(rawData, response.ok);
       setState(data);
       if (response.ok && data.status === "success" && !data.duplicate) {
         trackLeadConversion(leadPayloadFromForm(form, "contact_form"));

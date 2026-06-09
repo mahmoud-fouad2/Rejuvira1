@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   createContactLead,
   getWebhookByToken,
+  isBlockedIpAddress,
   recordWebhookEvent,
 } from "@/lib/content-repository";
 import {
@@ -17,7 +18,7 @@ import {
   LEAD_DUPLICATE_MESSAGE,
   LEAD_SPAM_GUARD_MESSAGE,
 } from "@/lib/lead-intake-guard";
-import { rateLimit } from "@/lib/rate-limit";
+import { extractClientIp, rateLimit } from "@/lib/rate-limit";
 import {
   isValidSaudiMobileNumber,
   normalizeSaudiMobileNumber,
@@ -191,10 +192,8 @@ async function handleIngest(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Webhook disabled" }, { status: 410 });
   }
 
-  const ip =
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    request.headers.get("x-real-ip") ??
-    null;
+  const requestIp = extractClientIp(request.headers);
+  const ip = requestIp === "unknown" ? null : requestIp;
   const ua = request.headers.get("user-agent") ?? null;
 
   const limit = rateLimit({
@@ -238,6 +237,22 @@ async function handleIngest(request: Request, context: RouteContext) {
     );
   }
   const data = parsed.data;
+  const submittedIp = pickFirst(data, ["ipAddress", "ip"]) ?? ip ?? undefined;
+  if (submittedIp && (await isBlockedIpAddress(submittedIp))) {
+    await recordWebhookEvent({
+      webhookId: webhook.id,
+      payload: raw,
+      statusCode: 403,
+      errorMessage: "Blocked by IP denylist",
+      ip,
+      userAgent: ua,
+    });
+    return webhookResponse(
+      request,
+      { error: "Request could not be accepted" },
+      { status: 403 },
+    );
+  }
 
   const intakeGuard = evaluateLeadIntakeGuard(data);
   if (!intakeGuard.ok) {

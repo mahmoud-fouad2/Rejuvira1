@@ -90,6 +90,12 @@ export default async function AdminMediaPage() {
       value: mediaSelections.heroCard3,
     },
     {
+      key: "heroCard4",
+      labelAr: "بطاقة 4",
+      labelEn: "Card 4",
+      value: mediaSelections.heroCard4,
+    },
+    {
       key: "doctorsHero",
       labelAr: "قسم الأطباء",
       labelEn: "Doctors page",

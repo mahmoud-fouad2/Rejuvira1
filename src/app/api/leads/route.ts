@@ -8,6 +8,7 @@ import {
   getCustomPageLeadWebhookBySlug,
   getRuntimeSettings,
   getServiceByReference,
+  isBlockedIpAddress,
 } from "@/lib/content-repository";
 import { dispatchFormWebhook, dispatchJsonWebhook } from "@/lib/form-webhook";
 import {
@@ -223,7 +224,15 @@ function response(
   leadState?: "success" | "error" | "duplicate",
 ) {
   if (wantsJson(request)) {
-    return NextResponse.json({ status, message }, init);
+    return NextResponse.json(
+      {
+        ok: status === "success",
+        status,
+        message,
+        duplicate: leadState === "duplicate",
+      },
+      init,
+    );
   }
   const referer = request.headers.get("referer") || "/contact";
   const url = new URL(referer, request.url);
@@ -256,7 +265,12 @@ export async function POST(request: Request) {
     });
     if (jsonResponse) {
       return NextResponse.json(
-        { ok: false, error: LEAD_SPAM_GUARD_MESSAGE },
+        {
+          ok: false,
+          status: "error",
+          error: LEAD_SPAM_GUARD_MESSAGE,
+          message: LEAD_SPAM_GUARD_MESSAGE,
+        },
         { status: 400 },
       );
     }
@@ -272,12 +286,15 @@ export async function POST(request: Request) {
       (issue) => issue.path[0] === "phone",
     );
     if (jsonResponse) {
+      const errorMessage = phoneInvalid
+        ? SAUDI_MOBILE_ERROR_MESSAGE
+        : "Invalid lead payload";
       return NextResponse.json(
         {
           ok: false,
-          error: phoneInvalid
-            ? SAUDI_MOBILE_ERROR_MESSAGE
-            : "Invalid lead payload",
+          status: "error",
+          error: errorMessage,
+          message: errorMessage,
           issues: parsed.error.issues,
         },
         { status: 400 },
@@ -294,6 +311,20 @@ export async function POST(request: Request) {
   }
 
   const clientIp = extractClientIp(request.headers);
+  if (clientIp !== "unknown" && (await isBlockedIpAddress(clientIp))) {
+    await recordAppLog({
+      level: "warn",
+      kind: "blocked-ip",
+      message: "Landing page lead blocked by IP denylist",
+      meta: { ip: clientIp },
+    });
+    return response(
+      request,
+      "error",
+      "تعذر استقبال الطلب حاليًا. / Request could not be accepted.",
+      { status: 403 },
+    );
+  }
   const limit = rateLimit({
     key: `landing-lead:${clientIp}`,
     limit: 6,
@@ -381,7 +412,7 @@ export async function POST(request: Request) {
     });
 
     const buildLeadWebhookPayload = (
-      event: "landing_lead.created" | "landing_lead.repeated",
+      event: "landing_lead.created",
       duplicate: boolean,
     ) => ({
       event,
@@ -434,7 +465,7 @@ export async function POST(request: Request) {
 
     const dispatchLeadWebhooks = async (
       leadWebhookPayload: ReturnType<typeof buildLeadWebhookPayload>,
-      customPageEvent: "custom_page_lead.created" | "custom_page_lead.repeated",
+      customPageEvent: "custom_page_lead.created",
     ) => {
       const pageWebhook = landingPageSlug
         ? await getCustomPageLeadWebhookBySlug(landingPageSlug)
@@ -469,15 +500,23 @@ export async function POST(request: Request) {
     };
 
     if (result.mode === "duplicate") {
-      await dispatchLeadWebhooks(
-        buildLeadWebhookPayload("landing_lead.repeated", true),
-        "custom_page_lead.repeated",
-      );
+      await recordAppLog({
+        level: "info",
+        kind: "webhook",
+        message: "Duplicate landing lead webhook delivery suppressed",
+        meta: {
+          submissionId: result.submission.id,
+          source: parsed.data.source || "Landing page form",
+          landingPageSlug: landingPageSlug || undefined,
+          duplicate: true,
+        },
+      });
       revalidatePath("/admin/crm");
       if (jsonResponse) {
         return NextResponse.json(
           {
             ok: true,
+            status: "success",
             duplicate: true,
             message: LEAD_DUPLICATE_MESSAGE,
             submissionId: result.submission.id,
@@ -502,7 +541,14 @@ export async function POST(request: Request) {
     revalidatePath("/admin/crm");
     if (jsonResponse) {
       return NextResponse.json(
-        { ok: true, message: "Lead captured" },
+        {
+          ok: true,
+          status: "success",
+          duplicate: false,
+          message: "Lead captured",
+          submissionId:
+            result.mode === "database" ? result.submission.id : undefined,
+        },
         { status: 201 },
       );
     }

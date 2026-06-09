@@ -15,6 +15,7 @@ const KNOWN_SLOTS = [
   "heroCard1",
   "heroCard2",
   "heroCard3",
+  "heroCard4",
   "doctorsHero",
   "servicesHero",
   "aboutHero",

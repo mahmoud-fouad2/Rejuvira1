@@ -90,17 +90,45 @@ export function rateLimit(options: RateLimitOptions): RateLimitResult {
 /**
  * Best-effort client IP extraction from forwarded headers.
  *
- * Order: `x-forwarded-for` (first hop) → `x-real-ip` → `cf-connecting-ip`.
+ * Cloudflare/edge headers are preferred before generic proxy chains.
  */
+function normalizeForwardedIp(value: string | null | undefined) {
+  const first = value?.split(",")[0]?.trim();
+  if (!first) return null;
+
+  const withoutQuotes = first.replace(/^["']|["']$/g, "");
+  const bracketedIpv6 = withoutQuotes.match(/^\[([a-f0-9:.]+)\](?::\d+)?$/i);
+  if (bracketedIpv6?.[1]) return bracketedIpv6[1];
+
+  const ipv4WithPort = withoutQuotes.match(/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/);
+  const candidate = ipv4WithPort?.[1] ?? withoutQuotes;
+  return /^[a-f0-9:.]+$/i.test(candidate) ? candidate : null;
+}
+
+export function normalizeClientIp(value: string | null | undefined) {
+  return normalizeForwardedIp(value);
+}
+
 export function extractClientIp(headers: Headers): string {
+  const directHeaders = [
+    "cf-connecting-ip",
+    "true-client-ip",
+    "x-real-ip",
+    "x-client-ip",
+  ];
+
+  for (const header of directHeaders) {
+    const ip = normalizeForwardedIp(headers.get(header));
+    if (ip) return ip;
+  }
+
   const xff = headers.get("x-forwarded-for");
   if (xff) {
-    const first = xff.split(",")[0]?.trim();
-    if (first) return first;
+    for (const part of xff.split(",")) {
+      const ip = normalizeForwardedIp(part);
+      if (ip) return ip;
+    }
   }
-  const real = headers.get("x-real-ip");
-  if (real) return real.trim();
-  const cf = headers.get("cf-connecting-ip");
-  if (cf) return cf.trim();
+
   return "unknown";
 }

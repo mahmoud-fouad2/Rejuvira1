@@ -7,6 +7,7 @@ import {
   createContactLead,
   getRuntimeSettings,
   getServiceByReference,
+  isBlockedIpAddress,
 } from "@/lib/content-repository";
 import { dispatchFormWebhook } from "@/lib/form-webhook";
 import {
@@ -150,6 +151,20 @@ export async function POST(request: Request) {
   }
 
   const clientIp = extractClientIp(request.headers);
+  if (clientIp !== "unknown" && (await isBlockedIpAddress(clientIp))) {
+    await recordAppLog({
+      level: "warn",
+      kind: "blocked-ip",
+      message: "Contact form blocked by IP denylist",
+      meta: { ip: clientIp },
+    });
+    return response(
+      request,
+      "error",
+      "تعذر استقبال الطلب حاليًا. / Request could not be accepted.",
+      { status: 403 },
+    );
+  }
   const limit = rateLimit({
     key: `contact:${clientIp}`,
     limit: 5,
@@ -236,7 +251,7 @@ export async function POST(request: Request) {
     });
 
     const buildContactWebhookPayload = (
-      event: "contact_submission.created" | "contact_submission.repeated",
+      event: "contact_submission.created",
       duplicate: boolean,
     ) => ({
       event,
@@ -277,13 +292,15 @@ export async function POST(request: Request) {
     });
 
     if (result.mode === "duplicate") {
-      await dispatchFormWebhook({
-        settings,
-        failureMessage: "Form webhook delivery failed",
-        payload: buildContactWebhookPayload(
-          "contact_submission.repeated",
-          true,
-        ),
+      await recordAppLog({
+        level: "info",
+        kind: "webhook",
+        message: "Duplicate contact submission webhook delivery suppressed",
+        meta: {
+          submissionId: result.submission.id,
+          source: parsed.data.source || "Website contact form",
+          duplicate: true,
+        },
       });
       revalidatePath("/admin/crm");
       if (wantsJson(request)) {

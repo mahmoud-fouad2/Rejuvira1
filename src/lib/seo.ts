@@ -200,7 +200,6 @@ export function buildSiteCreatorJsonLd(settings: {
       "@id": "https://ma-fo.info/#person",
       name: "Mahmoud Fouad",
       jobTitle: "Website Developer and Creator",
-      telephone: "0530047640",
       url: "https://ma-fo.info",
       sameAs: ["https://www.linkedin.com/in/mahmoud-fouad"],
     },

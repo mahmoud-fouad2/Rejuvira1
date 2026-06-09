@@ -241,6 +241,7 @@ export function V0InspiredHome({
     settings.media.heroCard1,
     settings.media.heroCard2,
     settings.media.heroCard3,
+    settings.media.heroCard4,
   ].filter(
     (src, index, list): src is string =>
       Boolean(src) && list.indexOf(src) === index,

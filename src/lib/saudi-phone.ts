@@ -2,7 +2,7 @@ export const SAUDI_MOBILE_REGEX = /^05[0-9]{8}$/;
 export const SAUDI_MOBILE_INPUT_PATTERN =
   "(?:05[0-9]{8}|(?:\\+?9665)[0-9]{8})";
 export const SAUDI_MOBILE_INPUT_TITLE =
-  "رقم الجوال السعودي يجب أن يكون 10 أرقام مثل 0530047640.";
+  "رقم الجوال السعودي يجب أن يكون 10 أرقام بصيغة 05xxxxxxxx.";
 export const SAUDI_MOBILE_ERROR_MESSAGE =
   "رقم الجوال السعودي يجب أن يكون 10 أرقام بصيغة 05xxxxxxxx. / Saudi mobile number must be 10 digits like 05xxxxxxxx.";
 

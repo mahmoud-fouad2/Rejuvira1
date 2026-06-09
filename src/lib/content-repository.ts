@@ -11,6 +11,7 @@ import {
   hasGeneralInquiryTag,
 } from "@/lib/general-inquiry";
 import { prisma } from "@/lib/prisma";
+import { normalizeClientIp } from "@/lib/rate-limit";
 
 export type DoctorRecord = {
   id: string;
@@ -162,6 +163,17 @@ export type CrmRecord = {
   }>;
 };
 
+export type BlockedIpRecord = {
+  id: string;
+  ipAddress: string;
+  reason?: string | undefined;
+  createdById?: string | undefined;
+  createdByName?: string | undefined;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type CustomPageRecord = {
   id: string;
   slug: string;
@@ -240,6 +252,7 @@ export type MediaSelections = {
   heroCard1: string;
   heroCard2: string;
   heroCard3: string;
+  heroCard4: string;
   doctorsHero: string;
   servicesHero: string;
   aboutHero: string;
@@ -2125,6 +2138,11 @@ const seedSettings: SettingsGroup[] = [
         value: "/media/hero/rejuvira-hero-3.jpg",
       },
       {
+        key: "heroCard4",
+        label: "صورة الهيرو الرابعة",
+        value: "/media/curated/clinic-interior.jpeg",
+      },
+      {
         key: "doctorsHero",
         label: "صورة قسم الأطباء",
         value: "/media/curated/doctor-team.jpg",
@@ -2440,6 +2458,7 @@ const defaultMediaSelections: MediaSelections = {
   heroCard1: "/media/hero/rejuvira-hero-1.jpg",
   heroCard2: "/media/hero/rejuvira-hero-2.jpg",
   heroCard3: "/media/hero/rejuvira-hero-3.jpg",
+  heroCard4: "/media/curated/clinic-interior.jpeg",
   doctorsHero: "/media/curated/doctor-team.jpg",
   servicesHero: serviceImages.aestheticSurgery,
   aboutHero: serviceImages.devices,
@@ -3048,6 +3067,114 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
   }
 }
 
+function mapBlockedIp(row: {
+  id: string;
+  ipAddress: string;
+  reason: string | null;
+  createdById: string | null;
+  createdByName: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}): BlockedIpRecord {
+  return {
+    id: row.id,
+    ipAddress: row.ipAddress,
+    reason: row.reason ?? undefined,
+    createdById: row.createdById ?? undefined,
+    createdByName: row.createdByName ?? undefined,
+    isActive: row.isActive,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export async function getBlockedIps(): Promise<BlockedIpRecord[]> {
+  if (!canUseDatabase()) return [];
+  try {
+    const rows = await prisma.blockedIp.findMany({
+      orderBy: [{ isActive: "desc" }, { updatedAt: "desc" }],
+      take: 200,
+    });
+    return rows.map(mapBlockedIp);
+  } catch {
+    return [];
+  }
+}
+
+export async function isBlockedIpAddress(ipAddress?: string | null) {
+  if (!canUseDatabase()) return false;
+  const ip = normalizeClientIp(ipAddress);
+  if (!ip) return false;
+  try {
+    const item = await prisma.blockedIp.findUnique({
+      where: { ipAddress: ip },
+      select: { isActive: true },
+    });
+    return item?.isActive ?? false;
+  } catch {
+    return false;
+  }
+}
+
+export async function blockIpAddress(input: {
+  ipAddress: string;
+  reason?: string | undefined;
+  createdById?: string | undefined;
+  createdByName?: string | undefined;
+}) {
+  const ipAddress = normalizeClientIp(input.ipAddress);
+  if (!ipAddress) {
+    throw new Error("Invalid IP address");
+  }
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, item: { ...input, ipAddress } };
+  }
+
+  const data = {
+    reason: input.reason?.trim() || null,
+    createdById: input.createdById || null,
+    createdByName: input.createdByName || null,
+    isActive: true,
+  };
+  const item = await prisma.blockedIp.upsert({
+    where: { ipAddress },
+    update: data,
+    create: {
+      ipAddress,
+      ...data,
+    },
+  });
+  return { mode: "database" as const, item: mapBlockedIp(item) };
+}
+
+export async function unblockIpAddress(input: {
+  id?: string | undefined;
+  ipAddress?: string | undefined;
+}) {
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, input };
+  }
+
+  if (input.id) {
+    const item = await prisma.blockedIp.update({
+      where: { id: input.id },
+      data: { isActive: false },
+    });
+    return { mode: "database" as const, item: mapBlockedIp(item) };
+  }
+
+  const ipAddress = normalizeClientIp(input.ipAddress);
+  if (!ipAddress) {
+    throw new Error("Invalid IP address");
+  }
+  const item = await prisma.blockedIp.update({
+    where: { ipAddress },
+    data: { isActive: false },
+  });
+  return { mode: "database" as const, item: mapBlockedIp(item) };
+}
+
 export async function getSettingsGroups() {
   if (!canUseDatabase()) {
     return cloneSettingsGroups(seedSettings);
@@ -3296,6 +3423,10 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       heroCard3: toDisplayAsset(
         getValue("media", "heroCard3", defaultMediaSelections.heroCard3),
         defaultMediaSelections.heroCard3,
+      ),
+      heroCard4: toDisplayAsset(
+        getValue("media", "heroCard4", defaultMediaSelections.heroCard4),
+        defaultMediaSelections.heroCard4,
       ),
       doctorsHero: toDisplayAsset(
         getValue("media", "doctorsHero", defaultMediaSelections.doctorsHero),

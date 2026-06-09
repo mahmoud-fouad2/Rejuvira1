@@ -8,17 +8,19 @@ import { LineChart, ChartCard } from "@/components/admin/AdminCharts";
 import { canManageCrm } from "@/lib/admin-permissions";
 import {
   getAdminUsers,
+  getBlockedIps,
   getCrmSubmissions,
   getServices,
 } from "@/lib/content-repository";
 import { importCrmCsvAction } from "@/app/admin/crm/actions";
 
 export default async function AdminCrmPage() {
-  const [session, submissions, servicesRaw, staffRaw] = await Promise.all([
+  const [session, submissions, servicesRaw, staffRaw, blockedIps] = await Promise.all([
     auth(),
     getCrmSubmissions(),
     getServices(),
     getAdminUsers(),
+    getBlockedIps(),
   ]);
   const canManage = canManageCrm(session?.user?.role);
 
@@ -175,6 +177,7 @@ export default async function AdminCrmPage() {
         submissions={submissions}
         services={services}
         staff={staff}
+        blockedIps={blockedIps}
         canDelete={canManage}
         canDeleteComments={canManage}
         initialNow={initialNow}

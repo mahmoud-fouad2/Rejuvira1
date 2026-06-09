@@ -784,12 +784,7 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "campaignHero") {
     const tag = mode === "preview" ? "div" : "form";
-    const formAction = escapeHtml(
-      block.formActionUrl?.trim() ||
-        (block.webhookToken
-          ? `/api/webhooks/${encodeURIComponent(block.webhookToken)}`
-          : "/api/leads"),
-    );
+    const formAction = "/api/leads";
     const disabled = mode === "preview" ? " disabled" : "";
     const required = mode === "preview" ? "" : " required";
     const formAttrs =
@@ -1019,12 +1014,7 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
 
   if (block.kind === "leadForm") {
     const tag = mode === "preview" ? "div" : "form";
-    const formAction = escapeHtml(
-      block.formActionUrl?.trim() ||
-        (block.webhookToken
-          ? `/api/webhooks/${encodeURIComponent(block.webhookToken)}`
-          : "/api/leads"),
-    );
+    const formAction = "/api/leads";
     const attrs =
       mode === "preview"
         ? `class="rv-builder-lead-form-fields" aria-label="Lead form preview"`

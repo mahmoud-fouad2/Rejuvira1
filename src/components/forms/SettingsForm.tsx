@@ -442,7 +442,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
           required
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <input
           name="heroCard1"
           defaultValue={
@@ -470,6 +470,16 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
             "/media/hero/rejuvira-hero-3.jpg"
           }
           placeholder="صورة الهيرو الثالثة"
+          className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
+          required
+        />
+        <input
+          name="heroCard4"
+          defaultValue={
+            getFieldValue(groups, "media", "heroCard4") ||
+            "/media/curated/clinic-interior.jpeg"
+          }
+          placeholder="صورة الهيرو الرابعة"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
         />

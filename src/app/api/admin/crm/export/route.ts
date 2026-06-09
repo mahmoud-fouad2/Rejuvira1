@@ -38,6 +38,9 @@ const CRM_EXPORT_COLUMNS: readonly XlsxColumn[] = [
   { key: "utmMedium", label: "utm_medium", width: 18 },
   { key: "utmCampaign", label: "utm_campaign", width: 22 },
   { key: "utmContent", label: "utm_content", width: 22 },
+  { key: "ipAddress", label: "IP", width: 18 },
+  { key: "country", label: "البلد", width: 16 },
+  { key: "userAgent", label: "المتصفح", width: 36 },
 ];
 
 function normalizeText(value: string) {
@@ -65,6 +68,7 @@ function filterSubmissions(
   const source = params.get("source");
   const service = params.get("service");
   const owner = params.get("owner");
+  const ip = params.get("ip")?.trim().toLowerCase() ?? "";
   const ids = (params.get("ids") ?? "")
     .split(",")
     .map((id) => id.trim())
@@ -93,6 +97,9 @@ function filterSubmissions(
         return false;
       }
     }
+    if (ip && !submission.ipAddress?.toLowerCase().includes(ip)) {
+      return false;
+    }
     const created = new Date(submission.createdAt).getTime();
     if (fromTime && created < fromTime) return false;
     if (toTime && created > toTime) return false;
@@ -110,6 +117,9 @@ function filterSubmissions(
         submission.utmMedium ?? "",
         submission.utmCampaign ?? "",
         submission.utmContent ?? "",
+        submission.ipAddress ?? "",
+        submission.country ?? "",
+        submission.userAgent ?? "",
         submission.message ?? "",
         submission.notes ?? "",
       ]
@@ -146,6 +156,9 @@ function buildRows(submissions: Awaited<ReturnType<typeof getCrmSubmissions>>) {
     utmMedium: submission.utmMedium ?? "",
     utmCampaign: submission.utmCampaign ?? "",
     utmContent: submission.utmContent ?? "",
+    ipAddress: submission.ipAddress ?? "",
+    country: submission.country ?? "",
+    userAgent: submission.userAgent ?? "",
   }));
 }
 

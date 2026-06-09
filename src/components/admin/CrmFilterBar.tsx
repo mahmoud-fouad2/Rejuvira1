@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { SubmissionStatus } from "@/lib/prisma-enums";
 
 import { CrmSubmissionEditor } from "@/components/forms/CrmSubmissionEditor";
-import type { CrmRecord } from "@/lib/content-repository";
+import type { BlockedIpRecord, CrmRecord } from "@/lib/content-repository";
 
 const STATUS_AR: Record<SubmissionStatus, string> = {
   NEW: "جديد",
@@ -41,6 +41,10 @@ type CrmApiResult = {
   status: "success" | "error";
   message: string;
   affected?: number;
+};
+type BlockedIpApiResult = CrmApiResult & {
+  items?: BlockedIpRecord[];
+  item?: BlockedIpRecord;
 };
 type AdvancedFilters = {
   last24: boolean;
@@ -205,6 +209,74 @@ function compactUrl(value?: string) {
   }
 }
 
+function matchVersion(userAgent: string, pattern: RegExp) {
+  return userAgent.match(pattern)?.[1];
+}
+
+function parseUserAgent(userAgent?: string) {
+  const ua = userAgent?.trim();
+  if (!ua) {
+    return {
+      label: "غير متاح",
+      browser: "غير متاح",
+      os: "غير متاح",
+      device: "غير متاح",
+      isBot: false,
+    };
+  }
+
+  const isBot = /bot|crawl|spider|slurp|facebookexternalhit|preview/i.test(ua);
+  const browserCandidates: Array<[string, string | undefined]> = [
+    ["Samsung Internet", matchVersion(ua, /SamsungBrowser\/([\d.]+)/i)],
+    ["Microsoft Edge", matchVersion(ua, /EdgA?\/([\d.]+)/i)],
+    ["Opera", matchVersion(ua, /OPR\/([\d.]+)/i)],
+    ["Chrome iOS", matchVersion(ua, /CriOS\/([\d.]+)/i)],
+    ["Chrome", matchVersion(ua, /Chrome\/([\d.]+)/i)],
+    ["Firefox iOS", matchVersion(ua, /FxiOS\/([\d.]+)/i)],
+    ["Firefox", matchVersion(ua, /Firefox\/([\d.]+)/i)],
+    ["Safari", matchVersion(ua, /Version\/([\d.]+).*Safari/i)],
+  ];
+  const browserMatch = browserCandidates.find(([, version]) => version);
+  const browser = browserMatch
+    ? `${browserMatch[0]} ${String(browserMatch[1]).split(".")[0]}`
+    : isBot
+      ? "Bot / Crawler"
+      : "متصفح غير محدد";
+
+  const android = matchVersion(ua, /Android\s+([\d.]+)/i);
+  const ios = matchVersion(ua, /(?:iPhone OS|CPU OS)\s+([\d_]+)/i)?.replace(
+    /_/g,
+    ".",
+  );
+  const mac = matchVersion(ua, /Mac OS X\s+([\d_]+)/i)?.replace(/_/g, ".");
+  const os = android
+    ? `Android ${android}`
+    : ios
+      ? `iOS ${ios}`
+      : /Windows NT/i.test(ua)
+        ? "Windows"
+        : mac
+          ? `macOS ${mac}`
+          : /Linux/i.test(ua)
+            ? "Linux"
+            : "نظام غير محدد";
+  const device = isBot
+    ? "Bot"
+    : /iPad|Tablet/i.test(ua) || (/Android/i.test(ua) && !/Mobile/i.test(ua))
+      ? "Tablet"
+      : /Mobi|Android|iPhone/i.test(ua)
+        ? "Mobile"
+        : "Desktop";
+
+  return {
+    label: `${browser} · ${os} · ${device}`,
+    browser,
+    os,
+    device,
+    isBot,
+  };
+}
+
 function normalizeText(value: string) {
   return value
     .toLowerCase()
@@ -269,6 +341,8 @@ function matchesSearch(submission: CrmRecord, rawTerm: string) {
       submission.utmMedium ?? "",
       submission.utmCampaign ?? "",
       submission.utmContent ?? "",
+      submission.ipAddress ?? "",
+      submission.userAgent ?? "",
       (submission.tags ?? []).join(" "),
     ].join(" "),
   );
@@ -339,6 +413,7 @@ export function CrmFilterBar({
   submissions,
   services,
   staff,
+  blockedIps,
   canDelete = false,
   canDeleteComments = false,
   initialNow,
@@ -346,6 +421,7 @@ export function CrmFilterBar({
   submissions: ReadonlyArray<CrmRecord>;
   services: ReadonlyArray<{ slug: string; name: string }>;
   staff: ReadonlyArray<{ id: string; name: string }>;
+  blockedIps: ReadonlyArray<BlockedIpRecord>;
   canDelete?: boolean;
   canDeleteComments?: boolean;
   initialNow: number;
@@ -355,6 +431,7 @@ export function CrmFilterBar({
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [source, setSource] = useState("ALL");
+  const [ipFilter, setIpFilter] = useState("");
   const [service, setService] = useState("ALL");
   const [tag, setTag] = useState("ALL");
   const [owner, setOwner] = useState("ALL");
@@ -374,11 +451,19 @@ export function CrmFilterBar({
   const [bulkAssignee, setBulkAssignee] = useState("");
   const [bulkSource, setBulkSource] = useState("");
   const [confirmAction, setConfirmAction] = useState<BulkAction | null>(null);
+  const [ipBlockCandidate, setIpBlockCandidate] = useState<CrmRecord | null>(
+    null,
+  );
+  const [ipBlockReason, setIpBlockReason] = useState("");
+  const [blockedIpItems, setBlockedIpItems] = useState<BlockedIpRecord[]>([
+    ...blockedIps,
+  ]);
   const [deleteCandidate, setDeleteCandidate] = useState<CrmRecord | null>(
     null,
   );
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isBulkPending, startBulkTransition] = useTransition();
+  const [isIpBlockPending, setIsIpBlockPending] = useState(false);
   const [isDeletePending, setIsDeletePending] = useState(false);
   const [statusUpdateId, setStatusUpdateId] = useState<string | null>(null);
   const [isSearchPending, setIsSearchPending] = useState(false);
@@ -399,6 +484,7 @@ export function CrmFilterBar({
       setSearchInput(sourceParams.get("search") ?? "");
       setSearch(sourceParams.get("search") ?? "");
       setSource(sourceParams.get("source") ?? "ALL");
+      setIpFilter(sourceParams.get("ip") ?? "");
       setService(sourceParams.get("service") ?? "ALL");
       setOwner(sourceParams.get("owner") ?? "ALL");
       setTag(sourceParams.get("tag") ?? "ALL");
@@ -437,6 +523,7 @@ export function CrmFilterBar({
     const params = new URLSearchParams();
     if (status !== "ALL") params.set("status", status);
     if (source !== "ALL") params.set("source", source);
+    if (ipFilter.trim()) params.set("ip", ipFilter.trim());
     if (service !== "ALL") params.set("service", service);
     if (owner !== "ALL") params.set("owner", owner);
     if (tag !== "ALL") params.set("tag", tag);
@@ -455,6 +542,7 @@ export function CrmFilterBar({
   }, [
     advanced,
     fromDate,
+    ipFilter,
     isHydrated,
     owner,
     range,
@@ -472,6 +560,10 @@ export function CrmFilterBar({
     const timeout = window.setTimeout(() => setToast(null), 3200);
     return () => window.clearTimeout(timeout);
   }, [toast]);
+
+  useEffect(() => {
+    setBlockedIpItems([...blockedIps]);
+  }, [blockedIps]);
 
   useEffect(() => {
     const availableIds = new Set(submissions.map((item) => item.id));
@@ -525,6 +617,14 @@ export function CrmFilterBar({
     return submissions.filter((submission) => {
       if (status !== "ALL" && submission.status !== status) return false;
       if (source !== "ALL" && leadSource(submission) !== source) return false;
+      if (
+        ipFilter.trim() &&
+        !submission.ipAddress
+          ?.toLowerCase()
+          .includes(ipFilter.trim().toLowerCase())
+      ) {
+        return false;
+      }
       if (service !== "ALL" && submission.serviceSlug !== service) return false;
       if (tag !== "ALL" && !(submission.tags ?? []).includes(tag)) return false;
       if (owner !== "ALL") {
@@ -587,6 +687,7 @@ export function CrmFilterBar({
     advanced,
     duplicatePhones,
     fromDate,
+    ipFilter,
     nowSnapshot,
     owner,
     range,
@@ -661,6 +762,13 @@ export function CrmFilterBar({
   const selectedSubmission = selectedLeadId
     ? (submissions.find((item) => item.id === selectedLeadId) ?? null)
     : null;
+  const activeBlockedIps = useMemo(
+    () => blockedIpItems.filter((item) => item.isActive),
+    [blockedIpItems],
+  );
+  const isSelectedIpBlocked = selectedSubmission?.ipAddress
+    ? activeBlockedIps.some((item) => item.ipAddress === selectedSubmission.ipAddress)
+    : false;
 
   useEffect(() => {
     if (!selectedSubmission) return;
@@ -677,13 +785,14 @@ export function CrmFilterBar({
   }, [selectedSubmission]);
 
   useEffect(() => {
-    if (!confirmAction && !deleteCandidate) return;
+    if (!confirmAction && !deleteCandidate && !ipBlockCandidate) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setConfirmAction(null);
         setDeleteCandidate(null);
+        setIpBlockCandidate(null);
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -691,24 +800,26 @@ export function CrmFilterBar({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [confirmAction, deleteCandidate]);
+  }, [confirmAction, deleteCandidate, ipBlockCandidate]);
 
   const exportQuery = useMemo(() => {
     const params = new URLSearchParams();
     if (status !== "ALL") params.set("status", status);
     if (source !== "ALL") params.set("source", source);
+    if (ipFilter.trim()) params.set("ip", ipFilter.trim());
     if (service !== "ALL") params.set("service", service);
     if (owner !== "ALL") params.set("owner", owner);
     if (fromDate) params.set("from", fromDate);
     if (toDate) params.set("to", toDate);
     if (search.trim()) params.set("search", search.trim());
     return params.toString();
-  }, [fromDate, owner, search, service, source, status, toDate]);
+  }, [fromDate, ipFilter, owner, search, service, source, status, toDate]);
 
   const activeFilterCount = useMemo(() => {
     let total = 0;
     if (status !== "ALL") total += 1;
     if (source !== "ALL") total += 1;
+    if (ipFilter.trim()) total += 1;
     if (service !== "ALL") total += 1;
     if (owner !== "ALL") total += 1;
     if (tag !== "ALL") total += 1;
@@ -718,13 +829,14 @@ export function CrmFilterBar({
     if (search.trim()) total += 1;
     total += Object.values(advanced).filter(Boolean).length;
     return total;
-  }, [advanced, fromDate, owner, range, search, service, source, status, tag, toDate]);
+  }, [advanced, fromDate, ipFilter, owner, range, search, service, source, status, tag, toDate]);
 
   const resetFilters = () => {
     setStatus("ALL");
     setSearchInput("");
     setSearch("");
     setSource("ALL");
+    setIpFilter("");
     setService("ALL");
     setTag("ALL");
     setOwner("ALL");
@@ -874,6 +986,87 @@ export function CrmFilterBar({
     }
   };
 
+  const blockSelectedIp = async () => {
+    if (!canDelete || !ipBlockCandidate?.ipAddress || isIpBlockPending) return;
+    setIsIpBlockPending(true);
+    try {
+      const response = await fetch("/api/admin/blocked-ips", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ipAddress: ipBlockCandidate.ipAddress,
+          reason:
+            ipBlockReason.trim() ||
+            `Lead ${ipBlockCandidate.id} - ${ipBlockCandidate.fullName}`,
+        }),
+      });
+      const result = (await response.json().catch(() => null)) as
+        | BlockedIpApiResult
+        | null;
+      const succeeded = response.ok && result?.status === "success";
+      setToast({
+        type: succeeded ? "success" : "error",
+        message:
+          result?.message ??
+          "تعذر حظر الـ IP حاليًا. الرجاء المحاولة مرة أخرى.",
+      });
+      if (succeeded && result?.item) {
+        setBlockedIpItems((items) => {
+          const withoutCurrent = items.filter(
+            (item) => item.ipAddress !== result.item?.ipAddress,
+          );
+          return [result.item as BlockedIpRecord, ...withoutCurrent];
+        });
+        setIpBlockCandidate(null);
+        setIpBlockReason("");
+        router.refresh();
+      }
+    } catch {
+      setToast({
+        type: "error",
+        message: "تعذر الاتصال بالخادم لحظر الـ IP.",
+      });
+    } finally {
+      setIsIpBlockPending(false);
+    }
+  };
+
+  const unblockIp = async (item: BlockedIpRecord) => {
+    if (!canDelete || isIpBlockPending) return;
+    setIsIpBlockPending(true);
+    try {
+      const response = await fetch(
+        `/api/admin/blocked-ips?id=${encodeURIComponent(item.id)}`,
+        { method: "DELETE" },
+      );
+      const result = (await response.json().catch(() => null)) as
+        | BlockedIpApiResult
+        | null;
+      const succeeded = response.ok && result?.status === "success";
+      setToast({
+        type: succeeded ? "success" : "error",
+        message:
+          result?.message ??
+          "تعذر فك حظر الـ IP حاليًا. الرجاء المحاولة مرة أخرى.",
+      });
+      if (succeeded) {
+        setBlockedIpItems((items) =>
+          items.map((blocked) =>
+            blocked.id === item.id ? { ...blocked, isActive: false } : blocked,
+          ),
+        );
+        router.refresh();
+      }
+    } catch {
+      setToast({
+        type: "error",
+        message: "تعذر الاتصال بالخادم لفك حظر الـ IP.",
+      });
+    } finally {
+      setIsIpBlockPending(false);
+    }
+  };
+
   const advancedOptions: Array<{
     key: keyof AdvancedFilters;
     label: string;
@@ -991,6 +1184,16 @@ export function CrmFilterBar({
             </select>
           </label>
           <label>
+            <span>IP</span>
+            <input
+              className="admin-input"
+              value={ipFilter}
+              onChange={(event) => setIpFilter(event.target.value)}
+              placeholder="82.167.28.249"
+              dir="ltr"
+            />
+          </label>
+          <label>
             <span>المسؤول</span>
             <select
               className="admin-input"
@@ -1079,23 +1282,63 @@ export function CrmFilterBar({
         </div>
 
         {showAdvanced ? (
-          <div className="admin-crm-advanced-grid">
-            {advancedOptions.map((option) => (
-              <label key={option.key}>
-                <input
-                  type="checkbox"
-                  checked={advanced[option.key]}
-                  onChange={(event) =>
-                    setAdvanced((current) => ({
-                      ...current,
-                      [option.key]: event.target.checked,
-                    }))
-                  }
-                />
-                <span>{option.label}</span>
-              </label>
-            ))}
-          </div>
+          <>
+            <div className="admin-crm-advanced-grid">
+              {advancedOptions.map((option) => (
+                <label key={option.key}>
+                  <input
+                    type="checkbox"
+                    checked={advanced[option.key]}
+                    onChange={(event) =>
+                      setAdvanced((current) => ({
+                        ...current,
+                        [option.key]: event.target.checked,
+                      }))
+                    }
+                  />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="admin-crm-security-card">
+              <div>
+                <span className="admin-field-label">حماية IP</span>
+                <strong>{activeBlockedIps.length} عنوان محظور</strong>
+                <p>
+                  الحظر يمنع العنوان من إرسال طلبات جديدة من الفورمات والويب هوكس.
+                </p>
+              </div>
+              <div className="admin-crm-security-card__list">
+                {activeBlockedIps.length ? (
+                  activeBlockedIps.slice(0, 8).map((item) => (
+                    <span key={item.id} className="admin-crm-ip-pill">
+                      <button
+                        type="button"
+                        title="فلترة هذا الـ IP"
+                        onClick={() => setIpFilter(item.ipAddress)}
+                        dir="ltr"
+                      >
+                        {item.ipAddress}
+                      </button>
+                      {canDelete ? (
+                        <button
+                          type="button"
+                          disabled={isIpBlockPending}
+                          onClick={() => void unblockIp(item)}
+                        >
+                          فك الحظر
+                        </button>
+                      ) : null}
+                    </span>
+                  ))
+                ) : (
+                  <span className="admin-crm-security-card__empty">
+                    لا توجد عناوين محظورة حاليًا.
+                  </span>
+                )}
+              </div>
+            </div>
+          </>
         ) : null}
       </section>
 
@@ -1632,6 +1875,76 @@ export function CrmFilterBar({
         </div>
       ) : null}
 
+      {ipBlockCandidate ? (
+        <div
+          className="admin-modal admin-crm-confirm admin-crm-ip-block-confirm modal fade show"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`block-ip-title-${ipBlockCandidate.id}`}
+        >
+          <button
+            type="button"
+            className="admin-modal__backdrop modal-backdrop fade show"
+            aria-label="إغلاق تأكيد حظر IP"
+            onClick={() => setIpBlockCandidate(null)}
+          />
+          <div className="admin-modal__panel modal-dialog modal-sm modal-dialog-centered">
+            <div className="modal-content">
+              <header className="admin-modal__header modal-header">
+                <h2
+                  id={`block-ip-title-${ipBlockCandidate.id}`}
+                  className="admin-modal__title modal-title"
+                >
+                  تأكيد حظر IP
+                </h2>
+                <button
+                  type="button"
+                  className="admin-modal__close btn-close"
+                  aria-label="إغلاق"
+                  onClick={() => setIpBlockCandidate(null)}
+                >
+                  ×
+                </button>
+              </header>
+              <div className="admin-modal__body modal-body">
+                <p>
+                  سيتم منع هذا العنوان من إرسال طلبات جديدة:
+                  <strong dir="ltr">{ipBlockCandidate.ipAddress}</strong>
+                </p>
+                <label className="admin-crm-ip-block-reason">
+                  <span>سبب الحظر</span>
+                  <textarea
+                    className="admin-input"
+                    value={ipBlockReason}
+                    onChange={(event) => setIpBlockReason(event.target.value)}
+                    placeholder="مثال: استخدام رقم غير خاص به / تكرار مزعج"
+                    rows={3}
+                  />
+                </label>
+                <div className="admin-crm-confirm__actions">
+                  <button
+                    type="button"
+                    className="admin-btn-secondary"
+                    disabled={isIpBlockPending}
+                    onClick={() => setIpBlockCandidate(null)}
+                  >
+                    إلغاء
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn-danger"
+                    disabled={isIpBlockPending}
+                    onClick={() => void blockSelectedIp()}
+                  >
+                    {isIpBlockPending ? "جاري الحظر..." : "حظر IP"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {selectedSubmission ? (
         <div
           className="admin-modal admin-crm-modal modal fade show"
@@ -1727,6 +2040,33 @@ export function CrmFilterBar({
                     <strong dir="ltr">
                       {missingLeadMeta(selectedSubmission.ipAddress)}
                     </strong>
+                    {selectedSubmission.ipAddress ? (
+                      <div className="admin-crm-ip-actions">
+                        <button
+                          type="button"
+                          className="admin-btn-secondary"
+                          onClick={() => setIpFilter(selectedSubmission.ipAddress ?? "")}
+                        >
+                          فلترة IP
+                        </button>
+                        {canDelete ? (
+                          isSelectedIpBlocked ? (
+                            <span className="admin-chip is-warning">IP محظور</span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="admin-btn-danger"
+                              onClick={() => {
+                                setIpBlockCandidate(selectedSubmission);
+                                setIpBlockReason("");
+                              }}
+                            >
+                              حظر IP
+                            </button>
+                          )
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
                   <div>
                     <span className="admin-field-label">البلد</span>
@@ -1748,9 +2088,15 @@ export function CrmFilterBar({
                   </div>
                   <div>
                     <span className="admin-field-label">المتصفح</span>
-                    <p dir="ltr" title={selectedSubmission.userAgent}>
-                      {missingLeadMeta(selectedSubmission.userAgent)}
+                    <p title={selectedSubmission.userAgent}>
+                      {parseUserAgent(selectedSubmission.userAgent).label}
                     </p>
+                    {selectedSubmission.userAgent ? (
+                      <details className="admin-crm-ua-details">
+                        <summary>عرض User-Agent الخام</summary>
+                        <code dir="ltr">{selectedSubmission.userAgent}</code>
+                      </details>
+                    ) : null}
                   </div>
                   <div>
                     <span className="admin-field-label">رسالة العميل</span>

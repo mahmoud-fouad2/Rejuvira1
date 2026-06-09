@@ -1960,6 +1960,116 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   accent-color: var(--admin-accent);
 }
 
+.admin-crm-security-card {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.7fr) 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  border-top: 1px solid var(--admin-border);
+  padding-top: 0.75rem;
+}
+
+.admin-crm-security-card > div:first-child {
+  border: 1px solid color-mix(in srgb, var(--admin-danger) 15%, var(--admin-border));
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--admin-danger) 5%, var(--admin-panel));
+  padding: 0.72rem;
+}
+
+.admin-crm-security-card strong {
+  display: block;
+  color: var(--admin-text);
+  font-size: 0.9rem;
+}
+
+.admin-crm-security-card p,
+.admin-crm-security-card__empty {
+  margin: 0.24rem 0 0;
+  color: var(--admin-text-faint);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.admin-crm-security-card__list {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.admin-crm-ip-pill {
+  display: inline-flex;
+  overflow: hidden;
+  align-items: center;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-panel);
+}
+
+.admin-crm-ip-pill button {
+  min-height: 1.85rem;
+  border: 0;
+  background: transparent;
+  color: var(--admin-text);
+  padding: 0.32rem 0.62rem;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.admin-crm-ip-pill button + button {
+  border-inline-start: 1px solid var(--admin-border);
+  color: var(--admin-danger);
+}
+
+.admin-crm-ip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.44rem;
+}
+
+.admin-crm-ip-actions .admin-btn-secondary,
+.admin-crm-ip-actions .admin-btn-danger {
+  min-height: 1.9rem;
+  padding: 0.28rem 0.58rem;
+  font-size: 0.68rem;
+}
+
+.admin-crm-ua-details {
+  margin-top: 0.35rem;
+}
+
+.admin-crm-ua-details summary {
+  cursor: pointer;
+  color: var(--admin-accent);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.admin-crm-ua-details code {
+  display: block;
+  margin-top: 0.35rem;
+  border-radius: 0.45rem;
+  background: var(--admin-panel-soft);
+  color: var(--admin-text-soft);
+  padding: 0.48rem;
+  font-size: 0.68rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.admin-crm-ip-block-reason {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.7rem;
+}
+
+.admin-crm-ip-block-reason span {
+  color: var(--admin-text-soft);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
 .admin-crm-database-stats button {
   display: grid;
   min-width: 0;
@@ -2287,6 +2397,10 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 @media (max-width: 1080px) {
   .admin-crm-advanced-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-crm-security-card {
+    grid-template-columns: 1fr;
   }
 
   .admin-crm-search-label {

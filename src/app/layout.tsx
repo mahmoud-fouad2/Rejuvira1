@@ -152,7 +152,6 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "rejuvera:developer": "Mahmoud Fouad",
-      "rejuvera:developer-phone": "0530047640",
       "rejuvera:developer-url": "https://ma-fo.info",
       "rejuvera:developer-linkedin":
         "https://www.linkedin.com/in/mahmoud-fouad",

@@ -264,7 +264,7 @@ function ApiWebhookDocumentationCard({
     "https://hooks.example.com/rejuvera";
   const jsonExample = `{
   "fullName": "Sara Ahmed",
-  "phone": "0530047640",
+  "phone": "0500000000",
   "email": "client@example.com",
   "serviceSlug": "rhinoplasty-nose-reshaping",
   "message": "أرغب في حجز استشارة",
@@ -285,7 +285,7 @@ function ApiWebhookDocumentationCard({
   "submittedAt": "2026-06-03T12:00:00.000Z",
   "submissionId": "lead_id",
   "fullName": "Sara Ahmed",
-  "phone": "0530047640",
+  "phone": "0500000000",
   "serviceSlug": "rhinoplasty-nose-reshaping",
   "serviceName": "عمليات تجميل الأنف",
   "preferredLanguage": "ar",
