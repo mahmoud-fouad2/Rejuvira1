@@ -42,6 +42,7 @@ yarn-error.log*
 /c
 /services.html
 build_log.txt
+/artifacts/
 
 # tooling / local IDE (large vendor trees — never commit)
 .codex-tools/

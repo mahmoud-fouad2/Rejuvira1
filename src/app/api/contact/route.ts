@@ -75,7 +75,15 @@ function response(
   leadState?: "success" | "error" | "duplicate",
 ) {
   if (wantsJson(request)) {
-    return NextResponse.json({ status, message }, init);
+    return NextResponse.json(
+      {
+        ok: status === "success",
+        status,
+        message,
+        duplicate: leadState === "duplicate",
+      },
+      init,
+    );
   }
 
   const referer = request.headers.get("referer") || "/contact";
@@ -306,6 +314,7 @@ export async function POST(request: Request) {
       if (wantsJson(request)) {
         return NextResponse.json(
           {
+            ok: true,
             status: "success",
             duplicate: true,
             message: LEAD_DUPLICATE_MESSAGE,

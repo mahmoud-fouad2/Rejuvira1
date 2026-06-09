@@ -1842,14 +1842,8 @@ export function CustomPageBuilder({
                   <input
                     dir="ltr"
                     value={selected.formActionUrl ?? ""}
-                    onChange={(event) =>
-                      update(selected.id, {
-                        formActionUrl: event.target.value,
-                        webhookToken: event.target.value
-                          ? ""
-                          : (selected.webhookToken ?? ""),
-                      })
-                    }
+                    readOnly
+                    disabled
                     placeholder="https://hook.eu2.make.com/..."
                   />
                   <small>
