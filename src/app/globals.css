@@ -14931,7 +14931,7 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   border: 0;
   border-radius: 999px;
   background: var(--builder-accent);
-  color: #fff;
+  color: #fff !important;
   padding: 0.8rem 1.2rem;
   font-weight: 900;
   text-decoration: none;

@@ -131,7 +131,7 @@ const blockLibrary: BlockLibraryItem[] = [
   { kind: "seoArticle", label: "SEO Article", hint: "مقال/نص طويل منسق للسيو" },
   { kind: "testimonial", label: "Review", hint: "اقتباس وتجربة عميل" },
   { kind: "video", label: "Video", hint: "فيديو أو صورة معاينة" },
-  { kind: "leadForm", label: "Lead Form", hint: "فورم يحفظ في CRM" },
+  { kind: "leadForm", label: "نموذج طلب", hint: "اسم ورقم جوال للمتابعة" },
   { kind: "contact", label: "Contact", hint: "بيانات تواصل" },
   { kind: "cta", label: "CTA", hint: "دعوة للحجز" },
 ];
@@ -178,7 +178,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   campaignHero: {
     title: "اختاري عرضك الآن وسيتم التواصل معك خلال دقائق",
     subtitle: "عروض ريجوفيرا",
-    body: "واجهة حملة إعلانية جاهزة بفورم سريع، أزرار واضحة، ومؤشرات ثقة مختصرة تساعد الزائر على إرسال الطلب بدون تشتيت.\nاختاري الخدمة أو العرض المناسب وسيقوم فريق ريجوفيرا بالتواصل للتأكيد.",
+    body: "ابدئي بطلب تواصل بسيط، وسيقوم فريق ريجوفيرا بتأكيد التفاصيل وتوجيهك للخيار الأنسب لحالتك.\nاختاري العرض أو الخدمة المناسبة لك واتركي بياناتك ليتم التواصل معك.",
     imageUrl: "/media/curated/clinic-treatment-room.jpeg",
     buttonLabel: "إرسال طلب",
     buttonHref: "#lead-form",
@@ -186,7 +186,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
     tone: "dark",
     align: "right",
     fontSize: "lg",
-    formServiceMode: "select",
+    formServiceMode: "hidden",
     formEmailMode: "hidden",
     formShowMessage: false,
     formServiceOptions: `${GENERAL_INQUIRY_SERVICE_AR}|${GENERAL_INQUIRY_SERVICE_VALUE}`,
@@ -287,7 +287,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   },
   faq: {
     title: "أسئلة شائعة",
-    body: "هل أحتاج إلى استشارة قبل الإجراء؟|نعم، التقييم يساعد على اختيار الخطة الأنسب.\nمتى تظهر النتيجة؟|يختلف ذلك حسب الإجراء وطبيعة الحالة.\nهل يمكن تعديل الصفحة لاحقًا؟|نعم، يمكن تعديل البلوكات وإعادة ترتيبها من لوحة التحكم.",
+    body: "هل أحتاج إلى استشارة قبل الإجراء؟|نعم، التقييم يساعد على اختيار الخطة الأنسب.\nمتى تظهر النتيجة؟|يختلف ذلك حسب الإجراء وطبيعة الحالة.\nماذا يحدث بعد إرسال الطلب؟|يتواصل معك فريق ريجوفيرا لتأكيد البيانات وتوضيح الخطوة التالية.",
     accent: "#4a2476",
     tone: "light",
     align: "right",
@@ -322,7 +322,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   seoArticle: {
     title: "معلومات مهمة قبل الحجز",
     subtitle: "محتوى قابل للتعديل للسيو والحملات",
-    body: "تساعدك هذه الصفحة على شرح العرض أو الخدمة بلغة واضحة للزائر ومحركات البحث في نفس الوقت. ابدأي بتوضيح المشكلة، ثم الحل، ثم لماذا اختيار ريجوفيرا مناسب لهذه الحالة.\nيمكنك إضافة فقرات عن المرشح المناسب، مدة الزيارة، طريقة المتابعة، وما الذي يحدث بعد إرسال الطلب. اجعل النص واضحًا، بدون وعود مبالغ فيها، ومرتبطًا بالخدمة الفعلية داخل المركز.\nاستخدمي هذا البلوك في نهاية الصفحة لدعم SEO وGoogle Ads Landing Page Quality مع الحفاظ على تجربة قراءة هادئة.",
+    body: "في ريجوفيرا يبدأ القرار بتقييم واضح للحالة وفهم التوقعات قبل اختيار الإجراء المناسب. نركز على شرح الخيارات المتاحة، حدود كل إجراء، وما يناسب المظهر الطبيعي والمتوازن.\nبعد إرسال الطلب، يتواصل فريق ريجوفيرا لتأكيد البيانات وترتيب الخطوة التالية حسب الخدمة المطلوبة. الهدف هو تجربة هادئة، واضحة، ومناسبة لاحتياج كل حالة.\nيمكنك الاعتماد على هذه الصفحة لمعرفة أهم المعلومات قبل الحجز، مع تجنب الوعود المبالغ فيها والتركيز على خطة واقعية وآمنة.",
     buttonLabel: "طلب استشارة",
     buttonHref: "#lead-form",
     accent: "#4a2476",
@@ -349,16 +349,16 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   },
   leadForm: {
     title: "احجزي استشارتك",
-    subtitle: "Lead form",
-    body: "املئي البيانات وسيصل الطلب مباشرة إلى CRM داخل لوحة التحكم.",
+    subtitle: "طلب تواصل",
+    body: "اكتبي اسمك ورقم جوالك فقط، وسيتم التواصل معك لتأكيد التفاصيل.",
     buttonLabel: "إرسال الطلب",
     buttonHref: "/api/leads",
     accent: "#4a2476",
     tone: "soft",
     align: "right",
-    formServiceMode: "custom",
-    formEmailMode: "optional",
-    formShowMessage: true,
+    formServiceMode: "hidden",
+    formEmailMode: "hidden",
+    formShowMessage: false,
   },
   contact: {
     title: "ابدئي بخطوة واضحة",
@@ -382,7 +382,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
 
 const templates: Array<{ label: string; blocks: BlockKind[] }> = [
   {
-    label: "Landing Pro",
+    label: "صفحة حملة احترافية",
     blocks: [
       "campaignHero",
       "offerGrid",
@@ -793,7 +793,7 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
         : `class="rv-builder-campaign-form" action="${formAction}" method="post"`;
     const emailMode = block.formEmailMode ?? "hidden";
     const showMessage = block.formShowMessage ?? false;
-    const serviceMode = block.formServiceMode ?? "select";
+    const serviceMode = block.formServiceMode ?? "hidden";
     const serviceOptions = withGeneralInquiryFormOption(
       parseServiceOptions(block.formServiceOptions),
     );
@@ -818,10 +818,10 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     const hiddenInputs =
       mode === "preview"
         ? ""
-        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`;
+        : `<input type="hidden" name="source" value="${title} - صفحة هبوط"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`;
     const formControls =
       hiddenInputs +
-      `<div class="rv-builder-campaign-form__head"><small>${subtitle || "Lead form"}</small><strong>اتركي بياناتك وسيتواصل معك الفريق</strong></div>` +
+      `<div class="rv-builder-campaign-form__head"><small>${subtitle || "طلب تواصل"}</small><strong>اتركي بياناتك وسيتواصل معك الفريق</strong></div>` +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" type="tel"${phoneInputAttributes(disabled)}${required}${disabled} placeholder="05xxxxxxxx"></label>` +
       serviceControl +
@@ -1021,8 +1021,8 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
         : `class="rv-builder-lead-form-fields" action="${formAction}" method="post"`;
     const disabled = mode === "preview" ? " disabled" : "";
     const required = mode === "preview" ? "" : " required";
-    const emailMode = block.formEmailMode ?? "optional";
-    const showMessage = block.formShowMessage ?? true;
+    const emailMode = block.formEmailMode ?? "hidden";
+    const showMessage = block.formShowMessage ?? false;
     const serviceMode =
       block.formServiceMode ??
       (block.serviceSlug || block.serviceName ? "hidden" : "custom");
@@ -1050,7 +1050,7 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
     let controls =
       (mode === "preview"
         ? ""
-        : `<input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`) +
+        : `<input type="hidden" name="source" value="${title} - صفحة هبوط"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenServiceSlug ? `<input type="hidden" name="serviceSlug" value="${escapeHtml(hiddenServiceSlug)}">` : ""}${hiddenServiceName ? `<input type="hidden" name="service" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceName" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceLabel" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceType" value="${escapeHtml(hiddenServiceName)}"><input type="hidden" name="serviceTypeAr" value="${escapeHtml(hiddenServiceName)}">` : ""}`) +
       `<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name"${required}${disabled} placeholder="الاسم الثلاثي"></label>` +
       `<label><span>رقم الجوال</span><input name="phone" type="tel"${phoneInputAttributes(disabled)}${required}${disabled} placeholder="05xxxxxxxx"></label>` +
       (emailMode === "hidden"
@@ -1690,7 +1690,7 @@ export function CustomPageBuilder({
                 <label>
                   <span>حالة البريد الإلكتروني</span>
                   <select
-                    value={selected.formEmailMode ?? "optional"}
+                    value={selected.formEmailMode ?? "hidden"}
                     onChange={(event) =>
                       update(selected.id, {
                         formEmailMode: event.target.value as
@@ -1708,7 +1708,7 @@ export function CustomPageBuilder({
                 <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
                   <input
                     type="checkbox"
-                    checked={selected.formShowMessage ?? true}
+                    checked={selected.formShowMessage ?? false}
                     onChange={(event) =>
                       update(selected.id, {
                         formShowMessage: event.target.checked,
@@ -1721,10 +1721,7 @@ export function CustomPageBuilder({
                   <span>طريقة ظهور الخدمة داخل الفورم</span>
                   <select
                     value={
-                      selected.formServiceMode ??
-                      (selected.serviceSlug || selected.serviceName
-                        ? "hidden"
-                        : "custom")
+                      selected.formServiceMode ?? "hidden"
                     }
                     onChange={(event) =>
                       update(selected.id, {

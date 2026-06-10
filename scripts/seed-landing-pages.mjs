@@ -11,19 +11,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const sharedServices = [
-  { value: "general-inquiry", label: "استفسار عام" },
-  { value: "rhinoplasty", label: "عمليات تجميل الأنف" },
-  { value: "liposuction", label: "شفط الدهون" },
-  { value: "body-sculpting-surgery", label: "نحت الجسم الجراحي" },
-  { value: "tummy-tuck", label: "شد البطن" },
-  { value: "breast-augmentation", label: "تكبير وتنسيق الصدر" },
-  { value: "breast-lift", label: "شد وتصغير الصدر" },
-  { value: "eyelid-lift", label: "شد الجفون" },
-  { value: "female-aesthetic-care", label: "التجميل النسائي" },
-  { value: "male-gynecomastia-surgery", label: "علاج التثدي عند الرجال" },
-];
-
 const pages = [
   {
     campaignSegment: "general-aesthetic-center",
@@ -291,44 +278,6 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function serviceOptions(page) {
-  const preferred = new Set([
-    "general-inquiry",
-    page.serviceSlug,
-    ...(page.serviceSlug === "liposuction"
-      ? ["body-sculpting-surgery", "body-contouring"]
-      : []),
-    ...(page.serviceSlug === "eyelid-lift"
-      ? ["blepharoplasty", "face-neck-lift"]
-      : []),
-    ...(page.serviceSlug === "breast-augmentation"
-      ? ["breast-lift", "breast-reduction", "breast-implant-revision"]
-      : []),
-    ...(page.serviceSlug === "tummy-tuck"
-      ? ["body-lift", "body-sculpting-surgery"]
-      : []),
-  ]);
-
-  const localExtra = [
-    { value: "face-neck-lift", label: "شد الوجه والرقبة" },
-    { value: "blepharoplasty", label: "تجميل الجفون" },
-    { value: "breast-reduction", label: "تصغير الصدر" },
-    { value: "breast-implant-revision", label: "تغيير حشوات الصدر" },
-    { value: "body-lift", label: "شد الترهلات" },
-    { value: "body-contouring", label: "نحت القوام غير الجراحي" },
-  ];
-
-  return [...sharedServices, ...localExtra]
-    .filter((service) => preferred.has(service.value))
-    .map(
-      (service) =>
-        `<option value="${escapeHtml(service.value)}"${
-          service.value === page.serviceSlug ? " selected" : ""
-        }>${escapeHtml(service.label)}</option>`,
-    )
-    .join("");
-}
-
 function renderCards(items) {
   return items
     .map(
@@ -366,30 +315,77 @@ function renderFaqs(items) {
     .join("");
 }
 
+const sharedKeywordPhrases = [
+  "مركز تجميل في الرياض",
+  "عيادة تجميل في الرياض",
+  "استشارة تجميلية",
+  "جراحة تجميل في الرياض",
+  "نتائج طبيعية",
+  "أطباء تجميل",
+  "ريجوفيرا",
+  "Rejuvera Center",
+  "تجميل الوجه",
+  "تجميل الجسم",
+  "نحت الجسم",
+  "شد الترهلات",
+  "تجميل الأنف",
+  "شد الوجه",
+  "شد الجفون",
+  "تكبير الصدر",
+  "شد البطن",
+  "التجميل النسائي",
+  "التثدي عند الرجال",
+  "حجز استشارة",
+  "عيادات الرياض",
+  "مركز طبي تجميلي",
+];
+
+function keywordPhrases(page) {
+  const phrases = [
+    page.title,
+    page.eyebrow,
+    page.serviceLabel,
+    page.offer,
+    ...page.sections.map(([title]) => title),
+    ...sharedKeywordPhrases,
+  ];
+  return [...new Set(phrases.filter(Boolean))].slice(0, 28);
+}
+
+function renderKeywords(page) {
+  return keywordPhrases(page)
+    .map((keyword) => `<span>${escapeHtml(keyword)}</span>`)
+    .join("");
+}
+
 function buildLandingPage(page) {
   return `
 <section class="rv-ad-page" data-uploaded-html="true" data-layout="canvas" data-header="false" data-footer="false" data-campaign-page="${escapeHtml(page.campaignSegment)}" aria-label="${escapeHtml(page.title)}">
   <style>
-    .rv-ad-page{--accent:${page.accent};--accent-soft:#f4ecfb;--ink:#24143d;--muted:#756986;--line:rgba(36,20,61,.12);direction:rtl;text-align:right;color:var(--ink);font-family:inherit;background:#fbf7f0;overflow:hidden}
+    .rv-ad-page{--accent:${page.accent};--accent-soft:#f4ecfb;--ink:#24143d;--muted:#756986;--line:rgba(36,20,61,.12);display:block;width:100%;min-height:100vh;direction:rtl;text-align:right;color:var(--ink);font-family:inherit;background:#fbf7f0;overflow:hidden}
     .rv-ad-page *{box-sizing:border-box}
-    .rv-ad-shell{width:min(1120px,calc(100% - 32px));margin:0 auto}
-    .rv-ad-hero{position:relative;isolation:isolate;padding:clamp(28px,6vw,76px) 0;background:linear-gradient(135deg,#fff 0%,#fbf5ff 47%,#f8efe4 100%)}
+    .rv-ad-shell{width:min(1160px,calc(100% - 32px));margin:0 auto}
+    .rv-ad-hero{position:relative;isolation:isolate;padding:clamp(28px,6vw,82px) 0;background:radial-gradient(circle at 20% 12%,rgba(125,230,219,.22),transparent 28%),linear-gradient(135deg,#fff 0%,#fbf5ff 47%,#f8efe4 100%)}
     .rv-ad-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(92,36,132,.09),transparent 36%,rgba(198,151,87,.09));z-index:-1}
-    .rv-ad-hero__grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,430px);gap:clamp(24px,5vw,54px);align-items:center}
+    .rv-ad-hero__grid{display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);gap:clamp(24px,5vw,58px);align-items:center;direction:ltr}
+    .rv-ad-copy,.rv-ad-form-card{direction:rtl}
     .rv-ad-eyebrow{display:inline-flex;width:max-content;max-width:100%;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;background:#fff;padding:8px 13px;color:var(--accent);font-size:13px;font-weight:900;box-shadow:0 8px 24px rgba(36,20,61,.06)}
     .rv-ad-eyebrow:before{content:"";width:8px;height:8px;border-radius:999px;background:#22c55e}
-    .rv-ad-title{max-width:11ch;margin:18px 0 16px;font-size:clamp(42px,7vw,82px);line-height:.98;font-weight:950;letter-spacing:0;color:var(--ink)}
+    .rv-ad-title{max-width:12ch;margin:18px 0 16px;font-size:clamp(40px,6.3vw,78px);line-height:1.02;font-weight:950;letter-spacing:0;color:var(--ink)}
     .rv-ad-intro{max-width:620px;margin:0;color:var(--muted);font-size:clamp(16px,1.8vw,20px);line-height:1.9}
     .rv-ad-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
-    .rv-ad-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:999px;padding:13px 20px;text-decoration:none;font-weight:950;transition:transform .18s ease,box-shadow .18s ease}
+    .rv-ad-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:999px;padding:13px 20px;text-decoration:none!important;font-weight:950;transition:transform .18s ease,box-shadow .18s ease}
     .rv-ad-btn:hover{transform:translateY(-2px)}
-    .rv-ad-btn--primary{background:var(--accent);color:#fff;box-shadow:0 18px 34px rgba(92,36,132,.22)}
-    .rv-ad-btn--ghost{border:1px solid var(--line);background:#fff;color:var(--accent)}
+    .rv-ad-btn--primary{background:var(--accent);color:#fff!important;box-shadow:0 18px 34px rgba(92,36,132,.22)}
+    .rv-ad-btn--ghost{border:1px solid var(--line);background:#fff;color:var(--accent)!important}
     .rv-ad-proof{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:28px;max-width:620px}
     .rv-ad-proof span{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.74);padding:13px 12px;text-align:center;font-size:13px;font-weight:850;color:var(--ink);box-shadow:0 10px 26px rgba(36,20,61,.05)}
-    .rv-ad-form-card{border:1px solid rgba(255,255,255,.52);border-radius:28px;background:rgba(255,255,255,.9);padding:18px;box-shadow:0 28px 80px rgba(36,20,61,.16);backdrop-filter:blur(14px)}
-    .rv-ad-visual{position:relative;overflow:hidden;border-radius:22px;min-height:260px;background:#efe7f5}
-    .rv-ad-visual img{display:block;width:100%;height:300px;object-fit:cover;margin:0}
+    .rv-ad-form-card{border:1px solid rgba(255,255,255,.58);border-radius:30px;background:rgba(255,255,255,.92);padding:18px;box-shadow:0 28px 80px rgba(36,20,61,.16);backdrop-filter:blur(14px)}
+    .rv-ad-form-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+    .rv-ad-form-badge{display:inline-flex;border-radius:999px;background:#e9fbf5;color:#177a62;padding:7px 11px;font-size:12px;font-weight:950}
+    .rv-ad-form-logo{border-radius:14px;background:var(--accent-soft);color:var(--accent);padding:8px 10px;font-size:12px;font-weight:950}
+    .rv-ad-visual{position:relative;overflow:hidden;border-radius:22px;min-height:210px;background:#efe7f5}
+    .rv-ad-visual img{display:block;width:100%;height:230px;object-fit:cover;margin:0}
     .rv-ad-offer{position:absolute;inset:auto 14px 14px 14px;border-radius:18px;background:rgba(255,255,255,.88);padding:12px 14px;color:var(--ink);font-weight:900;box-shadow:0 16px 32px rgba(36,20,61,.16);backdrop-filter:blur(10px)}
     .rv-ad-form{display:grid;gap:11px;padding-top:16px}
     .rv-ad-form h2{margin:0 0 2px;font-size:24px;line-height:1.25;color:var(--ink);font-weight:950}
@@ -399,7 +395,7 @@ function buildLandingPage(page) {
     .rv-ad-field input,.rv-ad-field select,.rv-ad-field textarea{width:100%;min-height:46px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--ink);padding:11px 13px;font:inherit;outline:none}
     .rv-ad-field textarea{min-height:86px;resize:vertical}
     .rv-ad-field input:focus,.rv-ad-field select:focus,.rv-ad-field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(92,36,132,.1)}
-    .rv-ad-submit{min-height:50px;border:0;border-radius:16px;background:var(--accent);color:#fff;padding:13px 18px;font:inherit;font-weight:950;cursor:pointer;box-shadow:0 16px 34px rgba(92,36,132,.22)}
+    .rv-ad-submit{min-height:50px;border:0;border-radius:16px;background:var(--accent);color:#fff!important;padding:13px 18px;font:inherit;font-weight:950;cursor:pointer;box-shadow:0 16px 34px rgba(92,36,132,.22)}
     .rv-ad-note{font-size:11px!important;text-align:center!important}
     .rv-ad-section{padding:clamp(34px,6vw,76px) 0}
     .rv-ad-section--white{background:#fff}
@@ -422,40 +418,29 @@ function buildLandingPage(page) {
     .rv-ad-faq{border:1px solid var(--line);border-radius:16px;background:#fff;padding:0 16px;box-shadow:0 10px 26px rgba(36,20,61,.05)}
     .rv-ad-faq summary{cursor:pointer;padding:15px 0;font-weight:950;color:var(--ink)}
     .rv-ad-faq p{margin:0 0 16px;color:var(--muted);line-height:1.8}
+    .rv-ad-keywords{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+    .rv-ad-keywords span{border:1px solid rgba(92,36,132,.15);border-radius:999px;background:#fff;color:var(--accent);padding:8px 12px;font-size:12px;font-weight:850;box-shadow:0 8px 18px rgba(36,20,61,.04)}
     .rv-ad-bottom{border-radius:28px;background:linear-gradient(135deg,var(--accent),#2b0c45);padding:clamp(24px,5vw,46px);color:#fff;text-align:center;box-shadow:0 24px 60px rgba(36,20,61,.16)}
     .rv-ad-bottom h2{margin:0 0 10px;font-size:clamp(28px,4vw,46px);line-height:1.15;font-weight:950;color:#fff}
     .rv-ad-bottom p{margin:0 auto 22px;max-width:680px;color:rgba(255,255,255,.82);line-height:1.9}
-    .rv-ad-bottom .rv-ad-btn{background:#fff;color:var(--accent)}
+    .rv-ad-bottom .rv-ad-btn{background:#fff;color:var(--accent)!important}
     @media(max-width:900px){.rv-ad-hero__grid,.rv-ad-split{grid-template-columns:1fr}.rv-ad-title{max-width:100%}.rv-ad-grid{grid-template-columns:1fr}.rv-ad-section__head{display:block}.rv-ad-proof{grid-template-columns:1fr}.rv-ad-mini-image img{min-height:260px}}
     @media(max-width:560px){.rv-ad-shell{width:min(100% - 22px,1120px)}.rv-ad-title{font-size:40px}.rv-ad-actions{display:grid}.rv-ad-btn{width:100%}.rv-ad-form-card,.rv-ad-card,.rv-ad-panel,.rv-ad-bottom{border-radius:20px}.rv-ad-visual img{height:250px}}
   </style>
 
   <header class="rv-ad-hero">
     <div class="rv-ad-shell rv-ad-hero__grid">
-      <div>
-        <span class="rv-ad-eyebrow">${escapeHtml(page.eyebrow)}</span>
-        <h1 class="rv-ad-title">${escapeHtml(page.headline)}</h1>
-        <p class="rv-ad-intro">${escapeHtml(page.intro)}</p>
-        <div class="rv-ad-actions">
-          <a class="rv-ad-btn rv-ad-btn--primary" href="#lead-form">احجزي تقييمك الآن</a>
-          <a class="rv-ad-btn rv-ad-btn--ghost" href="tel:0114999959">اتصال مباشر</a>
-        </div>
-        <div class="rv-ad-proof" aria-label="مميزات ريجوفيرا">
-          <span>تقييم طبي واضح</span>
-          <span>خصوصية كاملة</span>
-          <span>متابعة منظمة</span>
-        </div>
-      </div>
-
       <div class="rv-ad-form-card">
-        <div class="rv-ad-visual">
-          <img src="${escapeHtml(page.image)}" alt="${escapeHtml(page.title)}" loading="eager" decoding="async">
-          <div class="rv-ad-offer">${escapeHtml(page.offer)}</div>
+        <div class="rv-ad-form-head">
+          <span class="rv-ad-form-badge">طلب سريع</span>
+          <span class="rv-ad-form-logo">Rejuvera</span>
         </div>
         <form id="lead-form" class="rv-ad-form" method="post" action="/api/leads">
           <h2>اطلبي التواصل الآن</h2>
-          <p>املئي البيانات وسيتم التواصل معك من فريق ريجوفيرا لتأكيد التفاصيل.</p>
+          <p>اكتبي اسمك ورقم جوالك فقط، وسيتم التواصل معك لتأكيد التفاصيل.</p>
           <input type="hidden" name="source" value="${escapeHtml(page.sourceLabel)}">
+          <input type="hidden" name="serviceSlug" value="${escapeHtml(page.serviceSlug)}">
+          <input type="hidden" name="service" value="${escapeHtml(page.serviceLabel)}">
           <input type="hidden" name="serviceName" value="${escapeHtml(page.serviceLabel)}">
           <input type="hidden" name="serviceLabel" value="${escapeHtml(page.serviceLabel)}">
           <input type="hidden" name="serviceTypeAr" value="${escapeHtml(page.serviceLabel)}">
@@ -468,19 +453,28 @@ function buildLandingPage(page) {
             <label for="${escapeHtml(page.slug)}-phone">رقم الجوال *</label>
             <input id="${escapeHtml(page.slug)}-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel" dir="ltr" placeholder="05xxxxxxxx">
           </div>
-          <div class="rv-ad-field">
-            <label for="${escapeHtml(page.slug)}-service">الخدمة المطلوبة</label>
-            <select id="${escapeHtml(page.slug)}-service" name="serviceSlug" required>
-              ${serviceOptions(page)}
-            </select>
-          </div>
-          <div class="rv-ad-field">
-            <label for="${escapeHtml(page.slug)}-message">ملاحظة مختصرة</label>
-            <textarea id="${escapeHtml(page.slug)}-message" name="message" placeholder="اكتبي أي تفاصيل مهمة أو الوقت المناسب للتواصل"></textarea>
-          </div>
           <button class="rv-ad-submit" type="submit">إرسال الطلب</button>
-          <p class="rv-ad-note">بالضغط على إرسال، يراجع فريق ريجوفيرا طلبك للتواصل وتأكيد التفاصيل.</p>
+          <p class="rv-ad-note">بياناتك تستخدم فقط للتواصل وتأكيد تفاصيل الطلب.</p>
         </form>
+        <div class="rv-ad-visual">
+          <img src="${escapeHtml(page.image)}" alt="${escapeHtml(page.title)}" loading="eager" decoding="async">
+          <div class="rv-ad-offer">${escapeHtml(page.offer)}</div>
+        </div>
+      </div>
+
+      <div class="rv-ad-copy">
+        <span class="rv-ad-eyebrow">${escapeHtml(page.eyebrow)}</span>
+        <h1 class="rv-ad-title">${escapeHtml(page.headline)}</h1>
+        <p class="rv-ad-intro">${escapeHtml(page.intro)}</p>
+        <div class="rv-ad-actions">
+          <a class="rv-ad-btn rv-ad-btn--primary" href="#lead-form">احجزي تقييمك الآن</a>
+          <a class="rv-ad-btn rv-ad-btn--ghost" href="tel:0114999959">اتصال مباشر</a>
+        </div>
+        <div class="rv-ad-proof" aria-label="مميزات ريجوفيرا">
+          <span>تقييم طبي واضح</span>
+          <span>خصوصية كاملة</span>
+          <span>متابعة منظمة</span>
+        </div>
       </div>
     </div>
   </header>
@@ -519,6 +513,14 @@ function buildLandingPage(page) {
         </div>
       </div>
       <div class="rv-ad-faqs">${renderFaqs(page.faqs)}</div>
+    </div>
+  </section>
+
+  <section class="rv-ad-section rv-ad-section--keywords">
+    <div class="rv-ad-shell">
+      <p class="rv-ad-kicker">كلمات بحث مرتبطة</p>
+      <h2 class="rv-ad-h2">خدمات يبحث عنها عملاء ريجوفيرا</h2>
+      <div class="rv-ad-keywords">${renderKeywords(page)}</div>
     </div>
   </section>
 
@@ -563,12 +565,7 @@ async function main() {
         seoDescription: page.intro,
         metaTitle: `${page.title} | Rejuvera Center`,
         metaDescription: page.intro,
-        keywords: [
-          page.title,
-          "ريجوفيرا",
-          "مركز تجميل في الرياض",
-          "استشارة تجميل",
-        ],
+        keywords: keywordPhrases(page),
         ogTitle: page.headline,
         ogDescription: page.intro,
         ogImage: page.image,
@@ -584,12 +581,7 @@ async function main() {
         seoDescription: page.intro,
         metaTitle: `${page.title} | Rejuvera Center`,
         metaDescription: page.intro,
-        keywords: [
-          page.title,
-          "ريجوفيرا",
-          "مركز تجميل في الرياض",
-          "استشارة تجميل",
-        ],
+        keywords: keywordPhrases(page),
         ogTitle: page.headline,
         ogDescription: page.intro,
         ogImage: page.image,

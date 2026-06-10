@@ -213,7 +213,7 @@ function renderBlock(block: LandingBlock) {
       serviceName || serviceSlug
         ? `<input type="hidden" name="serviceSlug" value="${serviceSlug}"><input type="hidden" name="service" value="${serviceName}"><input type="hidden" name="serviceName" value="${serviceName}"><input type="hidden" name="serviceLabel" value="${serviceName}"><input type="hidden" name="serviceType" value="${serviceName}"><input type="hidden" name="serviceTypeAr" value="${serviceName}">`
         : "";
-    return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><form class="rv-builder-lead-form-fields" action="/api/leads" method="post"><input type="hidden" name="source" value="${serviceName || title} - صفحة هبوط"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenService}<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required placeholder="الاسم الثلاثي"></label><label><span>رقم الجوال</span><input name="phone" type="tel" ${phoneInputAttrs} required placeholder="05xxxxxxxx"></label><label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email" placeholder="name@example.com"></label><label><span>تفاصيل الطلب</span><textarea name="message" rows="4" placeholder="اكتبي سؤالك أو الوقت المناسب للتواصل"></textarea></label><button type="submit">${buttonLabel}</button></form></section>`;
+    return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><form class="rv-builder-lead-form-fields" action="/api/leads" method="post"><input type="hidden" name="source" value="${serviceName || title} - صفحة هبوط"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenService}<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required placeholder="الاسم الثلاثي"></label><label><span>رقم الجوال</span><input name="phone" type="tel" ${phoneInputAttrs} required placeholder="05xxxxxxxx"></label><button type="submit">${buttonLabel}</button></form></section>`;
   }
 
   return `<section class="${classes(block, "rv-builder-section rv-builder-cta")}" ${style}><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
@@ -466,8 +466,6 @@ export function buildServiceLandingPageInput(
       fields: [
         { name: "fullName", type: "text", required: true },
         { name: "phone", type: "phone", required: true },
-        { name: "email", type: "email", required: false },
-        { name: "message", type: "textarea", required: false },
       ],
     },
     status: ContentStatus.PUBLISHED,
