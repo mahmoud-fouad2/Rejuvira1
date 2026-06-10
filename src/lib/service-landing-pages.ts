@@ -190,7 +190,7 @@ function renderBlock(block: LandingBlock) {
     const cases = parseBeforeAfter(body)
       .map(
         (item) =>
-          `<article><div><figure><small>قبل</small>${mediaSlot(item.before, `${item.title} قبل`)}</figure><figure><small>بعد</small>${mediaSlot(item.after, `${item.title} بعد`)}</figure></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body || "أضيفي وصف الحالة الحقيقي قبل إطلاق الحملة.")}</p></article>`,
+          `<article><div><figure><small>قبل</small>${mediaSlot(item.before, `${item.title} قبل`)}</figure><figure><small>بعد</small>${mediaSlot(item.after, `${item.title} بعد`)}</figure></div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body || "تختلف النتائج حسب الحالة والتقييم الطبي والخطة المناسبة.")}</p></article>`,
       )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-before-after")}" ${style}><h2>${title}</h2><div>${cases}</div></section>`;
@@ -213,7 +213,7 @@ function renderBlock(block: LandingBlock) {
       serviceName || serviceSlug
         ? `<input type="hidden" name="serviceSlug" value="${serviceSlug}"><input type="hidden" name="service" value="${serviceName}"><input type="hidden" name="serviceName" value="${serviceName}"><input type="hidden" name="serviceLabel" value="${serviceName}"><input type="hidden" name="serviceType" value="${serviceName}"><input type="hidden" name="serviceTypeAr" value="${serviceName}">`
         : "";
-    return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><form class="rv-builder-lead-form-fields" action="/api/leads" method="post"><input type="hidden" name="source" value="${title} landing page"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenService}<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required placeholder="الاسم الثلاثي"></label><label><span>رقم الجوال</span><input name="phone" type="tel" ${phoneInputAttrs} required placeholder="05xxxxxxxx"></label><label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email" placeholder="name@example.com"></label><label><span>تفاصيل الطلب</span><textarea name="message" rows="4" placeholder="اكتبي سؤالك أو التفاصيل المهمة"></textarea></label><button type="submit">${buttonLabel}</button></form></section>`;
+    return `<section id="lead-form" class="${classes(block, "rv-builder-section rv-builder-lead-form")}" ${style}><div><small>${subtitle}</small><h2>${title}</h2>${paragraphHtml(body)}</div><form class="rv-builder-lead-form-fields" action="/api/leads" method="post"><input type="hidden" name="source" value="${serviceName || title} - صفحة هبوط"><input type="hidden" name="preferredLanguage" value="ar">${trackingHiddenInputs()}${hiddenService}<label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required placeholder="الاسم الثلاثي"></label><label><span>رقم الجوال</span><input name="phone" type="tel" ${phoneInputAttrs} required placeholder="05xxxxxxxx"></label><label><span>البريد الإلكتروني</span><input name="email" type="email" autocomplete="email" placeholder="name@example.com"></label><label><span>تفاصيل الطلب</span><textarea name="message" rows="4" placeholder="اكتبي سؤالك أو الوقت المناسب للتواصل"></textarea></label><button type="submit">${buttonLabel}</button></form></section>`;
   }
 
   return `<section class="${classes(block, "rv-builder-section rv-builder-cta")}" ${style}><h2>${title}</h2>${paragraphHtml(body)}<a href="${buttonHref}">${buttonLabel}</a></section>`;
@@ -268,7 +268,7 @@ export function buildServiceLandingPageInput(
       kind: "hero",
       title: service.name,
       subtitle: service.category,
-      body: `${service.excerpt}\nصفحة مخصصة للحملات يمكن تعديل كل أقسامها من لوحة التحكم قبل إطلاق الإعلان.`,
+      body: `${service.excerpt}\nابدئي بطلب تواصل واضح، وسيقوم فريق ريجوفيرا بتأكيد التفاصيل وتوجيهك للخيار الأنسب لحالتك.`,
       imageUrl: service.coverImageUrl,
       buttonLabel: "احجزي استشارة",
       buttonHref: "#lead-form",
@@ -313,7 +313,7 @@ export function buildServiceLandingPageInput(
         },
         {
           title: "متابعة بعد الزيارة",
-          body: "تسجيل الطلب داخل CRM لمتابعة التواصل والحجز بصورة منظمة.",
+          body: "يتابع فريق ريجوفيرا طلبك ويؤكد تفاصيل الحجز والخطوة المناسبة لك.",
         },
       ]),
       accent,
@@ -353,10 +353,22 @@ export function buildServiceLandingPageInput(
         ]
       : []),
     {
-      id: `${slug}-before-after`,
-      kind: "beforeAfter",
-      title: "قبل وبعد",
-      body: `حالة ${service.name}|||أضيفي صور قبل وبعد الحقيقية من محرر الصفحة قبل إطلاق الإعلان، وسيظل الفورم مربوطًا بنفس الخدمة.`,
+      id: `${slug}-benefits`,
+      kind: "services",
+      title: `ماذا تقدم لك ${service.name}؟`,
+      body: pairLines(
+        (service.benefits.length
+          ? service.benefits
+          : [
+              service.excerpt,
+              "تقييم طبي واضح قبل اختيار الإجراء.",
+              "متابعة منظمة بعد إرسال الطلب.",
+            ]
+        ).map((benefit) => ({
+          title: benefit,
+          body: "يتم شرح التفاصيل حسب حالتك قبل تأكيد الحجز.",
+        })),
+      ),
       accent,
       tone: "soft",
       align: "right",
@@ -364,23 +376,23 @@ export function buildServiceLandingPageInput(
     {
       id: `${slug}-offer`,
       kind: "offer",
-      title: "جاهزة لحملة إعلانية",
-      subtitle: "Landing Page",
+      title: "لماذا تختارين ريجوفيرا؟",
+      subtitle: "تجربة طبية واضحة",
       body: pairLines([
         {
-          title: "رسالة واضحة",
-          body: "العنوان والوصف مرتبطان بالخدمة نفسها وليس نصًا عامًا.",
+          title: "تقييم قبل القرار",
+          body: "نبدأ بفهم حالتك وتوقعاتك قبل اقتراح أي إجراء.",
         },
         {
-          title: "تتبع الطلب",
-          body: "الفورم يرسل اسم الخدمة بالعربي إلى CRM والويب هوك.",
+          title: "خطة تناسبك",
+          body: "يتم توجيهك للخدمة والطبيب المناسبين حسب الهدف والحالة.",
         },
         {
-          title: "قابلة للتعديل",
-          body: "يمكن تغيير الصور، النصوص، الأسئلة، والأطباء من محرر الصفحة.",
+          title: "تواصل سريع",
+          body: "فريق الاستقبال يتواصل لتأكيد التفاصيل خلال ساعات العمل.",
         },
       ]),
-      buttonLabel: "ابدئي الحجز",
+      buttonLabel: "اطلبي التواصل",
       buttonHref: "#lead-form",
       accent,
       tone: "soft",
@@ -400,8 +412,8 @@ export function buildServiceLandingPageInput(
           body: "النتيجة تختلف حسب الحالة والخطة الطبية، لذلك لا يتم اعتماد القرار إلا بعد التقييم.",
         },
         {
-          title: "هل أستطيع تعديل هذه الصفحة قبل الإعلان؟",
-          body: "نعم، الصفحة محفوظة داخل الصفحات المخصصة ويمكن تعديل النصوص والصور والأقسام بسهولة.",
+          title: "ماذا يحدث بعد إرسال الطلب؟",
+          body: "يتواصل معك فريق ريجوفيرا لتأكيد البيانات وتحديد الخطوة الأنسب لحالتك.",
         },
       ]),
       accent,
@@ -412,8 +424,8 @@ export function buildServiceLandingPageInput(
       id: `${slug}-lead-form`,
       kind: "leadForm",
       title: `احجزي استشارة ${service.name}`,
-      subtitle: "سيصل الطلب إلى CRM",
-      body: "اتركي بياناتك وسيتم تسجيل الطلب مرتبطًا بالخدمة بالعربي داخل لوحة التحكم.",
+      subtitle: "اطلبي التواصل",
+      body: "اتركي بياناتك وسيتم التواصل معك لتأكيد التفاصيل والإجابة عن أسئلتك.",
       buttonLabel: "إرسال الطلب",
       buttonHref: "/api/leads",
       accent,
@@ -425,10 +437,10 @@ export function buildServiceLandingPageInput(
     {
       id: `${slug}-cta`,
       kind: "cta",
-      title: "جاهزة للمراجعة النهائية قبل الإعلان",
-      body: "راجعي صور قبل وبعد والنصوص النهائية، ثم استخدمي رابط الصفحة في حملاتك.",
-      buttonLabel: "تواصل معنا",
-      buttonHref: "/contact",
+      title: "ابدئي بخطوة واضحة الآن",
+      body: "أرسلي طلبك وسيتم التواصل معك لتحديد الخيار الأنسب داخل ريجوفيرا.",
+      buttonLabel: "إرسال طلب",
+      buttonHref: "#lead-form",
       accent,
       tone: "dark",
       align: "center",
@@ -437,13 +449,13 @@ export function buildServiceLandingPageInput(
 
   return {
     slug,
-    titleAr: `${service.name} - صفحة إعلان`,
-    titleEn: service.nameEn ? `${service.nameEn} Landing Page` : undefined,
+    titleAr: `${service.name} في ريجوفيرا`,
+    titleEn: service.nameEn ? `${service.nameEn} at Rejuvera` : undefined,
     htmlContent: renderPage(blocks),
     seoTitle: `${service.name} في ريجوفيرا`,
-    seoDescription: `${service.excerpt} احجزي استشارة مرتبطة بخدمة ${service.name} وسيتم تسجيل طلبك مباشرة في لوحة التحكم.`,
+    seoDescription: `${service.excerpt} اطلبي التواصل مع فريق ريجوفيرا لمعرفة الخيار الأنسب لحالتك.`,
     metaTitle: `${service.name} في ريجوفيرا`,
-    metaDescription: `${service.excerpt} سجلي طلبك وسيظهر مباشرة داخل لوحة التحكم لمتابعة الفريق.`,
+    metaDescription: `${service.excerpt} اتركي بياناتك وسيتواصل معك فريق ريجوفيرا لتأكيد التفاصيل.`,
     keywords: [service.name, service.category, "ريجوفيرا", "الرياض"],
     ogTitle: `${service.name} | Rejuvera`,
     ogDescription: service.excerpt,

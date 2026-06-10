@@ -26,7 +26,7 @@ const sharedServices = [
 
 const pages = [
   {
-    adGroup: "Ad Group 1",
+    campaignSegment: "general-aesthetic-center",
     slug: "lp-beauty-center-riyadh",
     title: "مركز تجميل في الرياض",
     titleEn: "Aesthetic Medical Center in Riyadh",
@@ -49,16 +49,16 @@ const pages = [
     sections: [
       ["خدمات متعددة", "الوجه، الجسم، الجلدية، التجميل النسائي، والأجهزة."],
       ["قرار أوضح", "نشرح لك الخيارات المناسبة وحدود كل إجراء قبل الحجز."],
-      ["متابعة منظمة", "يتم تسجيل طلبك في CRM والتواصل معك خلال ساعات العمل."],
+      ["متابعة منظمة", "فريق الاستقبال يتابع طلبك ويؤكد التفاصيل خلال ساعات العمل."],
     ],
     faqs: [
       ["هل أحتاج لاختيار خدمة محددة؟", "يمكنك اختيار استفسار عام وسيتم توجيهك للخدمة الأنسب بعد التواصل."],
-      ["هل الاستشارة مناسبة قبل الإعلان أو العرض؟", "نعم، الهدف هو فهم الحالة والتأكد من ملاءمة الإجراء."],
+      ["هل الاستشارة مناسبة قبل اتخاذ القرار؟", "نعم، الهدف هو فهم الحالة والتأكد من ملاءمة الإجراء."],
       ["هل يمكن تغيير الخدمة لاحقًا؟", "نعم، الفريق يراجع البيانات ويقترح المسار الأنسب بعد التواصل."],
     ],
   },
   {
-    adGroup: "Ad Group 2",
+    campaignSegment: "liposuction-body-contouring",
     slug: "lp-liposuction-body-contouring-riyadh",
     title: "شفط الدهون ونحت الجسم في الرياض",
     titleEn: "Liposuction and Body Contouring in Riyadh",
@@ -90,7 +90,7 @@ const pages = [
     ],
   },
   {
-    adGroup: "Ad Group 3",
+    campaignSegment: "face-neck-eyelid-lift",
     slug: "lp-face-neck-eyelid-lift-riyadh",
     title: "شد الوجه والرقبة والجفون",
     titleEn: "Face, Neck and Eyelid Lift",
@@ -122,7 +122,7 @@ const pages = [
     ],
   },
   {
-    adGroup: "Ad Group 4",
+    campaignSegment: "rhinoplasty",
     slug: "lp-rhinoplasty-riyadh",
     title: "تجميل الأنف في الرياض",
     titleEn: "Rhinoplasty in Riyadh",
@@ -154,7 +154,7 @@ const pages = [
     ],
   },
   {
-    adGroup: "Ad Group 5",
+    campaignSegment: "breast-surgery",
     slug: "lp-breast-surgery-riyadh",
     title: "عمليات الصدر في الرياض",
     titleEn: "Breast Surgery in Riyadh",
@@ -166,7 +166,7 @@ const pages = [
     serviceLabel: "عمليات الصدر",
     sourceLabel: "صفحة هبوط - عمليات الصدر",
     accent: "#8d4fb2",
-    image: "/media/curated/service-skin-rejuvenation.webp",
+    image: "/media/reference/legacy/56549.webp",
     offer: "تحديد المقاس والخيار الأنسب",
     bullets: [
       "مناقشة التكبير، الشد، التصغير، أو تغيير الحشوات حسب الحالة.",
@@ -186,7 +186,7 @@ const pages = [
     ],
   },
   {
-    adGroup: "Ad Group 6",
+    campaignSegment: "tummy-tuck-body-lift",
     slug: "lp-tummy-tuck-body-lift-riyadh",
     title: "شد البطن وشد الترهلات",
     titleEn: "Tummy Tuck and Body Lift",
@@ -218,7 +218,7 @@ const pages = [
     ],
   },
   {
-    adGroup: "Ad Group 7",
+    campaignSegment: "female-aesthetic-care",
     slug: "lp-female-aesthetic-care-riyadh",
     title: "التجميل النسائي في الرياض",
     titleEn: "Female Aesthetic Care in Riyadh",
@@ -250,7 +250,7 @@ const pages = [
     ],
   },
   {
-    adGroup: "Ad Group 8",
+    campaignSegment: "male-gynecomastia",
     slug: "lp-male-gynecomastia-riyadh",
     title: "علاج التثدي عند الرجال",
     titleEn: "Male Gynecomastia Surgery in Riyadh",
@@ -262,7 +262,7 @@ const pages = [
     serviceLabel: "علاج التثدي عند الرجال",
     sourceLabel: "صفحة هبوط - التثدي للرجال",
     accent: "#263f6c",
-    image: "/media/curated/service-aesthetic-surgery.svg",
+    image: "/media/reference/legacy/88985959.webp",
     offer: "تقييم خاص وسري لتحديد الخطة",
     bullets: [
       "تقييم شكل الصدر ودرجة البروز قبل تحديد الإجراء.",
@@ -368,7 +368,7 @@ function renderFaqs(items) {
 
 function buildLandingPage(page) {
   return `
-<section class="rv-ad-page" data-uploaded-html="true" data-layout="canvas" data-header="false" data-footer="false" data-ad-group="${escapeHtml(page.adGroup)}" aria-label="${escapeHtml(page.title)}">
+<section class="rv-ad-page" data-uploaded-html="true" data-layout="canvas" data-header="false" data-footer="false" data-campaign-page="${escapeHtml(page.campaignSegment)}" aria-label="${escapeHtml(page.title)}">
   <style>
     .rv-ad-page{--accent:${page.accent};--accent-soft:#f4ecfb;--ink:#24143d;--muted:#756986;--line:rgba(36,20,61,.12);direction:rtl;text-align:right;color:var(--ink);font-family:inherit;background:#fbf7f0;overflow:hidden}
     .rv-ad-page *{box-sizing:border-box}
@@ -454,7 +454,7 @@ function buildLandingPage(page) {
         </div>
         <form id="lead-form" class="rv-ad-form" method="post" action="/api/leads">
           <h2>اطلبي التواصل الآن</h2>
-          <p>املئي البيانات وسيتم تسجيل الطلب في CRM والتواصل معك من فريق ريجوفيرا.</p>
+          <p>املئي البيانات وسيتم التواصل معك من فريق ريجوفيرا لتأكيد التفاصيل.</p>
           <input type="hidden" name="source" value="${escapeHtml(page.sourceLabel)}">
           <input type="hidden" name="serviceName" value="${escapeHtml(page.serviceLabel)}">
           <input type="hidden" name="serviceLabel" value="${escapeHtml(page.serviceLabel)}">
@@ -479,7 +479,7 @@ function buildLandingPage(page) {
             <textarea id="${escapeHtml(page.slug)}-message" name="message" placeholder="اكتبي أي تفاصيل مهمة أو الوقت المناسب للتواصل"></textarea>
           </div>
           <button class="rv-ad-submit" type="submit">إرسال الطلب</button>
-          <p class="rv-ad-note">بالضغط على إرسال، يتم تسجيل الطلب داخل CRM. لا تتم مشاركة بياناتك إلا للمتابعة الطبية.</p>
+          <p class="rv-ad-note">بالضغط على إرسال، يراجع فريق ريجوفيرا طلبك للتواصل وتأكيد التفاصيل.</p>
         </form>
       </div>
     </div>
@@ -489,8 +489,8 @@ function buildLandingPage(page) {
     <div class="rv-ad-shell">
       <div class="rv-ad-section__head">
         <div>
-          <p class="rv-ad-kicker">${escapeHtml(page.adGroup)}</p>
-          <h2 class="rv-ad-h2">لماذا هذه الصفحة مناسبة للحملة؟</h2>
+          <p class="rv-ad-kicker">اختيار ريجوفيرا</p>
+          <h2 class="rv-ad-h2">لماذا تبدأي من ريجوفيرا؟</h2>
         </div>
       </div>
       <div class="rv-ad-grid">${renderCards(page.sections)}</div>
@@ -525,7 +525,7 @@ function buildLandingPage(page) {
   <section class="rv-ad-section">
     <div class="rv-ad-shell">
       <div class="rv-ad-bottom">
-        <h2>جاهزة تبدأي بخطوة واضحة؟</h2>
+        <h2>ابدئي بخطوة واضحة الآن</h2>
         <p>أرسلي طلبك الآن وسيتم التواصل معك لتأكيد التفاصيل وتوجيهك للخدمة والطبيب الأنسب داخل ريجوفيرا.</p>
         <a class="rv-ad-btn" href="#lead-form">احجزي الآن</a>
       </div>
