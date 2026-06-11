@@ -70,7 +70,7 @@ const rejuviraSans = localFont({
   ],
   variable: "--font-rejuvira-sans",
   display: "swap",
-  preload: true,
+  preload: false,
   fallback: ["system-ui", "Arial", "sans-serif"],
 });
 
@@ -94,7 +94,7 @@ const rejuviraDisplay = localFont({
   ],
   variable: "--font-rejuvira-display",
   display: "swap",
-  preload: true,
+  preload: false,
   fallback: ["Georgia", "serif"],
 });
 

@@ -4520,7 +4520,9 @@ export async function createContactLead(
         ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
         ...(input.utmContent ? { utmContent: input.utmContent } : {}),
         ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
-        ...(input.landingPageUrl ? { landingPageUrl: input.landingPageUrl } : {}),
+        ...(input.landingPageUrl
+          ? { landingPageUrl: input.landingPageUrl }
+          : {}),
         ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
         ...(input.country ? { country: input.country } : {}),
         ...(input.userAgent ? { userAgent: input.userAgent } : {}),
@@ -5034,6 +5036,20 @@ export async function deleteCustomPage(id: string) {
   if (!canUseDatabase()) return { mode: "preview" as const, id };
   const item = await prisma.customPage.delete({ where: { id } });
   return { mode: "database" as const, item };
+}
+
+export async function deleteCustomPages(ids: string[]) {
+  const uniqueIds = [...new Set(ids.filter(Boolean))];
+  if (!canUseDatabase()) {
+    return { mode: "preview" as const, count: uniqueIds.length };
+  }
+  if (uniqueIds.length === 0) {
+    return { mode: "database" as const, count: 0 };
+  }
+  const result = await prisma.customPage.deleteMany({
+    where: { id: { in: uniqueIds } },
+  });
+  return { mode: "database" as const, count: result.count };
 }
 
 /* ── Webhooks ─────────────────────────────────────────────── */

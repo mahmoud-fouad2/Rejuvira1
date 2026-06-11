@@ -9,6 +9,7 @@ import { adminActionErrorMessage } from "@/lib/admin-action-errors";
 import {
   createCustomPage,
   deleteCustomPage,
+  deleteCustomPages,
   updateCustomPage,
 } from "@/lib/content-repository";
 
@@ -47,6 +48,18 @@ const updateSchema = baseSchema.extend({
   oldSlug: z.string().optional().or(z.literal("")),
 });
 
+const bulkDeleteSchema = z.object({
+  pages: z
+    .array(
+      z.object({
+        id: z.string().min(3),
+        slug: z.string().min(1).max(80),
+      }),
+    )
+    .min(1)
+    .max(100),
+});
+
 function json(
   status: "success" | "error",
   message: string,
@@ -59,7 +72,7 @@ async function requireAdmin() {
   const session = await auth();
   return Boolean(
     session?.user?.role &&
-      canAccessAdminRoute("/admin/pages", session.user.role),
+    canAccessAdminRoute("/admin/pages", session.user.role),
   );
 }
 
@@ -144,7 +157,10 @@ function customPagePayload(formData: FormData) {
     formString(formData, "seoDescription") || `Landing page: ${titleAr}`,
     360,
   );
-  const metaTitle = truncate(formString(formData, "metaTitle") || seoTitle, 160);
+  const metaTitle = truncate(
+    formString(formData, "metaTitle") || seoTitle,
+    160,
+  );
   const metaDescription = truncate(
     formString(formData, "metaDescription") || seoDescription,
     500,
@@ -167,7 +183,9 @@ function customPagePayload(formData: FormData) {
     hashtags: formString(formData, "hashtags"),
     formConfig: formHtmlString(formData, "formConfig"),
     leadWebhookEnabled: formBoolean(formData, "leadWebhookEnabled"),
-    leadWebhookUrl: normalizeOptionalUrl(formString(formData, "leadWebhookUrl")),
+    leadWebhookUrl: normalizeOptionalUrl(
+      formString(formData, "leadWebhookUrl"),
+    ),
     leadWebhookSecret: formString(formData, "leadWebhookSecret"),
     leadWebhookLabel: truncate(formString(formData, "leadWebhookLabel"), 120),
     status: normalizeStatus(formString(formData, "status")),
@@ -328,14 +346,35 @@ export async function DELETE(request: Request) {
     return json("error", "Unauthorized", { status: 401 });
   }
 
-  const url = new URL(request.url);
-  const id = url.searchParams.get("id");
-  const slug = url.searchParams.get("slug") || undefined;
-  if (!id) {
-    return json("error", "طلب الحذف غير صالح.", { status: 400 });
-  }
-
   try {
+    const contentType = request.headers.get("content-type") ?? "";
+    if (contentType.includes("application/json")) {
+      let payload: unknown;
+      try {
+        payload = await request.json();
+      } catch {
+        return json("error", "بيانات الحذف غير صالحة.", { status: 400 });
+      }
+      const parsed = bulkDeleteSchema.safeParse(payload);
+      if (!parsed.success) {
+        return json("error", "حدد صفحة واحدة على الأقل للحذف.", {
+          status: 400,
+        });
+      }
+
+      const result = await deleteCustomPages(
+        parsed.data.pages.map((page) => page.id),
+      );
+      parsed.data.pages.forEach((page) => revalidate(page.slug, page.slug));
+      return json("success", `تم حذف ${result.count} صفحة من الصفحات المحددة.`);
+    }
+
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    const slug = url.searchParams.get("slug") || undefined;
+    if (!id) {
+      return json("error", "طلب الحذف غير صالح.", { status: 400 });
+    }
     await deleteCustomPage(id);
     revalidate(slug, slug);
     return json("success", "تم حذف الصفحة.");

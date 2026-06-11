@@ -2976,7 +2976,11 @@ img {
   position: relative !important;
   overflow: hidden !important;
   isolation: isolate;
-  background: linear-gradient(135deg, rgba(74, 36, 118, 0.08), rgba(203, 169, 106, 0.08));
+  background: linear-gradient(
+    135deg,
+    rgba(74, 36, 118, 0.08),
+    rgba(203, 169, 106, 0.08)
+  );
 }
 
 .service-card__image.rv-service-art-frame {
@@ -12859,6 +12863,46 @@ html[data-theme="dark"] .admin-shell {
   display: grid;
   gap: 0.85rem;
 }
+.custom-pages-selection-toolbar {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 12;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.75rem 0;
+  border: 1px solid
+    color-mix(in srgb, var(--admin-accent) 24%, var(--admin-border));
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--admin-panel) 94%, transparent);
+  padding: 0.7rem;
+  box-shadow: var(--admin-shadow-soft);
+  backdrop-filter: blur(12px);
+}
+.custom-pages-selection-toolbar
+  :is(.admin-btn-primary, .admin-btn-secondary, .admin-btn-danger),
+.custom-page-list-card__actions
+  :is(.admin-btn-primary, .admin-btn-secondary, .admin-btn-danger),
+.custom-pages-confirm :is(.admin-btn-secondary, .admin-btn-danger) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.38rem;
+}
+.custom-pages-selection-toolbar__count {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-accent) 12%, var(--admin-panel));
+  color: var(--admin-accent);
+  padding: 0.38rem 0.72rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+.custom-pages-selection-toolbar__hint {
+  color: var(--admin-text-faint);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
 .admin-inline-notice {
   border: 1px solid rgba(22, 163, 74, 0.2);
   border-radius: 1rem;
@@ -12874,6 +12918,7 @@ html[data-theme="dark"] .admin-shell {
   color: #92400e;
 }
 .custom-page-list-card {
+  position: relative;
   display: grid;
   grid-template-columns: 5.6rem minmax(0, 1fr);
   gap: 0.9rem;
@@ -13354,6 +13399,19 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .admin-btn-ghost:hover {
   color: var(--admin-text);
   background: var(--admin-row-hover);
+}
+.admin-button-spinner {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 999px;
+  animation: admin-spin 700ms linear infinite;
+}
+@keyframes admin-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── Status badge ─────────────────────────────────────── */
@@ -13861,6 +13919,9 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   position: sticky;
   top: 0;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   padding: 0.8rem;
   border-bottom: 1px solid var(--admin-border);
   background: var(--admin-panel);
@@ -13908,11 +13969,132 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .pagecraft-templates {
   grid-template-columns: 1fr;
 }
-.pagecraft-templates button,
 .pagecraft-code-toggle {
   padding: 0.65rem 0.75rem;
   font-size: 0.76rem;
   font-weight: 800;
+}
+.pagecraft-template-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.78rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.8rem;
+  background: var(--admin-panel);
+}
+.pagecraft-template-card > div:first-child {
+  display: grid;
+  gap: 0.25rem;
+}
+.pagecraft-template-card > div:first-child > span {
+  width: fit-content;
+  padding: 0.16rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(138, 78, 193, 0.1);
+  color: var(--admin-accent);
+  font-size: 0.6rem;
+  font-weight: 850;
+}
+.pagecraft-template-card strong {
+  color: var(--admin-text);
+  font-size: 0.78rem;
+}
+.pagecraft-template-card p,
+.pagecraft-template-card small {
+  margin: 0;
+  color: var(--admin-text-faint);
+  font-size: 0.65rem;
+  line-height: 1.65;
+}
+.pagecraft-template-card__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+.pagecraft-template-card__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.5rem 0.35rem;
+  text-align: center;
+  font-size: 0.64rem;
+  font-weight: 800;
+}
+.pagecraft-template-card__actions button:first-child {
+  border-color: transparent;
+  background: var(--admin-accent);
+  color: #fff;
+}
+.pagecraft-patterns,
+.pagecraft-outline {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.8rem;
+}
+.pagecraft-patterns > button,
+.pagecraft-outline > button {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.62rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.72rem;
+  background: var(--admin-panel);
+  color: var(--admin-text);
+  cursor: pointer;
+  text-align: start;
+}
+.pagecraft-patterns > button:hover,
+.pagecraft-outline > button:hover,
+.pagecraft-outline > button.is-active {
+  border-color: rgba(138, 78, 193, 0.42);
+  background: rgba(138, 78, 193, 0.08);
+}
+.pagecraft-patterns > button > span,
+.pagecraft-outline > button > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 0.16rem;
+}
+.pagecraft-patterns > button > .pagecraft-patterns__mark {
+  display: grid;
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border-radius: 0.45rem;
+  background: rgba(138, 78, 193, 0.1);
+  color: var(--admin-accent);
+  font-size: 0.85rem;
+  font-weight: 850;
+}
+.pagecraft-patterns strong,
+.pagecraft-outline strong {
+  color: var(--admin-text);
+  font-size: 0.7rem;
+}
+.pagecraft-patterns small,
+.pagecraft-outline small {
+  overflow: hidden;
+  color: var(--admin-text-faint);
+  font-size: 0.6rem;
+  line-height: 1.45;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pagecraft-outline > button > span:first-child {
+  display: grid;
+  flex: 0 0 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border-radius: 0.45rem;
+  background: rgba(138, 78, 193, 0.1);
+  color: var(--admin-accent);
+  font-size: 0.62rem;
+  font-weight: 850;
 }
 .pagecraft-elements strong {
   font-size: 0.78rem;
@@ -13984,7 +14166,11 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .pagecraft-element-group__grid button {
   min-height: 5.2rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.7)),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(255, 255, 255, 0.7)
+    ),
     var(--admin-panel);
 }
 .pagecraft-devices {
@@ -14218,6 +14404,9 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.35rem;
 }
+.pagecraft-segment--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 .pagecraft-segment button {
   padding: 0.45rem 0.25rem;
   text-align: center;
@@ -14249,6 +14438,23 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   --builder-accent: #4a2476;
   border-radius: 1.3rem;
 }
+.rv-builder-section.width-contained {
+  width: min(100%, 52rem);
+  margin-inline: auto;
+}
+.rv-builder-section.width-wide {
+  width: min(100%, 72rem);
+  margin-inline: auto;
+}
+.rv-builder-section.width-full {
+  width: 100%;
+}
+.rv-builder-section.spacing-compact {
+  padding: clamp(0.85rem, 2vw, 1.2rem) !important;
+}
+.rv-builder-section.spacing-airy {
+  padding: clamp(1.6rem, 5vw, 4rem) !important;
+}
 .rv-builder-section.font-sm {
   font-size: 0.92rem;
 }
@@ -14279,15 +14485,8 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .rv-builder-section[data-title-color="true"] :is(h1, h2, h3, summary, strong) {
   color: var(--builder-title-color) !important;
 }
-.rv-builder-section[data-text-color="true"] :is(
-  p,
-  li,
-  span,
-  small,
-  blockquote,
-  figcaption,
-  label
-) {
+.rv-builder-section[data-text-color="true"]
+  :is(p, li, span, small, blockquote, figcaption, label) {
   color: var(--builder-text-color) !important;
 }
 .rv-builder-section.align-center {
@@ -14399,16 +14598,32 @@ html[data-theme="dark"] .admin-shell select.admin-input {
 .rv-builder-section.image-size-full.rv-builder-image figure {
   width: 100%;
 }
-.rv-builder-section.image-aspect-square :is(.rv-builder-image figure, .rv-builder-hero figure, .rv-builder-video figure) {
+.rv-builder-section.image-aspect-square
+  :is(
+    .rv-builder-image figure,
+    .rv-builder-hero figure,
+    .rv-builder-video figure
+  ) {
   aspect-ratio: 1 / 1;
 }
-.rv-builder-section.image-aspect-portrait :is(.rv-builder-image figure, .rv-builder-hero figure, .rv-builder-video figure) {
+.rv-builder-section.image-aspect-portrait
+  :is(
+    .rv-builder-image figure,
+    .rv-builder-hero figure,
+    .rv-builder-video figure
+  ) {
   aspect-ratio: 4 / 5;
 }
-.rv-builder-section.image-aspect-natural :is(.rv-builder-image figure, .rv-builder-hero figure, .rv-builder-video figure) {
+.rv-builder-section.image-aspect-natural
+  :is(
+    .rv-builder-image figure,
+    .rv-builder-hero figure,
+    .rv-builder-video figure
+  ) {
   aspect-ratio: auto;
 }
-.rv-builder-section.image-fit-contain :is(.rv-builder-image img, .rv-builder-hero img, .rv-builder-video img) {
+.rv-builder-section.image-fit-contain
+  :is(.rv-builder-image img, .rv-builder-hero img, .rv-builder-video img) {
   object-fit: contain;
   background: color-mix(in srgb, var(--builder-accent) 8%, white);
 }
@@ -14423,7 +14638,10 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: minmax(18rem, 0.82fr) minmax(0, 1fr) minmax(18rem, 0.78fr);
+  grid-template-columns: minmax(18rem, 0.82fr) minmax(0, 1fr) minmax(
+      18rem,
+      0.78fr
+    );
   gap: clamp(1rem, 2.4vw, 1.5rem);
   align-items: center;
   overflow: hidden;
@@ -15174,42 +15392,44 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   color: #fff !important;
 }
 
-.rv-builder-section.is-dark :is(
-  h1,
-  h2,
-  h3,
-  h4,
-  p,
-  li,
-  small,
-  span,
-  strong,
-  blockquote,
-  figcaption,
-  summary,
-  label
-) {
+.rv-builder-section.is-dark
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    p,
+    li,
+    small,
+    span,
+    strong,
+    blockquote,
+    figcaption,
+    summary,
+    label
+  ) {
   color: #fff !important;
 }
 
-.rv-builder-section.is-dark :is(
-  .rv-builder-lead-form-fields,
-  .rv-builder-campaign-form,
-  .rv-builder-services article,
-  .rv-builder-doctors article,
-  .rv-builder-devices article,
-  .rv-builder-trust article,
-  .rv-builder-pricing article,
-  .rv-builder-stats article,
-  .rv-builder-steps article,
-  .rv-builder-faq details,
-  .rv-builder-comparison > div,
-  .rv-builder-offer-grid article,
-  .rv-builder-before-after article,
-  .rv-builder-media-mosaic figure,
-  .rv-builder-seo-article,
-  .rv-builder-gallery figure
-) {
+.rv-builder-section.is-dark
+  :is(
+    .rv-builder-lead-form-fields,
+    .rv-builder-campaign-form,
+    .rv-builder-services article,
+    .rv-builder-doctors article,
+    .rv-builder-devices article,
+    .rv-builder-trust article,
+    .rv-builder-pricing article,
+    .rv-builder-stats article,
+    .rv-builder-steps article,
+    .rv-builder-faq details,
+    .rv-builder-comparison > div,
+    .rv-builder-offer-grid article,
+    .rv-builder-before-after article,
+    .rv-builder-media-mosaic figure,
+    .rv-builder-seo-article,
+    .rv-builder-gallery figure
+  ) {
   border-color: rgba(255, 255, 255, 0.18) !important;
   background: rgba(255, 255, 255, 0.09) !important;
   color: #fff !important;
@@ -15225,13 +15445,14 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   color: rgba(255, 255, 255, 0.62) !important;
 }
 
-.rv-builder-section.is-dark :is(
-  .rv-builder-trust article > span,
-  .rv-builder-stats strong,
-  .rv-builder-pricing article small,
-  .rv-builder-before-after figure small,
-  .rv-builder-video figure span
-) {
+.rv-builder-section.is-dark
+  :is(
+    .rv-builder-trust article > span,
+    .rv-builder-stats strong,
+    .rv-builder-pricing article small,
+    .rv-builder-before-after figure small,
+    .rv-builder-video figure span
+  ) {
   background: rgba(255, 255, 255, 0.92) !important;
   color: var(--builder-accent) !important;
 }
@@ -15261,8 +15482,45 @@ html[data-theme="dark"] .admin-shell select.admin-input {
   color: var(--rv-ink, #1f1040) !important;
 }
 
-.rv-builder-section.is-dark.rv-builder-campaign-hero .rv-builder-campaign-form button {
-  background: linear-gradient(135deg, var(--builder-accent), #9a3ce0) !important;
+.rv-builder-section.is-dark.rv-builder-campaign-hero
+  .rv-builder-campaign-form
+  button {
+  background: linear-gradient(
+    135deg,
+    var(--builder-accent),
+    #9a3ce0
+  ) !important;
+  color: #fff !important;
+}
+.rv-builder-section.button-outline
+  :is(
+    .rv-builder-campaign-actions a,
+    .rv-builder-offer > a,
+    .rv-builder-pricing article a,
+    .rv-builder-offer-grid article a,
+    .rv-builder-video a,
+    .rv-builder-lead-form button,
+    .rv-builder-contact a,
+    .rv-builder-cta > a,
+    .rv-builder-seo-article > a
+  ) {
+  border: 1px solid currentColor !important;
+  background: transparent !important;
+  color: var(--builder-accent) !important;
+  box-shadow: none !important;
+}
+.rv-builder-section.is-dark.button-outline
+  :is(
+    .rv-builder-campaign-actions a,
+    .rv-builder-offer > a,
+    .rv-builder-pricing article a,
+    .rv-builder-offer-grid article a,
+    .rv-builder-video a,
+    .rv-builder-lead-form button,
+    .rv-builder-contact a,
+    .rv-builder-cta > a,
+    .rv-builder-seo-article > a
+  ) {
   color: #fff !important;
 }
 @media (max-width: 860px) {
@@ -15661,6 +15919,81 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
     border-color 140ms ease,
     box-shadow 140ms ease,
     transform 140ms ease;
+}
+.custom-page-list-card.is-selected {
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 55%,
+    var(--admin-border)
+  );
+  background: color-mix(in srgb, var(--admin-accent) 5%, var(--admin-panel));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 10%, transparent);
+}
+.custom-page-list-card__select {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 0.65rem;
+  inset-inline-start: 0.65rem;
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.5rem;
+  background: var(--admin-panel);
+  box-shadow: var(--admin-shadow-soft);
+  cursor: pointer;
+}
+.custom-page-list-card__select input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--admin-accent);
+}
+.custom-pages-confirm .admin-modal__panel {
+  width: min(31rem, 100%);
+}
+.custom-pages-confirm .admin-modal__header small {
+  color: var(--admin-accent);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+.custom-pages-confirm .admin-modal__body p {
+  color: var(--admin-text-soft);
+  line-height: 1.8;
+}
+.custom-pages-confirm__list {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+.custom-pages-confirm__list span {
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.55rem;
+  background: var(--admin-panel-soft);
+  color: var(--admin-text);
+  padding: 0.45rem 0.6rem;
+  direction: ltr;
+  font-size: 0.73rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.custom-pages-confirm .admin-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  border-top: 1px solid var(--admin-border);
+  padding: 0.75rem 0.95rem;
+}
+.admin-inline-notice.is-error {
+  border-color: rgba(190, 24, 93, 0.22);
+  background: rgba(255, 241, 242, 0.92);
+  color: #9f1239;
+}
+.admin-inline-notice.is-success {
+  border-color: rgba(22, 163, 74, 0.2);
+  background: rgba(240, 253, 244, 0.92);
+  color: #166534;
 }
 .rv-image-picker__library-card:hover,
 .rv-image-picker__library-card.is-selected {
@@ -16785,7 +17118,11 @@ html[data-lang="en"] .rv-v0-nav {
 }
 
 .custom-page-layout-options label.is-active {
-  border-color: color-mix(in srgb, var(--admin-accent) 55%, var(--admin-border));
+  border-color: color-mix(
+    in srgb,
+    var(--admin-accent) 55%,
+    var(--admin-border)
+  );
   background: color-mix(in srgb, var(--admin-accent) 10%, var(--admin-panel));
   box-shadow: 0 12px 30px rgba(96, 48, 150, 0.12);
 }
@@ -16954,7 +17291,8 @@ header .rv-brand-logo-img {
 }
 
 /* Prevent horizontal overflow from page body only */
-html, body {
+html,
+body {
   overflow-x: clip !important;
 }
 .rv-v0-header,
@@ -16997,7 +17335,9 @@ html, body {
   overflow: hidden;
   background: var(--rv26-surface, #fff);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 html[data-theme="dark"] .gallery-card {
   background: oklch(22% 0.02 270);
@@ -17121,8 +17461,8 @@ html[data-theme="dark"] .gallery-card__divider {
     z-index: 9990 !important;
     border-radius: 1rem !important;
     background: var(--rv-card, #fff) !important;
-    border: 1px solid rgba(0,0,0,0.08) !important;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
   }
 
   /* Brand logo — centered */

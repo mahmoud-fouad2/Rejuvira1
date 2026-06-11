@@ -46,6 +46,9 @@ type FormServiceMode = "hidden" | "select" | "custom" | "none";
 type ImageSize = "small" | "medium" | "large" | "full";
 type ImageAspect = "wide" | "square" | "portrait" | "natural";
 type ImageFit = "cover" | "contain";
+type SectionWidth = "contained" | "wide" | "full";
+type SectionSpacing = "compact" | "normal" | "airy";
+type ButtonStyle = "solid" | "outline";
 type FormFieldType =
   | "text"
   | "email"
@@ -73,6 +76,9 @@ type BuilderBlock = {
   imageSize?: ImageSize;
   imageAspect?: ImageAspect;
   imageFit?: ImageFit;
+  sectionWidth?: SectionWidth;
+  spacing?: SectionSpacing;
+  buttonStyle?: ButtonStyle;
   serviceSlug?: string;
   serviceName?: string;
   formServiceMode?: FormServiceMode;
@@ -109,6 +115,28 @@ type BlockLibraryGroup = {
   kinds: BlockKind[];
 };
 
+type TemplateBlockSpec =
+  | BlockKind
+  | {
+      kind: BlockKind;
+      patch?: Partial<Omit<BuilderBlock, "id" | "kind">>;
+    };
+
+type PageTemplate = {
+  id: string;
+  label: string;
+  hint: string;
+  badge: string;
+  blocks: TemplateBlockSpec[];
+};
+
+type SectionPattern = {
+  id: string;
+  label: string;
+  hint: string;
+  blocks: TemplateBlockSpec[];
+};
+
 const blockLibrary: BlockLibraryItem[] = [
   { kind: "hero", label: "Hero", hint: "واجهة أولى مع صورة وزر" },
   { kind: "campaignHero", label: "Hero + Form", hint: "واجهة حملة بفورم فوري" },
@@ -127,7 +155,11 @@ const blockLibrary: BlockLibraryItem[] = [
   { kind: "faq", label: "FAQ", hint: "أسئلة شائعة" },
   { kind: "steps", label: "Steps", hint: "مسار زيارة أو علاج" },
   { kind: "offer", label: "Offer", hint: "عرض أو باقة للحملة" },
-  { kind: "mediaMosaic", label: "Media Mosaic", hint: "صور كبيرة وصغيرة بتنسيق فاخر" },
+  {
+    kind: "mediaMosaic",
+    label: "Media Mosaic",
+    hint: "صور كبيرة وصغيرة بتنسيق فاخر",
+  },
   { kind: "seoArticle", label: "SEO Article", hint: "مقال/نص طويل منسق للسيو" },
   { kind: "testimonial", label: "Review", hint: "اقتباس وتجربة عميل" },
   { kind: "video", label: "Video", hint: "فيديو أو صورة معاينة" },
@@ -149,7 +181,15 @@ const blockGroups: BlockLibraryGroup[] = [
   {
     label: "محتوى وثقة",
     hint: "نصوص، خطوات، أسئلة، مؤشرات وثقة",
-    kinds: ["text", "stats", "steps", "trustBar", "comparison", "faq", "seoArticle"],
+    kinds: [
+      "text",
+      "stats",
+      "steps",
+      "trustBar",
+      "comparison",
+      "faq",
+      "seoArticle",
+    ],
   },
   {
     label: "ميديا ونتائج",
@@ -380,11 +420,24 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   },
 };
 
-const templates: Array<{ label: string; blocks: BlockKind[] }> = [
+const templates: PageTemplate[] = [
   {
+    id: "conversion-campaign",
     label: "صفحة حملة احترافية",
+    hint: "فورم في البداية، خدمات، ثقة، نتائج، أطباء وأسئلة شائعة.",
+    badge: "الأكثر اكتمالًا",
     blocks: [
-      "campaignHero",
+      {
+        kind: "campaignHero",
+        patch: {
+          title: "ابدئي بخطوة بسيطة نحو الخطة المناسبة لك",
+          subtitle: "استشارة ريجوفيرا",
+          body: "اكتبي اسمك ورقم جوالك، وسيتواصل معك الفريق لتأكيد التفاصيل وفهم احتياجك.",
+          sectionWidth: "full",
+          spacing: "airy",
+        },
+      },
+      "services",
       "offerGrid",
       "mediaMosaic",
       "trustBar",
@@ -397,13 +450,39 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
     ],
   },
   {
-    label: "Offers Pro",
-    blocks: ["campaignHero", "offerGrid", "trustBar", "faq", "seoArticle", "cta"],
+    id: "seasonal-offers",
+    label: "عروض موسمية",
+    hint: "Hero بفورم، شبكة عروض، صور، مزايا وأسئلة قبل إرسال الطلب.",
+    badge: "للإعلانات",
+    blocks: [
+      {
+        kind: "campaignHero",
+        patch: {
+          title: "اختاري عرضك وسيتم التواصل معك لتأكيد التفاصيل",
+          subtitle: "عروض ريجوفيرا",
+          sectionWidth: "full",
+          spacing: "airy",
+        },
+      },
+      "offerGrid",
+      "mediaMosaic",
+      "trustBar",
+      "faq",
+      "seoArticle",
+      "cta",
+    ],
   },
   {
+    id: "medical-service",
     label: "صفحة خدمة",
+    hint: "تعريف الخدمة مع فورم مبكر، خطوات، نتائج، أطباء وأجهزة.",
+    badge: "طبية",
     blocks: [
       "hero",
+      {
+        kind: "leadForm",
+        patch: { sectionWidth: "contained", tone: "soft" },
+      },
       "stats",
       "steps",
       "services",
@@ -413,19 +492,86 @@ const templates: Array<{ label: string; blocks: BlockKind[] }> = [
       "trustBar",
       "comparison",
       "faq",
-      "leadForm",
       "cta",
     ],
   },
   {
-    label: "Lead page",
-    blocks: ["hero", "offer", "trustBar", "pricing", "leadForm", "faq"],
+    id: "fast-lead",
+    label: "صفحة طلب سريعة",
+    hint: "صفحة خفيفة للحملات المباشرة مع أقل عدد من الخطوات.",
+    badge: "سريعة",
+    blocks: [
+      {
+        kind: "campaignHero",
+        patch: {
+          title: "ارسلي طلبك الآن وسيقوم الفريق بالتواصل معك",
+          body: "الاسم ورقم الجوال فقط للمتابعة وتأكيد الخدمة المناسبة.",
+          sectionWidth: "full",
+        },
+      },
+      "trustBar",
+      "steps",
+      "faq",
+      "cta",
+    ],
   },
   {
-    label: "حملة حجز",
-    blocks: ["hero", "text", "trustBar", "gallery", "leadForm", "contact", "faq"],
+    id: "visual-results",
+    label: "حملة نتائج وصور",
+    hint: "مناسبة للحملات التي تعتمد على الصور وحالات قبل وبعد.",
+    badge: "بصرية",
+    blocks: [
+      "hero",
+      "beforeAfter",
+      "mediaMosaic",
+      "testimonial",
+      "leadForm",
+      "faq",
+      "cta",
+    ],
   },
-  { label: "تعريف طبي", blocks: ["hero", "text", "video", "services", "cta"] },
+  {
+    id: "medical-introduction",
+    label: "تعريف طبي",
+    hint: "صفحة هادئة لشرح خدمة أو تقنية مع فيديو ومحتوى طويل.",
+    badge: "محتوى",
+    blocks: [
+      "hero",
+      "text",
+      "video",
+      "services",
+      "seoArticle",
+      "leadForm",
+      "cta",
+    ],
+  },
+];
+
+const sectionPatterns: SectionPattern[] = [
+  {
+    id: "form-trust",
+    label: "فورم + ثقة",
+    hint: "طلب سريع يتبعه مؤشرات تطمئن الزائر.",
+    blocks: ["leadForm", "trustBar"],
+  },
+  {
+    id: "service-proof",
+    label: "خدمة + نتائج",
+    hint: "عرض المزايا ثم حالات قبل وبعد.",
+    blocks: ["services", "beforeAfter"],
+  },
+  {
+    id: "clinic-story",
+    label: "صور المركز + أطباء",
+    hint: "موزاييك بصري يليه الفريق الطبي.",
+    blocks: ["mediaMosaic", "doctors"],
+  },
+  {
+    id: "offer-close",
+    label: "عرض + أسئلة + CTA",
+    hint: "ختام متكامل للعرض قبل إرسال الطلب.",
+    blocks: ["offerGrid", "faq", "cta"],
+  },
 ];
 
 function uid() {
@@ -631,13 +777,8 @@ function parseOfferCards(value = "") {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
-      const [
-        price = "",
-        badge = "",
-        title = "",
-        body = "",
-        perks = "",
-      ] = line.split("|");
+      const [price = "", badge = "", title = "", body = "", perks = ""] =
+        line.split("|");
       return {
         price: price.trim(),
         badge: badge.trim(),
@@ -754,6 +895,9 @@ function classes(block: BuilderBlock, base: string) {
     `image-size-${block.imageSize ?? "large"}`,
     `image-aspect-${block.imageAspect ?? "wide"}`,
     `image-fit-${block.imageFit ?? "cover"}`,
+    `width-${block.sectionWidth ?? "wide"}`,
+    `spacing-${block.spacing ?? "normal"}`,
+    `button-${block.buttonStyle ?? "solid"}`,
   ].join(" ");
 }
 
@@ -905,10 +1049,12 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
       .filter((cells) => cells.length >= 2 && cells[0])
       .map(
         (cells, index) =>
-          `<tr>${cells.map((cell) => {
-            const tag = index === 0 ? "th" : "td";
-            return `<${tag}>${escapeHtml(cell)}</${tag}>`;
-          }).join("")}</tr>`,
+          `<tr>${cells
+            .map((cell) => {
+              const tag = index === 0 ? "th" : "td";
+              return `<${tag}>${escapeHtml(cell)}</${tag}>`;
+            })
+            .join("")}</tr>`,
       )
       .join("");
     return `<section class="${classes(block, "rv-builder-section rv-builder-comparison")}" ${style}><h2>${title}</h2><div><table>${rows}</table></div></section>`;
@@ -1063,7 +1209,8 @@ function renderBlock(block: BuilderBlock, mode: "html" | "preview" = "html") {
       `<button type="${mode === "preview" ? "button" : "submit"}">${buttonLabel}</button>`;
     if (visibleServiceControl) {
       const phoneIndex = controls.indexOf('name="phone"');
-      const insertAfter = phoneIndex >= 0 ? controls.indexOf("</label>", phoneIndex) : -1;
+      const insertAfter =
+        phoneIndex >= 0 ? controls.indexOf("</label>", phoneIndex) : -1;
       if (insertAfter >= 0) {
         controls =
           controls.slice(0, insertAfter + "</label>".length) +
@@ -1086,8 +1233,11 @@ function createBlock(kind: BlockKind): BuilderBlock {
   return { id: uid(), kind, ...presets[kind] };
 }
 
-function createTemplate(kinds: BlockKind[]) {
-  return kinds.map(createBlock);
+function createTemplate(specs: TemplateBlockSpec[]) {
+  return specs.map((spec) => {
+    if (typeof spec === "string") return createBlock(spec);
+    return { ...createBlock(spec.kind), ...spec.patch };
+  });
 }
 
 function initialBlocks(html?: string): BuilderBlock[] {
@@ -1191,9 +1341,23 @@ export function CustomPageBuilder({
     setSelectedId(next.id);
   }
 
-  function applyTemplate(kinds: BlockKind[]) {
-    const next = createTemplate(kinds);
+  function replaceWithTemplate(template: PageTemplate) {
+    if (
+      blocks.length > 0 &&
+      !window.confirm(
+        `سيتم استبدال ${blocks.length} مكونًا بالقالب «${template.label}». هل تريد المتابعة؟`,
+      )
+    ) {
+      return;
+    }
+    const next = createTemplate(template.blocks);
     setBlocks(next);
+    setSelectedId(next[0]?.id ?? "");
+  }
+
+  function appendBlocks(specs: TemplateBlockSpec[]) {
+    const next = createTemplate(specs);
+    setBlocks((current) => [...current, ...next]);
     setSelectedId(next[0]?.id ?? "");
   }
 
@@ -1328,15 +1492,52 @@ export function CustomPageBuilder({
     <div className="pagecraft-admin">
       <input type="hidden" name={name} value={html} />
       <aside className="pagecraft-panel">
-        <div className="pagecraft-panel__header">القوالب</div>
+        <div className="pagecraft-panel__header">قوالب صفحات كاملة</div>
         <div className="pagecraft-templates">
           {templates.map((template) => (
+            <article key={template.id} className="pagecraft-template-card">
+              <div>
+                <span>{template.badge}</span>
+                <strong>{template.label}</strong>
+                <p>{template.hint}</p>
+                <small>{template.blocks.length} أقسام قابلة للتعديل</small>
+              </div>
+              <div className="pagecraft-template-card__actions">
+                <button
+                  type="button"
+                  onClick={() => replaceWithTemplate(template)}
+                  title="استبدال محتوى المحرر الحالي بهذا القالب"
+                >
+                  استخدام القالب
+                </button>
+                <button
+                  type="button"
+                  onClick={() => appendBlocks(template.blocks)}
+                  title="إضافة أقسام القالب أسفل الصفحة الحالية"
+                >
+                  <span aria-hidden>+</span>
+                  إضافة للصفحة
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="pagecraft-panel__header">مجموعات جاهزة</div>
+        <div className="pagecraft-patterns">
+          {sectionPatterns.map((pattern) => (
             <button
-              key={template.label}
+              key={pattern.id}
               type="button"
-              onClick={() => applyTemplate(template.blocks)}
+              onClick={() => appendBlocks(pattern.blocks)}
             >
-              {template.label}
+              <span className="pagecraft-patterns__mark" aria-hidden>
+                +
+              </span>
+              <span>
+                <strong>{pattern.label}</strong>
+                <small>{pattern.hint}</small>
+              </span>
             </button>
           ))}
         </div>
@@ -1379,6 +1580,26 @@ export function CustomPageBuilder({
           ) : null}
         </div>
 
+        <div className="pagecraft-panel__header">هيكل الصفحة</div>
+        <div className="pagecraft-outline">
+          {blocks.map((block, index) => (
+            <button
+              key={block.id}
+              type="button"
+              className={selectedId === block.id ? "is-active" : ""}
+              onClick={() => setSelectedId(block.id)}
+            >
+              <span>{index + 1}</span>
+              <span>
+                <strong>
+                  {blockLibraryByKind.get(block.kind)?.label ?? block.kind}
+                </strong>
+                <small>{block.title}</small>
+              </span>
+            </button>
+          ))}
+        </div>
+
         <div className="pagecraft-panel__header">المعاينة</div>
         <div className="pagecraft-devices">
           {(["desktop", "tablet", "mobile"] as const).map((item) => (
@@ -1405,7 +1626,9 @@ export function CustomPageBuilder({
         <div className="pagecraft-canvas-toolbar" aria-live="polite">
           <span>{blocks.length} بلوك</span>
           <span>{mode}</span>
-          {selectedLibraryItem ? <strong>{selectedLibraryItem.label}</strong> : null}
+          {selectedLibraryItem ? (
+            <strong>{selectedLibraryItem.label}</strong>
+          ) : null}
         </div>
         {showCode ? (
           <textarea className="pagecraft-code" readOnly value={html} />
@@ -1547,7 +1770,8 @@ export function CustomPageBuilder({
                   </button>
                 </div>
                 <small>
-                  سيتم إضافة سطر جاهز في المحتوى، ويمكنك تعديل الوصف بعد الإضافة.
+                  سيتم إضافة سطر جاهز في المحتوى، ويمكنك تعديل الوصف بعد
+                  الإضافة.
                 </small>
               </div>
             ) : null}
@@ -1685,7 +1909,8 @@ export function CustomPageBuilder({
               </div>
             ) : null}
 
-            {selected.kind === "leadForm" || selected.kind === "campaignHero" ? (
+            {selected.kind === "leadForm" ||
+            selected.kind === "campaignHero" ? (
               <div className="grid gap-3 rounded-2xl border border-slate-200 bg-white/70 p-3">
                 <label>
                   <span>حالة البريد الإلكتروني</span>
@@ -1720,9 +1945,7 @@ export function CustomPageBuilder({
                 <label>
                   <span>طريقة ظهور الخدمة داخل الفورم</span>
                   <select
-                    value={
-                      selected.formServiceMode ?? "hidden"
-                    }
+                    value={selected.formServiceMode ?? "hidden"}
                     onChange={(event) =>
                       update(selected.id, {
                         formServiceMode: event.target.value as FormServiceMode,
@@ -1739,7 +1962,9 @@ export function CustomPageBuilder({
                   <span>الخدمة المرتبطة</span>
                   <select
                     value={selected.serviceSlug ?? ""}
-                    onChange={(event) => selectLinkedService(event.target.value)}
+                    onChange={(event) =>
+                      selectLinkedService(event.target.value)
+                    }
                   >
                     <option value="">بدون خدمة محددة</option>
                     {builderServiceOptions.map((service) => (
@@ -1867,6 +2092,55 @@ export function CustomPageBuilder({
                 </label>
               </div>
             ) : null}
+
+            <div className="pagecraft-mini-panel">
+              <label>
+                <span>عرض القسم</span>
+                <select
+                  value={selected.sectionWidth ?? "wide"}
+                  onChange={(event) =>
+                    update(selected.id, {
+                      sectionWidth: event.target.value as SectionWidth,
+                    })
+                  }
+                >
+                  <option value="contained">محتوى مركز</option>
+                  <option value="wide">عريض</option>
+                  <option value="full">عرض الصفحة</option>
+                </select>
+              </label>
+              <label>
+                <span>المسافات الداخلية</span>
+                <select
+                  value={selected.spacing ?? "normal"}
+                  onChange={(event) =>
+                    update(selected.id, {
+                      spacing: event.target.value as SectionSpacing,
+                    })
+                  }
+                >
+                  <option value="compact">مضغوطة</option>
+                  <option value="normal">متوازنة</option>
+                  <option value="airy">واسعة</option>
+                </select>
+              </label>
+              <div className="pagecraft-segment pagecraft-segment--two">
+                {(["solid", "outline"] as const).map((buttonStyle) => (
+                  <button
+                    key={buttonStyle}
+                    type="button"
+                    className={
+                      (selected.buttonStyle ?? "solid") === buttonStyle
+                        ? "is-active"
+                        : ""
+                    }
+                    onClick={() => update(selected.id, { buttonStyle })}
+                  >
+                    {buttonStyle === "solid" ? "زر ممتلئ" : "زر بإطار"}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="pagecraft-segment">
               {(["right", "center", "left"] as const).map((align) => (

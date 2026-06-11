@@ -2,39 +2,9 @@ import { ContentStatus } from "@prisma/client";
 import Link from "next/link";
 import type { Route } from "next";
 
-import {
-  deleteCustomPageAction,
-  generateServiceLandingPagesAction,
-} from "@/app/admin/pages/actions";
-import { AdminListControls } from "@/components/admin/AdminListControls";
+import { generateServiceLandingPagesAction } from "@/app/admin/pages/actions";
+import { CustomPagesManager } from "@/components/admin/CustomPagesManager";
 import { getCustomPages } from "@/lib/content-repository";
-
-function statusMeta(status: ContentStatus) {
-  switch (status) {
-    case ContentStatus.PUBLISHED:
-      return {
-        className: "is-published",
-        labelAr: "منشورة",
-        labelEn: "Published",
-      };
-    case ContentStatus.REVIEW:
-      return { className: "is-review", labelAr: "مراجعة", labelEn: "Review" };
-    case ContentStatus.APPROVED:
-      return {
-        className: "is-published",
-        labelAr: "معتمدة",
-        labelEn: "Approved",
-      };
-    case ContentStatus.ARCHIVED:
-      return {
-        className: "is-archived",
-        labelAr: "مؤرشفة",
-        labelEn: "Archived",
-      };
-    default:
-      return { className: "is-draft", labelAr: "مسودة", labelEn: "Draft" };
-  }
-}
 
 function countBlocks(htmlContent: string) {
   return (htmlContent.match(/rv-builder-section/g) ?? []).length;
@@ -90,6 +60,37 @@ export default async function AdminCustomPagesPage({
       count: draft,
     },
   ];
+  const pageItems = pages.map((page) => ({
+    id: page.id,
+    slug: page.slug,
+    titleAr: page.titleAr,
+    titleEn: page.titleEn ?? "",
+    status: page.status,
+    description:
+      page.seoDescription ||
+      page.metaDescription ||
+      page.seoTitle ||
+      page.metaTitle ||
+      "صفحة مخصصة قابلة للبناء والتعديل من PageCraft.",
+    searchText: [
+      page.titleAr,
+      page.titleEn,
+      page.slug,
+      page.seoSlug,
+      page.seoTitle,
+      page.seoDescription,
+      page.metaTitle,
+      page.metaDescription,
+      page.ogTitle,
+      page.keywords.join(" "),
+      page.hashtags.join(" "),
+    ]
+      .filter(Boolean)
+      .join(" "),
+    updatedAt: String(page.updatedAt),
+    noindex: page.noindex,
+    blockCount: countBlocks(page.htmlContent),
+  }));
 
   return (
     <>
@@ -157,101 +158,7 @@ export default async function AdminCustomPagesPage({
         </article>
       </section>
 
-      <AdminListControls targetId="admin-pages-list" tabs={tabs} />
-      <section className="custom-pages-list" data-admin-list="admin-pages-list">
-        {pages.length === 0 ? (
-          <article className="admin-card">
-            <div className="admin-card__body text-sm text-[color:var(--admin-text-faint)]">
-              لا توجد صفحات مخصصة بعد — أنشئي صفحة هبوط جديدة للبدء.
-            </div>
-          </article>
-        ) : null}
-
-        {pages.map((page) => {
-          const meta = statusMeta(page.status);
-          const blockCount = countBlocks(page.htmlContent);
-
-          return (
-            <article
-              key={page.id}
-              className="custom-page-list-card"
-              data-admin-row
-              data-admin-status={page.status}
-              data-admin-search={[
-                page.titleAr,
-                page.titleEn,
-                page.slug,
-                page.seoSlug,
-                page.seoTitle,
-                page.seoDescription,
-                page.metaTitle,
-                page.metaDescription,
-                page.ogTitle,
-                page.keywords.join(" "),
-                page.hashtags.join(" "),
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              <div className="custom-page-list-card__preview">
-                <span>{blockCount || "HTML"}</span>
-                <small>{blockCount ? "مكون" : "محتوى"}</small>
-              </div>
-              <div className="custom-page-list-card__body">
-                <div className="custom-page-list-card__title-row">
-                  <div>
-                    <p className="custom-page-list-card__path">
-                      /p/{page.slug}
-                    </p>
-                    <h2>{page.titleAr}</h2>
-                  </div>
-                  <span className={`admin-status-badge ${meta.className}`}>
-                    <span className="lang-ar">{meta.labelAr}</span>
-                    <span className="lang-en">{meta.labelEn}</span>
-                  </span>
-                </div>
-                <p className="custom-page-list-card__excerpt">
-                  {page.seoDescription ||
-                    page.metaDescription ||
-                    page.seoTitle ||
-                    page.metaTitle ||
-                    "صفحة مخصصة قابلة للبناء والتعديل من PageCraft."}
-                </p>
-                <div className="custom-page-list-card__meta">
-                  <span>
-                    آخر تعديل:{" "}
-                    {new Date(page.updatedAt).toLocaleDateString("ar-SA")}
-                  </span>
-                  {page.noindex ? <span>Noindex</span> : null}
-                </div>
-                <div className="custom-page-list-card__actions">
-                  <Link
-                    href={`/admin/pages/${page.id}` as Route}
-                    className="admin-btn-primary"
-                  >
-                    تعديل الصفحة
-                  </Link>
-                  <a
-                    href={`/p/${page.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="admin-btn-secondary"
-                  >
-                    معاينة
-                  </a>
-                  <form action={deleteCustomPageAction}>
-                    <input type="hidden" name="id" value={page.id} />
-                    <input type="hidden" name="slug" value={page.slug} />
-                    <button type="submit" className="admin-btn-danger">
-                      حذف
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </section>
+      <CustomPagesManager pages={pageItems} tabs={tabs} />
     </>
   );
 }

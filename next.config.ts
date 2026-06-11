@@ -29,11 +29,12 @@ function buildCsp(frameAncestors: string) {
     "https://www.googleadservices.com",
     "https://googleads.g.doubleclick.net",
   ].join(" ");
+  const metaScriptOrigins = "https://connect.facebook.net";
 
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins}`.trim(),
-    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins}`,
+    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins}`.trim(),
+    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
