@@ -13233,6 +13233,89 @@ html[data-theme="dark"] .admin-shell {
   font-variant-numeric: tabular-nums;
 }
 
+.admin-media-library__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: 0.8rem;
+}
+
+.admin-media-library__item {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--admin-border);
+  border-radius: 0.7rem;
+  background: var(--admin-panel);
+  box-shadow: var(--admin-shadow-soft);
+}
+
+.admin-media-library__preview {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-bottom: 1px solid var(--admin-border);
+  background:
+    linear-gradient(45deg, var(--admin-panel-soft) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--admin-panel-soft) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--admin-panel-soft) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--admin-panel-soft) 75%);
+  background-position:
+    0 0,
+    0 0.5rem,
+    0.5rem -0.5rem,
+    -0.5rem 0;
+  background-size: 1rem 1rem;
+}
+
+.admin-media-library__preview img {
+  padding: 0.25rem;
+}
+
+.admin-media-library__category {
+  position: absolute;
+  inset-block-start: 0.55rem;
+  inset-inline-start: 0.55rem;
+  z-index: 1;
+  max-width: calc(100% - 1.1rem);
+  overflow: hidden;
+  padding: 0.24rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 14px rgba(31, 16, 64, 0.12);
+  color: #32145f;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.admin-media-library__toast {
+  position: fixed;
+  inset-inline-end: 1.25rem;
+  inset-block-end: 1.25rem;
+  z-index: 80;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(26, 122, 94, 0.28);
+  border-radius: 0.7rem;
+  background: rgba(236, 252, 246, 0.96);
+  box-shadow: 0 14px 35px rgba(31, 16, 64, 0.16);
+  color: var(--admin-success);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+@media (max-width: 520px) {
+  .admin-media-library__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-media-library__toast {
+    inset-inline: 0.8rem;
+    text-align: center;
+  }
+}
+
 .admin-role-profile-grid {
   display: grid;
   gap: 0.85rem;

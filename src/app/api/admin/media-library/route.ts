@@ -15,6 +15,9 @@ type MediaLibraryItem = {
   category: string;
   source: string;
   updatedAt?: string;
+  key?: string;
+  size?: number;
+  contentType?: string;
 };
 
 const IMAGE_EXTENSIONS = /\.(avif|gif|jpe?g|png|svg|webp)(\?.*)?$/i;
@@ -24,10 +27,11 @@ function isImageUrl(value: unknown): value is string {
   const trimmed = value.trim();
   if (!trimmed) return false;
   return (
-    trimmed.startsWith("/media/") ||
-    trimmed.startsWith("data:image/") ||
-    /^https?:\/\//i.test(trimmed)
-  ) && IMAGE_EXTENSIONS.test(trimmed.split("?")[0] ?? trimmed);
+    (trimmed.startsWith("/media/") ||
+      trimmed.startsWith("data:image/") ||
+      /^https?:\/\//i.test(trimmed)) &&
+    IMAGE_EXTENSIONS.test(trimmed.split("?")[0] ?? trimmed)
+  );
 }
 
 function collectImageUrls(value: unknown, output = new Set<string>()) {
@@ -54,11 +58,28 @@ function addItem(
   items.set(url, { ...input, url });
 }
 
-function uploadedUrlFromLog(message: string) {
-  const key = message.replace(/^Uploaded\s+/i, "").trim();
+function uploadedKeyFromLog(message: string) {
+  return message.replace(/^Uploaded\s+/i, "").trim();
+}
+
+function uploadedUrlFromLog(
+  message: string,
+  meta: Record<string, unknown> | null,
+) {
+  const storedUrl = String(meta?.publicUrl ?? "").trim();
+  if (isImageUrl(storedUrl)) return storedUrl;
+
+  const key = uploadedKeyFromLog(message);
   const publicBase = process.env.R2_PUBLIC_BASE_URL?.replace(/\/$/, "");
   if (!key || !publicBase) return "";
   return `${publicBase}/${key.replace(/^\/+/, "")}`;
+}
+
+function uploadedFileName(key: string, meta: Record<string, unknown> | null) {
+  const originalName = String(meta?.originalName ?? "").trim();
+  if (originalName) return originalName;
+  const storedName = key.split("/").pop() ?? "";
+  return storedName.replace(/^[a-f0-9]{16}-/i, "") || "Uploaded image";
 }
 
 function imageUrlsFromHtml(html: string) {
@@ -138,7 +159,7 @@ async function getDatabaseMediaItems() {
     prisma.appLog.findMany({
       where: { kind: "media", message: { startsWith: "Uploaded " } },
       orderBy: { createdAt: "desc" },
-      take: 180,
+      take: 500,
       select: { message: true, meta: true, createdAt: true },
     }),
   ]);
@@ -232,14 +253,25 @@ async function getDatabaseMediaItems() {
   }
 
   for (const log of uploadLogs) {
-    const url = uploadedUrlFromLog(log.message);
     const meta = log.meta as Record<string, unknown> | null;
+    const key = uploadedKeyFromLog(log.message);
+    const url = uploadedUrlFromLog(log.message, meta);
+    const namespace = String(meta?.namespace ?? "media/uploads");
+    const size =
+      typeof meta?.size === "number" && Number.isFinite(meta.size)
+        ? meta.size
+        : null;
+    const contentType =
+      typeof meta?.contentType === "string" ? meta.contentType : "";
     addItem(items, {
       url,
-      label: String(meta?.namespace ?? "Uploaded media"),
+      label: uploadedFileName(key, meta),
       category: "Uploads",
-      source: "uploads",
+      source: namespace,
       updatedAt: log.createdAt.toISOString(),
+      key,
+      ...(size !== null ? { size } : {}),
+      ...(contentType ? { contentType } : {}),
     });
   }
 
@@ -254,7 +286,10 @@ export async function GET() {
     (!canAccessAdminRoute("/admin/media", role) &&
       !canAccessAdminRoute("/admin/pages", role))
   ) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   const items = new Map<string, MediaLibraryItem>();
@@ -275,12 +310,18 @@ export async function GET() {
     // The picker still works with bundled reference assets if the database is unavailable.
   }
 
-  return NextResponse.json({
-    ok: true,
-    items: Array.from(items.values()).sort((left, right) =>
-      `${left.category}-${left.label}`.localeCompare(
-        `${right.category}-${right.label}`,
-      ),
-    ),
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      items: Array.from(items.values()).sort((left, right) => {
+        const leftDate = left.updatedAt ? Date.parse(left.updatedAt) : 0;
+        const rightDate = right.updatedAt ? Date.parse(right.updatedAt) : 0;
+        if (leftDate !== rightDate) return rightDate - leftDate;
+        return `${left.category}-${left.label}`.localeCompare(
+          `${right.category}-${right.label}`,
+        );
+      }),
+    },
+    { headers: { "Cache-Control": "private, no-store" } },
+  );
 }

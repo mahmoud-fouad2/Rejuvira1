@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { AdminListControls } from "@/components/admin/AdminListControls";
+import { AdminMediaLibrary } from "@/components/admin/AdminMediaLibrary";
 import { MediaSlotEditor } from "@/components/admin/MediaSlotEditor";
 import { getMediaSelections } from "@/lib/content-repository";
 import { getReferenceAssets } from "@/lib/reference-assets";
@@ -166,6 +167,8 @@ export default async function AdminMediaPage() {
           ))}
         </div>
       </article>
+
+      <AdminMediaLibrary />
 
       <article className="admin-card">
         <div className="admin-card__header">

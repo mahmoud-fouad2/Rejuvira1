@@ -116,6 +116,9 @@ export async function POST(request: Request) {
       kind: "media",
       message: `Uploaded ${uploaded.key}`,
       meta: {
+        key: uploaded.key,
+        originalName: fileName,
+        publicUrl: uploaded.publicUrl ?? uploaded.url,
         size: uploaded.size,
         contentType: uploaded.contentType,
         namespace,
