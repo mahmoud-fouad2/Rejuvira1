@@ -10,6 +10,11 @@ import {
   GENERAL_INQUIRY_SERVICE_AR,
   hasGeneralInquiryTag,
 } from "@/lib/general-inquiry";
+import {
+  coreServiceSeedData,
+  sortCoreDevicesFirst,
+  sortCoreServicesFirst,
+} from "@/lib/core-search";
 import { prisma } from "@/lib/prisma";
 import { normalizeClientIp } from "@/lib/rate-limit";
 
@@ -51,8 +56,15 @@ export type ServiceRecord = {
   excerptEn?: string | null;
   description: string;
   descriptionEn?: string | null;
+  seoTitleAr?: string | null;
+  seoTitleEn?: string | null;
+  seoDescriptionAr?: string | null;
+  seoDescriptionEn?: string | null;
+  keywordsAr?: readonly string[];
+  keywordsEn?: readonly string[];
   coverImageUrl: string;
   benefits: readonly string[];
+  benefitsEn?: readonly string[];
   doctorSlugs: readonly string[];
   deviceSlugs: readonly string[];
   status: ContentStatus;
@@ -1012,7 +1024,37 @@ const seedDoctors: DoctorRecord[] = [
   },
 ];
 
+const coreSeedServices: ServiceRecord[] = coreServiceSeedData.map(
+  (service) => ({
+    id: `service-${service.slug}`,
+    slug: service.slug,
+    name: service.nameAr,
+    nameEn: service.nameEn,
+    categorySlug: service.categorySlug,
+    category: service.categoryAr,
+    categoryEn: service.categoryEn,
+    excerpt: service.excerptAr,
+    excerptEn: service.excerptEn,
+    description: service.descriptionAr,
+    descriptionEn: service.descriptionEn,
+    seoTitleAr: service.seoTitleAr,
+    seoTitleEn: service.seoTitleEn,
+    seoDescriptionAr: service.seoDescriptionAr,
+    seoDescriptionEn: service.seoDescriptionEn,
+    keywordsAr: service.keywordsAr,
+    keywordsEn: service.keywordsEn,
+    coverImageUrl: service.image,
+    benefits: service.benefitsAr,
+    benefitsEn: service.benefitsEn,
+    doctorSlugs: service.doctorSlugs,
+    deviceSlugs: [],
+    status: ContentStatus.PUBLISHED,
+    featured: true,
+  }),
+);
+
 const seedServices: ServiceRecord[] = [
+  ...coreSeedServices,
   {
     id: "service-skin-rejuvenation",
     slug: "skin-rejuvenation",
@@ -2774,7 +2816,7 @@ export const getServiceCategories = cache(
 
 export const getServices = cache(async () => {
   if (!canUseDatabase()) {
-    return sortFeaturedFirst([...seedServices]);
+    return sortCoreServicesFirst([...seedServices]);
   }
 
   try {
@@ -2790,40 +2832,50 @@ export const getServices = cache(async () => {
     );
 
     if (services.length === 0) {
-      return sortFeaturedFirst([...seedServices]);
+      return sortCoreServicesFirst([...seedServices]);
     }
 
-    return sortFeaturedFirst(
-      services.map((service) => ({
-        id: service.id,
-        slug: service.slug,
-        name: service.nameAr,
-        nameEn: service.nameEn,
-        categoryId: service.categoryId,
-        categorySlug: service.category?.slug ?? null,
-        category: service.category?.nameAr ?? service.categoryKey,
-        categoryEn: service.category?.nameEn ?? null,
-        excerpt: service.excerptAr,
-        excerptEn: service.excerptEn,
-        description: service.descriptionAr,
-        descriptionEn: service.descriptionEn,
-        coverImageUrl: toDisplayAsset(
-          service.coverImageUrl,
-          serviceImageForSlug(service.slug),
-        ),
-        benefits: [service.excerptAr, service.descriptionAr.slice(0, 120)],
-        doctorSlugs: service.doctors.map((doctor) => doctor.slug),
-        deviceSlugs: service.devices.map((device) => device.slug),
-        status: service.status,
-        featured: service.isFeatured,
-      })),
+    const databaseServices: ServiceRecord[] = services.map((service) => ({
+      id: service.id,
+      slug: service.slug,
+      name: service.nameAr,
+      nameEn: service.nameEn,
+      categoryId: service.categoryId,
+      categorySlug: service.category?.slug ?? null,
+      category: service.category?.nameAr ?? service.categoryKey,
+      categoryEn: service.category?.nameEn ?? null,
+      excerpt: service.excerptAr,
+      excerptEn: service.excerptEn,
+      description: service.descriptionAr,
+      descriptionEn: service.descriptionEn,
+      seoTitleAr: service.seoTitleAr,
+      seoTitleEn: service.seoTitleEn,
+      seoDescriptionAr: service.seoDescriptionAr,
+      seoDescriptionEn: service.seoDescriptionEn,
+      coverImageUrl: toDisplayAsset(
+        service.coverImageUrl,
+        serviceImageForSlug(service.slug),
+      ),
+      benefits: [service.excerptAr, service.descriptionAr.slice(0, 120)],
+      doctorSlugs: service.doctors.map((doctor) => doctor.slug),
+      deviceSlugs: service.devices.map((device) => device.slug),
+      status: service.status,
+      featured: service.isFeatured,
+    }));
+    const databaseSlugs = new Set(
+      databaseServices.map((service) => service.slug),
     );
+    const missingSeedServices = seedServices.filter(
+      (service) => !databaseSlugs.has(service.slug),
+    );
+
+    return sortCoreServicesFirst([...databaseServices, ...missingSeedServices]);
   } catch (error) {
     console.error(
       "[content-repository] getServices failed; using seed fallback.",
       error,
     );
-    return sortFeaturedFirst([...seedServices]);
+    return sortCoreServicesFirst([...seedServices]);
   }
 });
 
@@ -2849,7 +2901,7 @@ export const getServiceByReference = cache(
 
 export const getDevices = cache(async () => {
   if (!canUseDatabase()) {
-    return [...seedDevices];
+    return sortCoreDevicesFirst([...seedDevices]);
   }
 
   try {
@@ -2859,26 +2911,31 @@ export const getDevices = cache(async () => {
     });
 
     if (devices.length === 0) {
-      return [...seedDevices];
+      return sortCoreDevicesFirst([...seedDevices]);
     }
 
-    return devices.map((device) => ({
-      id: device.id,
-      slug: device.slug,
-      name: device.nameAr,
-      nameEn: device.nameEn,
-      excerpt: device.excerptAr ?? device.descriptionAr.slice(0, 120),
-      excerptEn: device.excerptEn,
-      description: device.descriptionAr,
-      descriptionEn: device.descriptionEn,
-      imageUrl: toPrimaryAsset(device.gallery, deviceImageForSlug(device.slug)),
-      certifications: toStringList(device.certifications),
-      serviceSlugs: device.services.map((service) => service.slug),
-      status: device.status,
-      featured: device.isFeatured,
-    }));
+    return sortCoreDevicesFirst(
+      devices.map((device) => ({
+        id: device.id,
+        slug: device.slug,
+        name: device.nameAr,
+        nameEn: device.nameEn,
+        excerpt: device.excerptAr ?? device.descriptionAr.slice(0, 120),
+        excerptEn: device.excerptEn,
+        description: device.descriptionAr,
+        descriptionEn: device.descriptionEn,
+        imageUrl: toPrimaryAsset(
+          device.gallery,
+          deviceImageForSlug(device.slug),
+        ),
+        certifications: toStringList(device.certifications),
+        serviceSlugs: device.services.map((service) => service.slug),
+        status: device.status,
+        featured: device.isFeatured,
+      })),
+    );
   } catch {
-    return [...seedDevices];
+    return sortCoreDevicesFirst([...seedDevices]);
   }
 });
 

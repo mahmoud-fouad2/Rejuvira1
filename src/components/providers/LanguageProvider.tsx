@@ -45,6 +45,12 @@ function applyLang(lang: Lang) {
 
 function readStoredLang(): Lang {
   if (typeof window === "undefined") return "ar";
+  const queryLang = new URLSearchParams(window.location.search).get("lang");
+  if (queryLang === "en" || queryLang === "ar") return queryLang;
+
+  const documentLang = document.documentElement.dataset.lang;
+  if (documentLang === "en" || documentLang === "ar") return documentLang;
+
   try {
     const m = document.cookie.match(/(?:^|;\s*)rejuvira-lang=(en|ar)\b/);
     if (m?.[1] === "en" || m?.[1] === "ar") return m[1];

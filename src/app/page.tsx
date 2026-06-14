@@ -14,23 +14,22 @@ import {
   getRuntimeSettings,
   getServices,
 } from "@/lib/content-repository";
-import { getSiteUrl } from "@/lib/seo";
+import { coreSearchKeywords } from "@/lib/core-search";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const canonical = getSiteUrl();
-
-  return {
-    alternates: {
-      canonical,
-      languages: {
-        ar: canonical,
-        "ar-SA": canonical,
-        en: `${canonical}/?lang=en`,
-        "en-US": `${canonical}/?lang=en`,
-        "x-default": canonical,
-      },
-    },
-  };
+  return buildPageMetadata({
+    page: "home",
+    path: "/",
+    overrideTitleAr: "ريجوفيرا بالرياض | جراحة التجميل والعناية المتكاملة",
+    overrideTitleEn:
+      "Rejuvera Riyadh | Plastic Surgery and Integrated Aesthetic Care",
+    overrideDescriptionAr:
+      "مركز ريجوفيرا الطبي في الرياض لخدمات شد الوجه والرقبة، علاج الوذمة الشحمية، التجميل النسائي، وتقنيات وأجهزة طبية مختارة تحت إشراف فريق متخصص.",
+    overrideDescriptionEn:
+      "Rejuvera Medical Center in Riyadh provides facelift, neck lift, lipedema, female aesthetic care, and selected medical technologies through specialist-led assessment.",
+    overrideKeywords: coreSearchKeywords.join(", "),
+  });
 }
 
 function rotatePosts<T>(posts: T[]) {

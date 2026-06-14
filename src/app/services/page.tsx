@@ -12,10 +12,23 @@ import {
   getServiceCategories,
   getServices,
 } from "@/lib/content-repository";
+import { coreSearchKeywords } from "@/lib/core-search";
 import { buildCollectionPageJsonLd, buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata({ page: "services", path: "/services" });
+  return buildPageMetadata({
+    page: "services",
+    path: "/services",
+    overrideTitleAr:
+      "خدمات ريجوفيرا بالرياض | شد الوجه والرقبة والتجميل المتكامل",
+    overrideTitleEn:
+      "Rejuvera Services Riyadh | Facelift, Neck Lift and Aesthetic Care",
+    overrideDescriptionAr:
+      "استكشف خدمات ريجوفيرا في الرياض، بما يشمل شد الوجه والرقبة، علاج الوذمة الشحمية، تجميل المهبل وتضييق المهبل بعد الولادة، مع استمرار عرض جميع الخدمات الطبية والتجميلية الأخرى.",
+    overrideDescriptionEn:
+      "Explore Rejuvera services in Riyadh, including facelift, neck lift, lipedema treatment, vaginoplasty, postpartum vaginal tightening, and the center's complete medical aesthetic service catalog.",
+    overrideKeywords: coreSearchKeywords.join(", "),
+  });
 }
 
 export default async function ServicesPage() {
@@ -157,13 +170,27 @@ export default async function ServicesPage() {
                       <span className="lang-en">Featured Service</span>
                     </p>
                     <h2 className="text-ink mt-4 font-serif text-4xl leading-snug tracking-[-0.02em]">
-                      {featuredService.name}
+                      <span className="lang-ar">{featuredService.name}</span>
+                      <span className="lang-en">
+                        {featuredService.nameEn ?? featuredService.name}
+                      </span>
                     </h2>
                     <Badge variant="gold" size="md" className="mt-3">
-                      {featuredService.category}
+                      <span className="lang-ar">
+                        {featuredService.category}
+                      </span>
+                      <span className="lang-en">
+                        {featuredService.categoryEn ?? featuredService.category}
+                      </span>
                     </Badge>
                     <p className="text-ink-soft mt-5 text-base leading-8">
-                      {featuredService.description}
+                      <span className="lang-ar">
+                        {featuredService.description}
+                      </span>
+                      <span className="lang-en">
+                        {featuredService.descriptionEn ??
+                          featuredService.description}
+                      </span>
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">

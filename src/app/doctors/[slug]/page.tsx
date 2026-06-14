@@ -14,6 +14,7 @@ import {
   getRuntimeSettings,
   getServices,
 } from "@/lib/content-repository";
+import { coreSearchKeywords } from "@/lib/core-search";
 import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -31,34 +32,61 @@ export async function generateMetadata({
   }
 
   const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
+  const isLoai = doctor.slug === "loai-alsalmi";
+  const titleAr = isLoai
+    ? "د. لؤي السالمي | شد الوجه والرقبة وجراحة التجميل بالرياض"
+    : `${doctor.name} | ${doctor.specialty}`;
+  const titleEn = isLoai
+    ? "Dr. Loai Al-Salmi | Facelift, Neck Lift and Plastic Surgery Riyadh"
+    : `${doctor.nameEn ?? doctor.name} | ${doctor.specialtyEn ?? doctor.specialty}`;
+  const descriptionAr = isLoai
+    ? "الملف الطبي لد. لؤي السالمي استشاري جراحة التجميل والترميم في ريجوفيرا بالرياض، مع خدمات شد الوجه والرقبة وعلاج الوذمة الشحمية والتخطيط الجراحي المتخصص."
+    : doctor.summary;
+  const descriptionEn = isLoai
+    ? "Medical profile of Dr. Loai Al-Salmi, consultant plastic and reconstructive surgeon at Rejuvera Riyadh, with specialist assessment for facelift, neck lift, lipedema, and plastic surgery."
+    : (doctor.summaryEn ?? doctor.summary);
+  const title = `${titleAr} — ${titleEn}`;
+  const description = `${descriptionAr} ${descriptionEn}`;
 
   return {
-    title: doctor.name,
-    description: doctor.summary,
+    title,
+    description,
     keywords: [
       doctor.name,
+      doctor.nameEn ?? "",
       doctor.specialty,
+      doctor.specialtyEn ?? "",
       doctor.title,
       "ريجوفيرا",
       "Rejuvera",
       "طبيب تجميل الرياض",
       "Aesthetic doctor Riyadh",
+      ...(isLoai ? coreSearchKeywords : []),
     ],
     openGraph: {
-      title: doctor.name,
-      description: doctor.summary,
+      title,
+      description,
       url: canonicalUrl,
       type: "website",
+      locale: "ar_SA",
+      alternateLocale: "en_US",
       images: [doctor.coverImageUrl],
     },
     twitter: {
       card: "summary_large_image",
-      title: doctor.name,
-      description: doctor.summary,
+      title,
+      description,
       images: [doctor.coverImageUrl],
     },
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
     },
     robots: {
       index: true,
@@ -133,8 +161,10 @@ export default async function DoctorDetailPage({
   }
 
   const doctorServiceSlugSet = new Set(doctor.serviceSlugs);
-  const relatedServices = services.filter((service) =>
-    doctorServiceSlugSet.has(service.slug),
+  const relatedServices = services.filter(
+    (service) =>
+      doctorServiceSlugSet.has(service.slug) ||
+      service.doctorSlugs.includes(doctor.slug),
   );
   const relatedDeviceSlugs = new Set(
     relatedServices.flatMap((service) => service.deviceSlugs),
@@ -154,7 +184,9 @@ export default async function DoctorDetailPage({
   const doctorJsonLd = {
     "@context": "https://schema.org",
     "@type": "Physician",
+    "@id": `${doctorUrl}#physician`,
     name: doctor.name,
+    alternateName: doctor.nameEn,
     description: doctor.summary,
     image: doctor.photoUrl,
     medicalSpecialty: doctor.specialty,
@@ -162,9 +194,16 @@ export default async function DoctorDetailPage({
     availableLanguage: [...doctor.languages],
     telephone: runtimeSettings.contact.phone,
     email: runtimeSettings.contact.email,
+    areaServed: {
+      "@type": "City",
+      name: "Riyadh",
+    },
+    knowsAbout: relatedServices.map(
+      (service) => service.nameEn ?? service.name,
+    ),
+    inLanguage: ["ar", "en"],
     worksFor: {
-      "@type": "MedicalOrganization",
-      name: runtimeSettings.brand.siteName,
+      "@id": `${getSiteUrl()}#organization`,
     },
   };
   const breadcrumbJsonLd = {
@@ -252,11 +291,20 @@ export default async function DoctorDetailPage({
               <span className="lang-ar">الملف الطبي</span>
               <span className="lang-en">Medical Profile</span>
             </p>
-            <h1 className="rv-doctor-hero-name">{doctor.name}</h1>
-            <p className="rv-doctor-hero-title">{doctor.title}</p>
+            <h1 className="rv-doctor-hero-name">
+              <span className="lang-ar">{doctor.name}</span>
+              <span className="lang-en">{doctor.nameEn ?? doctor.name}</span>
+            </h1>
+            <p className="rv-doctor-hero-title">
+              <span className="lang-ar">{doctor.title}</span>
+              <span className="lang-en">{doctor.titleEn ?? doctor.title}</span>
+            </p>
             <div className="rv-doctor-hero-meta">
               <span className="rv-doctor-hero-pill is-specialty">
-                {doctor.specialty}
+                <span className="lang-ar">{doctor.specialty}</span>
+                <span className="lang-en">
+                  {doctor.specialtyEn ?? doctor.specialty}
+                </span>
               </span>
               <span className="rv-doctor-hero-pill is-exp">
                 {doctor.yearsExperience}+{" "}
@@ -269,7 +317,12 @@ export default async function DoctorDetailPage({
                 </span>
               ) : null}
             </div>
-            <p className="rv-doctor-hero-summary">{doctor.summary}</p>
+            <p className="rv-doctor-hero-summary">
+              <span className="lang-ar">{doctor.summary}</span>
+              <span className="lang-en">
+                {doctor.summaryEn ?? doctor.summary}
+              </span>
+            </p>
             <div className="rv-doctor-hero-cta">
               <BookingModal
                 services={services}

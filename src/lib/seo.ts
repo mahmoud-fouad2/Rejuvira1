@@ -163,6 +163,20 @@ export function buildLocalBusinessJsonLd(settings: {
     },
     areaServed: ["SA", { "@type": "City", name: "Riyadh" }],
     medicalSpecialty: ["Dermatology", "PlasticSurgery", "Aesthetic Medicine"],
+    knowsAbout: [
+      "شد الوجه",
+      "Facelift surgery",
+      "شد الرقبة",
+      "Neck lift surgery",
+      "علاج الوذمة الشحمية",
+      "Lipedema treatment",
+      "تجميل المهبل",
+      "Vaginoplasty",
+      "تضييق المهبل بعد الولادة",
+      "Postpartum vaginal tightening",
+      "جهاز الراينو",
+      "Rhino device",
+    ],
     openingHoursSpecification: [
       {
         "@type": "OpeningHoursSpecification",

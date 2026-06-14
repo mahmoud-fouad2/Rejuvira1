@@ -153,27 +153,39 @@ function ServiceCard({ service }: { service: ServiceRecord }) {
           sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
           className="rv-service-art-img"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-        <span className="service-card__category-chip">{service.category}</span>
+        <div className="service-card__image-scrim" aria-hidden />
+        <span className="service-card__category-chip">
+          <span className="lang-ar">{service.category}</span>
+          <span className="lang-en">
+            {service.categoryEn ?? service.category}
+          </span>
+        </span>
+        <h3 className="service-card__image-title">
+          <span className="lang-ar">{service.name}</span>
+          <span className="lang-en">{service.nameEn ?? service.name}</span>
+        </h3>
       </div>
 
       <div className="service-card__body">
-        <h3 className="text-ink font-serif text-xl leading-snug tracking-[-0.015em]">
-          {service.name}
-        </h3>
-        <p className="text-ink-soft mt-2.5 line-clamp-2 text-sm leading-6">
-          {service.excerpt}
+        <p className="text-ink-soft line-clamp-3 text-sm leading-6">
+          <span className="lang-ar">{service.excerpt}</span>
+          <span className="lang-en">
+            {service.excerptEn ?? service.excerpt}
+          </span>
         </p>
 
         {benefits.length > 0 ? (
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {benefits.map((benefit) => (
+            {benefits.map((benefit, index) => (
               <span
                 key={benefit}
                 className="border-line bg-canvas text-ink-faint inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px]"
               >
                 <span className="bg-gold inline-block h-1 w-1 rounded-full" />
-                {benefit}
+                <span className="lang-ar">{benefit}</span>
+                <span className="lang-en">
+                  {service.benefitsEn?.[index] ?? benefit}
+                </span>
               </span>
             ))}
           </div>

@@ -1,0 +1,237 @@
+[
+  {
+    "slug": "facelift-surgery",
+    "aliases": ["facelift", "face-lift", "شد الوجه"],
+    "nameAr": "شد الوجه",
+    "nameEn": "Facelift Surgery",
+    "categorySlug": "facial-plastic-surgery",
+    "categoryAr": "عمليات تجميل الوجه",
+    "categoryEn": "Facial Plastic Surgery",
+    "excerptAr": "تقييم جراحي متكامل لتحسين ترهل الوجه وخط الفك مع الحفاظ على ملامح طبيعية ومتوازنة.",
+    "excerptEn": "A comprehensive surgical assessment for facial laxity and jawline definition while preserving balanced, natural-looking features.",
+    "descriptionAr": "تبدأ خطة شد الوجه بتقييم درجة الترهل وجودة الجلد والأنسجة العميقة، ثم يوضح الطبيب الخيارات المناسبة والتعافي المتوقع والنتائج الواقعية لكل حالة.",
+    "descriptionEn": "Facelift planning starts with an assessment of skin quality, facial laxity, and deeper tissues, followed by a clear discussion of suitable options, recovery, and realistic outcomes.",
+    "image": "/media/curated/service-aesthetic-surgery.svg",
+    "doctorSlugs": [
+      "loai-alsalmi",
+      "maher-alahdab",
+      "saham-arfaj",
+      "ahmed-eldesouki"
+    ],
+    "benefitsAr": [
+      "تقييم دقيق لدرجة الترهل",
+      "تحسين تحديد الفك والوجه",
+      "خطة تحافظ على المظهر الطبيعي"
+    ],
+    "benefitsEn": [
+      "Detailed laxity assessment",
+      "Improved facial and jawline definition",
+      "Planning that preserves natural features"
+    ],
+    "seoTitleAr": "شد الوجه في الرياض مع د. لؤي السالمي | ريجوفيرا",
+    "seoTitleEn": "Facelift Surgery in Riyadh with Dr. Loai Al-Salmi | Rejuvera",
+    "seoDescriptionAr": "تعرفي على خيارات شد الوجه في الرياض مع د. لؤي السالمي في مركز ريجوفيرا، والتقييم المناسب للترهل وخط الفك والتعافي المتوقع.",
+    "seoDescriptionEn": "Explore facelift surgery in Riyadh with Dr. Loai Al-Salmi at Rejuvera, including assessment for facial laxity, jawline definition, and expected recovery.",
+    "keywordsAr": [
+      "شد الوجه",
+      "عملية شد الوجه",
+      "شد الوجه في الرياض",
+      "دكتور لؤي السالمي",
+      "جراحة تجميل الوجه",
+      "علاج ترهل الوجه"
+    ],
+    "keywordsEn": [
+      "facelift Riyadh",
+      "facelift surgery Riyadh",
+      "Dr Loai Al-Salmi",
+      "face lift Saudi Arabia",
+      "facial rejuvenation Riyadh"
+    ]
+  },
+  {
+    "slug": "neck-lift-surgery",
+    "aliases": ["neck-lift", "necklift", "شد الرقبة", "شد الرقبه"],
+    "nameAr": "شد الرقبة",
+    "nameEn": "Neck Lift Surgery",
+    "categorySlug": "facial-plastic-surgery",
+    "categoryAr": "عمليات تجميل الوجه",
+    "categoryEn": "Facial Plastic Surgery",
+    "excerptAr": "خطة جراحية لتحسين ترهل الرقبة وتحديد خط الفك بعد تقييم الجلد والأنسجة واحتياج الحالة.",
+    "excerptEn": "A surgical plan to improve neck laxity and jawline definition after assessing the skin, tissues, and individual needs.",
+    "descriptionAr": "يركز تقييم شد الرقبة على درجة الارتخاء وتراكم الدهون وتناسق الرقبة مع أسفل الوجه، مع شرح واضح للخيارات والنتائج والتعافي قبل اتخاذ القرار.",
+    "descriptionEn": "Neck lift assessment considers laxity, localized fat, and harmony with the lower face, with a clear explanation of options, recovery, and realistic results.",
+    "image": "/media/curated/service-aesthetic-surgery.svg",
+    "doctorSlugs": [
+      "loai-alsalmi",
+      "maher-alahdab",
+      "saham-arfaj",
+      "ahmed-eldesouki"
+    ],
+    "benefitsAr": [
+      "تحسين خط الفك",
+      "معالجة ترهل الرقبة",
+      "تخطيط متكامل للوجه والرقبة"
+    ],
+    "benefitsEn": [
+      "Improved jawline definition",
+      "Treatment planning for neck laxity",
+      "Integrated face and neck assessment"
+    ],
+    "seoTitleAr": "شد الرقبة في الرياض مع د. لؤي السالمي | ريجوفيرا",
+    "seoTitleEn": "Neck Lift Surgery in Riyadh with Dr. Loai Al-Salmi | Rejuvera",
+    "seoDescriptionAr": "استشارة شد الرقبة في الرياض مع د. لؤي السالمي لتقييم الترهل وخط الفك والخيارات الجراحية المناسبة داخل مركز ريجوفيرا.",
+    "seoDescriptionEn": "Book a neck lift assessment in Riyadh with Dr. Loai Al-Salmi to review neck laxity, jawline definition, and suitable surgical options.",
+    "keywordsAr": [
+      "شد الرقبة",
+      "عملية شد الرقبة",
+      "شد الرقبة في الرياض",
+      "تحديد الفك",
+      "دكتور لؤي السالمي",
+      "علاج ترهل الرقبة"
+    ],
+    "keywordsEn": [
+      "neck lift Riyadh",
+      "neck lift surgery Riyadh",
+      "jawline surgery Riyadh",
+      "Dr Loai Al-Salmi",
+      "neck rejuvenation Saudi Arabia"
+    ]
+  },
+  {
+    "slug": "lipedema-treatment",
+    "aliases": ["lipedema", "lipoedema", "الوذمة الشحمية", "الوذمه الشحميه"],
+    "nameAr": "علاج الوذمة الشحمية",
+    "nameEn": "Lipedema Treatment",
+    "categorySlug": "plastic-surgery",
+    "categoryAr": "جراحة التجميل",
+    "categoryEn": "Plastic Surgery",
+    "excerptAr": "تقييم متخصص لأعراض الوذمة الشحمية ووضع خطة علاجية وجراحية مناسبة لطبيعة الحالة ومرحلتها.",
+    "excerptEn": "Specialist assessment of lipedema symptoms with a treatment and surgical plan tailored to the condition and its stage.",
+    "descriptionAr": "يشمل التقييم توزيع الدهون والألم والتورم وتأثير الحالة على الحركة وجودة الحياة، ثم يناقش الطبيب الخيارات المناسبة والمتابعة المطلوبة دون تقديم وعود موحدة لكل الحالات.",
+    "descriptionEn": "Assessment reviews fat distribution, pain, swelling, mobility, and quality-of-life impact before discussing suitable options and follow-up for each individual case.",
+    "image": "/media/reference/legacy/88985959.webp",
+    "doctorSlugs": ["loai-alsalmi", "maher-alahdab", "ahmed-eldesouki"],
+    "benefitsAr": [
+      "تقييم مرحلة الحالة",
+      "خطة فردية للأعراض والتناسق",
+      "متابعة واضحة قبل وبعد العلاج"
+    ],
+    "benefitsEn": [
+      "Condition-stage assessment",
+      "Individual symptom and contour planning",
+      "Clear follow-up before and after treatment"
+    ],
+    "seoTitleAr": "علاج الوذمة الشحمية في الرياض | د. لؤي السالمي - ريجوفيرا",
+    "seoTitleEn": "Lipedema Treatment in Riyadh | Dr. Loai Al-Salmi - Rejuvera",
+    "seoDescriptionAr": "تقييم وعلاج الوذمة الشحمية في الرياض داخل مركز ريجوفيرا مع د. لؤي السالمي، بخطة تراعي الأعراض ومرحلة الحالة والخيارات المناسبة.",
+    "seoDescriptionEn": "Lipedema assessment and treatment in Riyadh with Dr. Loai Al-Salmi at Rejuvera, with planning based on symptoms, stage, and individual needs.",
+    "keywordsAr": [
+      "الوذمة الشحمية",
+      "علاج الوذمة الشحمية",
+      "الليبيديما",
+      "علاج الليبيديما في الرياض",
+      "شفط دهون الوذمة الشحمية",
+      "دكتور لؤي السالمي"
+    ],
+    "keywordsEn": [
+      "lipedema treatment Riyadh",
+      "lipoedema Riyadh",
+      "lipedema surgery Saudi Arabia",
+      "Dr Loai Al-Salmi",
+      "lipedema specialist Riyadh"
+    ]
+  },
+  {
+    "slug": "vaginoplasty",
+    "aliases": ["vaginoplasty", "vaginal-aesthetics", "تجميل المهبل"],
+    "nameAr": "تجميل المهبل",
+    "nameEn": "Vaginoplasty and Intimate Aesthetic Care",
+    "categorySlug": "female-aesthetics",
+    "categoryAr": "التجميل النسائي",
+    "categoryEn": "Female Aesthetics",
+    "excerptAr": "استشارة نسائية خاصة لتقييم الاحتياج ومناقشة خيارات تجميل المهبل المناسبة بأمان ووضوح.",
+    "excerptEn": "A private consultation to assess individual needs and discuss suitable vaginoplasty and intimate aesthetic options clearly and safely.",
+    "descriptionAr": "تبدأ الخدمة باستشارة تحافظ على الخصوصية وتوضح الأعراض والهدف والتاريخ الطبي، ثم تُناقش الخيارات الجراحية أو غير الجراحية المناسبة وحدود كل خيار.",
+    "descriptionEn": "Care begins with a private consultation covering symptoms, goals, and medical history before discussing appropriate surgical or non-surgical options and their limitations.",
+    "image": "/media/curated/clinic-treatment-room.jpeg",
+    "doctorSlugs": ["karima-jamjoom", "najwa-batarfi"],
+    "benefitsAr": [
+      "خصوصية كاملة",
+      "تقييم نسائي متخصص",
+      "شرح واضح للخيارات والتعافي"
+    ],
+    "benefitsEn": [
+      "Complete privacy",
+      "Specialist women's health assessment",
+      "Clear discussion of options and recovery"
+    ],
+    "seoTitleAr": "تجميل المهبل في الرياض | التجميل النسائي في ريجوفيرا",
+    "seoTitleEn": "Vaginoplasty in Riyadh | Female Aesthetic Care at Rejuvera",
+    "seoDescriptionAr": "استشارة تجميل المهبل في الرياض داخل مركز ريجوفيرا بخصوصية كاملة لتقييم الحالة ومناقشة الخيارات المناسبة والتعافي المتوقع.",
+    "seoDescriptionEn": "Private vaginoplasty consultation in Riyadh at Rejuvera to assess individual needs, suitable options, and expected recovery.",
+    "keywordsAr": [
+      "تجميل المهبل",
+      "عملية تجميل المهبل",
+      "تجميل المهبل في الرياض",
+      "التجميل النسائي",
+      "جراحة نسائية تجميلية",
+      "ريجوفيرا"
+    ],
+    "keywordsEn": [
+      "vaginoplasty Riyadh",
+      "vaginal aesthetic surgery Riyadh",
+      "female intimate surgery Saudi Arabia",
+      "female aesthetics Riyadh",
+      "Rejuvera"
+    ]
+  },
+  {
+    "slug": "postpartum-vaginal-tightening",
+    "aliases": [
+      "vaginal-tightening",
+      "postpartum-tightening",
+      "تضييق المهبل بعد الولادة",
+      "تضييق المهبل بعد الولاده"
+    ],
+    "nameAr": "تضييق المهبل بعد الولادة",
+    "nameEn": "Postpartum Vaginal Tightening",
+    "categorySlug": "female-aesthetics",
+    "categoryAr": "التجميل النسائي",
+    "categoryEn": "Female Aesthetics",
+    "excerptAr": "تقييم نسائي بعد الولادة لمناقشة الارتخاء والأعراض والخيارات المناسبة للتضييق واستعادة الراحة.",
+    "excerptEn": "A postpartum assessment to discuss laxity, symptoms, and suitable vaginal tightening options for comfort and function.",
+    "descriptionAr": "يحدد التقييم سبب الأعراض ودرجة الارتخاء والتوقيت المناسب بعد الولادة، ثم يشرح الطبيب الخيارات المتاحة ومتطلبات التعافي بما يناسب الحالة.",
+    "descriptionEn": "Assessment identifies symptoms, degree of laxity, and appropriate timing after childbirth before explaining available options and recovery requirements.",
+    "image": "/media/curated/clinic-treatment-room.jpeg",
+    "doctorSlugs": ["karima-jamjoom", "najwa-batarfi"],
+    "benefitsAr": [
+      "تقييم مناسب لمرحلة ما بعد الولادة",
+      "خصوصية وراحة أثناء الاستشارة",
+      "خطة واضحة حسب الحالة"
+    ],
+    "benefitsEn": [
+      "Postpartum-appropriate assessment",
+      "Private and comfortable consultation",
+      "A clear plan tailored to the case"
+    ],
+    "seoTitleAr": "تضييق المهبل بعد الولادة في الرياض | ريجوفيرا",
+    "seoTitleEn": "Postpartum Vaginal Tightening in Riyadh | Rejuvera",
+    "seoDescriptionAr": "تقييم تضييق المهبل بعد الولادة في الرياض داخل مركز ريجوفيرا، مع خصوصية كاملة وشرح الخيارات المناسبة والتوقيت والتعافي.",
+    "seoDescriptionEn": "Private postpartum vaginal tightening assessment in Riyadh at Rejuvera, with clear guidance on suitable options, timing, and recovery.",
+    "keywordsAr": [
+      "تضييق المهبل بعد الولادة",
+      "تضييق المهبل في الرياض",
+      "علاج ارتخاء المهبل",
+      "التجميل النسائي بعد الولادة",
+      "عملية تضييق المهبل",
+      "ريجوفيرا"
+    ],
+    "keywordsEn": [
+      "postpartum vaginal tightening Riyadh",
+      "vaginal tightening after childbirth",
+      "vaginal laxity treatment Riyadh",
+      "female aesthetics Saudi Arabia",
+      "Rejuvera"
+    ]
+  }
+]

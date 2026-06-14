@@ -9,6 +9,7 @@ import {
   getRuntimeSettings,
   getServices,
 } from "@/lib/content-repository";
+import { getCoreServiceDefinition } from "@/lib/core-search";
 import { getSiteUrl } from "@/lib/seo";
 
 export const SITEMAP_PATHS = {
@@ -87,9 +88,7 @@ function isPublished<T extends { status?: ContentStatus | null }>(
   return (item.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED;
 }
 
-function compactImages(
-  images: Array<SitemapImage | null | undefined>,
-) {
+function compactImages(images: Array<SitemapImage | null | undefined>) {
   const seen = new Set<string>();
   return images.filter((image): image is SitemapImage => {
     if (!image?.url || seen.has(image.url)) return false;
@@ -155,7 +154,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     {
       path: "/services",
       title: "الخدمات الطبية والتجميلية",
-      priority: 0.9,
+      priority: 0.95,
       changeFrequency: "weekly",
       lastModified: now,
     },
@@ -169,8 +168,8 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     {
       path: "/devices",
       title: "الأجهزة الطبية",
-      priority: 0.7,
-      changeFrequency: "monthly",
+      priority: 0.85,
+      changeFrequency: "weekly",
       lastModified: now,
       images: compactImages(
         devices.filter(isPublished).map((device) => ({
@@ -236,8 +235,11 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       path: `/doctors/${doctor.slug}`,
       title: doctor.name,
       description: doctor.summary,
-      priority: 0.7,
-      changeFrequency: "monthly" as const,
+      priority: doctor.slug === "loai-alsalmi" ? 0.9 : 0.7,
+      changeFrequency:
+        doctor.slug === "loai-alsalmi"
+          ? ("weekly" as const)
+          : ("monthly" as const),
       lastModified: now,
       images: compactImages([
         {
@@ -251,8 +253,10 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       path: `/services/${service.slug}`,
       title: service.name,
       description: service.excerpt,
-      priority: 0.75,
-      changeFrequency: "monthly" as const,
+      priority: getCoreServiceDefinition(service) ? 0.9 : 0.75,
+      changeFrequency: getCoreServiceDefinition(service)
+        ? ("weekly" as const)
+        : ("monthly" as const),
       lastModified: now,
       images: compactImages([
         {
@@ -278,7 +282,9 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       ]),
     })),
     ...customPages
-      .filter((page) => page.status === ContentStatus.PUBLISHED && !page.noindex)
+      .filter(
+        (page) => page.status === ContentStatus.PUBLISHED && !page.noindex,
+      )
       .map((page) => ({
         path: `/p/${page.seoSlug || page.slug}`,
         title: page.metaTitle || page.seoTitle || page.titleAr,
@@ -392,9 +398,15 @@ export async function renderLlmsTxt() {
   ]);
   const importantEntries = entries
     .filter((entry) =>
-      ["/", "/services", "/doctors", "/devices", "/gallery", "/journal", "/contact"].includes(
-        entry.path,
-      ),
+      [
+        "/",
+        "/services",
+        "/doctors",
+        "/devices",
+        "/gallery",
+        "/journal",
+        "/contact",
+      ].includes(entry.path),
     )
     .concat(
       entries

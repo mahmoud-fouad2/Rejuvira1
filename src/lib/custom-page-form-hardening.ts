@@ -38,7 +38,7 @@ function formGuardFields(renderedAt: number, pageSlug?: string) {
           `<input type="hidden" name="landingPageSlug" value="${escapeAttr(pageSlug)}">`,
         ]
       : []),
-    `<div aria-hidden="true" style="position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;">`,
+    `<div aria-hidden="true" style="position:absolute!important;inset:0 auto auto 0!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important;">`,
     `<label>Company<input type="text" name="${LEAD_HONEYPOT_FIELD}" tabindex="-1" autocomplete="off"></label>`,
     `</div>`,
   ].join("");
@@ -66,7 +66,7 @@ function ensureSafeLeadAction(attrs: string) {
 function neutralizePrematureLeadSubmitTracking(html: string) {
   return html.replace(
     /\bevent\s*:\s*(["'])lead_submit\1/g,
-    'event:$1lead_attempt$1',
+    "event:$1lead_attempt$1",
   );
 }
 

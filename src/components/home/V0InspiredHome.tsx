@@ -18,29 +18,25 @@ import { V0GalleryBeforeAfterCard } from "@/components/home/V0GalleryBeforeAfter
 import { V0ServicesStrip } from "@/components/home/V0ServicesStrip";
 import type { TestimonialItem } from "@/components/home/TestimonialsSplitCarousel";
 
-const V0DoctorQuotesSlider = dynamic(
-  () =>
-    import("@/components/home/V0DoctorQuotesSlider").then(
-      (m) => m.V0DoctorQuotesSlider,
-    ),
+const V0DoctorQuotesSlider = dynamic(() =>
+  import("@/components/home/V0DoctorQuotesSlider").then(
+    (m) => m.V0DoctorQuotesSlider,
+  ),
 );
-const V0DoctorsCarousel = dynamic(
-  () =>
-    import("@/components/home/V0DoctorsCarousel").then(
-      (m) => m.V0DoctorsCarousel,
-    ),
+const V0DoctorsCarousel = dynamic(() =>
+  import("@/components/home/V0DoctorsCarousel").then(
+    (m) => m.V0DoctorsCarousel,
+  ),
 );
-const V0JournalCarousel = dynamic(
-  () =>
-    import("@/components/home/V0JournalCarousel").then(
-      (m) => m.V0JournalCarousel,
-    ),
+const V0JournalCarousel = dynamic(() =>
+  import("@/components/home/V0JournalCarousel").then(
+    (m) => m.V0JournalCarousel,
+  ),
 );
-const TestimonialsSplitCarousel = dynamic(
-  () =>
-    import("@/components/home/TestimonialsSplitCarousel").then(
-      (m) => m.TestimonialsSplitCarousel,
-    ),
+const TestimonialsSplitCarousel = dynamic(() =>
+  import("@/components/home/TestimonialsSplitCarousel").then(
+    (m) => m.TestimonialsSplitCarousel,
+  ),
 );
 
 type V0InspiredHomeProps = {
@@ -481,9 +477,24 @@ export function V0InspiredHome({
                 </span>
               </div>
               <div className="rv-v0-service-body">
-                <small>{service.category}</small>
-                <h3>{service.name}</h3>
-                <p>{service.excerpt}</p>
+                <small>
+                  <span className="lang-ar">{service.category}</span>
+                  <span className="lang-en">
+                    {service.categoryEn ?? service.category}
+                  </span>
+                </small>
+                <h3>
+                  <span className="lang-ar">{service.name}</span>
+                  <span className="lang-en">
+                    {service.nameEn ?? service.name}
+                  </span>
+                </h3>
+                <p>
+                  <span className="lang-ar">{service.excerpt}</span>
+                  <span className="lang-en">
+                    {service.excerptEn ?? service.excerpt}
+                  </span>
+                </p>
                 <em>
                   <span className="lang-ar">اكتشفي التفاصيل</span>
                   <span className="lang-en">Explore details</span>
@@ -555,8 +566,18 @@ export function V0InspiredHome({
                     </>
                   )}
                 </small>
-                <h3>{device.name}</h3>
-                <p>{device.excerpt}</p>
+                <h3>
+                  <span className="lang-ar">{device.name}</span>
+                  <span className="lang-en">
+                    {device.nameEn ?? device.name}
+                  </span>
+                </h3>
+                <p>
+                  <span className="lang-ar">{device.excerpt}</span>
+                  <span className="lang-en">
+                    {device.excerptEn ?? device.excerpt}
+                  </span>
+                </p>
               </div>
               <div className="rv-v0-device-image">
                 <Image

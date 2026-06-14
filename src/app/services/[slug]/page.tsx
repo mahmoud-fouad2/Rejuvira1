@@ -10,6 +10,7 @@ import {
   getDevices,
   getServiceBySlug,
 } from "@/lib/content-repository";
+import { getCoreServiceSeo } from "@/lib/core-search";
 import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -27,12 +28,26 @@ export async function generateMetadata({
   }
 
   const canonicalUrl = `${getSiteUrl()}/services/${service.slug}`;
+  const coreSeo = getCoreServiceSeo(service);
+  const titleAr =
+    service.seoTitleAr ?? coreSeo?.seoTitleAr ?? `${service.name} | ريجوفيرا`;
+  const titleEn =
+    service.seoTitleEn ??
+    coreSeo?.seoTitleEn ??
+    `${service.nameEn ?? service.name} | Rejuvera`;
+  const descriptionAr =
+    service.seoDescriptionAr ?? coreSeo?.seoDescriptionAr ?? service.excerpt;
+  const descriptionEn =
+    service.seoDescriptionEn ??
+    coreSeo?.seoDescriptionEn ??
+    service.excerptEn ??
+    service.excerpt;
+  const title = `${titleAr} — ${titleEn}`;
+  const description = `${descriptionAr} ${descriptionEn}`;
 
   return {
-    title: service.nameEn ? `${service.name} | ${service.nameEn}` : service.name,
-    description: service.excerptEn
-      ? `${service.excerpt} ${service.excerptEn}`
-      : service.excerpt,
+    title,
+    description,
     keywords: [
       service.name,
       service.nameEn ?? "",
@@ -42,23 +57,36 @@ export async function generateMetadata({
       "Rejuvera Medical Center",
       "مركز تجميل الرياض",
       "Aesthetic clinic Riyadh",
+      ...(service.keywordsAr ?? []),
+      ...(service.keywordsEn ?? []),
+      ...(coreSeo?.keywordsAr ?? []),
+      ...(coreSeo?.keywordsEn ?? []),
       ...service.doctorSlugs,
       ...service.deviceSlugs,
     ].filter(Boolean),
     openGraph: {
-      title: service.name,
-      description: service.excerpt,
+      title,
+      description,
       url: canonicalUrl,
+      locale: "ar_SA",
+      alternateLocale: "en_US",
       images: [service.coverImageUrl],
     },
     twitter: {
       card: "summary_large_image",
-      title: service.name,
-      description: service.excerpt,
+      title,
+      description,
       images: [service.coverImageUrl],
     },
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
     },
     robots: {
       index: true,
@@ -95,12 +123,22 @@ export default async function ServiceDetailPage({
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "MedicalProcedure",
+    "@id": `${serviceUrl}#procedure`,
     name: service.name,
     alternateName: service.nameEn,
-    description: service.excerpt,
+    description: service.description,
     image: service.coverImageUrl,
     url: serviceUrl,
     procedureType: service.category,
+    inLanguage: ["ar", "en"],
+    areaServed: {
+      "@type": "City",
+      name: "Riyadh",
+    },
+    provider: {
+      "@id": `${getSiteUrl()}#organization`,
+    },
+    mainEntityOfPage: serviceUrl,
   };
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -238,17 +276,11 @@ export default async function ServiceDetailPage({
               <span className="lang-en">Service Details</span>
             </p>
             <h2 className="text-ink-strong mt-5 font-serif text-4xl leading-[1.2] tracking-[-0.02em]">
-              <span className="lang-ar">
-                تفاصيل {service.name}
-              </span>
-              <span className="lang-en">
-                {service.nameEn ?? service.name}
-              </span>
+              <span className="lang-ar">تفاصيل {service.name}</span>
+              <span className="lang-en">{service.nameEn ?? service.name}</span>
             </h2>
             <p className="text-ink-soft mt-5 text-base leading-8">
-              <span className="lang-ar">
-                {service.description}
-              </span>
+              <span className="lang-ar">{service.description}</span>
               <span className="lang-en">
                 {service.descriptionEn ?? service.description}
               </span>
@@ -256,12 +288,15 @@ export default async function ServiceDetailPage({
 
             {service.benefits.length > 0 ? (
               <div className="mt-8 grid gap-3">
-                {service.benefits.map((benefit) => (
+                {service.benefits.map((benefit, index) => (
                   <div
                     key={benefit}
                     className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-5 py-4 text-sm"
                   >
-                    {benefit}
+                    <span className="lang-ar">{benefit}</span>
+                    <span className="lang-en">
+                      {service.benefitsEn?.[index] ?? benefit}
+                    </span>
                   </div>
                 ))}
               </div>

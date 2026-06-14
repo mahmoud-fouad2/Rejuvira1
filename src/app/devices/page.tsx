@@ -5,10 +5,29 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getDevices } from "@/lib/content-repository";
+import { coreSearchKeywords } from "@/lib/core-search";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata({ page: "devices", path: "/devices" });
+  return buildPageMetadata({
+    page: "devices",
+    path: "/devices",
+    overrideTitleAr: "أجهزة ريجوفيرا الطبية بالرياض | جهاز الراينو والتقنيات",
+    overrideTitleEn:
+      "Rejuvera Medical Devices Riyadh | Rhino Device and Technologies",
+    overrideDescriptionAr:
+      "تعرّف على أجهزة وتقنيات ريجوفيرا الطبية في الرياض، مع إبراز جهاز الراينو ودور كل تقنية داخل خطة علاجية يحددها الفريق المختص.",
+    overrideDescriptionEn:
+      "Explore Rejuvera medical technologies in Riyadh, including the Rhino device and the role of each technology within a specialist-led treatment plan.",
+    overrideKeywords: [
+      "جهاز الراينو",
+      "جهاز الراينو في الرياض",
+      "Rhino device Riyadh",
+      "أجهزة تجميل الرياض",
+      "medical aesthetic devices Riyadh",
+      ...coreSearchKeywords,
+    ].join(", "),
+  });
 }
 
 export default async function DevicesPage() {
@@ -86,7 +105,7 @@ export default async function DevicesPage() {
           {featuredDevice ? (
             <article className="surface-panel overflow-hidden rounded-[2.75rem] p-4">
               <div className="grid h-full gap-4 lg:grid-cols-[1fr_0.9fr]">
-                <div className="relative min-h-[24rem] overflow-hidden rounded-[2rem]">
+                <div className="device-card__media device-card__media--featured">
                   <Image
                     src={featuredDevice.imageUrl}
                     alt={featuredDevice.name}
@@ -95,14 +114,17 @@ export default async function DevicesPage() {
                     className="object-cover"
                     priority
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                  <div className="absolute inset-x-5 bottom-5 rounded-[1.4rem] border border-white/30 bg-white/18 p-4 backdrop-blur-md">
+                  <div className="device-card__scrim" aria-hidden />
+                  <div className="device-card__featured-caption">
                     <p className="eyebrow text-white/70">
                       <span className="lang-ar">تركيز علاجي</span>
                       <span className="lang-en">Clinical Focus</span>
                     </p>
-                    <p className="mt-1.5 font-serif text-2xl leading-snug tracking-[-0.04em] text-white">
-                      {featuredDevice.name}
+                    <p className="device-card__title mt-1.5">
+                      <span className="lang-ar">{featuredDevice.name}</span>
+                      <span className="lang-en">
+                        {featuredDevice.nameEn ?? featuredDevice.name}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -247,7 +269,7 @@ export default async function DevicesPage() {
                   key={device.id}
                   className="surface-panel group overflow-hidden rounded-[2rem]"
                 >
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="device-card__media">
                     <Image
                       src={device.imageUrl}
                       alt={device.name}
@@ -255,10 +277,13 @@ export default async function DevicesPage() {
                       sizes="(max-width: 1280px) 50vw, 30vw"
                       className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-                    <div className="absolute inset-x-4 bottom-4">
-                      <p className="font-serif text-2xl tracking-[-0.04em] text-white">
-                        {device.name}
+                    <div className="device-card__scrim" aria-hidden />
+                    <div className="device-card__caption">
+                      <p className="device-card__title">
+                        <span className="lang-ar">{device.name}</span>
+                        <span className="lang-en">
+                          {device.nameEn ?? device.name}
+                        </span>
                       </p>
                     </div>
                   </div>
