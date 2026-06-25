@@ -57,6 +57,30 @@ function normalizeChatbaseId(value: string) {
     : requestedId;
 }
 
+/**
+ * Fully tear down Chatbase. Removing only the loader <script> leaves the
+ * widget bubble/iframe that embed.min.js already injected, so disabling the
+ * toggle appeared to "do nothing". This removes the loader, the injected
+ * iframe/bubble, and resets the global so a later re-enable initializes clean.
+ */
+function removeChatbaseArtifacts(chatId: string) {
+  const selectors = [
+    `#${CSS.escape(chatId)}`,
+    'script[src*="chatbase.co"]',
+    'iframe[src*="chatbase.co"]',
+    '[id*="chatbase"]',
+    '[class*="chatbase"]',
+  ];
+  for (const selector of selectors) {
+    document.querySelectorAll(selector).forEach((node) => node.remove());
+  }
+  try {
+    delete window.chatbase;
+  } catch {
+    /* window.chatbase is optional; ignore if non-configurable */
+  }
+}
+
 export function ExternalIntegrations({
   chatbaseEnabled,
   chatbaseWidgetId,
@@ -79,7 +103,10 @@ export function ExternalIntegrations({
   }, [customHeadCode, customBodyCode]);
 
   useEffect(() => {
-    if (!chatbaseEnabled) return;
+    if (!chatbaseEnabled) {
+      removeChatbaseArtifacts(chatId);
+      return;
+    }
 
     if (!window.chatbase || window.chatbase("getState") !== "initialized") {
       const queue = ((...args: unknown[]) => {
@@ -106,6 +133,7 @@ export function ExternalIntegrations({
 
     return () => {
       script.remove();
+      removeChatbaseArtifacts(chatId);
     };
   }, [chatbaseEnabled, chatId]);
 

@@ -30,17 +30,23 @@ function buildCsp(frameAncestors: string) {
     "https://googleads.g.doubleclick.net",
   ].join(" ");
   const metaScriptOrigins = "https://connect.facebook.net";
+  // TikTok Pixel (events.js) loads from analytics.tiktok.com.
+  const tiktokScriptOrigins =
+    "https://analytics.tiktok.com https://*.tiktok.com";
+  // Faheemly chat/booking widget loader (admin-configured integration).
+  const widgetScriptOrigins =
+    "https://www.faheemly.com https://*.faheemly.com";
 
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins}`.trim(),
-    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins}`,
+    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${widgetScriptOrigins}`.trim(),
+    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${widgetScriptOrigins}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     "connect-src 'self' https: wss:",
-    "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.chatbase.co https://*.chatbase.co",
+    "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://www.faheemly.com https://*.faheemly.com",
     "media-src 'self' https: data:",
     "worker-src 'self' blob:",
     "manifest-src 'self'",

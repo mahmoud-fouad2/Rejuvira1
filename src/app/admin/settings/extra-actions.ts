@@ -69,7 +69,11 @@ const integrationsSchema = z.object({
   customHeadCode: z.string().optional().or(z.literal("")),
   customBodyCode: z.string().optional().or(z.literal("")),
   formWebhookEnabled: z.string().optional(),
-  formWebhookUrl: z.string().url().optional().or(z.literal("")),
+  // Intentionally NOT z.string().url(): this field shares one form with the
+  // Chatbase toggle and custom code. A stale/invalid webhook URL must not block
+  // saving unrelated integration settings. Delivery is best-effort and guarded
+  // (dispatchJsonWebhook try/catches), so an invalid value fails safely later.
+  formWebhookUrl: z.string().trim().optional().or(z.literal("")),
   formWebhookSecret: z.string().optional().or(z.literal("")),
 });
 
