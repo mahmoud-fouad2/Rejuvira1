@@ -10,6 +10,26 @@
 
 ---
 
+## ⚠️ تحديث Phase 0.5 — Validation (2026-06-25)
+أُجريت مرحلة تحقّق لاحقة. **اقرأ `REJUVERA_AUDIT_VALIDATION_ADDENDUM.md` مع هذا الملف**؛ فهو يصحّح/يؤكّد ما يلي:
+
+**مفتاح مستوى التحقّق:** [CODE] من الكود · [LIVE] من الموقع الحي · [TEST] بأداة شُغّلت فعليًا · [UNVERIFIED] لم يُتحقَّق · [NEEDS-PROD] يتطلب وصول إنتاج.
+
+**تصحيحات جوهرية:**
+- **تغطية الخدمات ليست 5 بل 34 صفحة منشورة** [LIVE] (زحف sitemap). SEO-003 يُعاد تأطيره من «فجوة تغطية» إلى **تكرار نية + جودة عناوين** (`REJUVERA_FULL_URL_CRAWL.md`).
+- **SEO-008 (جديد)** صفحتان indexable خارج sitemap تكرّران النية: `/services/facelift-surgery` و`/services/vaginoplasty` [LIVE].
+- **CONTENT-006 (جديد)** عناوين بعلامة مكرّرة (`… | Rejuvera | Rejuvera Center`) وأسماء إنجليزية = slug خام [LIVE].
+- **TEST-001 (جديد)** `npm run test:smoke` ضد الإنتاج = **18 PASS / 1 FAIL** (توقّع `<urlset` قديم لـ `/sitemap.xml` الذي صار sitemapindex) → بوابة smoke حمراء قائمة [TEST].
+- **المعمارية مؤكّدة حيًّا** [LIVE]: Next.js على **Render** خلف **Cloudflare** (DNS CNAME + `Server: cloudflare` + `x-render-origin-server: Render`)؛ لا Vercel.
+- **PERF-001 معزّز** [LIVE]: `cf-cache-status: DYNAMIC` + Set-Cookie على كل صفحة عامة + TTFB إنتاجي ~0.65s موحّد + HTML رئيسية ~466KB.
+- **SEC-002 لا يُحذف** قبل ترحيل لوحة Admin/Stats: `/api/analytics` يُقرأ من `admin/stats/page.tsx:397` (`REJUVERA_ANALYTICS_DEPENDENCY_MAP.md`).
+- **SEC-003 bootstrap** = بند مستقل يحتاج قرارك قبل أي إصلاح عادي (`REJUVERA_SECURITY_VALIDATION_ADDENDUM.md`).
+- **بوابات شُغّلت:** `lint` ✅، `typecheck` ✅، `test:smoke` ⚠️ (أعلاه). لم يُشغَّل `build`/Lighthouse/`npm ci` (مبرّر في الـ addendum).
+
+**التقارير الجديدة:** `REJUVERA_AUDIT_VALIDATION_ADDENDUM.md` · `REJUVERA_FULL_URL_CRAWL.md` · `REJUVERA_VISUAL_BASELINE.md` · `REJUVERA_PERFORMANCE_MEASUREMENTS.md` · `REJUVERA_ANALYTICS_DEPENDENCY_MAP.md` · `REJUVERA_SECURITY_VALIDATION_ADDENDUM.md`.
+
+---
+
 ## 1. Executive Summary
 
 ### الحالة العامة

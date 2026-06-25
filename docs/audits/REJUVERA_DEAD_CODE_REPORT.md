@@ -1,10 +1,32 @@
 # REJUVERA — Dead Code Report
 
 > تصنيف: **Confirmed dead** / **Probably unused (يتطلب تحقّق runtime)** / **Active** / **Legacy required**.
-> لم يُحذف أي شيء. لم تُشغَّل أدوات static analysis آلية بعد (تجنّب لمس `npm`)؛ النتائج من فحص grep + المراجع.
+> لم يُحذف أي شيء. تحديث 2026-06-25: شُغِّل `npx knip@5` فعليًا (انظر القسم أدناه) + تحقّق grep يدوي.
 
-## Confirmed dead — لا شيء مؤكد حتى الآن
-لم يُرصد ملف/تبعية ميتة **مؤكدة** خلال الفحص. التبعيات الثقيلة كلها مُستخدمة:
+## نتائج knip@5 (شُغّل 2026-06-25) [TEST]
+الأمر: `npx --yes knip@5 --no-progress --reporter compact` (exit 1 = نتائج موجودة، لا خطأ).
+
+### Probably unused — مرشّحات بـ 0 مراجع ثابتة (تحقّق ديناميكي/feature مطلوب قبل أي حذف)
+تحقّقت من غياب المراجع بـ grep (0 مراجع غير-تعريفية في `src`)، لكن **لا أصنّفها Confirmed** قبل استبعاد dynamic imports / form actions / feature wiring:
+| العنصر | ملف | ملاحظة تحقّق |
+|---|---|---|
+| `WebhookTestButton.tsx` (ملف كامل) | `src/components/admin/WebhookTestButton.tsx` | 0 مراجع؛ تأكّد ألا يُستورَد ديناميكيًا في WebhookEditor |
+| `deleteCrmSubmissionAction`,`bulkCrmSubmissionsAction`,`setCrmStatusAction` | `src/app/admin/crm/actions.ts` | 0 مراجع؛ تحقّق من ربط واجهة CRM (form action) |
+| `deleteCustomPageAction` | `src/app/admin/pages/actions.ts` | 0 مراجع؛ تحقّق من واجهة الصفحات |
+| `executeIntegrationTool`,`interpolateTemplate`,`maskSecret` | `src/lib/integration-tools.ts` | 0 مراجع؛ ميزة integration-tools قد تكون غير مكتملة التوصيل — تحقّق من api routes |
+
+### Unused exports = over-export فقط (ليست dead code)
+`permissionMatrix` (مُستخدَم داخليًا في نفس الملف)، `SITEMAP_PATHS`/`absoluteUrl`، `getCoreServiceRank`/`isRhinoDevice`، `getRequestTracking`، `careerProxyCsp` — مُستخدَمة داخليًا أو قابلة لإزالة كلمة `export` فقط. **لا تُحذف**؛ مراجعة منخفضة الأولوية.
+
+### Unused exported types (23) — informational
+أنواع مُصدَّرة تُستخدَم داخليًا فقط (`content-repository.ts` وحده 25 نوعًا). لا أثر تشغيلي؛ تنظيف اختياري.
+
+### Unlisted dependency
+`postcss` يُستخدَم في `postcss.config.mjs` لكنه في `overrides` لا `devDependencies` (متاح transitively عبر tailwind). informational.
+
+> **لا حذف في هذه الجولة.** كل ما سبق «Probably unused» يتطلب تحقّق dynamic/feature/DB قبل أي قرار.
+
+## التبعيات الثقيلة — كلها مُستخدمة (Active)
 
 | تبعية | الاستخدام (دليل) | الحالة |
 |---|---|---|
