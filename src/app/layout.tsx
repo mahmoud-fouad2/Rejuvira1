@@ -21,6 +21,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Temporary kill switch for the Chatbase widget.
+ * Chatbase stays OFF on the public site regardless of the admin/runtime
+ * "chatbaseEnabled" setting UNLESS the env var CHATBASE_ENABLED="1" is set.
+ * To re-enable: set CHATBASE_ENABLED=1 in the environment (then the admin
+ * toggle controls it again), or remove this guard.
+ */
+const CHATBASE_TEMPORARILY_DISABLED = process.env.CHATBASE_ENABLED !== "1";
+
 export const viewport: Viewport = {
   themeColor: "#4a2476",
   colorScheme: "light dark",
@@ -290,7 +299,11 @@ export default async function RootLayout({
           {children}
           {!isAdminOrAuth ? (
             <ExternalIntegrations
-              chatbaseEnabled={runtimeSettings.integrations.chatbaseEnabled}
+              chatbaseEnabled={
+                CHATBASE_TEMPORARILY_DISABLED
+                  ? false
+                  : runtimeSettings.integrations.chatbaseEnabled
+              }
               chatbaseWidgetId={runtimeSettings.integrations.chatbaseWidgetId}
               customHeadCode={runtimeSettings.integrations.customHeadCode}
               customBodyCode={runtimeSettings.integrations.customBodyCode}
