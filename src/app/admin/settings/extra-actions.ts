@@ -16,9 +16,12 @@ export type ExtraSettingsState = {
 
 const opsSchema = z.object({
   defaultTheme: z.enum(["light", "dark", "system"]).default("system"),
-  themeToggleEnabled: z.string().optional(),
-  recaptchaEnabled: z.string().optional(),
-  maintenanceMode: z.string().optional(),
+  // Unchecked checkboxes submit nothing, so formData.get() returns null.
+  // Use nullish() (string | null | undefined) so turning a toggle OFF does not
+  // fail validation and silently block the whole save.
+  themeToggleEnabled: z.string().nullish(),
+  recaptchaEnabled: z.string().nullish(),
+  maintenanceMode: z.string().nullish(),
 });
 
 function formString(formData: FormData, key: string) {
@@ -62,16 +65,17 @@ export async function saveOperationsAction(
 }
 
 const integrationsSchema = z.object({
-  chatbaseEnabled: z.string().optional(),
+  // Checkboxes: unchecked => formData.get() is null. nullish() accepts null so
+  // turning a toggle OFF (e.g. disabling Chatbase) does not fail the save.
+  chatbaseEnabled: z.string().nullish(),
   chatbaseWidgetId: z.string().optional().or(z.literal("")),
-  googleTagEnabled: z.string().optional(),
+  googleTagEnabled: z.string().nullish(),
   googleTagUrl: z.string().trim().optional().or(z.literal("")),
   customHeadCode: z.string().optional().or(z.literal("")),
   customBodyCode: z.string().optional().or(z.literal("")),
-  formWebhookEnabled: z.string().optional(),
-  // Intentionally NOT z.string().url(): this field shares one form with the
-  // Chatbase toggle and custom code. A stale/invalid webhook URL must not block
-  // saving unrelated integration settings. Delivery is best-effort and guarded
+  formWebhookEnabled: z.string().nullish(),
+  // Lenient on purpose: a stale/invalid webhook URL must not block saving
+  // unrelated integration settings. Delivery is best-effort and guarded
   // (dispatchJsonWebhook try/catches), so an invalid value fails safely later.
   formWebhookUrl: z.string().trim().optional().or(z.literal("")),
   formWebhookSecret: z.string().optional().or(z.literal("")),
