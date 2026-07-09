@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getDevices } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
+import { ContentStatus } from "@/lib/prisma-enums";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,7 +32,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DevicesPage() {
-  const devices = await getDevices();
+  const allDevices = await getDevices();
+  const devices = allDevices.filter(
+    (device) => device.status === ContentStatus.PUBLISHED,
+  );
   const [featuredDevice, ...otherDevices] = devices;
 
   return (
@@ -87,7 +91,7 @@ export default async function DevicesPage() {
                   <span className="lang-en">Active technologies</span>
                 </p>
                 <p className="text-ink mt-2 font-serif text-3xl">
-                  {devices.filter((d) => d.status === "PUBLISHED").length}
+                  {devices.length}
                 </p>
               </div>
               <div className="surface-panel rounded-[1.6rem] p-5 transition-all duration-300 hover:-translate-y-0.5">

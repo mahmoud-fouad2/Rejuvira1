@@ -164,7 +164,7 @@ export async function SiteHeader() {
                 publishedServices.length > 0 ? publishedServices : services
               }
               doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
-              devices={publishedDevices.length > 0 ? publishedDevices : devices}
+              devices={publishedDevices}
             />
             {(["/gallery", "/journal", "/about", "/career", "/contact"] as const).map(
               (href) => {

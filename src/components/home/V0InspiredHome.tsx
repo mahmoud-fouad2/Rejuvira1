@@ -210,7 +210,7 @@ export function V0InspiredHome({
   const serviceSource =
     publishedServices.length > 0 ? publishedServices : services;
   const doctorSource = publishedDoctors.length > 0 ? publishedDoctors : doctors;
-  const deviceSource = publishedDevices.length > 0 ? publishedDevices : devices;
+  const deviceSource = publishedDevices;
   const featuredServices = serviceSource.slice(0, 6);
   const featuredDoctors = doctorSource;
   const featuredDevices = deviceSource.slice(0, 6);

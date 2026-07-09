@@ -244,7 +244,11 @@ function relatedDevices(
   service: ServiceRecord,
   devices: readonly DeviceRecord[],
 ) {
-  return devices.filter((device) => service.deviceSlugs.includes(device.slug));
+  return devices.filter(
+    (device) =>
+      device.status === ContentStatus.PUBLISHED &&
+      service.deviceSlugs.includes(device.slug),
+  );
 }
 
 export function buildServiceLandingPageInput(

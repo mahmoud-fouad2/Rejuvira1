@@ -15,6 +15,7 @@ import {
   getServices,
 } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
+import { ContentStatus } from "@/lib/prisma-enums";
 import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -169,8 +170,10 @@ export default async function DoctorDetailPage({
   const relatedDeviceSlugs = new Set(
     relatedServices.flatMap((service) => service.deviceSlugs),
   );
-  const relatedDevices = devices.filter((device) =>
-    relatedDeviceSlugs.has(device.slug),
+  const relatedDevices = devices.filter(
+    (device) =>
+      device.status === ContentStatus.PUBLISHED &&
+      relatedDeviceSlugs.has(device.slug),
   );
 
   const waDigits = (

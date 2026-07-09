@@ -11,6 +11,7 @@ import {
   getServiceBySlug,
 } from "@/lib/content-repository";
 import { getCoreServiceSeo } from "@/lib/core-search";
+import { ContentStatus } from "@/lib/prisma-enums";
 import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
@@ -116,8 +117,10 @@ export default async function ServiceDetailPage({
   const relatedDoctors = doctors.filter((doctor) =>
     doctorSlugSet.has(doctor.slug),
   );
-  const relatedDevices = devices.filter((device) =>
-    deviceSlugSet.has(device.slug),
+  const relatedDevices = devices.filter(
+    (device) =>
+      device.status === ContentStatus.PUBLISHED &&
+      deviceSlugSet.has(device.slug),
   );
   const serviceUrl = `${getSiteUrl()}/services/${service.slug}`;
   const serviceJsonLd = {
