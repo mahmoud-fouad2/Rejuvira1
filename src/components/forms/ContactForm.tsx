@@ -115,6 +115,40 @@ function loadRecaptchaScript(siteKey: string): Promise<void> {
   });
 }
 
+function grecaptchaReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (!window.grecaptcha) {
+      resolve();
+      return;
+    }
+    window.grecaptcha.ready(resolve);
+  });
+}
+
+/**
+ * Executing before the reCAPTCHA runtime is fully ready is the most common
+ * cause of "browser-error" tokens, so wait for ready() and retry once.
+ */
+async function acquireRecaptchaToken(siteKey: string): Promise<string> {
+  if (!window.grecaptcha) {
+    await loadRecaptchaScript(siteKey);
+  }
+  const execute = async () => {
+    await grecaptchaReady();
+    return (
+      (await window.grecaptcha?.execute(siteKey, { action: "contact" })) ?? ""
+    );
+  };
+  try {
+    const token = await execute();
+    if (token) return token;
+  } catch {
+    /* retry below */
+  }
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  return execute();
+}
+
 export function ContactForm({
   services,
   formClassName,
@@ -173,19 +207,12 @@ export function ContactForm({
       setIsPending(true);
       setState(initialState);
       try {
-        if (siteKey && !window.grecaptcha) {
-          await loadRecaptchaScript(siteKey);
-        }
-        const token = siteKey
-          ? ((await window.grecaptcha?.execute(siteKey, {
-              action: "contact",
-            })) ?? "")
-          : "";
+        const token = siteKey ? await acquireRecaptchaToken(siteKey) : "";
         if (tokenInputRef.current) {
           tokenInputRef.current.value = token;
         }
       } catch {
-        /* token stays empty — server falls back to error */
+        /* token stays empty — server accepts the lead and tags it for review */
       }
       const response = await fetch("/api/contact", {
         method: "POST",

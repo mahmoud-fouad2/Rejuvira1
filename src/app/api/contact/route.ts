@@ -33,6 +33,9 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/** CRM tag for leads saved while reCAPTCHA could not vouch for the visitor. */
+const RECAPTCHA_UNVERIFIED_TAG = "reCAPTCHA غير مؤكد";
+
 const contactSchema = z.object({
   fullName: z.string().min(3),
   phone: z
@@ -199,6 +202,7 @@ export async function POST(request: Request) {
     settings.ops.recaptchaEnabled !== false &&
     Boolean(process.env.RECAPTCHA_SECRET_KEY);
 
+  let recaptchaUnverified = false;
   if (requireRecaptcha) {
     const verification = await verifyRecaptchaToken(
       parsed.data.recaptchaToken,
@@ -206,18 +210,35 @@ export async function POST(request: Request) {
       clientIp !== "unknown" ? { remoteIp: clientIp } : {},
     );
     if (!verification.success || verification.score < 0.4) {
+      const strict = process.env.RECAPTCHA_STRICT === "1";
+      // "browser-error" / "timeout-or-duplicate" / a missing token mean the
+      // visitor's browser could not run reCAPTCHA (in-app webviews, ad
+      // blockers, slow devices) — almost always a real person, not a bot.
+      const clientEnvironmentIssue =
+        !parsed.data.recaptchaToken ||
+        verification.errors.some((code) =>
+          ["browser-error", "timeout-or-duplicate", "missing-token"].includes(
+            code,
+          ),
+        );
+      recaptchaUnverified = true;
       await recordAppLog({
-        level: "warn",
+        level: clientEnvironmentIssue && !strict ? "info" : "warn",
         kind: "recaptcha",
-        message: "Contact form rejected by reCAPTCHA",
+        message: strict
+          ? "Contact form rejected by reCAPTCHA (strict mode)"
+          : clientEnvironmentIssue
+            ? "Contact lead accepted with unverifiable reCAPTCHA (visitor browser issue)"
+            : "Contact lead accepted despite low reCAPTCHA score",
         meta: {
           score: verification.score,
           action: verification.action,
           errors: verification.errors,
           hostname: verification.hostname,
+          leadAccepted: !strict,
         },
       });
-      if (process.env.RECAPTCHA_STRICT === "1") {
+      if (strict) {
         return response(
           request,
           "error",
@@ -228,6 +249,12 @@ export async function POST(request: Request) {
     }
   }
 
+  const leadTags = [
+    ...(isGeneralInquiryService(parsed.data.serviceSlug)
+      ? [GENERAL_INQUIRY_SERVICE_AR]
+      : []),
+    ...(recaptchaUnverified ? [RECAPTCHA_UNVERIFIED_TAG] : []),
+  ];
   const isGeneralInquiry = isGeneralInquiryService(parsed.data.serviceSlug);
   const selectedService = parsed.data.serviceSlug && !isGeneralInquiry
     ? await getServiceByReference(parsed.data.serviceSlug)
@@ -248,7 +275,7 @@ export async function POST(request: Request) {
       ...(selectedService?.slug
         ? { serviceSlug: selectedService.slug }
         : {}),
-      ...(isGeneralInquiry ? { tags: [GENERAL_INQUIRY_SERVICE_AR] } : {}),
+      ...(leadTags.length ? { tags: leadTags } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),
       ...(parsed.data.utmCampaign
