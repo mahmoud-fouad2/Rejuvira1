@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 
@@ -71,6 +71,19 @@ const sections: {
   },
 ];
 
+const variableTokens = [
+  { label: "اسم المريض", token: "{{patient_name}}" },
+  { label: "رقم الملف", token: "{{file_number}}" },
+  { label: "اسم العملية", token: "{{procedure_name}}" },
+  { label: "تاريخ العملية", token: "{{procedure_date}}" },
+  { label: "وقت العملية", token: "{{procedure_time}}" },
+  { label: "الطبيب", token: "{{doctor_name}}" },
+  { label: "وقت الحضور", token: "{{arrival_time}}" },
+  { label: "المتابعة", token: "{{follow_up_date}}" },
+  { label: "هاتف المركز", token: "{{clinic_phone}}" },
+  { label: "ملاحظات", token: "{{additional_notes}}" },
+];
+
 export function TemplateForm({
   action,
   values = {},
@@ -87,6 +100,21 @@ export function TemplateForm({
 }) {
   const router = useRouter();
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const [preview, setPreview] = useState<TemplateFormValues>({
+    nameAr: values.nameAr ?? "",
+    nameEn: values.nameEn ?? "",
+    category: values.category ?? "other",
+    preOperationContentAr: values.preOperationContentAr ?? "",
+    preOperationContentEn: values.preOperationContentEn ?? "",
+    operationDayContentAr: values.operationDayContentAr ?? "",
+    operationDayContentEn: values.operationDayContentEn ?? "",
+    postOperationContentAr: values.postOperationContentAr ?? "",
+    postOperationContentEn: values.postOperationContentEn ?? "",
+    warningSignsAr: values.warningSignsAr ?? "",
+    warningSignsEn: values.warningSignsEn ?? "",
+    followUpContentAr: values.followUpContentAr ?? "",
+    followUpContentEn: values.followUpContentEn ?? "",
+  });
 
   useEffect(() => {
     if (state.status === "success" && state.payload?.templateId) {
@@ -96,31 +124,44 @@ export function TemplateForm({
     }
   }, [state, router]);
 
+  function updatePreview(key: keyof TemplateFormValues, value: string) {
+    setPreview((current) => ({ ...current, [key]: value }));
+  }
+
+  const previewBlocks = sections
+    .map((section) => ({
+      label: section.label,
+      value: (preview[section.arKey] as string | undefined)?.trim(),
+    }))
+    .filter(
+      (section): section is { label: string; value: string } =>
+        Boolean(section.value),
+    );
+
+  const selectedCategory =
+    categories.find((category) => category.value === preview.category)?.label ??
+    "قوالب إضافية";
+
   return (
-    <form action={formAction} style={{ display: "grid", gap: "1rem" }}>
+    <form action={formAction} className="patient-template-form">
       {values.templateId ? (
         <input type="hidden" name="templateId" value={values.templateId} />
       ) : null}
 
       {editingApproved ? (
-        <p className="admin-status-badge is-warning" style={{ whiteSpace: "normal" }}>
-          هذا القالب معتمد طبيًا — حفظ التعديلات سينشئ إصدارًا جديدًا كمسودة
+        <p className="admin-status-badge is-warning patient-template-notice">
+          هذا القالب معتمد طبيًا. حفظ التعديلات سينشئ إصدارًا جديدًا كمسودة
           تحتاج اعتمادًا، ولن يغيّر تعليمات المرضى الحاليين.
         </p>
       ) : null}
 
-      <div
-        style={{
-          display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-        }}
-      >
+      <div className="patient-template-topline">
         <label>
           <span className="admin-field-label">اسم القالب (عربي) *</span>
           <input
             name="nameAr"
             defaultValue={values.nameAr ?? ""}
+            onChange={(event) => updatePreview("nameAr", event.target.value)}
             required
             minLength={3}
             maxLength={200}
@@ -132,6 +173,7 @@ export function TemplateForm({
           <input
             name="nameEn"
             defaultValue={values.nameEn ?? ""}
+            onChange={(event) => updatePreview("nameEn", event.target.value)}
             maxLength={200}
             className="admin-input"
             dir="ltr"
@@ -142,6 +184,7 @@ export function TemplateForm({
           <select
             name="category"
             defaultValue={values.category ?? "other"}
+            onChange={(event) => updatePreview("category", event.target.value)}
             required
             className="admin-input"
           >
@@ -154,40 +197,114 @@ export function TemplateForm({
         </label>
       </div>
 
-      <p className="admin-text-soft" style={{ margin: 0, fontSize: "0.85em" }}>
-        الحقول المتغيرة المتاحة: {"{{patient_name}} {{file_number}} {{procedure_name}} {{procedure_date}} {{procedure_time}} {{doctor_name}} {{arrival_time}} {{follow_up_date}} {{clinic_phone}} {{additional_notes}}"}
-      </p>
+      <section
+        className="patient-template-token-panel"
+        aria-label="متغيرات القالب"
+      >
+        <div>
+          <strong>متغيرات جاهزة للإدراج</strong>
+          <p>
+            استخدمها داخل النصوص وسيتم استبدالها ببيانات المريض والعملية عند
+            الإرسال أو الطباعة.
+          </p>
+        </div>
+        <div className="patient-template-token-list">
+          {variableTokens.map((item) => (
+            <button
+              key={item.token}
+              type="button"
+              className="patient-template-token"
+              title={item.token}
+            >
+              <span>{item.label}</span>
+              <code>{item.token}</code>
+            </button>
+          ))}
+        </div>
+      </section>
 
-      {sections.map((section) => (
-        <details key={section.arKey} open className="admin-panel-soft" style={{ padding: "0.9rem" }}>
-          <summary style={{ cursor: "pointer", fontWeight: 600 }}>
-            {section.label}
-          </summary>
-          <div style={{ display: "grid", gap: "0.75rem", marginTop: "0.75rem" }}>
-            <label>
-              <span className="admin-field-label">المحتوى العربي</span>
-              <textarea
-                name={section.arKey}
-                defaultValue={(values[section.arKey] as string) ?? ""}
-                rows={section.rows}
-                maxLength={20000}
-                className="admin-input"
-              />
-            </label>
-            <label>
-              <span className="admin-field-label">المحتوى الإنجليزي</span>
-              <textarea
-                name={section.enKey}
-                defaultValue={(values[section.enKey] as string) ?? ""}
-                rows={Math.max(3, section.rows - 3)}
-                maxLength={20000}
-                className="admin-input"
-                dir="ltr"
-              />
-            </label>
+      <div className="patient-template-workspace">
+        <div className="patient-template-editor">
+          {sections.map((section) => (
+            <details
+              key={section.arKey}
+              open
+              className="patient-template-section"
+            >
+              <summary>
+                <span>{section.label}</span>
+                <small>عربي + English</small>
+              </summary>
+              <div className="patient-template-section__body">
+                <label>
+                  <span className="admin-field-label">المحتوى العربي</span>
+                  <textarea
+                    name={section.arKey}
+                    defaultValue={(values[section.arKey] as string) ?? ""}
+                    onChange={(event) =>
+                      updatePreview(section.arKey, event.target.value)
+                    }
+                    rows={section.rows}
+                    maxLength={20000}
+                    className="admin-input"
+                  />
+                </label>
+                <label>
+                  <span className="admin-field-label">المحتوى الإنجليزي</span>
+                  <textarea
+                    name={section.enKey}
+                    defaultValue={(values[section.enKey] as string) ?? ""}
+                    onChange={(event) =>
+                      updatePreview(section.enKey, event.target.value)
+                    }
+                    rows={Math.max(3, section.rows - 3)}
+                    maxLength={20000}
+                    className="admin-input"
+                    dir="ltr"
+                  />
+                </label>
+              </div>
+            </details>
+          ))}
+        </div>
+
+        <aside className="patient-template-preview" aria-label="معاينة القالب">
+          <div className="patient-template-preview__brand">
+            <span>Rejuvera</span>
+            <small>Patient Instructions</small>
           </div>
-        </details>
-      ))}
+          <div className="patient-template-preview__hero">
+            <small>معاينة فورية</small>
+            <h3>{preview.nameAr || "اسم القالب"}</h3>
+            <p>{selectedCategory}</p>
+          </div>
+          <div className="patient-template-preview__patient">
+            <span>{"{{patient_name}}"}</span>
+            <strong>{"{{procedure_name}}"}</strong>
+            <small>
+              {"{{procedure_date}}"} · {"{{doctor_name}}"}
+            </small>
+          </div>
+          <div className="patient-template-preview__sections">
+            {previewBlocks.length > 0 ? (
+              previewBlocks.slice(0, 4).map((section) => (
+                <article key={section.label}>
+                  <strong>{section.label}</strong>
+                  <p>{section.value}</p>
+                </article>
+              ))
+            ) : (
+              <article>
+                <strong>ابدأ بكتابة التعليمات</strong>
+                <p>
+                  ستظهر هنا معاينة قريبة من شكل القالب داخل بوابة المريض
+                  ومستندات PDF.
+                </p>
+              </article>
+            )}
+          </div>
+        </aside>
+      </div>
 
       {state.message ? (
         <p
@@ -203,10 +320,14 @@ export function TemplateForm({
         </p>
       ) : null}
 
-      <div>
+      <div className="patient-template-submitbar">
         <button type="submit" className="admin-btn-primary" disabled={isPending}>
           {isPending ? "جاري الحفظ..." : submitLabel}
         </button>
+        <span>
+          يتم حفظ التعديلات بنفس آلية الإنتاج الحالية بدون تغيير بيانات المرضى
+          المنشورة.
+        </span>
       </div>
     </form>
   );

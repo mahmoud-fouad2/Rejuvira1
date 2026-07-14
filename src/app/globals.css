@@ -18147,6 +18147,104 @@ html[data-theme="dark"] .gallery-card__divider {
   box-shadow: 0 12px 30px rgba(43, 16, 71, 0.2);
 }
 
+.patient-featured-procedure {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(250, 244, 238, 0.78)),
+    rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 24px 70px rgba(43, 22, 74, 0.09) !important;
+}
+
+.patient-featured-procedure::after {
+  position: absolute;
+  inset-inline-start: -4rem;
+  inset-block-end: -4rem;
+  width: 11rem;
+  height: 11rem;
+  border-radius: 999px;
+  background: rgba(111, 58, 164, 0.07);
+  content: "";
+}
+
+.patient-featured-procedure > * {
+  position: relative;
+  z-index: 1;
+}
+
+.patient-featured-procedure a {
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.patient-featured-procedure a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(43, 16, 71, 0.12);
+}
+
+.patient-care-path {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.patient-care-path article {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: start;
+  min-height: 7.2rem;
+  border: 1px solid var(--color-border, #ded6ea);
+  border-radius: 0.9rem;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.88), rgba(250, 245, 238, 0.74)),
+    rgba(255, 255, 255, 0.78);
+  padding: 0.9rem;
+  box-shadow: 0 18px 48px rgba(43, 22, 74, 0.07);
+  overflow: hidden;
+}
+
+.patient-care-path article::after {
+  position: absolute;
+  inset-inline-end: -1.5rem;
+  inset-block-end: -1.7rem;
+  width: 5rem;
+  height: 5rem;
+  border-radius: 999px;
+  background: rgba(201, 162, 106, 0.14);
+  content: "";
+}
+
+.patient-care-path article > span {
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border: 1px solid rgba(111, 58, 164, 0.16);
+  border-radius: 0.65rem;
+  background: rgba(111, 58, 164, 0.08);
+  color: #6f3aa4;
+  font-size: 0.76rem;
+  font-weight: 950;
+}
+
+.patient-care-path strong {
+  display: block;
+  color: var(--color-ink, #221338);
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+
+.patient-care-path p {
+  margin: 0.22rem 0 0;
+  color: color-mix(in srgb, var(--color-ink, #221338) 62%, transparent);
+  font-size: 0.84rem;
+  line-height: 1.75;
+}
+
 .patient-portal-card strong {
   color: var(--color-ink, #221338);
   font-size: 1.35rem;
@@ -18202,6 +18300,10 @@ html[data-theme="dark"] .gallery-card__divider {
 
 @media (max-width: 900px) {
   .patient-account-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patient-care-path {
     grid-template-columns: 1fr;
   }
 

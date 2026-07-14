@@ -271,6 +271,47 @@ export default async function AdminPatientsPage(props: {
         </article>
       </section>
 
+      <section className="patient-ops-board" aria-label="مركز تشغيل إدارة المرضى">
+        <article className="patient-ops-card patient-ops-card--primary">
+          <span className="patient-ops-card__icon" aria-hidden="true">01</span>
+          <div>
+            <strong>ابدأ من الحالات التي تحتاج إجراء</strong>
+            <p>
+              الرسائل غير المقروءة، الحسابات غير المفعلة، والمتابعات المتأخرة
+              تظهر أمام الفريق قبل أي تفاصيل ثانوية.
+            </p>
+          </div>
+          <Link href={buildQuery(params, { unread: "1", page: "" }) as Route}>
+            عرض الرسائل
+          </Link>
+        </article>
+        <article className="patient-ops-card">
+          <span className="patient-ops-card__icon" aria-hidden="true">02</span>
+          <div>
+            <strong>تفعيل بوابة المريض</strong>
+            <p>تابع المرضى غير المفعلين وأرسل روابط الدخول بأمان من ملف المريض.</p>
+          </div>
+          <Link
+            href={
+              buildQuery(params, {
+                accountStatus: PatientAccountStatus.PENDING,
+                page: "",
+              }) as Route
+            }
+          >
+            مراجعة التفعيل
+          </Link>
+        </article>
+        <article className="patient-ops-card">
+          <span className="patient-ops-card__icon" aria-hidden="true">03</span>
+          <div>
+            <strong>تصدير وتشغيل التقارير</strong>
+            <p>صدّر نفس النتائج الحالية إلى Excel أو PDF بترويسة المركز.</p>
+          </div>
+          {canExport ? <a href={buildExportHref(params, "pdf")}>طباعة PDF</a> : null}
+        </article>
+      </section>
+
       <section className="admin-card patient-filter-card">
         <div className="admin-card__header">
           <div>

@@ -117,7 +117,7 @@ const currentTime = Date.now();
       ) : null}
 
       {featured ? (
-        <section className="border-border rounded-3xl border bg-white/75 p-5 shadow-sm">
+        <section className="patient-featured-procedure border-border rounded-3xl border bg-white/75 p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold tracking-wide uppercase opacity-60">
@@ -249,6 +249,60 @@ const currentTime = Date.now();
           </p>
         </section>
       )}
+
+      <section className="patient-care-path" aria-label="مسار الرعاية">
+        <article>
+          <span aria-hidden="true">1</span>
+          <div>
+            <strong>
+              <span className="lang-ar">راجع التعليمات</span>
+              <span className="lang-en">Review instructions</span>
+            </strong>
+            <p>
+              <span className="lang-ar">
+                اقرأ خطوات ما قبل وبعد العملية واحفظ المستندات المهمة.
+              </span>
+              <span className="lang-en">
+                Read your care steps and keep important documents handy.
+              </span>
+            </p>
+          </div>
+        </article>
+        <article>
+          <span aria-hidden="true">2</span>
+          <div>
+            <strong>
+              <span className="lang-ar">تابع المواعيد</span>
+              <span className="lang-en">Track appointments</span>
+            </strong>
+            <p>
+              <span className="lang-ar">
+                ستظهر مواعيد المتابعة القادمة وأي تحديثات من المركز هنا.
+              </span>
+              <span className="lang-en">
+                Your upcoming follow-ups and clinic updates stay visible here.
+              </span>
+            </p>
+          </div>
+        </article>
+        <article>
+          <span aria-hidden="true">3</span>
+          <div>
+            <strong>
+              <span className="lang-ar">تواصل عند الحاجة</span>
+              <span className="lang-en">Message when needed</span>
+            </strong>
+            <p>
+              <span className="lang-ar">
+                أرسل سؤالك للفريق بدل البحث عن أرقام أو تعليمات متفرقة.
+              </span>
+              <span className="lang-en">
+                Ask the care team directly without hunting for scattered details.
+              </span>
+            </p>
+          </div>
+        </article>
+      </section>
 
       <section className="patient-portal-cards">
         <Link
