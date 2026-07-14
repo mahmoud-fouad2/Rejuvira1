@@ -23,6 +23,7 @@ import {
   type PortalCapability,
 } from "@/lib/portal/permissions";
 import { writePortalAudit } from "@/lib/portal/audit";
+import { sendActivationEmail } from "@/lib/portal/email";
 import { enqueuePortalNotification } from "@/lib/portal/notifications";
 import { issueActivationToken } from "@/lib/portal/patient-auth";
 import {
@@ -313,6 +314,17 @@ export async function sendActivationAction(
       if (!patient.email) {
         return fail("لا يوجد بريد إلكتروني محفوظ لهذا المريض.");
       }
+      const siteUrl = (process.env.SITE_URL || "https://rejuvera.sa").replace(
+        /\/$/,
+        "",
+      );
+      await sendActivationEmail({
+        to: patient.email,
+        patientName: patient.fullNameAr,
+        activationUrl: `${siteUrl}${issued.activationPath}`,
+        otp: issued.otp,
+        expiresAt: issued.expiresAt,
+      });
       await enqueuePortalNotification({
         patientId,
         event: "account_activation",
@@ -336,6 +348,9 @@ export async function sendActivationAction(
       },
     );
   } catch (error) {
+    if (error instanceof Error && error.message === "SMTP_NOT_CONFIGURED") {
+      return fail("إعدادات SMTP غير مكتملة. أضف SMTP_HOST و SMTP_PORT و SMTP_USER و SMTP_PASS.");
+    }
     console.error("[patients] activation failed", error);
     return fail(GENERIC_ERROR);
   }

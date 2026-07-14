@@ -3738,6 +3738,7 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.42rem;
   min-height: 2.15rem;
   padding: 0.42rem 0.76rem;
   border: 1px solid var(--admin-border);
@@ -3752,6 +3753,19 @@ html[dir="rtl"] .admin-shell .main-sidebar {
     border-color 160ms ease,
     color 160ms ease,
     transform 160ms ease;
+}
+
+.patient-module-nav__icon {
+  display: inline-grid;
+  min-width: 1.42rem;
+  height: 1.42rem;
+  place-items: center;
+  border-radius: 0.38rem;
+  background: color-mix(in srgb, var(--admin-accent) 8%, white);
+  color: var(--admin-accent);
+  font-size: 0.62rem;
+  font-weight: 950;
+  letter-spacing: 0;
 }
 
 .patient-module-nav__link:hover,
@@ -3770,6 +3784,11 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   box-shadow: 0 8px 20px rgba(95, 47, 143, 0.18);
 }
 
+.patient-module-nav__link.is-active .patient-module-nav__icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
 .patient-kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 11.5rem), 1fr));
@@ -3777,6 +3796,7 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .patient-kpi-card {
+  position: relative;
   display: grid;
   gap: 0.18rem;
   min-height: 5.2rem;
@@ -3787,6 +3807,31 @@ html[dir="rtl"] .admin-shell .main-sidebar {
     linear-gradient(180deg, rgba(255, 255, 255, 0.82), transparent),
     var(--admin-panel);
   box-shadow: var(--admin-shadow-soft);
+  overflow: hidden;
+}
+
+.patient-kpi-card::after {
+  position: absolute;
+  inset-inline-end: -1.3rem;
+  inset-block-start: -1.6rem;
+  width: 4.4rem;
+  height: 4.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--admin-accent) 8%, transparent);
+  content: "";
+}
+
+.patient-kpi-card__icon {
+  display: inline-grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--admin-accent) 18%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--admin-accent) 8%, white);
+  color: var(--admin-accent) !important;
+  font-size: 0.75rem !important;
+  font-weight: 950 !important;
 }
 
 .patient-kpi-card strong {
@@ -3832,6 +3877,9 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 }
 
 .patient-actions summary {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
   list-style: none;
   cursor: pointer;
 }

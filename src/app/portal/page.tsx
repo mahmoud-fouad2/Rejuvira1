@@ -227,6 +227,7 @@ const currentTime = Date.now();
           href={"/portal/messages" as Route}
           className="patient-portal-card transition-shadow hover:shadow-md"
         >
+          <span className="patient-portal-card__icon" aria-hidden="true">M</span>
           <strong>{patient.messages.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">ردود جديدة من الفريق</span>
@@ -237,6 +238,7 @@ const currentTime = Date.now();
           href={"/portal/documents" as Route}
           className="patient-portal-card transition-shadow hover:shadow-md"
         >
+          <span className="patient-portal-card__icon" aria-hidden="true">D</span>
           <strong>{patient.documents.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">مستندات متاحة لك</span>
@@ -244,6 +246,7 @@ const currentTime = Date.now();
           </p>
         </Link>
         <div className="patient-portal-card">
+          <span className="patient-portal-card__icon" aria-hidden="true">F</span>
           <strong>{patient.appointments.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">مواعيد متابعة قادمة</span>
@@ -254,6 +257,7 @@ const currentTime = Date.now();
           href={featured ? (`/portal/procedures/${featured.id}` as Route) : ("/portal" as Route)}
           className="patient-portal-card transition-shadow hover:shadow-md"
         >
+          <span className="patient-portal-card__icon" aria-hidden="true">I</span>
           <strong>{patient.procedures.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">تعليماتي</span>

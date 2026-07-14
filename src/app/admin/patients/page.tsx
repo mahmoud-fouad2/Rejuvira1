@@ -187,31 +187,37 @@ export default async function AdminPatientsPage(props: {
 
       <section className="patient-kpi-grid" aria-label="مؤشرات إدارة المرضى">
         <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">P</span>
           <span>إجمالي المرضى</span>
           <strong>{stats.totalPatients}</strong>
           <small>ملفات نشطة وغير مؤرشفة</small>
         </article>
         <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">!</span>
           <span>مرضى غير مفعلين</span>
           <strong>{stats.inactivePatients}</strong>
           <small>تحتاج متابعة تفعيل</small>
         </article>
         <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">O</span>
           <span>عمليات قادمة</span>
           <strong>{stats.upcomingProcedures}</strong>
           <small>مجدولة أو مسودة بتاريخ قادم</small>
         </article>
         <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">M</span>
           <span>رسائل غير مقروءة</span>
           <strong>{stats.unreadMessages}</strong>
           <small>من المرضى للإدارة</small>
         </article>
         <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">★</span>
           <span>تقييمات جديدة</span>
           <strong>{stats.newFeedback}</strong>
           <small>بانتظار المراجعة</small>
         </article>
         <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">F</span>
           <span>متابعات متأخرة</span>
           <strong>{stats.overdueFollowUps}</strong>
           <small>مواعيد لم تغلق بعد</small>
@@ -395,7 +401,8 @@ export default async function AdminPatientsPage(props: {
                       <td>
                         <details className="patient-actions">
                           <summary className="admin-btn-secondary">
-                            الإجراءات
+                            <span aria-hidden="true">⋯</span>
+                            <span>الإجراءات</span>
                           </summary>
                           <div className="patient-actions__menu">
                             <Link href={`/admin/patients/${patient.id}` as Route}>
