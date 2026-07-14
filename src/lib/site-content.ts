@@ -98,6 +98,14 @@ export const adminNavigation = [
     group: "ops" as AdminNavGroupKey,
   },
   {
+    label: "إدارة المرضى",
+    labelEn: "Patients",
+    href: "/admin/patients",
+    description: "بوابة المرضى والعمليات والتعليمات",
+    descriptionEn: "Patient portal, procedures and instructions",
+    group: "ops" as AdminNavGroupKey,
+  },
+  {
     label: "ويب هوكس",
     labelEn: "Webhooks",
     href: "/admin/webhooks",

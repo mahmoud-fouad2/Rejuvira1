@@ -12,6 +12,12 @@ enum UserRole {
   ADMIN
   EDITOR
   VIEWER
+  MEDICAL_DIRECTOR
+  DOCTOR
+  NURSE
+  COORDINATOR
+  RECEPTIONIST
+  AUDITOR
 }
 
 enum ContentStatus {
@@ -72,16 +78,16 @@ model User {
 }
 
 model Doctor {
-  id              String        @id @default(cuid())
-  slug            String        @unique
+  id              String                @id @default(cuid())
+  slug            String                @unique
   nameAr          String
   nameEn          String?
   titleAr         String
   titleEn         String?
   specialtyAr     String
   specialtyEn     String?
-  bioAr           String        @db.Text
-  bioEn           String?       @db.Text
+  bioAr           String                @db.Text
+  bioEn           String?               @db.Text
   photoUrl        String?
   coverImageUrl   String?
   education       Json?
@@ -89,12 +95,14 @@ model Doctor {
   achievements    Json?
   languages       String[]
   yearsExperience Int?
-  status          ContentStatus @default(DRAFT)
-  isFeatured      Boolean       @default(false)
-  sortOrder       Int           @default(0)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  services        Service[]     @relation("DoctorServices")
+  status          ContentStatus         @default(DRAFT)
+  isFeatured      Boolean               @default(false)
+  sortOrder       Int                   @default(0)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  services        Service[]             @relation("DoctorServices")
+  procedures      Procedure[]           @relation("ProcedureDoctor")
+  followUps       FollowUpAppointment[] @relation("AppointmentDoctor")
 }
 
 model Service {
@@ -418,4 +426,442 @@ model IntegrationToolLog {
 
   @@index([integrationId])
   @@index([createdAt])
+}
+
+// ============================================================
+// Rejuvera Patient Portal
+// Patient records, procedures, instruction templates, portal
+// auth, messaging, feedback, documents, notifications, audit.
+// ============================================================
+
+enum PatientAccountStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum PatientGender {
+  MALE
+  FEMALE
+}
+
+enum ProcedureStatus {
+  DRAFT
+  SCHEDULED
+  COMPLETED
+  POSTPONED
+  CANCELLED
+  FOLLOW_UP
+}
+
+enum TemplateStatus {
+  DRAFT
+  MEDICALLY_APPROVED
+  ARCHIVED
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  COMPLETED
+  MISSED
+  CANCELLED
+}
+
+enum MessageSenderType {
+  PATIENT
+  STAFF
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
+  CLOSED
+}
+
+enum FeedbackStatus {
+  NEW
+  REVIEWED
+  CONTACTED
+  CLOSED
+}
+
+enum ChecklistPhase {
+  BEFORE_OPERATION
+  OPERATION_DAY
+  AFTER_OPERATION
+  FOLLOW_UP
+}
+
+enum DocumentVisibility {
+  STAFF_ONLY
+  PATIENT_VISIBLE
+}
+
+enum PortalTokenPurpose {
+  ACTIVATION
+  RECOVERY
+}
+
+enum PortalActorType {
+  STAFF
+  PATIENT
+  SYSTEM
+}
+
+enum NotificationChannel {
+  IN_APP
+  SMS
+  WHATSAPP
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  CANCELLED
+}
+
+model Patient {
+  id                    String                   @id @default(uuid())
+  fileNumber            String                   @unique
+  fullNameAr            String
+  fullNameEn            String?
+  phone                 String
+  email                 String?
+  dateOfBirth           DateTime?
+  gender                PatientGender?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  accountStatus         PatientAccountStatus     @default(PENDING)
+  preferredLanguage     String                   @default("ar")
+  internalNotes         String?                  @db.Text
+  archivedAt            DateTime?
+  archivedById          String?
+  archivedByName        String?
+  createdById           String?
+  createdByName         String?
+  lastLoginAt           DateTime?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+  account               PatientAccount?
+  procedures            Procedure[]
+  appointments          FollowUpAppointment[]
+  messages              PatientMessage[]
+  feedback              PatientFeedback[]
+  documents             PatientDocument[]
+  notifications         PatientNotification[]
+  activationTokens      PatientActivationToken[]
+  sessions              PatientSession[]
+  checklistItems        ProcedureChecklistItem[]
+
+  @@index([phone])
+  @@index([accountStatus])
+  @@index([createdAt])
+  @@index([archivedAt])
+}
+
+model PatientAccount {
+  id                   String    @id @default(uuid())
+  patientId            String    @unique
+  loginIdentifier      String    @unique
+  hashedPassword       String?
+  mustChangePassword   Boolean   @default(true)
+  phoneVerifiedAt      DateTime?
+  failedLoginAttempts  Int       @default(0)
+  lockedUntil          DateTime?
+  activatedAt          DateTime?
+  lastPasswordChangeAt DateTime?
+  termsAcceptedAt      DateTime?
+  privacyPolicyVersion String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  patient              Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model PatientActivationToken {
+  id            String             @id @default(uuid())
+  patientId     String
+  tokenHash     String             @unique
+  otpHash       String?
+  purpose       PortalTokenPurpose @default(ACTIVATION)
+  expiresAt     DateTime
+  usedAt        DateTime?
+  attempts      Int                @default(0)
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime           @default(now())
+  patient       Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([expiresAt])
+}
+
+model PatientSession {
+  id         String    @id @default(uuid())
+  patientId  String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  ipAddress  String?
+  userAgent  String?   @db.Text
+  lastSeenAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
+  patient    Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([expiresAt])
+}
+
+model ProcedureTemplate {
+  id                     String         @id @default(uuid())
+  nameAr                 String
+  nameEn                 String?
+  category               String
+  preOperationContentAr  String?        @db.Text
+  preOperationContentEn  String?        @db.Text
+  operationDayContentAr  String?        @db.Text
+  operationDayContentEn  String?        @db.Text
+  postOperationContentAr String?        @db.Text
+  postOperationContentEn String?        @db.Text
+  warningSignsAr         String?        @db.Text
+  warningSignsEn         String?        @db.Text
+  followUpContentAr      String?        @db.Text
+  followUpContentEn      String?        @db.Text
+  checklistJson          Json?
+  version                Int            @default(1)
+  status                 TemplateStatus @default(DRAFT)
+  parentTemplateId       String?
+  approvedById           String?
+  approvedByName         String?
+  approvedAt             DateTime?
+  createdById            String?
+  createdByName          String?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  procedures             Procedure[]
+
+  @@index([status])
+  @@index([category])
+  @@index([parentTemplateId])
+}
+
+model Procedure {
+  id                         String                   @id @default(uuid())
+  patientId                  String
+  procedureTemplateId        String?
+  templateVersion            Int?
+  customProcedureName        String?
+  category                   String?
+  doctorId                   String?
+  surgeonName                String?
+  procedureDate              DateTime?
+  procedureTime              String?
+  arrivalTime                String?
+  location                   String?
+  status                     ProcedureStatus          @default(DRAFT)
+  preOperationInstructions   String?                  @db.Text
+  operationDayInstructions   String?                  @db.Text
+  postOperationInstructions  String?                  @db.Text
+  warningSigns               String?                  @db.Text
+  followUpInstructions       String?                  @db.Text
+  privateStaffNotes          String?                  @db.Text
+  patientVisibleNotes        String?                  @db.Text
+  instructionsVersion        Int                      @default(1)
+  instructionsPublishedAt    DateTime?
+  instructionsAcknowledgedAt DateTime?
+  acknowledgedVersion        Int?
+  archivedAt                 DateTime?
+  createdById                String?
+  createdByName              String?
+  updatedById                String?
+  updatedByName              String?
+  createdAt                  DateTime                 @default(now())
+  updatedAt                  DateTime                 @updatedAt
+  patient                    Patient                  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  template                   ProcedureTemplate?       @relation(fields: [procedureTemplateId], references: [id], onDelete: SetNull)
+  doctor                     Doctor?                  @relation("ProcedureDoctor", fields: [doctorId], references: [id], onDelete: SetNull)
+  appointments               FollowUpAppointment[]
+  messages                   PatientMessage[]
+  feedback                   PatientFeedback[]
+  checklistItems             ProcedureChecklistItem[]
+  documents                  PatientDocument[]
+
+  @@index([patientId])
+  @@index([status])
+  @@index([procedureDate])
+  @@index([doctorId])
+  @@index([archivedAt])
+}
+
+model FollowUpAppointment {
+  id                  String            @id @default(uuid())
+  procedureId         String
+  patientId           String
+  appointmentDate     DateTime
+  appointmentTime     String?
+  appointmentType     String?
+  doctorId            String?
+  status              AppointmentStatus @default(SCHEDULED)
+  notes               String?           @db.Text
+  patientVisibleNotes String?           @db.Text
+  reminderStatus      String            @default("pending")
+  createdById         String?
+  createdByName       String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  procedure           Procedure         @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  patient             Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor              Doctor?           @relation("AppointmentDoctor", fields: [doctorId], references: [id], onDelete: SetNull)
+
+  @@index([patientId])
+  @@index([procedureId])
+  @@index([appointmentDate])
+  @@index([status])
+}
+
+model PatientMessage {
+  id              String            @id @default(uuid())
+  patientId       String
+  procedureId     String?
+  parentMessageId String?
+  senderType      MessageSenderType
+  senderUserId    String?
+  senderUserName  String?
+  category        String
+  message         String            @db.Text
+  status          MessageStatus     @default(UNREAD)
+  isUrgent        Boolean           @default(false)
+  readAt          DateTime?
+  repliedAt       DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime          @default(now())
+  patient         Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  procedure       Procedure?        @relation(fields: [procedureId], references: [id], onDelete: SetNull)
+
+  @@index([patientId])
+  @@index([procedureId])
+  @@index([status])
+  @@index([parentMessageId])
+  @@index([createdAt])
+}
+
+model PatientFeedback {
+  id                  String         @id @default(uuid())
+  patientId           String
+  procedureId         String
+  overallRating       Int
+  careRating          Int?
+  communicationRating Int?
+  instructionsRating  Int?
+  cleanlinessRating   Int?
+  comment             String?        @db.Text
+  permissionToContact Boolean        @default(false)
+  permissionToPublish Boolean        @default(false)
+  status              FeedbackStatus @default(NEW)
+  internalNotes       String?        @db.Text
+  submittedAt         DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  patient             Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  procedure           Procedure      @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+
+  @@unique([procedureId, patientId])
+  @@index([status])
+  @@index([overallRating])
+  @@index([submittedAt])
+}
+
+model ProcedureChecklistItem {
+  id                 String         @id @default(uuid())
+  procedureId        String
+  patientId          String
+  title              String
+  description        String?        @db.Text
+  phase              ChecklistPhase
+  dueDate            DateTime?
+  sortOrder          Int            @default(0)
+  isRequired         Boolean        @default(false)
+  patientCompletedAt DateTime?
+  staffVerifiedAt    DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  procedure          Procedure      @relation(fields: [procedureId], references: [id], onDelete: Cascade)
+  patient            Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([procedureId])
+  @@index([patientId])
+  @@index([phase])
+}
+
+model PatientDocument {
+  id             String             @id @default(uuid())
+  patientId      String
+  procedureId    String?
+  documentType   String
+  title          String
+  storageKey     String             @db.Text
+  fileName       String?
+  fileSize       Int?
+  mimeType       String?
+  visibility     DocumentVisibility @default(STAFF_ONLY)
+  uploadedById   String?
+  uploadedByName String?
+  expiresAt      DateTime?
+  archivedAt     DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  patient        Patient            @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  procedure      Procedure?         @relation(fields: [procedureId], references: [id], onDelete: SetNull)
+
+  @@index([patientId])
+  @@index([procedureId])
+  @@index([visibility])
+}
+
+model PortalAuditLog {
+  id         String          @id @default(uuid())
+  actorType  PortalActorType
+  actorId    String?
+  actorName  String?
+  action     String
+  entityType String
+  entityId   String?
+  patientId  String?
+  ipAddress  String?
+  userAgent  String?         @db.Text
+  changes    Json?
+  createdAt  DateTime        @default(now())
+
+  @@index([patientId])
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model PatientNotification {
+  id           String              @id @default(uuid())
+  patientId    String
+  procedureId  String?
+  event        String
+  channel      NotificationChannel @default(IN_APP)
+  title        String
+  body         String              @db.Text
+  status       NotificationStatus  @default(PENDING)
+  scheduledFor DateTime?
+  sentAt       DateTime?
+  deliveredAt  DateTime?
+  readAt       DateTime?
+  error        String?             @db.Text
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  patient      Patient             @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([status])
+  @@index([event])
+  @@index([scheduledFor])
 }

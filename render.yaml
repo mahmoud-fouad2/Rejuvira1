@@ -6,7 +6,7 @@ services:
     rootDir: .
     autoDeploy: true
     healthCheckPath: /api/health
-    buildCommand: npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run seed:core && npm run seed:landing && NODE_ENV=production npm run build
+    buildCommand: npm ci --include=dev --no-audit --no-fund && npx prisma generate && npm run prisma:migrate:deploy:retry && npm run seed:core && npm run seed:landing && npm run seed:templates && NODE_ENV=production npm run build
     startCommand: npm run start:standalone
     envVars:
       - key: NODE_VERSION

@@ -5,6 +5,12 @@ export const roleLabels: Record<UserRole, string> = {
   [UserRole.ADMIN]: "مدير",
   [UserRole.EDITOR]: "محرر",
   [UserRole.VIEWER]: "كول سنتر",
+  [UserRole.MEDICAL_DIRECTOR]: "مدير طبي",
+  [UserRole.DOCTOR]: "طبيب",
+  [UserRole.NURSE]: "تمريض",
+  [UserRole.COORDINATOR]: "منسق مرضى",
+  [UserRole.RECEPTIONIST]: "استقبال",
+  [UserRole.AUDITOR]: "مراجع",
 };
 
 export const roleDescriptions: Record<
@@ -54,6 +60,81 @@ export const roleDescriptions: Record<
       "لا يصدر التقارير ولا يغير مصادر الطلبات.",
     ],
   },
+  [UserRole.MEDICAL_DIRECTOR]: {
+    summary: "اعتماد المحتوى الطبي وقوالب التعليمات ومراجعة ملفات المرضى.",
+    allowed: [
+      "اعتماد قوالب التعليمات ومراجعة الإصدارات",
+      "تعديل المحتوى الطبي للتعليمات",
+      "الاطلاع على ملفات المرضى والعمليات",
+      "الاطلاع على الإحصائيات والتقييمات",
+    ],
+    restricted: [
+      "لا يدير حسابات المستخدمين أو إعدادات النظام.",
+      "لا يضيف مرضى أو حسابات دخول.",
+    ],
+  },
+  [UserRole.DOCTOR]: {
+    summary: "متابعة مرضاه وتخصيص تعليماتهم والرد على رسائلهم.",
+    allowed: [
+      "الاطلاع على ملفات مرضاه وعملياتهم",
+      "تخصيص واعتماد تعليمات مرضاه",
+      "إضافة ملاحظات طبية",
+      "الرد على رسائل المرضى",
+    ],
+    restricted: [
+      "لا يعتمد القوالب العامة (المدير الطبي فقط).",
+      "لا يدير المستخدمين أو الإعدادات.",
+    ],
+  },
+  [UserRole.NURSE]: {
+    summary: "متابعة قوائم المهام والمتابعات وتأكيد قراءة التعليمات.",
+    allowed: [
+      "إدارة قوائم المتابعة والمهام",
+      "متابعة تأكيد قراءة التعليمات",
+      "إضافة ملاحظات تمريضية",
+      "الرد على رسائل المرضى",
+    ],
+    restricted: [
+      "لا يعدل التعليمات الطبية أو يعتمدها.",
+      "لا يضيف مرضى أو عمليات.",
+    ],
+  },
+  [UserRole.COORDINATOR]: {
+    summary: "إضافة المرضى والعمليات وتنظيم المتابعات وإرسال التفعيل.",
+    allowed: [
+      "إضافة المرضى وتعديل بياناتهم",
+      "إضافة العمليات وتنظيم المتابعات",
+      "إنشاء الحسابات وإرسال روابط التفعيل",
+      "طباعة التعليمات والرد على الرسائل",
+    ],
+    restricted: [
+      "لا يعتمد المحتوى الطبي.",
+      "لا يرى التقييمات أو الإحصائيات التفصيلية.",
+    ],
+  },
+  [UserRole.RECEPTIONIST]: {
+    summary: "بحث عن المرضى والاطلاع على البيانات الأساسية والمواعيد فقط.",
+    allowed: [
+      "البحث عن المريض",
+      "الاطلاع على البيانات الأساسية والمواعيد",
+    ],
+    restricted: [
+      "لا يرى الملاحظات الطبية أو الداخلية.",
+      "لا يعدل التعليمات أو بيانات المرضى.",
+      "لا يطبع التعليمات ولا يرسل التفعيل.",
+    ],
+  },
+  [UserRole.AUDITOR]: {
+    summary: "قراءة محدودة لأغراض المراجعة دون أي تعديل.",
+    allowed: [
+      "الاطلاع على سجلات النشاط",
+      "الاطلاع على الإحصائيات والتقييمات",
+    ],
+    restricted: [
+      "لا يعدل أي بيانات.",
+      "لا ينزل المستندات إلا حسب الصلاحيات.",
+    ],
+  },
 };
 
 export type PermissionRule = {
@@ -92,6 +173,63 @@ export const permissionMatrix: readonly PermissionRule[] = [
     prefix: "/admin/crm",
     label: "الطلبات والمتابعة",
     roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.VIEWER],
+  },
+  {
+    prefix: "/admin/patients/settings",
+    label: "إعدادات بوابة المرضى",
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN],
+  },
+  {
+    prefix: "/admin/patients/activity",
+    label: "سجل نشاط بوابة المرضى",
+    roles: [UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.AUDITOR],
+  },
+  {
+    prefix: "/admin/patients/stats",
+    label: "إحصائيات بوابة المرضى",
+    roles: [
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.MEDICAL_DIRECTOR,
+      UserRole.AUDITOR,
+    ],
+  },
+  {
+    prefix: "/admin/patients/templates",
+    label: "قوالب التعليمات",
+    roles: [
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.MEDICAL_DIRECTOR,
+      UserRole.DOCTOR,
+      UserRole.NURSE,
+      UserRole.COORDINATOR,
+      UserRole.AUDITOR,
+    ],
+  },
+  {
+    prefix: "/admin/patients/feedback",
+    label: "تقييمات المرضى",
+    roles: [
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.MEDICAL_DIRECTOR,
+      UserRole.AUDITOR,
+    ],
+  },
+  {
+    prefix: "/admin/patients",
+    label: "إدارة المرضى",
+    roles: [
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.MEDICAL_DIRECTOR,
+      UserRole.DOCTOR,
+      UserRole.NURSE,
+      UserRole.COORDINATOR,
+      UserRole.RECEPTIONIST,
+      UserRole.AUDITOR,
+    ],
   },
   {
     prefix: "/admin/content",
@@ -150,6 +288,12 @@ const adminHomeByRole: Record<UserRole, string> = {
   [UserRole.ADMIN]: "/admin",
   [UserRole.EDITOR]: "/admin",
   [UserRole.VIEWER]: "/admin/crm",
+  [UserRole.MEDICAL_DIRECTOR]: "/admin/patients",
+  [UserRole.DOCTOR]: "/admin/patients",
+  [UserRole.NURSE]: "/admin/patients",
+  [UserRole.COORDINATOR]: "/admin/patients",
+  [UserRole.RECEPTIONIST]: "/admin/patients",
+  [UserRole.AUDITOR]: "/admin/patients",
 };
 
 export function getRoleLabel(role?: UserRole) {
