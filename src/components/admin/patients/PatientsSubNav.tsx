@@ -31,7 +31,7 @@ const items: {
   },
   {
     key: "new",
-    href: "/admin/patients/new",
+    href: "/admin/patients?add=1",
     label: "إضافة مريض",
     icon: "+",
     show: (role) => hasPortalCapability(role, "patients.create"),

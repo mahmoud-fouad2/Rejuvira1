@@ -129,6 +129,93 @@ export function PortalSettingsForm({ settings }: { settings: PortalSettings }) {
         </label>
       </div>
 
+      <section className="admin-card patient-portal-admin-preview">
+        <div className="admin-card__header">
+          <div>
+            <strong className="admin-card__title">بانر بوابة المرضى</strong>
+            <p className="admin-text-soft" style={{ margin: "0.15rem 0 0" }}>
+              يظهر في الصفحة الرئيسية لكل المرضى ويمكن استخدامه لعرض أو تنبيه عام.
+            </p>
+          </div>
+        </div>
+        <div className="admin-card__body">
+          <label style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+            <input
+              type="checkbox"
+              name="portalBannerEnabled"
+              value="1"
+              defaultChecked={settings.portalBannerEnabled}
+            />
+            <span>إظهار البانر داخل بوابة المرضى</span>
+          </label>
+          <div
+            style={{
+              display: "grid",
+              gap: "0.75rem",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              marginTop: "0.9rem",
+            }}
+          >
+            <label>
+              <span className="admin-field-label">عنوان البانر</span>
+              <input
+                name="portalBannerTitle"
+                defaultValue={settings.portalBannerTitle}
+                maxLength={120}
+                className="admin-input"
+              />
+            </label>
+            <label>
+              <span className="admin-field-label">نص زر البانر</span>
+              <input
+                name="portalBannerCtaLabel"
+                defaultValue={settings.portalBannerCtaLabel}
+                maxLength={80}
+                className="admin-input"
+              />
+            </label>
+            <label>
+              <span className="admin-field-label">رابط زر البانر</span>
+              <input
+                name="portalBannerCtaHref"
+                defaultValue={settings.portalBannerCtaHref}
+                maxLength={500}
+                className="admin-input"
+                dir="ltr"
+                placeholder="/portal/messages أو https://..."
+              />
+            </label>
+            <label>
+              <span className="admin-field-label">رابط صورة البانر</span>
+              <input
+                name="portalBannerImageUrl"
+                defaultValue={settings.portalBannerImageUrl}
+                maxLength={500}
+                className="admin-input"
+                dir="ltr"
+                placeholder="/media/portal/patient-portal-banner.png"
+              />
+            </label>
+          </div>
+          <label style={{ display: "block", marginTop: "0.75rem" }}>
+            <span className="admin-field-label">وصف البانر</span>
+            <textarea
+              name="portalBannerBody"
+              defaultValue={settings.portalBannerBody}
+              rows={3}
+              maxLength={500}
+              className="admin-input"
+            />
+          </label>
+          {settings.portalBannerImageUrl ? (
+            <div
+              className="patient-portal-admin-preview__image"
+              style={{ backgroundImage: `url("${settings.portalBannerImageUrl}")` }}
+            />
+          ) : null}
+        </div>
+      </section>
+
       <label>
         <span className="admin-field-label">نص تذييل PDF</span>
         <textarea

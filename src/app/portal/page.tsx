@@ -8,6 +8,7 @@ import {
   procedureStatusLabels,
 } from "@/lib/portal/labels";
 import { getPatientSession } from "@/lib/portal/patient-auth";
+import { getPortalSettings } from "@/lib/portal/settings";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -17,9 +18,10 @@ export default async function PortalHomePage() {
   const session = await getPatientSession();
   if (!session) redirect("/patient-login");
 
-  const patient = await prisma.patient.findUnique({
-    where: { id: session.patientId },
-    include: {
+  const [patient, portalSettings] = await Promise.all([
+    prisma.patient.findUnique({
+      where: { id: session.patientId },
+      include: {
       procedures: {
         where: { archivedAt: null },
         orderBy: [{ procedureDate: "desc" }, { createdAt: "desc" }],
@@ -48,8 +50,10 @@ export default async function PortalHomePage() {
         where: { visibility: "PATIENT_VISIBLE", archivedAt: null },
         select: { id: true },
       },
-    },
-  });
+      },
+    }),
+    getPortalSettings(),
+  ]);
   if (!patient) redirect("/patient-login");
 
 
@@ -87,6 +91,30 @@ const currentTime = Date.now();
           </span>
         </p>
       </section>
+
+      {portalSettings.portalBannerEnabled ? (
+        <section
+          className="patient-portal-promo"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(255,255,255,.94), rgba(255,255,255,.78), rgba(255,255,255,.18)), url("${portalSettings.portalBannerImageUrl || "/media/portal/patient-portal-banner.png"}")`,
+          }}
+        >
+          <div className="patient-portal-promo__copy">
+            <span className="patient-portal-card__icon" aria-hidden="true">
+              R
+            </span>
+            <h2>{portalSettings.portalBannerTitle}</h2>
+            <p>{portalSettings.portalBannerBody}</p>
+          </div>
+          {portalSettings.portalBannerCtaLabel &&
+          portalSettings.portalBannerCtaHref ? (
+            <PortalPromoLink
+              href={portalSettings.portalBannerCtaHref}
+              label={portalSettings.portalBannerCtaLabel}
+            />
+          ) : null}
+        </section>
+      ) : null}
 
       {featured ? (
         <section className="border-border rounded-3xl border bg-white/75 p-5 shadow-sm">
@@ -332,6 +360,23 @@ const currentTime = Date.now();
         </section>
       ) : null}
     </div>
+  );
+}
+
+function PortalPromoLink({ href, label }: { href: string; label: string }) {
+  const isInternal = href.startsWith("/");
+  const className = "patient-portal-promo__cta";
+  if (isInternal) {
+    return (
+      <Link href={href as Route} className={className}>
+        {label}
+      </Link>
+    );
+  }
+  return (
+    <a href={href} className={className} target="_blank" rel="noreferrer">
+      {label}
+    </a>
   );
 }
 

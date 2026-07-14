@@ -47,7 +47,7 @@ export default async function AdminLayout({
       </Link>
 
       <nav className="admin-shell__nav" aria-label="Admin navigation">
-        <AdminSideNav items={availableNavigation} />
+        <AdminSideNav items={availableNavigation} role={session?.user?.role} />
       </nav>
     </>
   );

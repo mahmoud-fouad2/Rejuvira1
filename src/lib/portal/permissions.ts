@@ -19,6 +19,7 @@ const ALL_PORTAL_ROLES: readonly UserRole[] = [
 ];
 
 export type PortalCapability =
+  | "patients.manageModule"
   | "patients.view"
   | "patients.viewFullPhone"
   | "patients.create"
@@ -52,6 +53,7 @@ export type PortalCapability =
   | "pdf.print";
 
 const CAPABILITIES: Record<PortalCapability, readonly UserRole[]> = {
+  "patients.manageModule": ALL_PORTAL_ROLES,
   "patients.view": ALL_PORTAL_ROLES,
   "patients.viewFullPhone": [
     UserRole.SUPER_ADMIN,

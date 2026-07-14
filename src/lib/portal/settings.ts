@@ -34,6 +34,13 @@ export type PortalSettings = {
   workingHours: string;
   /** Notifications enabled master switch (queueing only). */
   notificationsEnabled: boolean;
+  /** Patient portal shared promotional banner controls. */
+  portalBannerEnabled: boolean;
+  portalBannerTitle: string;
+  portalBannerBody: string;
+  portalBannerImageUrl: string;
+  portalBannerCtaLabel: string;
+  portalBannerCtaHref: string;
 };
 
 export const DEFAULT_PORTAL_SETTINGS: PortalSettings = {
@@ -49,6 +56,13 @@ export const DEFAULT_PORTAL_SETTINGS: PortalSettings = {
   defaultPrintLanguage: "ar",
   workingHours: "",
   notificationsEnabled: true,
+  portalBannerEnabled: true,
+  portalBannerTitle: "عناية Rejuvera تبدأ من هنا",
+  portalBannerBody:
+    "تابع تعليماتك ومواعيدك ورسائلك من مكان واحد، وستظهر هنا أي عروض أو تنبيهات مهمة من المركز.",
+  portalBannerImageUrl: "/media/portal/patient-portal-banner.png",
+  portalBannerCtaLabel: "تواصل مع الفريق",
+  portalBannerCtaHref: "/portal/messages",
 };
 
 function parseNumber(value: unknown, fallback: number) {
@@ -115,6 +129,30 @@ export const getPortalSettings = cache(async (): Promise<PortalSettings> => {
       notificationsEnabled: parseBoolean(
         map.get("notificationsEnabled"),
         d.notificationsEnabled,
+      ),
+      portalBannerEnabled: parseBoolean(
+        map.get("portalBannerEnabled"),
+        d.portalBannerEnabled,
+      ),
+      portalBannerTitle: parseString(
+        map.get("portalBannerTitle"),
+        d.portalBannerTitle,
+      ),
+      portalBannerBody: parseString(
+        map.get("portalBannerBody"),
+        d.portalBannerBody,
+      ),
+      portalBannerImageUrl: parseString(
+        map.get("portalBannerImageUrl"),
+        d.portalBannerImageUrl,
+      ),
+      portalBannerCtaLabel: parseString(
+        map.get("portalBannerCtaLabel"),
+        d.portalBannerCtaLabel,
+      ),
+      portalBannerCtaHref: parseString(
+        map.get("portalBannerCtaHref"),
+        d.portalBannerCtaHref,
       ),
     };
   } catch {

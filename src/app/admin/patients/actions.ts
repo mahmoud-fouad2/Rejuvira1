@@ -1104,6 +1104,12 @@ const settingsSchema = z.object({
   defaultPrintLanguage: z.enum(["ar", "en", "both"]),
   workingHours: z.string().max(300).optional().or(z.literal("")),
   notificationsEnabled: z.string().optional(),
+  portalBannerEnabled: z.string().optional(),
+  portalBannerTitle: z.string().max(120).optional().or(z.literal("")),
+  portalBannerBody: z.string().max(500).optional().or(z.literal("")),
+  portalBannerImageUrl: z.string().max(500).optional().or(z.literal("")),
+  portalBannerCtaLabel: z.string().max(80).optional().or(z.literal("")),
+  portalBannerCtaHref: z.string().max(500).optional().or(z.literal("")),
 });
 
 export async function updatePortalSettingsAction(
@@ -1130,6 +1136,12 @@ export async function updatePortalSettingsAction(
       defaultPrintLanguage: data.defaultPrintLanguage,
       workingHours: data.workingHours ?? "",
       notificationsEnabled: data.notificationsEnabled === "1",
+      portalBannerEnabled: data.portalBannerEnabled === "1",
+      portalBannerTitle: data.portalBannerTitle ?? "",
+      portalBannerBody: data.portalBannerBody ?? "",
+      portalBannerImageUrl: data.portalBannerImageUrl ?? "",
+      portalBannerCtaLabel: data.portalBannerCtaLabel ?? "",
+      portalBannerCtaHref: data.portalBannerCtaHref ?? "",
     });
     await writePortalAudit({
       actorType: PortalActorType.STAFF,

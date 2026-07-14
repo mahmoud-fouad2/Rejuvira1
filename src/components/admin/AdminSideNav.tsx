@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Route } from "next";
 
+import type { UserRole } from "@prisma/client";
+
 import { type AdminNavGroupKey } from "@/lib/site-content";
 import { patientModuleNavItems } from "@/components/admin/patients/PatientsSubNav";
 
@@ -523,7 +525,13 @@ function fallbackGroupForItem(item: NavItem): LogicalAdminGroupKey {
   return "system";
 }
 
-export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
+export function AdminSideNav({
+  items,
+  role,
+}: {
+  items: readonly NavItem[];
+  role?: UserRole | undefined;
+}) {
   const pathname = usePathname() ?? "";
 
   const grouped = useMemo(() => {
@@ -551,13 +559,15 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
     }
 
     if (used.has("/admin/patients")) {
-      const patientItems = patientModuleNavItems.map((item) => ({
-        label: item.label,
-        labelEn: item.key,
-        href: item.href,
-        description: item.label,
-        descriptionEn: item.key,
-      }));
+      const patientItems = patientModuleNavItems
+        .filter((item) => item.show(role))
+        .map((item) => ({
+          label: item.label,
+          labelEn: item.key,
+          href: item.href,
+          description: item.label,
+          descriptionEn: item.key,
+        }));
       next.set("patients", patientItems);
     }
 

@@ -67,6 +67,28 @@ function buildQuery(
   return `/admin/patients${qs ? `?${qs}` : ""}`;
 }
 
+function buildExportHref(
+  params: Record<string, string | string[] | undefined>,
+  format: "csv" | "pdf",
+) {
+  const query = new URLSearchParams();
+  for (const key of [
+    "q",
+    "accountStatus",
+    "procedureStatus",
+    "doctorId",
+    "archived",
+    "unread",
+    "from",
+    "to",
+  ]) {
+    const value = param(params, key);
+    if (value) query.set(key, value);
+  }
+  query.set("format", format);
+  return `/api/admin/patients/export?${query.toString()}`;
+}
+
 export default async function AdminPatientsPage(props: {
   searchParams: SearchParams;
 }) {
@@ -76,6 +98,7 @@ export default async function AdminPatientsPage(props: {
   const canArchive = hasPortalCapability(role, "patients.archive");
   const canActivate = hasPortalCapability(role, "patients.sendActivation");
   const canAddProcedure = hasPortalCapability(role, "procedures.create");
+  const canExport = hasPortalCapability(role, "stats.export");
 
   const page = Math.max(1, Number.parseInt(param(params, "page"), 10) || 1);
   const search = param(params, "q");
@@ -177,14 +200,32 @@ export default async function AdminPatientsPage(props: {
             والمتابعات.
           </p>
         </div>
-        {canCreate ? (
+        {canCreate || canExport ? (
           <div className="admin-page-header__actions">
-            <Link
-              href={buildQuery(params, { add: "1" }) as Route}
-              className="admin-btn-primary"
-            >
-              إضافة مريض جديد
-            </Link>
+            {canCreate ? (
+              <Link
+                href={buildQuery(params, { add: "1" }) as Route}
+                className="admin-btn-primary"
+              >
+                إضافة مريض جديد
+              </Link>
+            ) : null}
+            {canExport ? (
+              <>
+                <a
+                  href={buildExportHref(params, "csv")}
+                  className="admin-btn-secondary"
+                >
+                  تصدير Excel
+                </a>
+                <a
+                  href={buildExportHref(params, "pdf")}
+                  className="admin-btn-secondary"
+                >
+                  طباعة PDF
+                </a>
+              </>
+            ) : null}
           </div>
         ) : null}
       </div>

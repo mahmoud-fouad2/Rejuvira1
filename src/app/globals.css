@@ -18096,6 +18096,57 @@ html[data-theme="dark"] .gallery-card__divider {
   font-weight: 900;
 }
 
+.patient-portal-promo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: end;
+  min-height: clamp(13rem, 25vw, 19rem);
+  border: 1px solid var(--color-border, #ded6ea);
+  border-radius: 1rem;
+  background-position: center;
+  background-size: cover;
+  padding: clamp(1rem, 3vw, 1.8rem);
+  box-shadow: 0 24px 70px rgba(43, 22, 74, 0.1);
+  overflow: hidden;
+}
+
+.patient-portal-promo__copy {
+  display: grid;
+  max-width: 34rem;
+  gap: 0.45rem;
+}
+
+.patient-portal-promo__copy h2 {
+  margin: 0;
+  color: var(--color-ink, #221338);
+  font-size: clamp(1.35rem, 2.7vw, 2.35rem);
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.patient-portal-promo__copy p {
+  margin: 0;
+  color: color-mix(in srgb, var(--color-ink, #221338) 68%, transparent);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.patient-portal-promo__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.85rem;
+  border-radius: 999px;
+  background: #2b1047;
+  color: #fff;
+  padding: 0.72rem 1.15rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 12px 30px rgba(43, 16, 71, 0.2);
+}
+
 .patient-portal-card strong {
   color: var(--color-ink, #221338);
   font-size: 1.35rem;
@@ -18152,5 +18203,10 @@ html[data-theme="dark"] .gallery-card__divider {
 @media (max-width: 900px) {
   .patient-account-grid {
     grid-template-columns: 1fr;
+  }
+
+  .patient-portal-promo {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 }
