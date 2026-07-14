@@ -89,14 +89,30 @@ export default async function ProcedureManagePage(props: {
         </div>
         <div className="admin-page-header__actions" style={{ flexWrap: "wrap" }}>
           {canPrint ? (
-            <a
-              href={`/api/admin/patients/procedures/${procedure.id}/pdf`}
-              target="_blank"
-              rel="noreferrer"
-              className="admin-btn-secondary"
-            >
-              طباعة تعليمات المريض
-            </a>
+            <>
+              <a
+                href={`/api/admin/patients/procedures/${procedure.id}/pdf`}
+                target="_blank"
+                rel="noreferrer"
+                className="admin-btn-secondary"
+              >
+                معاينة PDF
+              </a>
+              <a
+                href={`/api/admin/patients/procedures/${procedure.id}/pdf?download=1`}
+                className="admin-btn-secondary"
+              >
+                تنزيل PDF
+              </a>
+              <a
+                href={`/api/admin/patients/procedures/${procedure.id}/pdf`}
+                target="_blank"
+                rel="noreferrer"
+                className="admin-btn-primary"
+              >
+                طباعة PDF
+              </a>
+            </>
           ) : null}
           {canPublish && hasInstructions ? (
             <form action={publishInstructionsAction}>

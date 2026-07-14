@@ -31,15 +31,28 @@ export default async function PortalAccountPage() {
   if (!patient) redirect("/patient-login");
 
   return (
-    <div className="grid gap-6">
-      <section>
+    <div className="patient-portal-dashboard">
+      <section className="patient-portal-hero">
+        <p className="text-xs font-semibold tracking-wide uppercase opacity-60">
+          <span className="lang-ar">بيانات آمنة ومحدثة</span>
+          <span className="lang-en">Secure account</span>
+        </p>
         <h1 className="text-2xl font-bold">
           <span className="lang-ar">حسابي</span>
           <span className="lang-en">My account</span>
         </h1>
+        <p className="mt-1 text-sm opacity-75">
+          <span className="lang-ar">
+            راجع بيانات ملفك، غيّر كلمة المرور، وتابع الجلسات النشطة.
+          </span>
+          <span className="lang-en">
+            Review your file details, password and active sessions.
+          </span>
+        </p>
       </section>
 
-      <section className="border-border rounded-3xl border p-5">
+      <section className="patient-account-grid">
+        <article className="patient-portal-card patient-account-card">
         <h2 className="font-bold">
           <span className="lang-ar">بياناتي</span>
           <span className="lang-en">My details</span>
@@ -89,9 +102,9 @@ export default async function PortalAccountPage() {
             To change your personal details, please contact the clinic.
           </span>
         </p>
-      </section>
+        </article>
 
-      <section className="border-border rounded-3xl border p-5">
+        <article className="patient-portal-card patient-account-card">
         <h2 className="mb-4 font-bold">
           <span className="lang-ar">كلمة المرور</span>
           <span className="lang-en">Password</span>
@@ -100,9 +113,10 @@ export default async function PortalAccountPage() {
           passwordMinLength={settings.passwordMinLength}
           mustChange={session.mustChangePassword}
         />
+        </article>
       </section>
 
-      <section className="border-border rounded-3xl border p-5">
+      <section className="patient-portal-card patient-account-card">
         <h2 className="font-bold">
           <span className="lang-ar">الجلسات النشطة</span>
           <span className="lang-en">Active sessions</span>

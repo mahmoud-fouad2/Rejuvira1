@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { Route } from "next";
 
 import { type AdminNavGroupKey } from "@/lib/site-content";
+import { patientModuleNavItems } from "@/components/admin/patients/PatientsSubNav";
 
 type NavItem = {
   label: string;
@@ -21,6 +22,7 @@ type LogicalAdminGroupKey =
   | "content"
   | "medical"
   | "operations"
+  | "patients"
   | "reports"
   | "system";
 
@@ -103,6 +105,24 @@ const groupMeta: Record<
           strokeLinecap="round"
           strokeLinejoin="round"
         />
+      </svg>
+    ),
+  },
+  patients: {
+    ar: "إدارة المرضى",
+    en: "Patient Management",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        className="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        aria-hidden
+      >
+        <path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2" />
+        <circle cx="9.5" cy="7" r="4" />
+        <path d="M19 8v8M15 12h8" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -462,6 +482,7 @@ const groupOrder: LogicalAdminGroupKey[] = [
   "content",
   "medical",
   "operations",
+  "patients",
   "reports",
   "system",
 ];
@@ -482,6 +503,7 @@ const hrefOrderByGroup: Record<LogicalAdminGroupKey, string[]> = {
     "/admin/devices",
   ],
   operations: ["/admin/crm", "/admin/webhooks", "/admin/integration-tools"],
+  patients: ["/admin/patients"],
   reports: ["/admin/stats", "/admin/logs"],
   system: ["/admin/settings", "/admin/users", "/admin/maintenance"],
 };
@@ -526,6 +548,17 @@ export function AdminSideNav({ items }: { items: readonly NavItem[] }) {
 
     for (const key of groupOrder) {
       for (const href of hrefOrderByGroup[key]) addExisting(key, href);
+    }
+
+    if (used.has("/admin/patients")) {
+      const patientItems = patientModuleNavItems.map((item) => ({
+        label: item.label,
+        labelEn: item.key,
+        href: item.href,
+        description: item.label,
+        descriptionEn: item.key,
+      }));
+      next.set("patients", patientItems);
     }
 
     push("home", visitSiteItem);

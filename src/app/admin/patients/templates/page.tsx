@@ -10,6 +10,7 @@ import {
 } from "@/lib/portal/labels";
 import { listTemplates } from "@/lib/portal/repository";
 import { hasPortalCapability } from "@/lib/portal/permissions";
+import { ensureDefaultProcedureTemplates } from "@/lib/portal/default-templates";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,8 @@ export default async function TemplatesPage(props: {
     typeof params.category === "string" ? params.category : "";
   const includeArchived = params.archived === "1";
 
+  await ensureDefaultProcedureTemplates();
+
   const templates = await listTemplates({
     category: category || "ALL",
     includeArchived,
@@ -43,7 +46,7 @@ export default async function TemplatesPage(props: {
   }
 
   return (
-    <>
+    <div className="patient-module-page">
       <div className="admin-page-header">
         <div>
           <h1>قوالب التعليمات</h1>
@@ -65,7 +68,30 @@ export default async function TemplatesPage(props: {
       </div>
       <PatientsSubNav active="templates" role={role} />
 
-      <section className="admin-panel" style={{ marginBlock: "1rem" }}>
+      <section className="patient-kpi-grid">
+        <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">T</span>
+          <span>إجمالي القوالب</span>
+          <strong>{templates.length}</strong>
+          <small>قابلة للتعديل والنسخ</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">✓</span>
+          <span>قوالب معتمدة</span>
+          <strong>
+            {templates.filter((item) => item.status === "MEDICALLY_APPROVED").length}
+          </strong>
+          <small>صالحة للاستخدام مع المرضى</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span className="patient-kpi-card__icon" aria-hidden="true">!</span>
+          <span>مسودات تحتاج مراجعة</span>
+          <strong>{templates.filter((item) => item.status === "DRAFT").length}</strong>
+          <small>لا تُستخدم قبل الاعتماد الطبي</small>
+        </article>
+      </section>
+
+      <section className="admin-card patient-filter-card">
         <form
           method="get"
           style={{
@@ -112,8 +138,9 @@ export default async function TemplatesPage(props: {
             <h2 style={{ fontSize: "1.05em", marginBottom: "0.6rem" }}>
               {templateCategoryLabel(categoryKey)}
             </h2>
-            <div className="admin-table-wrap">
-              <table className="admin-users-table" style={{ width: "100%" }}>
+            <div className="admin-card patient-table-card">
+              <div className="admin-table-wrap patient-table-wrap">
+              <table className="admin-users-table patient-table" style={{ width: "100%" }}>
                 <thead>
                   <tr>
                     <th>القالب</th>
@@ -156,10 +183,11 @@ export default async function TemplatesPage(props: {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           </section>
         ))
       )}
-    </>
+    </div>
   );
 }

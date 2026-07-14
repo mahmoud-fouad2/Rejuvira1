@@ -3871,6 +3871,52 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   align-items: center;
 }
 
+.patient-table-card {
+  overflow: visible;
+}
+
+.patient-table-wrap {
+  padding: 0.2rem 0.55rem 0.65rem;
+  overflow-x: auto;
+}
+
+.patient-table {
+  min-width: 72rem !important;
+  border-collapse: separate !important;
+  border-spacing: 0 0.42rem !important;
+}
+
+.patient-table thead th {
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--admin-text-faint);
+  font-size: 0.68rem;
+  letter-spacing: 0;
+}
+
+.patient-table tbody tr {
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.75) inset;
+}
+
+.patient-table tbody td {
+  border-block: 1px solid var(--admin-border);
+  background: transparent;
+}
+
+.patient-table tbody td:first-child {
+  border-inline-start: 1px solid var(--admin-border);
+  border-start-start-radius: 0.58rem;
+  border-end-start-radius: 0.58rem;
+}
+
+.patient-table tbody td:last-child {
+  border-inline-end: 1px solid var(--admin-border);
+  border-start-end-radius: 0.58rem;
+  border-end-end-radius: 0.58rem;
+  min-width: 12rem;
+}
+
 .patient-actions {
   position: relative;
   display: inline-flex;
@@ -3901,6 +3947,17 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   border-radius: 0.5rem;
   background: var(--admin-panel);
   box-shadow: 0 18px 46px rgba(20, 10, 36, 0.16);
+}
+
+.patient-actions[open] {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.patient-actions[open] .patient-actions__menu {
+  position: static;
+  min-width: 12rem;
+  box-shadow: none;
 }
 
 .patient-actions__menu a,
@@ -3961,6 +4018,23 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   color: var(--admin-text);
   font-size: 0.8rem;
   font-weight: 760;
+}
+
+.patient-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(16, 6, 35, 0.48);
+  backdrop-filter: blur(4px);
+}
+
+.patient-modal {
+  width: min(68rem, 100%);
+  max-height: min(92dvh, 58rem);
+  overflow: auto;
 }
 
 .patient-portal-dashboard {

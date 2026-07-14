@@ -1,5 +1,3 @@
-import Link from "next/link";
-import type { Route } from "next";
 import type { UserRole } from "@prisma/client";
 
 import { hasPortalCapability } from "@/lib/portal/permissions";
@@ -110,33 +108,9 @@ export function PatientsSubNav({
   active: PatientsSubNavKey;
   role: UserRole | undefined;
 }) {
-  const visible = items.filter((item) => item.show(role));
-  return (
-    <section className="patient-module-nav" aria-label="أقسام إدارة المرضى">
-      <div className="patient-module-nav__head">
-        <div>
-          <span className="patient-module-nav__eyebrow">Patient operations</span>
-          <strong>مركز إدارة المرضى</strong>
-        </div>
-        <span className="patient-module-nav__count">{visible.length} أقسام</span>
-      </div>
-      <nav className="patient-module-nav__links">
-        {visible.map((item) => (
-          <Link
-            key={item.key}
-            href={item.href as Route}
-            className={`patient-module-nav__link${
-              item.key === active ? " is-active" : ""
-            }`}
-            aria-current={item.key === active ? "page" : undefined}
-          >
-            <span className="patient-module-nav__icon" aria-hidden="true">
-              {item.icon}
-            </span>
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
-    </section>
-  );
+  void active;
+  void role;
+  return null;
 }
+
+export const patientModuleNavItems = items;

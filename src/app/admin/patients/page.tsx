@@ -11,8 +11,13 @@ import {
 
 import { auth } from "@/auth";
 import { PatientsSubNav } from "@/components/admin/patients/PatientsSubNav";
+import { PatientForm } from "@/components/admin/patients/PatientForm";
 import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
-import { archivePatientAction, restorePatientAction } from "./actions";
+import {
+  archivePatientAction,
+  createPatientAction,
+  restorePatientAction,
+} from "./actions";
 import {
   formatDate,
   patientStatusLabels,
@@ -79,6 +84,7 @@ export default async function AdminPatientsPage(props: {
   const doctorId = param(params, "doctorId");
   const includeArchived = param(params, "archived") === "1";
   const unread = param(params, "unread") === "1";
+  const showAddModal = param(params, "add") === "1";
   const from = param(params, "from");
   const to = param(params, "to");
 
@@ -174,10 +180,10 @@ export default async function AdminPatientsPage(props: {
         {canCreate ? (
           <div className="admin-page-header__actions">
             <Link
-              href={"/admin/patients/new" as Route}
+              href={buildQuery(params, { add: "1" }) as Route}
               className="admin-btn-primary"
             >
-              إضافة مريض
+              إضافة مريض جديد
             </Link>
           </div>
         ) : null}
@@ -338,8 +344,17 @@ export default async function AdminPatientsPage(props: {
           ) : null}
         </div>
       ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-users-table" style={{ width: "100%" }}>
+        <div className="admin-card patient-table-card">
+          <div className="admin-card__header">
+            <div>
+              <strong className="admin-card__title">سجل المرضى</strong>
+              <p className="admin-text-soft" style={{ margin: "0.15rem 0 0" }}>
+                جدول تشغيلي للملفات والعمليات والرسائل مع إجراءات منظمة.
+              </p>
+            </div>
+          </div>
+          <div className="admin-table-wrap patient-table-wrap">
+          <table className="admin-users-table patient-table" style={{ width: "100%" }}>
             <thead>
               <tr>
                 <th>المريض</th>
@@ -466,6 +481,7 @@ export default async function AdminPatientsPage(props: {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
@@ -500,6 +516,29 @@ export default async function AdminPatientsPage(props: {
             </Link>
           ) : null}
         </nav>
+      ) : null}
+      {showAddModal && canCreate ? (
+        <div className="admin-modal-backdrop patient-modal-backdrop" role="dialog" aria-modal="true">
+          <section className="admin-card patient-modal">
+            <div className="admin-card__header">
+              <div>
+                <strong className="admin-card__title">إضافة مريض جديد</strong>
+                <p className="admin-text-soft" style={{ margin: "0.15rem 0 0" }}>
+                  أدخل بيانات المريض الأساسية، وسيتم توليد رقم الملف تلقائيًا عند تركه فارغًا.
+                </p>
+              </div>
+              <Link href={"/admin/patients" as Route} className="admin-btn-ghost">
+                إغلاق
+              </Link>
+            </div>
+            <div className="admin-card__body">
+              <PatientForm
+                action={createPatientAction}
+                submitLabel="حفظ المريض وفتح الملف"
+              />
+            </div>
+          </section>
+        </div>
       ) : null}
     </div>
   );

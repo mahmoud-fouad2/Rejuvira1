@@ -216,7 +216,7 @@ export async function buildInstructionsPdf(options: {
   let logo: PDFImage | null = null;
   try {
     const logoBytes = await readFile(
-      path.join(process.cwd(), "public", "media", "brand", "logo-light.png"),
+      path.join(process.cwd(), "public", "media", "brand", "logo-dark.png"),
     );
     logo = await pdfDoc.embedPng(logoBytes);
   } catch {
@@ -307,6 +307,16 @@ export async function buildInstructionsPdf(options: {
   ctx.addPage();
 
   // ---------- Header ----------
+  ctx.page.drawRectangle({
+    x: MARGIN - 10,
+    y: ctx.cursorY - 72,
+    width: CONTENT_WIDTH + 20,
+    height: 84,
+    color: rgb(0.965, 0.945, 0.915),
+    borderColor: rgb(ACCENT.r, ACCENT.g, ACCENT.b),
+    borderWidth: 0.8,
+    borderOpacity: 0.42,
+  });
   if (logo) {
     const logoWidth = 64;
     const logoHeight = (logo.height / logo.width) * logoWidth;

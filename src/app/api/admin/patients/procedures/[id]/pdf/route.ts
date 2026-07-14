@@ -24,6 +24,7 @@ export async function GET(
   const { id } = await context.params;
   const settings = await getPortalSettings();
   const langParam = request.nextUrl.searchParams.get("lang");
+  const download = request.nextUrl.searchParams.get("download") === "1";
   const language: PdfLanguage =
     langParam === "en" || langParam === "both" || langParam === "ar"
       ? langParam
@@ -59,7 +60,7 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="${result.fileName}"`,
+      "Content-Disposition": `${download ? "attachment" : "inline"}; filename="${result.fileName}"`,
       "Cache-Control": "no-store",
     },
   });
