@@ -40,20 +40,29 @@ export function SendActivationPanel({
               : "أنشئ رابط تفعيل ورمز تحقق وشاركهما مع المريض."}
           </p>
         </div>
-        <form action={formAction}>
-          <input type="hidden" name="patientId" value={patientId} />
-          <button
-            type="submit"
-            className="admin-btn-secondary"
-            disabled={isPending}
-          >
-            {isPending
-              ? "جاري الإنشاء..."
-              : isActivated
-                ? "إنشاء رابط استعادة"
-                : "إنشاء رابط تفعيل"}
-          </button>
-        </form>
+        <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
+          <form action={formAction}>
+            <input type="hidden" name="patientId" value={patientId} />
+            <button
+              type="submit"
+              className="admin-btn-secondary"
+              disabled={isPending}
+            >
+              {isPending
+                ? "جاري الإنشاء..."
+                : isActivated
+                  ? "إنشاء رابط استعادة"
+                  : "إنشاء رابط تفعيل"}
+            </button>
+          </form>
+          <form action={formAction}>
+            <input type="hidden" name="patientId" value={patientId} />
+            <input type="hidden" name="channel" value="email" />
+            <button type="submit" className="admin-btn-primary" disabled={isPending}>
+              إرسال Email التفعيل
+            </button>
+          </form>
+        </div>
       </div>
 
       {state.status === "error" ? (
@@ -68,7 +77,9 @@ export function SendActivationPanel({
           style={{ padding: "0.9rem", display: "grid", gap: "0.5rem" }}
         >
           <p style={{ margin: 0, fontWeight: 600 }}>
-            شارك هذه البيانات مع المريض الآن — لن تظهر مرة أخرى:
+            {state.payload.emailQueued === "1"
+              ? "تم تجهيز البريد. هذه نسخة احتياطية من الرابط والرمز تظهر مرة واحدة فقط:"
+              : "شارك هذه البيانات مع المريض الآن — لن تظهر مرة أخرى:"}
           </p>
           <div style={{ display: "grid", gap: "0.35rem" }}>
             <label className="admin-field-label">رابط التفعيل</label>

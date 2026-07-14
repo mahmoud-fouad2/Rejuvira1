@@ -100,17 +100,28 @@ export function PatientsSubNav({
 }) {
   const visible = items.filter((item) => item.show(role));
   return (
-    <nav className="admin-snav" aria-label="أقسام إدارة المرضى">
-      {visible.map((item) => (
-        <Link
-          key={item.key}
-          href={item.href as Route}
-          className={`admin-chip${item.key === active ? " is-active" : ""}`}
-          aria-current={item.key === active ? "page" : undefined}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </nav>
+    <section className="patient-module-nav" aria-label="أقسام إدارة المرضى">
+      <div className="patient-module-nav__head">
+        <div>
+          <span className="patient-module-nav__eyebrow">Patient operations</span>
+          <strong>مركز إدارة المرضى</strong>
+        </div>
+        <span className="patient-module-nav__count">{visible.length} أقسام</span>
+      </div>
+      <nav className="patient-module-nav__links">
+        {visible.map((item) => (
+          <Link
+            key={item.key}
+            href={item.href as Route}
+            className={`patient-module-nav__link${
+              item.key === active ? " is-active" : ""
+            }`}
+            aria-current={item.key === active ? "page" : undefined}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+    </section>
   );
 }

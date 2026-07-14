@@ -1,6 +1,10 @@
 import Link from "next/link";
 import type { Route } from "next";
 import {
+  AppointmentStatus,
+  FeedbackStatus,
+  MessageSenderType,
+  MessageStatus,
   PatientAccountStatus,
   ProcedureStatus,
 } from "@prisma/client";
@@ -65,6 +69,8 @@ export default async function AdminPatientsPage(props: {
   const role = session?.user?.role;
   const canCreate = hasPortalCapability(role, "patients.create");
   const canArchive = hasPortalCapability(role, "patients.archive");
+  const canActivate = hasPortalCapability(role, "patients.sendActivation");
+  const canAddProcedure = hasPortalCapability(role, "procedures.create");
 
   const page = Math.max(1, Number.parseInt(param(params, "page"), 10) || 1);
   const search = param(params, "q");
@@ -76,7 +82,7 @@ export default async function AdminPatientsPage(props: {
   const from = param(params, "from");
   const to = param(params, "to");
 
-  const [result, doctors] = await Promise.all([
+  const [result, doctors, stats] = await Promise.all([
     listPatients({
       page,
       search,
@@ -102,10 +108,61 @@ export default async function AdminPatientsPage(props: {
       select: { id: true, nameAr: true },
       orderBy: { sortOrder: "asc" },
     }),
+    prisma.$transaction(async (tx) => {
+      const now = new Date();
+      const [
+        totalPatients,
+        inactivePatients,
+        upcomingProcedures,
+        unreadMessages,
+        newFeedback,
+        overdueFollowUps,
+      ] = await Promise.all([
+        tx.patient.count({ where: { archivedAt: null } }),
+        tx.patient.count({
+          where: {
+            archivedAt: null,
+            accountStatus: { not: PatientAccountStatus.ACTIVE },
+          },
+        }),
+        tx.procedure.count({
+          where: {
+            archivedAt: null,
+            status: { in: [ProcedureStatus.SCHEDULED, ProcedureStatus.DRAFT] },
+            procedureDate: { gte: now },
+          },
+        }),
+        tx.patientMessage.count({
+          where: {
+            senderType: MessageSenderType.PATIENT,
+            status: MessageStatus.UNREAD,
+          },
+        }),
+        tx.patientFeedback.count({
+          where: { status: FeedbackStatus.NEW },
+        }),
+        tx.followUpAppointment.count({
+          where: {
+            status: {
+              in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED],
+            },
+            appointmentDate: { lt: now },
+          },
+        }),
+      ]);
+      return {
+        totalPatients,
+        inactivePatients,
+        upcomingProcedures,
+        unreadMessages,
+        newFeedback,
+        overdueFollowUps,
+      };
+    }),
   ]);
 
   return (
-    <>
+    <div className="patient-module-page">
       <div className="admin-page-header">
         <div>
           <h1>إدارة المرضى</h1>
@@ -128,16 +185,52 @@ export default async function AdminPatientsPage(props: {
 
       <PatientsSubNav active="patients" role={role} />
 
-      <section className="admin-panel" style={{ marginBlock: "1rem" }}>
+      <section className="patient-kpi-grid" aria-label="مؤشرات إدارة المرضى">
+        <article className="patient-kpi-card">
+          <span>إجمالي المرضى</span>
+          <strong>{stats.totalPatients}</strong>
+          <small>ملفات نشطة وغير مؤرشفة</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span>مرضى غير مفعلين</span>
+          <strong>{stats.inactivePatients}</strong>
+          <small>تحتاج متابعة تفعيل</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span>عمليات قادمة</span>
+          <strong>{stats.upcomingProcedures}</strong>
+          <small>مجدولة أو مسودة بتاريخ قادم</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span>رسائل غير مقروءة</span>
+          <strong>{stats.unreadMessages}</strong>
+          <small>من المرضى للإدارة</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span>تقييمات جديدة</span>
+          <strong>{stats.newFeedback}</strong>
+          <small>بانتظار المراجعة</small>
+        </article>
+        <article className="patient-kpi-card">
+          <span>متابعات متأخرة</span>
+          <strong>{stats.overdueFollowUps}</strong>
+          <small>مواعيد لم تغلق بعد</small>
+        </article>
+      </section>
+
+      <section className="admin-card patient-filter-card">
+        <div className="admin-card__header">
+          <div>
+            <strong className="admin-card__title">تصفية ملفات المرضى</strong>
+            <p className="admin-text-soft" style={{ margin: "0.15rem 0 0" }}>
+              ابحث وضيّق النتائج بدون تشتيت أو روابط متكررة.
+            </p>
+          </div>
+        </div>
         <form
           method="get"
-          className="admin-crm-filter-grid"
-          style={{
-            display: "grid",
-            gap: "0.75rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-            alignItems: "end",
-          }}
+          className="patient-filter-grid"
+          style={{ padding: "0.78rem" }}
         >
           <label className="admin-crm-search-label">
             <span className="admin-field-label">بحث</span>
@@ -215,7 +308,7 @@ export default async function AdminPatientsPage(props: {
             />
             <span>عرض المؤرشفين</span>
           </label>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div className="patient-filter-actions">
             <button type="submit" className="admin-btn-secondary">
               تصفية
             </button>
@@ -298,53 +391,69 @@ export default async function AdminPatientsPage(props: {
                     </span>
                   </td>
                   <td>{formatDate(patient.nextAppointment)}</td>
-                  <td>{formatDate(patient.lastLoginAt)}</td>
-                  <td>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "0.35rem",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <Link
-                        href={`/admin/patients/${patient.id}` as Route}
-                        className="admin-btn-ghost"
-                      >
-                        فتح الملف
-                      </Link>
-                      {canArchive ? (
-                        patient.archivedAt ? (
-                          <form action={restorePatientAction}>
-                            <input
-                              type="hidden"
-                              name="patientId"
-                              value={patient.id}
-                            />
-                            <button type="submit" className="admin-btn-ghost">
-                              استعادة
-                            </button>
-                          </form>
-                        ) : (
-                          <form action={archivePatientAction}>
-                            <input
-                              type="hidden"
-                              name="patientId"
-                              value={patient.id}
-                            />
-                            <AdminConfirmSubmitButton
-                              titleArabic="أرشفة المريض"
-                              titleEnglish="Archive patient"
-                              messageArabic={`سيتم إخفاء ملف ${patient.fullNameAr} وإيقاف دخوله للبوابة. يمكن استعادته لاحقًا.`}
-                              messageEnglish="The patient file will be hidden and portal access disabled. It can be restored later."
-                              className="admin-btn-ghost"
-                            >
-                              أرشفة
-                            </AdminConfirmSubmitButton>
-                          </form>
-                        )
-                      ) : null}
-                    </div>
+                      <td>{formatDate(patient.lastLoginAt)}</td>
+                      <td>
+                        <details className="patient-actions">
+                          <summary className="admin-btn-secondary">
+                            الإجراءات
+                          </summary>
+                          <div className="patient-actions__menu">
+                            <Link href={`/admin/patients/${patient.id}` as Route}>
+                              فتح الملف
+                            </Link>
+                            {canAddProcedure ? (
+                              <Link
+                                href={
+                                  `/admin/patients/${patient.id}/add-procedure` as Route
+                                }
+                              >
+                                إضافة عملية
+                              </Link>
+                            ) : null}
+                            {canActivate ? (
+                              <Link href={`/admin/patients/${patient.id}` as Route}>
+                                إرسال رابط التفعيل
+                              </Link>
+                            ) : null}
+                            {patient.latestProcedure ? (
+                              <a
+                                href={`/api/admin/patients/procedures/${patient.latestProcedure.id}/pdf`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                طباعة تعليمات PDF
+                              </a>
+                            ) : null}
+                            {canArchive ? (
+                              patient.archivedAt ? (
+                                <form action={restorePatientAction}>
+                                  <input
+                                    type="hidden"
+                                    name="patientId"
+                                    value={patient.id}
+                                  />
+                                  <button type="submit">استعادة</button>
+                                </form>
+                              ) : (
+                                <form action={archivePatientAction}>
+                                  <input
+                                    type="hidden"
+                                    name="patientId"
+                                    value={patient.id}
+                                  />
+                                  <AdminConfirmSubmitButton
+                                    titleArabic="أرشفة المريض"
+                                    titleEnglish="Archive patient"
+                                    messageArabic={`سيتم إخفاء ملف ${patient.fullNameAr} وإيقاف دخوله للبوابة. يمكن استعادته لاحقًا.`}
+                                    messageEnglish="The patient file will be hidden and portal access disabled. It can be restored later."
+                                  >
+                                    أرشفة
+                                  </AdminConfirmSubmitButton>
+                                </form>
+                              )
+                            ) : null}
+                          </div>
+                        </details>
                   </td>
                 </tr>
               ))}
@@ -385,6 +494,6 @@ export default async function AdminPatientsPage(props: {
           ) : null}
         </nav>
       ) : null}
-    </>
+    </div>
   );
 }

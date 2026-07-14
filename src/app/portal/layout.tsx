@@ -26,7 +26,7 @@ export default async function PortalLayout({
   return (
     <div className="bg-canvas text-ink min-h-screen">
       <header className="border-border bg-canvas/95 sticky top-0 z-40 border-b backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
           <Link href="/portal" aria-label="Rejuvera Patient Portal" className="flex items-center gap-2">
             <BrandLogo alt="Rejuvera" width={96} height={72} variant="header" sizes="44px" />
             <span className="hidden text-sm font-semibold sm:inline">
@@ -49,7 +49,7 @@ export default async function PortalLayout({
         </div>
         <nav
           aria-label="تنقل البوابة"
-          className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-2"
+          className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2"
         >
           {NAV_ITEMS.map((item) => (
             <Link
@@ -63,8 +63,8 @@ export default async function PortalLayout({
           ))}
         </nav>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
-      <footer className="border-border mx-auto max-w-5xl border-t px-4 py-6 text-center text-xs opacity-70">
+      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+      <footer className="border-border mx-auto max-w-6xl border-t px-4 py-6 text-center text-xs opacity-70">
         <p>
           <span className="lang-ar">
             هذه البوابة خاصة بمرضى مركز ريجوفيرا. المعلومات المعروضة إرشادية ولا

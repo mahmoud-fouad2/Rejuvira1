@@ -66,9 +66,13 @@ const currentTime = Date.now();
   const featured = upcoming ?? patient.procedures[0] ?? null;
 
   return (
-    <div className="grid gap-6">
-      <section>
-        <h1 className="text-2xl font-bold">
+    <div className="patient-portal-dashboard">
+      <section className="patient-portal-hero">
+        <p className="text-xs font-semibold tracking-wide uppercase opacity-60">
+          <span className="lang-ar">بوابة رعاية Rejuvera</span>
+          <span className="lang-en">Rejuvera care portal</span>
+        </p>
+        <h1 className="mt-2 text-2xl font-bold">
           <span className="lang-ar">أهلًا {patient.fullNameAr} 🌿</span>
           <span className="lang-en">
             Welcome{patient.fullNameEn ? `, ${patient.fullNameEn}` : ""} 🌿
@@ -85,7 +89,7 @@ const currentTime = Date.now();
       </section>
 
       {featured ? (
-        <section className="border-border rounded-3xl border p-5 shadow-sm">
+        <section className="border-border rounded-3xl border bg-white/75 p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold tracking-wide uppercase opacity-60">
@@ -162,16 +166,53 @@ const currentTime = Date.now();
               </span>
             </p>
           ) : null}
+          <ul className="patient-timeline">
+            <li>
+              <span>
+                <strong>
+                  <span className="lang-ar">تم تسجيل العملية</span>
+                  <span className="lang-en">Procedure registered</span>
+                </strong>
+                <span className="block text-sm opacity-70">
+                  {formatDate(featured.createdAt)}
+                </span>
+              </span>
+            </li>
+            <li>
+              <span>
+                <strong>
+                  <span className="lang-ar">حالة العملية</span>
+                  <span className="lang-en">Current status</span>
+                </strong>
+                <span className="block text-sm opacity-70">
+                  {procedureStatusLabels[featured.status]}
+                </span>
+              </span>
+            </li>
+            {featured.instructionsPublishedAt ? (
+              <li>
+                <span>
+                  <strong>
+                    <span className="lang-ar">التعليمات متاحة</span>
+                    <span className="lang-en">Instructions available</span>
+                  </strong>
+                  <span className="block text-sm opacity-70">
+                    {formatDate(featured.instructionsPublishedAt)}
+                  </span>
+                </span>
+              </li>
+            ) : null}
+          </ul>
         </section>
       ) : (
-        <section className="border-border rounded-3xl border border-dashed p-8 text-center">
+        <section className="border-border rounded-3xl border border-dashed bg-white/70 p-8 text-center shadow-sm">
           <p className="font-semibold">
             <span className="lang-ar">لا توجد عمليات مسجلة لك بعد.</span>
             <span className="lang-en">No procedures on file yet.</span>
           </p>
           <p className="mt-1 text-sm opacity-70">
             <span className="lang-ar">
-              عند إضافة عمليتك من المركز ستظهر تفاصيلها وتعليماتها هنا.
+              لم تتم إضافة أي عملية لحسابك بعد. عند إضافة العملية من المركز ستظهر التعليمات والمتابعات هنا.
             </span>
             <span className="lang-en">
               Once the clinic adds your procedure, its details will appear
@@ -181,12 +222,12 @@ const currentTime = Date.now();
         </section>
       )}
 
-      <section className="grid gap-4 sm:grid-cols-3">
+      <section className="patient-portal-cards">
         <Link
           href={"/portal/messages" as Route}
-          className="border-border rounded-2xl border p-4 transition-shadow hover:shadow-md"
+          className="patient-portal-card transition-shadow hover:shadow-md"
         >
-          <p className="text-2xl font-bold">{patient.messages.length}</p>
+          <strong>{patient.messages.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">ردود جديدة من الفريق</span>
             <span className="lang-en">New replies from the team</span>
@@ -194,21 +235,31 @@ const currentTime = Date.now();
         </Link>
         <Link
           href={"/portal/documents" as Route}
-          className="border-border rounded-2xl border p-4 transition-shadow hover:shadow-md"
+          className="patient-portal-card transition-shadow hover:shadow-md"
         >
-          <p className="text-2xl font-bold">{patient.documents.length}</p>
+          <strong>{patient.documents.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">مستندات متاحة لك</span>
             <span className="lang-en">Documents available</span>
           </p>
         </Link>
-        <div className="border-border rounded-2xl border p-4">
-          <p className="text-2xl font-bold">{patient.appointments.length}</p>
+        <div className="patient-portal-card">
+          <strong>{patient.appointments.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">مواعيد متابعة قادمة</span>
             <span className="lang-en">Upcoming follow-ups</span>
           </p>
         </div>
+        <Link
+          href={featured ? (`/portal/procedures/${featured.id}` as Route) : ("/portal" as Route)}
+          className="patient-portal-card transition-shadow hover:shadow-md"
+        >
+          <strong>{patient.procedures.length}</strong>
+          <p className="text-sm opacity-75">
+            <span className="lang-ar">تعليماتي</span>
+            <span className="lang-en">My instructions</span>
+          </p>
+        </Link>
       </section>
 
       {patient.appointments.length > 0 ? (

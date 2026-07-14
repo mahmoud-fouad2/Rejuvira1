@@ -6,6 +6,7 @@ import {
   ChecklistPhase,
   FeedbackStatus,
   MessageStatus,
+  NotificationChannel,
   PatientAccountStatus,
   PatientGender,
   PortalActorType,
@@ -298,7 +299,7 @@ export async function sendActivationAction(
   try {
     const patient = await prisma.patient.findUnique({
       where: { id: patientId },
-      select: { archivedAt: true, phone: true },
+      select: { archivedAt: true, email: true, fullNameAr: true },
     });
     if (!patient || patient.archivedAt) return fail(GENERIC_ERROR);
 
@@ -307,14 +308,33 @@ export async function sendActivationAction(
       PortalTokenPurpose.ACTIVATION,
       { id: staff.id, name: staff.name },
     );
+    const sendEmail = formData.get("channel") === "email";
+    if (sendEmail) {
+      if (!patient.email) {
+        return fail("لا يوجد بريد إلكتروني محفوظ لهذا المريض.");
+      }
+      await enqueuePortalNotification({
+        patientId,
+        event: "account_activation",
+        channel: NotificationChannel.EMAIL,
+        title: "تفعيل حساب بوابة مرضى Rejuvera",
+        body: `مرحبًا ${patient.fullNameAr}، تم تجهيز رابط تفعيل حسابك في بوابة مرضى Rejuvera. الرابط صالح لفترة محدودة ولا تشارك رمز التحقق مع أي شخص.`,
+      });
+    }
     revalidatePatients(patientId);
     // The link/OTP are displayed once to the staff member to share with the
     // patient through the approved channel; they are never stored raw.
-    return ok("تم إنشاء رابط التفعيل. شاركه مع المريض مع رمز التحقق.", {
+    return ok(
+      sendEmail
+        ? "تم تجهيز رسالة التفعيل عبر البريد وإضافة المهمة لقائمة الإشعارات."
+        : "تم إنشاء رابط التفعيل. شاركه مع المريض مع رمز التحقق.",
+      {
       activationPath: issued.activationPath,
       otp: issued.otp,
       expiresAt: issued.expiresAt.toISOString(),
-    });
+      ...(sendEmail ? { emailQueued: "1" } : {}),
+      },
+    );
   } catch (error) {
     console.error("[patients] activation failed", error);
     return fail(GENERIC_ERROR);

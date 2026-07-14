@@ -97,7 +97,7 @@ export default async function PatientFilePage(props: {
   const latestProcedure = patient.procedures[0] ?? null;
 
   return (
-    <>
+    <div className="patient-module-page">
       <div className="admin-page-header">
         <div>
           <h1>{patient.fullNameAr}</h1>
@@ -165,45 +165,52 @@ export default async function PatientFilePage(props: {
 
       <PatientsSubNav active="patients" role={role} />
 
-      <section
-        style={{
-          display: "grid",
-          gap: "1rem",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          marginBlock: "1rem",
-        }}
-      >
-        <div className="admin-card" style={{ padding: "1rem" }}>
+      <section className="patient-profile-hero">
+        <div className="admin-card patient-profile-card">
           <strong>البيانات الأساسية</strong>
-          <dl style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "0.35rem 0.9rem", margin: "0.6rem 0 0" }}>
-            <dt className="admin-text-soft">الاسم الإنجليزي</dt>
-            <dd>{patient.fullNameEn ?? "—"}</dd>
-            <dt className="admin-text-soft">البريد</dt>
-            <dd dir="ltr">{patient.email ?? "—"}</dd>
-            <dt className="admin-text-soft">تاريخ الميلاد</dt>
-            <dd>{formatDate(patient.dateOfBirth)}</dd>
-            <dt className="admin-text-soft">الجنس</dt>
-            <dd>
-              {patient.gender === "MALE"
-                ? "ذكر"
-                : patient.gender === "FEMALE"
-                  ? "أنثى"
-                  : "—"}
-            </dd>
-            <dt className="admin-text-soft">مرافق الطوارئ</dt>
-            <dd>
-              {patient.emergencyContactName ?? "—"}
-              {patient.emergencyContactPhone ? (
-                <span dir="ltr"> · {patient.emergencyContactPhone}</span>
-              ) : null}
-            </dd>
-            <dt className="admin-text-soft">تاريخ الإنشاء</dt>
-            <dd>
-              {formatDateTime(patient.createdAt)}
-              {patient.createdByName ? ` — ${patient.createdByName}` : ""}
-            </dd>
-            <dt className="admin-text-soft">آخر دخول</dt>
-            <dd>{formatDateTime(patient.lastLoginAt)}</dd>
+          <dl className="patient-profile-meta">
+            <div>
+              <dt>الاسم الإنجليزي</dt>
+              <dd>{patient.fullNameEn ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>البريد</dt>
+              <dd dir="ltr">{patient.email ?? "—"}</dd>
+            </div>
+            <div>
+              <dt>تاريخ الميلاد</dt>
+              <dd>{formatDate(patient.dateOfBirth)}</dd>
+            </div>
+            <div>
+              <dt>الجنس</dt>
+              <dd>
+                {patient.gender === "MALE"
+                  ? "ذكر"
+                  : patient.gender === "FEMALE"
+                    ? "أنثى"
+                    : "—"}
+              </dd>
+            </div>
+            <div>
+              <dt>مرافق الطوارئ</dt>
+              <dd>
+                {patient.emergencyContactName ?? "—"}
+                {patient.emergencyContactPhone ? (
+                  <span dir="ltr"> · {patient.emergencyContactPhone}</span>
+                ) : null}
+              </dd>
+            </div>
+            <div>
+              <dt>تاريخ الإنشاء</dt>
+              <dd>
+                {formatDateTime(patient.createdAt)}
+                {patient.createdByName ? ` — ${patient.createdByName}` : ""}
+              </dd>
+            </div>
+            <div>
+              <dt>آخر دخول</dt>
+              <dd>{formatDateTime(patient.lastLoginAt)}</dd>
+            </div>
           </dl>
           {canViewNotes && patient.internalNotes ? (
             <div className="admin-panel-soft" style={{ marginTop: "0.75rem", padding: "0.7rem" }}>
@@ -222,7 +229,7 @@ export default async function PatientFilePage(props: {
         ) : null}
       </section>
 
-      <nav className="admin-snav" aria-label="تبويبات ملف المريض" style={{ marginBottom: "0.75rem" }}>
+      <nav className="patient-tabs" aria-label="تبويبات ملف المريض">
         {TABS.filter((tab) => {
           if (tab.key === "feedback" && !canSeeFeedback) return false;
           if (tab.key === "activity" && !canSeeAudit) return false;
@@ -233,7 +240,7 @@ export default async function PatientFilePage(props: {
           <Link
             key={tab.key}
             href={`/admin/patients/${patient.id}?tab=${tab.key}` as Route}
-            className={`admin-chip${tab.key === activeTab ? " is-active" : ""}`}
+            className={`patient-tab${tab.key === activeTab ? " is-active" : ""}`}
             aria-current={tab.key === activeTab ? "page" : undefined}
           >
             {tab.label}
@@ -531,6 +538,6 @@ export default async function PatientFilePage(props: {
           </div>
         )
       ) : null}
-    </>
+    </div>
   );
 }
