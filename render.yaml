@@ -74,6 +74,22 @@ services:
         sync: false
       - key: CONTACT_EMAIL_SECONDARY
         sync: false
+      # SMTP transactional email. Keep credentials out of git and set the
+      # values in Render environment variables.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM_NAME
+        sync: false
+      - key: MAIL_FROM_EMAIL
+        sync: false
       # Optional maps embed seed
       - key: GOOGLE_MAPS_EMBED_URL
         sync: false
