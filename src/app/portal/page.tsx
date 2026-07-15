@@ -103,11 +103,11 @@ const currentTime = Date.now();
         <section
           className="patient-portal-promo"
           style={{
-            backgroundImage: `linear-gradient(90deg, rgba(255,255,255,.94), rgba(255,255,255,.78), rgba(255,255,255,.18)), url("${portalSettings.portalBannerImageUrl || "/media/portal/patient-portal-banner.png"}")`,
+            backgroundImage: `url("${portalSettings.portalBannerImageUrl || "/media/portal/patient-portal-banner.png"}")`,
           }}
         >
           <div className="patient-portal-promo__copy">
-            <span className="patient-portal-card__icon" aria-hidden="true">
+            <span className="patient-portal-promo__icon" aria-hidden="true">
               <IconSparkle />
             </span>
             <h2>{portalSettings.portalBannerTitle}</h2>

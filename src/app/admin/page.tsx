@@ -1,6 +1,14 @@
 import Link from "next/link";
 import type { Route } from "next";
-import { ContentStatus, SubmissionStatus } from "@prisma/client";
+import {
+  AppointmentStatus,
+  ContentStatus,
+  MessageSenderType,
+  MessageStatus,
+  PatientAccountStatus,
+  ProcedureStatus,
+  SubmissionStatus,
+} from "@prisma/client";
 
 import { listAppLogs } from "@/lib/app-log";
 import { runConnectionChecks } from "@/lib/backup";
@@ -14,6 +22,7 @@ import {
   getAdminUsers,
 } from "@/lib/content-repository";
 import { BarChart, ChartCard, LineChart } from "@/components/admin/AdminCharts";
+import { prisma } from "@/lib/prisma";
 
 const pipelineOrder: SubmissionStatus[] = [
   SubmissionStatus.NEW,
@@ -83,6 +92,7 @@ export default async function AdminPage() {
     submissions,
     users,
     checks,
+    patientOps,
   ] = await Promise.all([
     getDoctors(),
     getServices(),
@@ -92,6 +102,52 @@ export default async function AdminPage() {
     getCrmSubmissions(),
     getAdminUsers(),
     runConnectionChecks(),
+    prisma.$transaction(async (tx) => {
+      const now = new Date();
+      const [
+        totalPatients,
+        pendingPatients,
+        unreadPatientMessages,
+        upcomingProcedures,
+        overdueFollowUps,
+      ] = await Promise.all([
+        tx.patient.count({ where: { archivedAt: null } }),
+        tx.patient.count({
+          where: {
+            archivedAt: null,
+            accountStatus: { not: PatientAccountStatus.ACTIVE },
+          },
+        }),
+        tx.patientMessage.count({
+          where: {
+            senderType: MessageSenderType.PATIENT,
+            status: MessageStatus.UNREAD,
+          },
+        }),
+        tx.procedure.count({
+          where: {
+            archivedAt: null,
+            status: { in: [ProcedureStatus.SCHEDULED, ProcedureStatus.DRAFT] },
+            procedureDate: { gte: now },
+          },
+        }),
+        tx.followUpAppointment.count({
+          where: {
+            status: {
+              in: [AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED],
+            },
+            appointmentDate: { lt: now },
+          },
+        }),
+      ]);
+      return {
+        totalPatients,
+        pendingPatients,
+        unreadPatientMessages,
+        upcomingProcedures,
+        overdueFollowUps,
+      };
+    }),
   ]);
 
   const analytics = await listAppLogs({
@@ -159,6 +215,44 @@ export default async function AdminPage() {
     },
   ];
   const nextActions = contentIssues.filter((item) => item.count > 0);
+  const executiveFocus = [
+    {
+      labelAr: "إدارة المرضى",
+      labelEn: "Patient management",
+      value: patientOps.totalPatients,
+      detailAr: `${patientOps.pendingPatients} حساب يحتاج متابعة`,
+      detailEn: `${patientOps.pendingPatients} accounts need follow-up`,
+      href: "/admin/patients",
+      tone: "is-purple",
+    },
+    {
+      labelAr: "رسائل المرضى",
+      labelEn: "Patient messages",
+      value: patientOps.unreadPatientMessages,
+      detailAr: "رسائل غير مقروءة من بوابة المرضى",
+      detailEn: "Unread portal messages",
+      href: "/admin/patients/messages",
+      tone: "is-gold",
+    },
+    {
+      labelAr: "عمليات قادمة",
+      labelEn: "Upcoming procedures",
+      value: patientOps.upcomingProcedures,
+      detailAr: "مجدولة أو مسودة بتاريخ قادم",
+      detailEn: "Scheduled or drafted ahead",
+      href: "/admin/patients/procedures",
+      tone: "is-green",
+    },
+    {
+      labelAr: "متابعات متأخرة",
+      labelEn: "Overdue follow-ups",
+      value: patientOps.overdueFollowUps,
+      detailAr: "تحتاج إغلاق أو إعادة جدولة",
+      detailEn: "Need closing or rescheduling",
+      href: "/admin/patients/follow-ups",
+      tone: "is-rose",
+    },
+  ];
 
   const kpis = [
     {
@@ -309,6 +403,26 @@ export default async function AdminPage() {
             </span>
           </Link>
         </div>
+      </section>
+
+      <section className="admin-executive-strip" aria-label="Super admin focus">
+        {executiveFocus.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href as Route}
+            className={`admin-executive-card ${item.tone}`}
+          >
+            <span className="admin-executive-card__meta">
+              <span className="lang-ar">{item.labelAr}</span>
+              <span className="lang-en">{item.labelEn}</span>
+            </span>
+            <strong>{item.value}</strong>
+            <small>
+              <span className="lang-ar">{item.detailAr}</span>
+              <span className="lang-en">{item.detailEn}</span>
+            </small>
+          </Link>
+        ))}
       </section>
 
       <section className="admin-grid-4">
