@@ -1,9 +1,11 @@
 import { AdminSettingsExtras } from "@/components/forms/AdminSettingsExtras";
 import { SettingsForm } from "@/components/forms/SettingsForm";
+import { SmtpSettingsCard } from "@/components/forms/SmtpSettingsCard";
 import {
   getRuntimeSettings,
   getSettingsGroups,
 } from "@/lib/content-repository";
+import { smtpConfigPreview } from "@/lib/portal/email";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 
 export default async function AdminSettingsPage() {
@@ -62,6 +64,8 @@ export default async function AdminSettingsPage() {
           <SettingsForm groups={groups} />
         </div>
       </article>
+
+      <SmtpSettingsCard preview={smtpConfigPreview()} />
 
       <AdminSettingsExtras
         settings={runtimeSettings}

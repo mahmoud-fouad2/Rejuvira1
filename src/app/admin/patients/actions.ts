@@ -23,7 +23,7 @@ import {
   type PortalCapability,
 } from "@/lib/portal/permissions";
 import { writePortalAudit } from "@/lib/portal/audit";
-import { sendActivationEmail } from "@/lib/portal/email";
+import { MailError, sendActivationEmail } from "@/lib/portal/email";
 import { enqueuePortalNotification } from "@/lib/portal/notifications";
 import { issueActivationToken } from "@/lib/portal/patient-auth";
 import {
@@ -310,6 +310,7 @@ export async function sendActivationAction(
       { id: staff.id, name: staff.name },
     );
     const sendEmail = formData.get("channel") === "email";
+    let mailWarning: string | undefined;
     if (sendEmail) {
       if (!patient.email) {
         return fail("لا يوجد بريد إلكتروني محفوظ لهذا المريض.");
@@ -318,39 +319,66 @@ export async function sendActivationAction(
         /\/$/,
         "",
       );
-      await sendActivationEmail({
-        to: patient.email,
-        patientName: patient.fullNameAr,
-        activationUrl: `${siteUrl}${issued.activationPath}`,
-        otp: issued.otp,
-        expiresAt: issued.expiresAt,
-      });
-      await enqueuePortalNotification({
-        patientId,
-        event: "account_activation",
-        channel: NotificationChannel.EMAIL,
-        title: "تفعيل حساب بوابة مرضى Rejuvera",
-        body: `مرحبًا ${patient.fullNameAr}، تم تجهيز رابط تفعيل حسابك في بوابة مرضى Rejuvera. الرابط صالح لفترة محدودة ولا تشارك رمز التحقق مع أي شخص.`,
-      });
+      // Mail failure must NEVER swallow the freshly issued token — the staff
+      // needs to be able to share the link manually as a fallback. So we
+      // catch, translate to a warning, and still return the token in `ok(...)`.
+      try {
+        await sendActivationEmail({
+          to: patient.email,
+          patientName: patient.fullNameAr,
+          activationUrl: `${siteUrl}${issued.activationPath}`,
+          otp: issued.otp,
+          expiresAt: issued.expiresAt,
+        });
+        await enqueuePortalNotification({
+          patientId,
+          event: "account_activation",
+          channel: NotificationChannel.EMAIL,
+          title: "تفعيل حساب بوابة مرضى Rejuvera",
+          body: `مرحبًا ${patient.fullNameAr}، تم تجهيز رابط تفعيل حسابك في بوابة مرضى Rejuvera. الرابط صالح لفترة محدودة ولا تشارك رمز التحقق مع أي شخص.`,
+        });
+      } catch (mailErr) {
+        // Audit the failure so admins can see it, WITHOUT logging SMTP secrets.
+        await writePortalAudit({
+          actorType: PortalActorType.STAFF,
+          actorId: staff.id,
+          actorName: staff.name,
+          action: "patient.activation.email_failed",
+          entityType: "Patient",
+          entityId: patientId,
+          patientId,
+          changes: {
+            code: mailErr instanceof MailError ? mailErr.code : "UNKNOWN",
+          },
+        });
+        console.error(
+          "[patients] activation email failed",
+          mailErr instanceof Error ? mailErr.message : mailErr,
+        );
+        mailWarning =
+          mailErr instanceof MailError
+            ? mailErr.message
+            : "تعذّر إرسال البريد. شارك الرابط ورمز التحقق يدويًا مع المريض.";
+      }
     }
     revalidatePatients(patientId);
     // The link/OTP are displayed once to the staff member to share with the
     // patient through the approved channel; they are never stored raw.
     return ok(
-      sendEmail
-        ? "تم تجهيز رسالة التفعيل عبر البريد وإضافة المهمة لقائمة الإشعارات."
-        : "تم إنشاء رابط التفعيل. شاركه مع المريض مع رمز التحقق.",
+      mailWarning
+        ? `تم إنشاء رابط التفعيل، لكن تعذّر إرسال البريد: ${mailWarning}`
+        : sendEmail
+          ? "تم تجهيز رسالة التفعيل عبر البريد وإضافة المهمة لقائمة الإشعارات."
+          : "تم إنشاء رابط التفعيل. شاركه مع المريض مع رمز التحقق.",
       {
-      activationPath: issued.activationPath,
-      otp: issued.otp,
-      expiresAt: issued.expiresAt.toISOString(),
-      ...(sendEmail ? { emailQueued: "1" } : {}),
+        activationPath: issued.activationPath,
+        otp: issued.otp,
+        expiresAt: issued.expiresAt.toISOString(),
+        ...(sendEmail && !mailWarning ? { emailQueued: "1" } : {}),
+        ...(mailWarning ? { mailWarning } : {}),
       },
     );
   } catch (error) {
-    if (error instanceof Error && error.message === "SMTP_NOT_CONFIGURED") {
-      return fail("إعدادات SMTP غير مكتملة. أضف SMTP_HOST و SMTP_PORT و SMTP_USER و SMTP_PASS.");
-    }
     console.error("[patients] activation failed", error);
     return fail(GENERIC_ERROR);
   }
