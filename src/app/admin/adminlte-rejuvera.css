@@ -5408,3 +5408,149 @@ html[dir="rtl"] .admin-shell .main-sidebar {
     padding: 0.75rem;
   }
 }
+
+/* Keep patient row actions visible: no clipped dropdown inside scroll frames. */
+.patient-table-card .patient-actions,
+.patient-table-wrap .patient-actions {
+  display: block;
+  min-width: 18rem;
+}
+
+.patient-table-card .patient-actions summary,
+.patient-table-wrap .patient-actions summary {
+  display: none !important;
+}
+
+.patient-table-card .patient-actions__menu,
+.patient-table-wrap .patient-actions__menu,
+.patient-table-card .patient-actions:not([open]) > .patient-actions__menu,
+.patient-table-wrap .patient-actions:not([open]) > .patient-actions__menu {
+  position: static;
+  inset: auto;
+  width: auto;
+  min-width: 0;
+  display: flex !important;
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.patient-table-card .patient-actions__menu a,
+.patient-table-card .patient-actions__menu button,
+.patient-table-wrap .patient-actions__menu a,
+.patient-table-wrap .patient-actions__menu button {
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid rgba(31, 16, 64, 0.11);
+  border-radius: 0.625rem;
+  background: #fff;
+  color: var(--admin-text);
+  padding: 0 0.72rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: 0 8px 18px rgba(21, 14, 39, 0.045);
+}
+
+.patient-table-card .patient-actions__menu a:first-child,
+.patient-table-wrap .patient-actions__menu a:first-child {
+  border-color: transparent;
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.patient-table-card .patient-actions__menu > a::before,
+.patient-table-wrap .patient-actions__menu > a::before,
+.patient-table-card .patient-actions__menu button::before,
+.patient-table-wrap .patient-actions__menu button::before {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.35rem;
+  background: rgba(138, 78, 193, 0.1);
+  color: currentColor;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.patient-table-card .patient-actions__menu > a:nth-of-type(1)::before,
+.patient-table-wrap .patient-actions__menu > a:nth-of-type(1)::before {
+  content: "↗";
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.patient-table-card .patient-actions__menu > a:nth-of-type(2)::before,
+.patient-table-wrap .patient-actions__menu > a:nth-of-type(2)::before {
+  content: "+";
+}
+
+.patient-table-card .patient-actions__menu > a:nth-of-type(3)::before,
+.patient-table-wrap .patient-actions__menu > a:nth-of-type(3)::before {
+  content: "⌁";
+}
+
+.patient-table-card .patient-actions__menu > a[href*="/pdf"]::before,
+.patient-table-wrap .patient-actions__menu > a[href*="/pdf"]::before {
+  content: "PDF";
+  width: 1.7rem;
+}
+
+.patient-table-card .patient-actions__menu button::before,
+.patient-table-wrap .patient-actions__menu button::before {
+  content: "!";
+}
+
+.patient-table-card .patient-actions__menu .admin-btn-danger,
+.patient-table-wrap .patient-actions__menu .admin-btn-danger {
+  border-color: rgba(166, 47, 69, 0.18);
+  background: rgba(166, 47, 69, 0.08);
+  color: #8e2336;
+}
+
+.patient-table-card .patient-actions__menu a:hover,
+.patient-table-card .patient-actions__menu button:hover,
+.patient-table-wrap .patient-actions__menu a:hover,
+.patient-table-wrap .patient-actions__menu button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(138, 78, 193, 0.24);
+  background: rgba(138, 78, 193, 0.08);
+  color: var(--admin-accent);
+}
+
+.patient-table-card .patient-actions__menu a:first-child:hover,
+.patient-table-wrap .patient-actions__menu a:first-child:hover {
+  background: #48206f;
+  color: #fff;
+}
+
+.patient-table-card .patient-actions__menu form,
+.patient-table-wrap .patient-actions__menu form {
+  display: inline-flex;
+  margin: 0;
+}
+
+@media (max-width: 1180px) {
+  .patient-table-card .patient-actions,
+  .patient-table-wrap .patient-actions {
+    min-width: 14rem;
+  }
+
+  .patient-table-card .patient-actions__menu,
+  .patient-table-wrap .patient-actions__menu {
+    flex-wrap: wrap;
+  }
+}
