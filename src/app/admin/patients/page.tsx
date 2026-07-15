@@ -12,6 +12,17 @@ import {
 import { auth } from "@/auth";
 import { PatientsSubNav } from "@/components/admin/patients/PatientsSubNav";
 import { PatientForm } from "@/components/admin/patients/PatientForm";
+import {
+  IconUsers,
+  IconUserAlert,
+  IconCalendar,
+  IconMessage,
+  IconStar,
+  IconClockAlert,
+  IconInbox,
+  IconKey,
+  IconDownload,
+} from "@/components/admin/patients/PatientModuleIcons";
 import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
 import {
   archivePatientAction,
@@ -234,37 +245,37 @@ export default async function AdminPatientsPage(props: {
 
       <section className="patient-kpi-grid" aria-label="مؤشرات إدارة المرضى">
         <article className="patient-kpi-card">
-          <span className="patient-kpi-card__icon" aria-hidden="true">P</span>
+          <span className="patient-kpi-card__icon" aria-hidden="true"><IconUsers /></span>
           <span>إجمالي المرضى</span>
           <strong>{stats.totalPatients}</strong>
           <small>ملفات نشطة وغير مؤرشفة</small>
         </article>
         <article className="patient-kpi-card">
-          <span className="patient-kpi-card__icon" aria-hidden="true">!</span>
+          <span className="patient-kpi-card__icon" aria-hidden="true"><IconUserAlert /></span>
           <span>مرضى غير مفعلين</span>
           <strong>{stats.inactivePatients}</strong>
           <small>تحتاج متابعة تفعيل</small>
         </article>
         <article className="patient-kpi-card">
-          <span className="patient-kpi-card__icon" aria-hidden="true">O</span>
+          <span className="patient-kpi-card__icon" aria-hidden="true"><IconCalendar /></span>
           <span>عمليات قادمة</span>
           <strong>{stats.upcomingProcedures}</strong>
           <small>مجدولة أو مسودة بتاريخ قادم</small>
         </article>
         <article className="patient-kpi-card">
-          <span className="patient-kpi-card__icon" aria-hidden="true">M</span>
+          <span className="patient-kpi-card__icon" aria-hidden="true"><IconMessage /></span>
           <span>رسائل غير مقروءة</span>
           <strong>{stats.unreadMessages}</strong>
           <small>من المرضى للإدارة</small>
         </article>
         <article className="patient-kpi-card">
-          <span className="patient-kpi-card__icon" aria-hidden="true">★</span>
+          <span className="patient-kpi-card__icon" aria-hidden="true"><IconStar /></span>
           <span>تقييمات جديدة</span>
           <strong>{stats.newFeedback}</strong>
           <small>بانتظار المراجعة</small>
         </article>
         <article className="patient-kpi-card">
-          <span className="patient-kpi-card__icon" aria-hidden="true">F</span>
+          <span className="patient-kpi-card__icon" aria-hidden="true"><IconClockAlert /></span>
           <span>متابعات متأخرة</span>
           <strong>{stats.overdueFollowUps}</strong>
           <small>مواعيد لم تغلق بعد</small>
@@ -273,7 +284,7 @@ export default async function AdminPatientsPage(props: {
 
       <section className="patient-ops-board" aria-label="مركز تشغيل إدارة المرضى">
         <article className="patient-ops-card patient-ops-card--primary">
-          <span className="patient-ops-card__icon" aria-hidden="true">01</span>
+          <span className="patient-ops-card__icon" aria-hidden="true"><IconInbox /></span>
           <div>
             <strong>ابدأ من الحالات التي تحتاج إجراء</strong>
             <p>
@@ -286,7 +297,7 @@ export default async function AdminPatientsPage(props: {
           </Link>
         </article>
         <article className="patient-ops-card">
-          <span className="patient-ops-card__icon" aria-hidden="true">02</span>
+          <span className="patient-ops-card__icon" aria-hidden="true"><IconKey /></span>
           <div>
             <strong>تفعيل بوابة المريض</strong>
             <p>تابع المرضى غير المفعلين وأرسل روابط الدخول بأمان من ملف المريض.</p>
@@ -303,7 +314,7 @@ export default async function AdminPatientsPage(props: {
           </Link>
         </article>
         <article className="patient-ops-card">
-          <span className="patient-ops-card__icon" aria-hidden="true">03</span>
+          <span className="patient-ops-card__icon" aria-hidden="true"><IconDownload /></span>
           <div>
             <strong>تصدير وتشغيل التقارير</strong>
             <p>صدّر نفس النتائج الحالية إلى Excel أو PDF بترويسة المركز.</p>
