@@ -287,10 +287,9 @@ export default async function AdminPatientsPage(props: {
         <article className="patient-ops-card patient-ops-card--primary">
           <span className="patient-ops-card__icon" aria-hidden="true"><IconInbox /></span>
           <div>
-            <strong>ابدأ من الحالات التي تحتاج إجراء</strong>
+            <strong>ابدأ من الملفات المهمة</strong>
             <p>
-              الرسائل غير المقروءة، الحسابات غير المفعلة، والمتابعات المتأخرة
-              تظهر أمام الفريق قبل أي تفاصيل ثانوية.
+              راجع الرسائل الجديدة والحسابات التي تحتاج تفعيل والمتابعات المتأخرة أولًا.
             </p>
           </div>
           <Link href={buildQuery(params, { unread: "1", page: "" }) as Route}>
@@ -300,8 +299,8 @@ export default async function AdminPatientsPage(props: {
         <article className="patient-ops-card">
           <span className="patient-ops-card__icon" aria-hidden="true"><IconKey /></span>
           <div>
-            <strong>تفعيل بوابة المريض</strong>
-            <p>تابع المرضى غير المفعلين وأرسل روابط الدخول بأمان من ملف المريض.</p>
+            <strong>تفعيل حسابات المرضى</strong>
+            <p>تابع الحسابات غير المفعلة وأرسل رابط دخول آمن من ملف المريض.</p>
           </div>
           <Link
             href={
@@ -317,8 +316,8 @@ export default async function AdminPatientsPage(props: {
         <article className="patient-ops-card">
           <span className="patient-ops-card__icon" aria-hidden="true"><IconDownload /></span>
           <div>
-            <strong>تصدير وتشغيل التقارير</strong>
-            <p>صدّر نفس النتائج الحالية إلى Excel أو PDF بترويسة المركز.</p>
+            <strong>تصدير التقارير</strong>
+            <p>نزّل النتائج الحالية Excel أو PDF بترويسة Rejuvera.</p>
           </div>
           {canExport ? <a href={buildExportHref(params, "pdf")}>طباعة PDF</a> : null}
         </article>
@@ -327,9 +326,9 @@ export default async function AdminPatientsPage(props: {
       <section className="admin-card patient-filter-card">
         <div className="admin-card__header">
           <div>
-            <strong className="admin-card__title">تصفية ملفات المرضى</strong>
+            <strong className="admin-card__title">بحث سريع في المرضى</strong>
             <p className="admin-text-soft" style={{ margin: "0.15rem 0 0" }}>
-              ابحث وضيّق النتائج بدون تشتيت أو روابط متكررة.
+              ابحث بالاسم أو رقم الملف، ثم أضف الفلاتر عند الحاجة.
             </p>
           </div>
         </div>
@@ -443,7 +442,7 @@ export default async function AdminPatientsPage(props: {
             <div>
               <strong className="admin-card__title">سجل المرضى</strong>
               <p className="admin-text-soft" style={{ margin: "0.15rem 0 0" }}>
-                جدول تشغيلي للملفات والعمليات والرسائل مع إجراءات منظمة.
+                كل ملف مع حالته وأزراره الأساسية في صف واحد.
               </p>
             </div>
           </div>
@@ -508,12 +507,7 @@ export default async function AdminPatientsPage(props: {
                   <td>{formatDate(patient.nextAppointment)}</td>
                       <td>{formatDate(patient.lastLoginAt)}</td>
                       <td>
-                        <details className="patient-actions">
-                          <summary className="admin-btn-secondary">
-                            <span aria-hidden="true">⋯</span>
-                            <span>الإجراءات</span>
-                          </summary>
-                          <div className="patient-actions__menu">
+                          <div className="patient-row-actions" aria-label="إجراءات المريض">
                             <Link href={`/admin/patients/${patient.id}` as Route}>
                               فتح الملف
                             </Link>
@@ -578,7 +572,6 @@ export default async function AdminPatientsPage(props: {
                               )
                             ) : null}
                           </div>
-                        </details>
                   </td>
                 </tr>
               ))}

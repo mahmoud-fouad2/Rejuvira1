@@ -56,14 +56,23 @@ function rgbOf(color: { r: number; g: number; b: number }) {
   return rgbFn(color.r, color.g, color.b);
 }
 
+function cleanPdfText(value: unknown) {
+  return String(value ?? "—")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function shapeSafe(font: PDFFont, text: string) {
-  if (!containsArabic(text)) return text;
-  const shaped = shapeArabicLine(text);
+  const clean = cleanPdfText(text);
+  if (!containsArabic(clean)) return clean;
+  const shaped = shapeArabicLine(clean);
   try {
     font.widthOfTextAtSize(shaped, 10);
     return shaped;
   } catch {
-    return text;
+    return clean;
   }
 }
 
@@ -89,9 +98,10 @@ function drawText(
 ) {
   const size = options.size ?? 10;
   const font = options.bold ? ctx.boldFont : ctx.font;
-  const shaped = shapeSafe(font, text || "—");
-  const width = textWidth(font, text || "—", size);
-  const align = options.align ?? (containsArabic(text) ? "right" : "left");
+  const clean = cleanPdfText(text || "—");
+  const shaped = shapeSafe(font, clean);
+  const width = textWidth(font, clean, size);
+  const align = options.align ?? (containsArabic(clean) ? "right" : "left");
   let drawX = x;
   if (align === "right") drawX = x - width;
   if (align === "center") drawX = x - width / 2;
@@ -110,7 +120,7 @@ function drawText(
 }
 
 function wrap(font: PDFFont, text: string, size: number, maxWidth: number) {
-  const words = String(text || "—").replace(/\r\n/g, "\n").split(/\s+/);
+  const words = cleanPdfText(text || "—").replace(/\r\n/g, "\n").split(/\s+/);
   const lines: string[] = [];
   let current = "";
   for (const word of words) {
@@ -241,7 +251,7 @@ function fieldGrid(
         color: MUTED,
         align: "right",
       });
-      drawText(ctx, String(field.value || "—").slice(0, 58), x + colW - 12, ctx.cursorY - 34, {
+      drawText(ctx, cleanPdfText(field.value || "—").slice(0, 58), x + colW - 12, ctx.cursorY - 34, {
         size: 10,
         bold: true,
         color: INK,
@@ -304,7 +314,7 @@ function table(
     x = startX;
     row.forEach((cell, index) => {
       const w = widths[index] ?? 80;
-      drawText(ctx, String(cell || "—").slice(0, 32), x + w - 8, ctx.cursorY - 19, {
+      drawText(ctx, cleanPdfText(cell || "—").slice(0, 32), x + w - 8, ctx.cursorY - 19, {
         size: 7.5,
         color: INK,
         align: "right",
@@ -389,7 +399,7 @@ export async function buildPatientProfilePdf(options: {
   });
   if (!patient) return null;
 
-  const [{ PDFDocument, StandardFonts, rgb }, fontkitModule, runtime] =
+  const [{ PDFDocument, rgb }, fontkitModule, runtime] =
     await Promise.all([
       import("pdf-lib"),
       import("@pdf-lib/fontkit"),
@@ -403,14 +413,8 @@ export async function buildPatientProfilePdf(options: {
   const [regularBytes] = await Promise.all([
     readFile(path.join(fontDir, "IBMPlexSansArabic-Regular.ttf")),
   ]);
-  const font = await pdfDoc.embedFont(regularBytes, { subset: true });
-  let boldFont: PDFFont;
-  try {
-    const boldBytes = await readFile(path.join(fontDir, "IBMPlexSansArabic-Bold.woff2"));
-    boldFont = await pdfDoc.embedFont(boldBytes, { subset: true });
-  } catch {
-    boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  }
+  const font = await pdfDoc.embedFont(regularBytes, { subset: false });
+  const boldFont: PDFFont = font;
 
   let logo: PDFImage | null = null;
   try {

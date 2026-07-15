@@ -24,11 +24,20 @@ export async function GET(
   }
 
   const { id } = await context.params;
-  const result = await buildPatientProfilePdf({
-    patientId: id,
-    role,
-    generatedByName: session.user?.name ?? "فريق Rejuvera",
-  });
+  let result: Awaited<ReturnType<typeof buildPatientProfilePdf>>;
+  try {
+    result = await buildPatientProfilePdf({
+      patientId: id,
+      role,
+      generatedByName: session.user?.name ?? "فريق Rejuvera",
+    });
+  } catch (error) {
+    console.error("Failed to generate patient profile PDF", { patientId: id, error });
+    return NextResponse.json(
+      { message: "تعذر إنشاء ملف PDF الآن. الرجاء المحاولة مرة أخرى." },
+      { status: 500 },
+    );
+  }
 
   if (!result) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
