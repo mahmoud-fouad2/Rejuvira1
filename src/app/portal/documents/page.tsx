@@ -1,5 +1,13 @@
+import Link from "next/link";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 
+import { IconDocumentText } from "@/components/portal/PortalIcons";
+import {
+  DocumentCard,
+  PortalEmptyState,
+  PortalPageHeader,
+} from "@/components/portal/PortalUi";
 import { formatDate } from "@/lib/portal/labels";
 import { getPatientSession } from "@/lib/portal/patient-auth";
 import { prisma } from "@/lib/prisma";
@@ -21,55 +29,60 @@ export default async function PortalDocumentsPage() {
   });
 
   return (
-    <div className="grid gap-6">
-      <section>
-        <h1 className="text-2xl font-bold">
-          <span className="lang-ar">مستنداتي</span>
-          <span className="lang-en">My documents</span>
-        </h1>
-        <p className="mt-1 text-sm opacity-75">
-          <span className="lang-ar">
-            المستندات التي شاركها معك المركز بشكل آمن.
-          </span>
-          <span className="lang-en">
-            Documents the clinic has securely shared with you.
-          </span>
-        </p>
-      </section>
+    <div className="portal-page">
+      <PortalPageHeader
+        eyebrow="Documents"
+        title={
+          <>
+            <span className="lang-ar">مستنداتي</span>
+            <span className="lang-en">My documents</span>
+          </>
+        }
+        description={
+          <>
+            <span className="lang-ar">
+              ملفاتك الطبية والإدارية التي شاركها المركز معك بشكل آمن.
+            </span>
+            <span className="lang-en">
+              Secure medical and administrative files shared by the clinic.
+            </span>
+          </>
+        }
+      />
 
       {documents.length === 0 ? (
-        <section className="border-border rounded-3xl border border-dashed p-8 text-center text-sm opacity-70">
-          <span className="lang-ar">لا توجد مستندات متاحة لك حاليًا.</span>
-          <span className="lang-en">No documents available yet.</span>
-        </section>
+        <PortalEmptyState
+          icon={<IconDocumentText />}
+          title="لا توجد مستندات متاحة حاليًا"
+          description="عند مشاركة ملف من المركز سيظهر هنا مع تاريخ الإضافة وخيارات العرض والتنزيل."
+          action={
+            <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--primary">
+              اسأل الفريق عن مستند
+            </Link>
+          }
+        />
       ) : (
-        <section className="grid gap-3">
-          {documents.map((document) => (
-            <article
-              key={document.id}
-              className="border-border flex flex-wrap items-center justify-between gap-3 rounded-3xl border p-4"
-            >
-              <div>
-                <p className="font-semibold">{document.title}</p>
-                <p className="text-xs opacity-70">
-                  {document.documentType} · {formatDate(document.createdAt)}
-                  {document.expiresAt
-                    ? ` · متاح حتى ${formatDate(document.expiresAt)}`
-                    : ""}
-                </p>
-              </div>
-              <a
+        <>
+          <div className="portal-results-row">
+            <span>{documents.length} مستند متاح</span>
+            <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--secondary">
+              طلب مستند
+            </Link>
+          </div>
+          <section className="portal-documents-grid" aria-label="قائمة المستندات">
+            {documents.map((document) => (
+              <DocumentCard
+                key={document.id}
+                title={document.title}
+                type={document.documentType}
+                date={formatDate(document.createdAt)}
+                source={document.uploadedByName}
+                expiresAt={document.expiresAt ? formatDate(document.expiresAt) : null}
                 href={`/api/portal/documents/${document.id}`}
-                target="_blank"
-                rel="noreferrer"
-                className="border-border rounded-full border px-5 py-2 text-sm font-semibold"
-              >
-                <span className="lang-ar">عرض / تنزيل</span>
-                <span className="lang-en">View / download</span>
-              </a>
-            </article>
-          ))}
-        </section>
+              />
+            ))}
+          </section>
+        </>
       )}
     </div>
   );

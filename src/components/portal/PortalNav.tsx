@@ -6,20 +6,11 @@ import { usePathname } from "next/navigation";
 
 type NavItem = { href: string; label: string; labelEn: string };
 
-/**
- * The portal's primary nav previously rendered every pill with the same
- * static classes — a patient had no way to tell which section they were on.
- * usePathname() requires a client component; the parent layout stays a
- * server component and just mounts this.
- */
 export function PortalNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav
-      aria-label="تنقل البوابة"
-      className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2"
-    >
+    <nav aria-label="تنقل بوابة المرضى" className="portal-nav">
       {items.map((item) => {
         const isActive =
           item.href === "/portal"
@@ -30,11 +21,7 @@ export function PortalNav({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href as Route}
             aria-current={isActive ? "page" : undefined}
-            className={
-              isActive
-                ? "bg-ink text-canvas rounded-full border border-transparent px-4 py-1.5 text-sm font-semibold whitespace-nowrap shadow-sm"
-                : "border-border rounded-full border px-4 py-1.5 text-sm whitespace-nowrap transition-opacity hover:opacity-80"
-            }
+            className={isActive ? "portal-nav__link is-active" : "portal-nav__link"}
           >
             <span className="lang-ar">{item.label}</span>
             <span className="lang-en">{item.labelEn}</span>

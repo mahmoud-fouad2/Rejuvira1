@@ -3,14 +3,18 @@ import type { Route } from "next";
 import { AppointmentStatus } from "@prisma/client";
 
 import { auth } from "@/auth";
+import {
+  DataTable,
+  EmptyState,
+  FilterBar,
+  PageHeader,
+} from "@/components/admin/patients/PatientDesignSystem";
+import { IconClockAlert } from "@/components/admin/patients/PatientModuleIcons";
 import { PatientsSubNav } from "@/components/admin/patients/PatientsSubNav";
 import { updateAppointmentStatusAction } from "../actions";
-import {
-  appointmentStatusLabels,
-  formatDate,
-} from "@/lib/portal/labels";
-import { listAppointments } from "@/lib/portal/repository";
+import { appointmentStatusLabels, formatDate } from "@/lib/portal/labels";
 import { displayPhone, hasPortalCapability } from "@/lib/portal/permissions";
+import { listAppointments } from "@/lib/portal/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -38,27 +42,29 @@ export default async function FollowUpsPage(props: {
   });
   const now = new Date().getTime();
 
+  const query = (overrides: Record<string, string>) => {
+    const search = new URLSearchParams();
+    if (status) search.set("status", status);
+    if (overdue) search.set("overdue", "1");
+    for (const [key, value] of Object.entries(overrides)) {
+      if (value) search.set(key, value);
+      else search.delete(key);
+    }
+    const qs = search.toString();
+    return `/admin/patients/follow-ups${qs ? `?${qs}` : ""}`;
+  };
+
   return (
-    <>
-      <div className="admin-page-header">
-        <div>
-          <h1>المتابعات</h1>
-          <p>{result.total} موعد متابعة.</p>
-        </div>
-      </div>
+    <div className="patient-module-page patient-module-page--refined">
+      <PageHeader
+        eyebrow="Follow-ups"
+        title="المتابعات"
+        description={`${result.total} موعد متابعة. راقب المتأخر، المؤكد، والمكتمل من مساحة واحدة.`}
+      />
       <PatientsSubNav active="follow-ups" role={role} />
 
-      <section className="admin-panel" style={{ marginBlock: "1rem" }}>
-        <form
-          method="get"
-          style={{
-            display: "flex",
-            gap: "0.75rem",
-            flexWrap: "wrap",
-            alignItems: "end",
-            padding: "0.9rem",
-          }}
-        >
+      <FilterBar title="تصفية المتابعات" description="فلترة مختصرة تساعد الموظف على البدء بما يحتاج متابعة فعلية.">
+        <form method="get" className="patient-filter-grid patient-filter-grid--compact">
           <label>
             <span className="admin-field-label">الحالة</span>
             <select name="status" defaultValue={status} className="admin-input">
@@ -70,23 +76,39 @@ export default async function FollowUpsPage(props: {
               ))}
             </select>
           </label>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <label className="patient-check-control">
             <input type="checkbox" name="overdue" value="1" defaultChecked={overdue} />
             <span>المتأخرة فقط</span>
           </label>
-          <button type="submit" className="admin-btn-secondary">
-            تصفية
-          </button>
+          <div className="patient-filter-actions">
+            <button type="submit" className="admin-btn-secondary">
+              تصفية
+            </button>
+            <Link href={"/admin/patients/follow-ups" as Route} className="admin-btn-ghost">
+              إعادة تعيين
+            </Link>
+          </div>
         </form>
-      </section>
+      </FilterBar>
 
       {result.items.length === 0 ? (
-        <div className="admin-empty-state">
-          <p>لا توجد مواعيد متابعة مطابقة.</p>
-        </div>
+        <EmptyState
+          icon={<IconClockAlert />}
+          title="لا توجد مواعيد متابعة مطابقة"
+          description="عند جدولة متابعة من ملف العملية ستظهر هنا مع الحالة وأزرار التحديث المناسبة."
+          action={
+            <Link href={"/admin/patients" as Route} className="admin-btn-primary">
+              فتح سجل المرضى
+            </Link>
+          }
+        />
       ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-users-table" style={{ width: "100%" }}>
+        <DataTable
+          title="سجل المتابعات"
+          description="مواعيد المتابعة مع المريض والطبيب والحالة الحالية."
+          footer={<ResultsFooter page={result.page} pageCount={result.pageCount} total={result.total} query={query} />}
+        >
+          <table className="admin-users-table patient-table" style={{ width: "100%" }}>
             <thead>
               <tr>
                 <th>التاريخ</th>
@@ -108,14 +130,9 @@ export default async function FollowUpsPage(props: {
                   <tr key={appointment.id} className="admin-row-hover">
                     <td>
                       {formatDate(appointment.appointmentDate)}
-                      {appointment.appointmentTime
-                        ? ` · ${appointment.appointmentTime}`
-                        : ""}
+                      {appointment.appointmentTime ? ` · ${appointment.appointmentTime}` : ""}
                       {isOverdue ? (
-                        <span
-                          className="admin-status-badge is-danger"
-                          style={{ marginInlineStart: "0.4rem" }}
-                        >
+                        <span className="admin-status-badge is-danger" style={{ marginInlineStart: "0.4rem" }}>
                           متأخر
                         </span>
                       ) : null}
@@ -125,41 +142,29 @@ export default async function FollowUpsPage(props: {
                         {appointment.patient.fullNameAr}
                       </Link>
                     </td>
-                    <td dir="ltr">
-                      {displayPhone(appointment.patient.phone, role)}
-                    </td>
+                    <td dir="ltr">{displayPhone(appointment.patient.phone, role)}</td>
                     <td>
-                      <Link
-                        href={
-                          `/admin/patients/procedures/${appointment.procedure.id}` as Route
-                        }
-                      >
+                      <Link href={`/admin/patients/procedures/${appointment.procedure.id}` as Route}>
                         {appointment.procedure.customProcedureName ||
                           appointment.procedure.template?.nameAr ||
-                          "إجراء"}
+                          "إجراء طبي"}
                       </Link>
                     </td>
                     <td>{appointment.doctor?.nameAr ?? "—"}</td>
-                    <td>{appointmentStatusLabels[appointment.status]}</td>
+                    <td>
+                      <span className="admin-status-badge">
+                        {appointmentStatusLabels[appointment.status]}
+                      </span>
+                    </td>
                     {canManage ? (
                       <td>
-                        <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
-                          {(
-                            ["CONFIRMED", "COMPLETED", "MISSED", "CANCELLED"] as const
-                          )
+                        <div className="patient-inline-actions">
+                          {(["CONFIRMED", "COMPLETED", "MISSED", "CANCELLED"] as const)
                             .filter((value) => value !== appointment.status)
                             .map((value) => (
                               <form key={value} action={updateAppointmentStatusAction}>
-                                <input
-                                  type="hidden"
-                                  name="appointmentId"
-                                  value={appointment.id}
-                                />
-                                <input
-                                  type="hidden"
-                                  name="patientId"
-                                  value={appointment.patient.id}
-                                />
+                                <input type="hidden" name="appointmentId" value={appointment.id} />
+                                <input type="hidden" name="patientId" value={appointment.patient.id} />
                                 <input type="hidden" name="status" value={value} />
                                 <button type="submit" className="admin-btn-ghost">
                                   {appointmentStatusLabels[value]}
@@ -174,39 +179,41 @@ export default async function FollowUpsPage(props: {
               })}
             </tbody>
           </table>
-        </div>
+        </DataTable>
       )}
+    </div>
+  );
+}
 
-      {result.pageCount > 1 ? (
-        <nav
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            justifyContent: "center",
-            marginBlock: "1rem",
-          }}
-        >
-          {result.page > 1 ? (
-            <Link
-              href={`/admin/patients/follow-ups?page=${result.page - 1}${status ? `&status=${status}` : ""}${overdue ? "&overdue=1" : ""}` as Route}
-              className="admin-btn-secondary"
-            >
-              السابق
-            </Link>
-          ) : null}
-          <span style={{ alignSelf: "center" }}>
-            صفحة {result.page} من {result.pageCount}
-          </span>
-          {result.page < result.pageCount ? (
-            <Link
-              href={`/admin/patients/follow-ups?page=${result.page + 1}${status ? `&status=${status}` : ""}${overdue ? "&overdue=1" : ""}` as Route}
-              className="admin-btn-secondary"
-            >
-              التالي
-            </Link>
-          ) : null}
-        </nav>
-      ) : null}
-    </>
+function ResultsFooter({
+  page,
+  pageCount,
+  total,
+  query,
+}: {
+  page: number;
+  pageCount: number;
+  total: number;
+  query: (overrides: Record<string, string>) => string;
+}) {
+  return (
+    <nav className="patient-results-footer" aria-label="التنقل بين صفحات المتابعات">
+      <span>{total} نتيجة</span>
+      <div>
+        {page > 1 ? (
+          <Link href={query({ page: String(page - 1) }) as Route} className="admin-btn-secondary">
+            السابق
+          </Link>
+        ) : null}
+        <span>
+          صفحة {page} من {Math.max(pageCount, 1)}
+        </span>
+        {page < pageCount ? (
+          <Link href={query({ page: String(page + 1) }) as Route} className="admin-btn-secondary">
+            التالي
+          </Link>
+        ) : null}
+      </div>
+    </nav>
   );
 }

@@ -3,14 +3,21 @@ import type { Route } from "next";
 import { ProcedureStatus } from "@prisma/client";
 
 import { auth } from "@/auth";
+import {
+  DataTable,
+  EmptyState,
+  FilterBar,
+  PageHeader,
+} from "@/components/admin/patients/PatientDesignSystem";
+import { IconCalendar } from "@/components/admin/patients/PatientModuleIcons";
 import { PatientsSubNav } from "@/components/admin/patients/PatientsSubNav";
 import {
   formatDate,
   procedureStatusLabels,
   procedureStatusTone,
 } from "@/lib/portal/labels";
-import { listProcedures } from "@/lib/portal/repository";
 import { displayPhone } from "@/lib/portal/permissions";
+import { listProcedures } from "@/lib/portal/repository";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -55,32 +62,26 @@ export default async function ProceduresListPage(props: {
     if (to) search.set("to", to);
     for (const [key, value] of Object.entries(overrides)) {
       if (value) search.set(key, value);
+      else search.delete(key);
     }
     const qs = search.toString();
     return `/admin/patients/procedures${qs ? `?${qs}` : ""}`;
   };
 
   return (
-    <>
-      <div className="admin-page-header">
-        <div>
-          <h1>العمليات</h1>
-          <p>{result.total} عملية مسجلة عبر جميع المرضى.</p>
-        </div>
-      </div>
+    <div className="patient-module-page patient-module-page--refined">
+      <PageHeader
+        eyebrow="Patient Operations"
+        title="العمليات"
+        description={`${result.total} عملية مسجلة عبر جميع المرضى. راجع الحالة، الطبيب، والتاريخ من جدول واحد واضح.`}
+      />
       <PatientsSubNav active="procedures" role={role} />
 
-      <section className="admin-panel" style={{ marginBlock: "1rem" }}>
-        <form
-          method="get"
-          style={{
-            display: "grid",
-            gap: "0.75rem",
-            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-            alignItems: "end",
-            padding: "0.9rem",
-          }}
-        >
+      <FilterBar
+        title="تصفية العمليات"
+        description="استخدم الفلاتر للوصول للعملية المطلوبة بدون تمدد أو فراغات غير مفيدة."
+      >
+        <form method="get" className="patient-filter-grid patient-filter-grid--compact">
           <label>
             <span className="admin-field-label">الحالة</span>
             <select name="status" defaultValue={status} className="admin-input">
@@ -111,21 +112,35 @@ export default async function ProceduresListPage(props: {
             <span className="admin-field-label">إلى تاريخ</span>
             <input type="date" name="to" defaultValue={to} className="admin-input" />
           </label>
-          <div>
+          <div className="patient-filter-actions">
             <button type="submit" className="admin-btn-secondary">
               تصفية
             </button>
+            <Link href={"/admin/patients/procedures" as Route} className="admin-btn-ghost">
+              إعادة تعيين
+            </Link>
           </div>
         </form>
-      </section>
+      </FilterBar>
 
       {result.items.length === 0 ? (
-        <div className="admin-empty-state">
-          <p>لا توجد عمليات مطابقة. تُضاف العمليات من ملف المريض.</p>
-        </div>
+        <EmptyState
+          icon={<IconCalendar />}
+          title="لا توجد عمليات مطابقة"
+          description="تُضاف العمليات من ملف المريض، وبعد الإضافة ستظهر هنا بتفاصيل الطبيب والحالة والتاريخ."
+          action={
+            <Link href={"/admin/patients" as Route} className="admin-btn-primary">
+              فتح سجل المرضى
+            </Link>
+          }
+        />
       ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-users-table" style={{ width: "100%" }}>
+        <DataTable
+          title="سجل العمليات"
+          description="جدول تشغيلي مرتب للعمليات المنشورة أو المجدولة أو قيد الإعداد."
+          footer={<ResultsFooter page={result.page} pageCount={result.pageCount} total={result.total} query={query} />}
+        >
+          <table className="admin-users-table patient-table" style={{ width: "100%" }}>
             <thead>
               <tr>
                 <th>العملية</th>
@@ -141,9 +156,11 @@ export default async function ProceduresListPage(props: {
               {result.items.map((procedure) => (
                 <tr key={procedure.id} className="admin-row-hover">
                   <td>
-                    {procedure.customProcedureName ||
-                      procedure.template?.nameAr ||
-                      "إجراء غير مسمى"}
+                    <strong>
+                      {procedure.customProcedureName ||
+                        procedure.template?.nameAr ||
+                        "إجراء غير مسمى"}
+                    </strong>
                   </td>
                   <td>
                     <Link href={`/admin/patients/${procedure.patient.id}` as Route}>
@@ -157,9 +174,7 @@ export default async function ProceduresListPage(props: {
                   <td>{procedure.doctor?.nameAr || procedure.surgeonName || "—"}</td>
                   <td>{formatDate(procedure.procedureDate)}</td>
                   <td>
-                    <span
-                      className={`admin-status-badge ${procedureStatusTone[procedure.status]}`}
-                    >
+                    <span className={`admin-status-badge ${procedureStatusTone[procedure.status]}`}>
                       {procedureStatusLabels[procedure.status]}
                     </span>
                   </td>
@@ -175,40 +190,41 @@ export default async function ProceduresListPage(props: {
               ))}
             </tbody>
           </table>
-        </div>
+        </DataTable>
       )}
+    </div>
+  );
+}
 
-      {result.pageCount > 1 ? (
-        <nav
-          className="admin-pagination"
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            justifyContent: "center",
-            marginBlock: "1rem",
-          }}
-        >
-          {result.page > 1 ? (
-            <Link
-              href={query({ page: String(result.page - 1) }) as Route}
-              className="admin-btn-secondary"
-            >
-              السابق
-            </Link>
-          ) : null}
-          <span style={{ alignSelf: "center" }}>
-            صفحة {result.page} من {result.pageCount}
-          </span>
-          {result.page < result.pageCount ? (
-            <Link
-              href={query({ page: String(result.page + 1) }) as Route}
-              className="admin-btn-secondary"
-            >
-              التالي
-            </Link>
-          ) : null}
-        </nav>
-      ) : null}
-    </>
+function ResultsFooter({
+  page,
+  pageCount,
+  total,
+  query,
+}: {
+  page: number;
+  pageCount: number;
+  total: number;
+  query: (overrides: Record<string, string>) => string;
+}) {
+  return (
+    <nav className="patient-results-footer" aria-label="التنقل بين صفحات العمليات">
+      <span>{total} نتيجة</span>
+      <div>
+        {page > 1 ? (
+          <Link href={query({ page: String(page - 1) }) as Route} className="admin-btn-secondary">
+            السابق
+          </Link>
+        ) : null}
+        <span>
+          صفحة {page} من {Math.max(pageCount, 1)}
+        </span>
+        {page < pageCount ? (
+          <Link href={query({ page: String(page + 1) }) as Route} className="admin-btn-secondary">
+            التالي
+          </Link>
+        ) : null}
+      </div>
+    </nav>
   );
 }

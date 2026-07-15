@@ -21,14 +21,14 @@ export function MessageReplyForm({
 
   if (state.status === "success") {
     return (
-      <p className="admin-status-badge is-success" style={{ whiteSpace: "normal" }}>
+      <p className="admin-status-badge is-success patient-message-status">
         {state.message}
       </p>
     );
   }
 
   return (
-    <form action={formAction} style={{ display: "grid", gap: "0.5rem" }}>
+    <form action={formAction} className="patient-admin-reply-form">
       <input type="hidden" name="messageId" value={messageId} />
       <input type="hidden" name="patientId" value={patientId} />
       <textarea
@@ -41,7 +41,7 @@ export function MessageReplyForm({
         placeholder="اكتب رد الفريق للمريض..."
       />
       {state.status === "error" ? (
-        <p className="admin-status-badge is-danger" style={{ whiteSpace: "normal" }}>
+        <p className="admin-status-badge is-danger patient-message-status">
           {state.message}
         </p>
       ) : null}

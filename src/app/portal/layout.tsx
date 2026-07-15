@@ -25,43 +25,40 @@ export default async function PortalLayout({
   if (!session) redirect("/patient-login");
 
   return (
-    <div className="bg-canvas text-ink min-h-screen">
-      <header className="border-border bg-canvas/95 sticky top-0 z-40 border-b backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <Link href="/portal" aria-label="Rejuvera Patient Portal" className="flex items-center gap-2">
-            <BrandLogo alt="Rejuvera" width={96} height={72} variant="header" sizes="44px" />
-            <span className="hidden text-sm font-semibold sm:inline">
+    <div className="portal-shell">
+      <header className="portal-topbar">
+        <div className="portal-topbar__inner">
+          <Link href="/portal" aria-label="Rejuvera Patient Portal" className="portal-brand">
+            <BrandLogo alt="Rejuvera" width={92} height={66} variant="header" sizes="44px" />
+            <span>
               <span className="lang-ar">بوابة المرضى</span>
               <span className="lang-en">Patient Portal</span>
             </span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="portal-topbar__tools">
             <LanguageToggle />
             <form action={logoutAction}>
-              <button
-                type="submit"
-                className="border-border rounded-full border px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-80"
-              >
+              <button type="submit" className="portal-btn portal-btn--secondary">
                 <span className="lang-ar">خروج</span>
                 <span className="lang-en">Sign out</span>
               </button>
             </form>
           </div>
         </div>
-        <PortalNav items={NAV_ITEMS} />
+        <div className="portal-topbar__inner portal-topbar__navrow">
+          <PortalNav items={NAV_ITEMS} />
+        </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
-      <footer className="border-border mx-auto max-w-6xl border-t px-4 py-6 text-center text-xs opacity-70">
+      <main className="portal-main">{children}</main>
+      <footer className="portal-footer">
         <p>
           <span className="lang-ar">
-            هذه البوابة خاصة بمرضى مركز ريجوفيرا. المعلومات المعروضة إرشادية ولا
-            تغني عن استشارة طبيبك.
+            هذه البوابة خاصة بمرضى مركز ريجوفيرا. المعلومات المعروضة إرشادية ولا تغني عن استشارة طبيبك.
           </span>
           <span className="lang-en">
-            This portal is for Rejuvera Center patients. The information shown
-            is guidance and does not replace consulting your doctor.
+            This portal is for Rejuvera Center patients. The information shown is guidance and does not replace consulting your doctor.
           </span>{" "}
-          <Link href={"/patient-login/privacy" as Route} className="underline">
+          <Link href={"/patient-login/privacy" as Route}>
             <span className="lang-ar">سياسة الخصوصية</span>
             <span className="lang-en">Privacy policy</span>
           </Link>

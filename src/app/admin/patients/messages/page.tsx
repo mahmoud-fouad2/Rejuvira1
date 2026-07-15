@@ -4,6 +4,12 @@ import { MessageStatus } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { MessageReplyForm } from "@/components/admin/patients/MessageReplyForm";
+import {
+  EmptyState,
+  FilterBar,
+  PageHeader,
+} from "@/components/admin/patients/PatientDesignSystem";
+import { IconMessage } from "@/components/admin/patients/PatientModuleIcons";
 import { PatientsSubNav } from "@/components/admin/patients/PatientsSubNav";
 import { setMessageStatusAction } from "../actions";
 import {
@@ -11,8 +17,8 @@ import {
   messageCategoryLabel,
   messageStatusLabels,
 } from "@/lib/portal/labels";
-import { listMessages } from "@/lib/portal/repository";
 import { hasPortalCapability } from "@/lib/portal/permissions";
+import { listMessages } from "@/lib/portal/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -39,27 +45,29 @@ export default async function PatientMessagesPage(props: {
     urgentOnly: urgent,
   });
 
+  const query = (overrides: Record<string, string>) => {
+    const search = new URLSearchParams();
+    if (status) search.set("status", status);
+    if (urgent) search.set("urgent", "1");
+    for (const [key, value] of Object.entries(overrides)) {
+      if (value) search.set(key, value);
+      else search.delete(key);
+    }
+    const qs = search.toString();
+    return `/admin/patients/messages${qs ? `?${qs}` : ""}`;
+  };
+
   return (
-    <>
-      <div className="admin-page-header">
-        <div>
-          <h1>الرسائل والاستفسارات</h1>
-          <p>{result.total} رسالة من المرضى.</p>
-        </div>
-      </div>
+    <div className="patient-module-page patient-module-page--refined">
+      <PageHeader
+        eyebrow="Messages"
+        title="الرسائل والاستفسارات"
+        description={`${result.total} رسالة من المرضى. الردود والإغلاق وتحديد المقروء كلها في واجهة محادثة مرتبة.`}
+      />
       <PatientsSubNav active="messages" role={role} />
 
-      <section className="admin-panel" style={{ marginBlock: "1rem" }}>
-        <form
-          method="get"
-          style={{
-            display: "flex",
-            gap: "0.75rem",
-            flexWrap: "wrap",
-            alignItems: "end",
-            padding: "0.9rem",
-          }}
-        >
+      <FilterBar title="تصفية الرسائل" description="ابدأ بالرسائل العاجلة أو غير المقروءة ثم أغلق الطلب بعد الرد.">
+        <form method="get" className="patient-filter-grid patient-filter-grid--compact">
           <label>
             <span className="admin-field-label">الحالة</span>
             <select name="status" defaultValue={status} className="admin-input">
@@ -71,130 +79,120 @@ export default async function PatientMessagesPage(props: {
               ))}
             </select>
           </label>
-          <label style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <label className="patient-check-control">
             <input type="checkbox" name="urgent" value="1" defaultChecked={urgent} />
             <span>العاجلة فقط</span>
           </label>
-          <button type="submit" className="admin-btn-secondary">
-            تصفية
-          </button>
+          <div className="patient-filter-actions">
+            <button type="submit" className="admin-btn-secondary">
+              تصفية
+            </button>
+            <Link href={"/admin/patients/messages" as Route} className="admin-btn-ghost">
+              إعادة تعيين
+            </Link>
+          </div>
         </form>
-      </section>
+      </FilterBar>
 
       {result.items.length === 0 ? (
-        <div className="admin-empty-state">
-          <p>لا توجد رسائل مطابقة.</p>
-        </div>
+        <EmptyState
+          icon={<IconMessage />}
+          title="لا توجد رسائل مطابقة"
+          description="عند وصول رسالة من بوابة المريض ستظهر هنا مع حالة القراءة وأدوات الرد."
+          action={
+            <Link href={"/admin/patients" as Route} className="admin-btn-primary">
+              فتح سجل المرضى
+            </Link>
+          }
+        />
       ) : (
-        <div style={{ display: "grid", gap: "0.75rem" }}>
+        <section className="patient-admin-message-list">
           {result.items.map((message) => (
-            <article key={message.id} className="admin-card" style={{ padding: "1rem" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: "0.75rem",
-                  flexWrap: "wrap",
-                }}
-              >
+            <article key={message.id} className="admin-card patient-admin-message-card">
+              <header className="patient-admin-message-card__header">
                 <div>
-                  <Link
-                    href={`/admin/patients/${message.patient.id}?tab=messages` as Route}
-                    style={{ fontWeight: 600 }}
-                  >
+                  <Link href={`/admin/patients/${message.patient.id}?tab=messages` as Route}>
                     {message.patient.fullNameAr}
-                  </Link>{" "}
-                  <span className="admin-text-faint">
-                    · ملف {message.patient.fileNumber} ·{" "}
-                    {messageCategoryLabel(message.category)}
+                  </Link>
+                  <p>
+                    ملف {message.patient.fileNumber} · {messageCategoryLabel(message.category)}
                     {message.procedure
                       ? ` · ${message.procedure.customProcedureName || message.procedure.template?.nameAr || "عملية"}`
                       : ""}
-                  </span>
-                  {message.isUrgent ? (
-                    <span
-                      className="admin-status-badge is-danger"
-                      style={{ marginInlineStart: "0.4rem" }}
-                    >
-                      عاجلة
-                    </span>
+                  </p>
+                </div>
+                <div className="patient-admin-message-card__meta">
+                  {message.isUrgent ? <span className="admin-status-badge is-danger">عاجلة</span> : null}
+                  <span className="admin-status-badge">{messageStatusLabels[message.status]}</span>
+                  <time dateTime={message.createdAt.toISOString()}>{formatDateTime(message.createdAt)}</time>
+                </div>
+              </header>
+
+              <p className="patient-admin-message-card__body">{message.message}</p>
+
+              <div className="patient-admin-message-card__actions">
+                {canReply && message.status !== "CLOSED" ? (
+                  <MessageReplyForm messageId={message.id} patientId={message.patient.id} />
+                ) : null}
+                <div className="patient-inline-actions">
+                  {message.status !== "CLOSED" ? (
+                    <form action={setMessageStatusAction}>
+                      <input type="hidden" name="messageId" value={message.id} />
+                      <input type="hidden" name="status" value="CLOSED" />
+                      <button type="submit" className="admin-btn-ghost">
+                        إغلاق
+                      </button>
+                    </form>
+                  ) : null}
+                  {message.status === "UNREAD" ? (
+                    <form action={setMessageStatusAction}>
+                      <input type="hidden" name="messageId" value={message.id} />
+                      <input type="hidden" name="status" value="READ" />
+                      <button type="submit" className="admin-btn-ghost">
+                        تحديد كمقروءة
+                      </button>
+                    </form>
                   ) : null}
                 </div>
-                <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
-                  <span className="admin-status-badge">
-                    {messageStatusLabels[message.status]}
-                  </span>
-                  <span className="admin-text-faint" style={{ fontSize: "0.8em" }}>
-                    {formatDateTime(message.createdAt)}
-                  </span>
-                </div>
-              </div>
-              <p style={{ margin: "0.6rem 0", whiteSpace: "pre-wrap" }}>
-                {message.message}
-              </p>
-              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "flex-start" }}>
-                {canReply && message.status !== "CLOSED" ? (
-                  <div style={{ flex: 1, minWidth: "260px" }}>
-                    <MessageReplyForm
-                      messageId={message.id}
-                      patientId={message.patient.id}
-                    />
-                  </div>
-                ) : null}
-                {message.status !== "CLOSED" ? (
-                  <form action={setMessageStatusAction}>
-                    <input type="hidden" name="messageId" value={message.id} />
-                    <input type="hidden" name="status" value="CLOSED" />
-                    <button type="submit" className="admin-btn-ghost">
-                      إغلاق
-                    </button>
-                  </form>
-                ) : null}
-                {message.status === "UNREAD" ? (
-                  <form action={setMessageStatusAction}>
-                    <input type="hidden" name="messageId" value={message.id} />
-                    <input type="hidden" name="status" value="READ" />
-                    <button type="submit" className="admin-btn-ghost">
-                      تحديد كمقروءة
-                    </button>
-                  </form>
-                ) : null}
               </div>
             </article>
           ))}
-        </div>
+          <ResultsFooter page={result.page} pageCount={result.pageCount} total={result.total} query={query} />
+        </section>
       )}
+    </div>
+  );
+}
 
-      {result.pageCount > 1 ? (
-        <nav
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            justifyContent: "center",
-            marginBlock: "1rem",
-          }}
-        >
-          {result.page > 1 ? (
-            <Link
-              href={`/admin/patients/messages?page=${result.page - 1}` as Route}
-              className="admin-btn-secondary"
-            >
-              السابق
-            </Link>
-          ) : null}
-          <span style={{ alignSelf: "center" }}>
-            صفحة {result.page} من {result.pageCount}
-          </span>
-          {result.page < result.pageCount ? (
-            <Link
-              href={`/admin/patients/messages?page=${result.page + 1}` as Route}
-              className="admin-btn-secondary"
-            >
-              التالي
-            </Link>
-          ) : null}
-        </nav>
-      ) : null}
-    </>
+function ResultsFooter({
+  page,
+  pageCount,
+  total,
+  query,
+}: {
+  page: number;
+  pageCount: number;
+  total: number;
+  query: (overrides: Record<string, string>) => string;
+}) {
+  return (
+    <nav className="patient-results-footer" aria-label="التنقل بين صفحات الرسائل">
+      <span>{total} نتيجة</span>
+      <div>
+        {page > 1 ? (
+          <Link href={query({ page: String(page - 1) }) as Route} className="admin-btn-secondary">
+            السابق
+          </Link>
+        ) : null}
+        <span>
+          صفحة {page} من {Math.max(pageCount, 1)}
+        </span>
+        {page < pageCount ? (
+          <Link href={query({ page: String(page + 1) }) as Route} className="admin-btn-secondary">
+            التالي
+          </Link>
+        ) : null}
+      </div>
+    </nav>
   );
 }

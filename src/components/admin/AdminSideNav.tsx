@@ -579,7 +579,7 @@ export function AdminSideNav({
     }
 
     return next;
-  }, [items]);
+  }, [items, role]);
 
   /* Auto-determine which groups contain the active path */
   function groupContainsActive(key: LogicalAdminGroupKey) {

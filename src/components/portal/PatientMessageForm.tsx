@@ -21,13 +21,10 @@ export function PatientMessageForm({
   );
 
   return (
-    <form action={formAction} className="grid gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-1">
-          <span className="text-sm font-semibold">
-            <span className="lang-ar">نوع الرسالة</span>
-            <span className="lang-en">Message type</span>
-          </span>
+    <form action={formAction} className="portal-message-form">
+      <div className="portal-message-form__meta">
+        <label>
+          <span>نوع الرسالة</span>
           <select name="category" className="field-public" defaultValue="general">
             {messageCategories.map((category) => (
               <option key={category.value} value={category.value}>
@@ -37,13 +34,10 @@ export function PatientMessageForm({
           </select>
         </label>
         {procedures.length > 0 ? (
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold">
-              <span className="lang-ar">مرتبطة بعملية (اختياري)</span>
-              <span className="lang-en">Related procedure (optional)</span>
-            </span>
+          <label>
+            <span>مرتبطة بعملية</span>
             <select name="procedureId" className="field-public" defaultValue="">
-              <option value="">عام — غير مرتبطة بعملية</option>
+              <option value="">عام - غير مرتبطة بعملية</option>
               {procedures.map((procedure) => (
                 <option key={procedure.id} value={procedure.id}>
                   {procedure.label}
@@ -54,14 +48,11 @@ export function PatientMessageForm({
         ) : null}
       </div>
 
-      <label className="grid gap-1">
-        <span className="text-sm font-semibold">
-          <span className="lang-ar">رسالتك</span>
-          <span className="lang-en">Your message</span>
-        </span>
+      <label className="portal-message-form__textarea">
+        <span>رسالتك</span>
         <textarea
           name="message"
-          rows={4}
+          rows={3}
           required
           minLength={5}
           maxLength={4000}
@@ -75,31 +66,18 @@ export function PatientMessageForm({
           role="status"
           className={
             state.status === "success"
-              ? "border-emerald/25 bg-emerald/10 text-emerald rounded-2xl border px-4 py-3 text-sm"
-              : "rounded-2xl border border-[rgba(92,45,62,0.22)] bg-[rgba(92,45,62,0.08)] px-4 py-3 text-sm text-[oklch(38%_0.08_15)]"
+              ? "portal-form-status portal-form-status--success"
+              : "portal-form-status portal-form-status--error"
           }
         >
           {state.message}
         </p>
       ) : null}
 
-      <div>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="bg-ink text-canvas rounded-full px-6 py-2.5 text-sm font-semibold disabled:opacity-60"
-        >
-          {isPending ? (
-            <>
-              <span className="lang-ar">جاري الإرسال...</span>
-              <span className="lang-en">Sending...</span>
-            </>
-          ) : (
-            <>
-              <span className="lang-ar">إرسال الرسالة</span>
-              <span className="lang-en">Send message</span>
-            </>
-          )}
+      <div className="portal-message-form__actions">
+        <span>الرسائل ليست مخصصة للطوارئ الطبية.</span>
+        <button type="submit" disabled={isPending} className="portal-btn portal-btn--primary">
+          {isPending ? "جاري الإرسال..." : "إرسال الرسالة"}
         </button>
       </div>
     </form>

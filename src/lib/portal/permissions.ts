@@ -19,6 +19,7 @@ const ALL_PORTAL_ROLES: readonly UserRole[] = [
 ];
 
 export type PortalCapability =
+  | "patients.manage"
   | "patients.manageModule"
   | "patients.view"
   | "patients.viewFullPhone"
@@ -53,6 +54,7 @@ export type PortalCapability =
   | "pdf.print";
 
 const CAPABILITIES: Record<PortalCapability, readonly UserRole[]> = {
+  "patients.manage": ALL_PORTAL_ROLES,
   "patients.manageModule": ALL_PORTAL_ROLES,
   "patients.view": ALL_PORTAL_ROLES,
   "patients.viewFullPhone": [

@@ -27,7 +27,7 @@ const items: {
     href: "/admin/patients",
     label: "جميع المرضى",
     icon: "P",
-    show: (role) => hasPortalCapability(role, "patients.view"),
+    show: (role) => hasPortalCapability(role, "patients.manage"),
   },
   {
     key: "new",

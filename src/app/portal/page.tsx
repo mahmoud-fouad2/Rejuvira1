@@ -1,14 +1,21 @@
 import Link from "next/link";
 import type { Route } from "next";
+import { redirect } from "next/navigation";
 
 import { ProcedureCountdown } from "@/components/portal/ProcedureCountdown";
 import {
-  IconSparkle,
-  IconMessageDots,
-  IconDocumentText,
   IconCalendarCheck,
   IconClipboardCheck,
+  IconDocumentText,
+  IconMessageDots,
+  IconSparkle,
 } from "@/components/portal/PortalIcons";
+import {
+  PatientSummaryCard,
+  PortalCard,
+  PortalEmptyState,
+  PortalPageHeader,
+} from "@/components/portal/PortalUi";
 import {
   appointmentStatusLabels,
   formatDate,
@@ -17,7 +24,6 @@ import {
 import { getPatientSession } from "@/lib/portal/patient-auth";
 import { getPortalSettings } from "@/lib/portal/settings";
 import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -29,44 +35,43 @@ export default async function PortalHomePage() {
     prisma.patient.findUnique({
       where: { id: session.patientId },
       include: {
-      procedures: {
-        where: { archivedAt: null },
-        orderBy: [{ procedureDate: "desc" }, { createdAt: "desc" }],
-        include: {
-          doctor: { select: { nameAr: true } },
-          template: { select: { nameAr: true } },
-          checklistItems: {
-            select: { id: true, patientCompletedAt: true },
+        procedures: {
+          where: { archivedAt: null },
+          orderBy: [{ procedureDate: "desc" }, { createdAt: "desc" }],
+          include: {
+            doctor: { select: { nameAr: true } },
+            template: { select: { nameAr: true } },
+            checklistItems: {
+              select: { id: true, patientCompletedAt: true },
+            },
           },
         },
-      },
-      appointments: {
-        where: {
-          status: { in: ["SCHEDULED", "CONFIRMED"] },
-          appointmentDate: { gte: new Date() },
+        appointments: {
+          where: {
+            status: { in: ["SCHEDULED", "CONFIRMED"] },
+            appointmentDate: { gte: new Date() },
+          },
+          orderBy: { appointmentDate: "asc" },
+          take: 3,
+          include: { doctor: { select: { nameAr: true } } },
         },
-        orderBy: { appointmentDate: "asc" },
-        take: 3,
-        include: { doctor: { select: { nameAr: true } } },
-      },
-      messages: {
-        where: { senderType: "STAFF", readAt: null },
-        select: { id: true },
-      },
-      documents: {
-        where: { visibility: "PATIENT_VISIBLE", archivedAt: null },
-        select: { id: true },
-      },
+        messages: {
+          where: { senderType: "STAFF", readAt: null },
+          select: { id: true },
+        },
+        documents: {
+          where: { visibility: "PATIENT_VISIBLE", archivedAt: null },
+          select: { id: true },
+        },
       },
     }),
     getPortalSettings(),
   ]);
+
   if (!patient) redirect("/patient-login");
 
-
-
-// eslint-disable-next-line react-hooks/purity -- current server request time
-const currentTime = Date.now();
+  // eslint-disable-next-line react-hooks/purity -- this dashboard is request-time sensitive.
+  const currentTime = Date.now();
   const upcoming =
     patient.procedures.find(
       (procedure) =>
@@ -75,350 +80,249 @@ const currentTime = Date.now();
         (procedure.status === "SCHEDULED" || procedure.status === "DRAFT"),
     ) ?? null;
   const featured = upcoming ?? patient.procedures[0] ?? null;
+  const nextAppointment = patient.appointments[0] ?? null;
+  const completedChecklist =
+    featured?.checklistItems.filter((item) => item.patientCompletedAt).length ?? 0;
+  const totalChecklist = featured?.checklistItems.length ?? 0;
 
   return (
-    <div className="patient-portal-dashboard">
-      <section className="patient-portal-hero">
-        <p className="text-xs font-semibold tracking-wide uppercase opacity-60">
-          <span className="lang-ar">بوابة رعاية Rejuvera</span>
-          <span className="lang-en">Rejuvera care portal</span>
-        </p>
-        <h1 className="mt-2 text-2xl font-bold">
-          <span className="lang-ar">أهلًا {patient.fullNameAr} 🌿</span>
-          <span className="lang-en">
-            Welcome{patient.fullNameEn ? `, ${patient.fullNameEn}` : ""} 🌿
-          </span>
-        </h1>
-        <p className="mt-1 text-sm opacity-75">
-          <span className="lang-ar">
-            هنا تجد تعليمات عمليتك ومواعيدك ورسائلك في مكان واحد.
-          </span>
-          <span className="lang-en">
-            Your instructions, appointments and messages in one place.
-          </span>
-        </p>
-      </section>
+    <div className="portal-dashboard">
+      <PortalPageHeader
+        eyebrow="Rejuvera Care"
+        title={
+          <>
+            <span className="lang-ar">أهلاً {patient.fullNameAr}</span>
+            <span className="lang-en">
+              Welcome{patient.fullNameEn ? `, ${patient.fullNameEn}` : ""}
+            </span>
+          </>
+        }
+        description={
+          <>
+            <span className="lang-ar">
+              لوحة رعاية مختصرة تجمع تعليماتك، موعدك القادم، الرسائل والمستندات في مكان واحد.
+            </span>
+            <span className="lang-en">
+              Your care dashboard with instructions, appointments, messages and documents in one place.
+            </span>
+          </>
+        }
+        action={
+          <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--primary">
+            <span className="lang-ar">تواصل مع الفريق</span>
+            <span className="lang-en">Contact the team</span>
+          </Link>
+        }
+      />
 
       {portalSettings.portalBannerEnabled ? (
-        <section
-          className="patient-portal-promo"
-          style={{
-            backgroundImage: `url("${portalSettings.portalBannerImageUrl || "/media/portal/patient-portal-banner.png"}")`,
-          }}
-        >
-          <div className="patient-portal-promo__copy">
-            <span className="patient-portal-promo__icon" aria-hidden="true">
+        <section className="portal-announcement-card">
+          {portalSettings.portalBannerImageUrl ? (
+            <div
+              className="portal-announcement-card__image"
+              style={{ backgroundImage: `url("${portalSettings.portalBannerImageUrl}")` }}
+              aria-hidden="true"
+            />
+          ) : null}
+          <div>
+            <span className="portal-announcement-card__icon" aria-hidden="true">
               <IconSparkle />
             </span>
             <h2>{portalSettings.portalBannerTitle}</h2>
             <p>{portalSettings.portalBannerBody}</p>
-            {portalSettings.portalBannerCtaLabel &&
-            portalSettings.portalBannerCtaHref ? (
-              <PortalPromoLink
-                href={portalSettings.portalBannerCtaHref}
-                label={portalSettings.portalBannerCtaLabel}
-              />
-            ) : null}
           </div>
+          {portalSettings.portalBannerCtaLabel && portalSettings.portalBannerCtaHref ? (
+            <PortalPromoLink
+              href={portalSettings.portalBannerCtaHref}
+              label={portalSettings.portalBannerCtaLabel}
+            />
+          ) : null}
         </section>
       ) : null}
 
-      {featured ? (
-        <section className="patient-featured-procedure border-border rounded-3xl border bg-white/75 p-5 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold tracking-wide uppercase opacity-60">
-                <span className="lang-ar">
-                  {upcoming ? "عمليتك القادمة" : "آخر عملية"}
-                </span>
-                <span className="lang-en">
-                  {upcoming ? "Upcoming procedure" : "Latest procedure"}
-                </span>
-              </p>
-              <h2 className="mt-1 text-xl font-bold">
-                {featured.customProcedureName ||
-                  featured.template?.nameAr ||
-                  "إجراء"}
-              </h2>
-              <p className="mt-1 text-sm opacity-80">
-                {featured.doctor?.nameAr || featured.surgeonName || ""}
-                {featured.procedureDate
-                  ? ` · ${formatDate(featured.procedureDate)}`
-                  : ""}
-                {featured.procedureTime ? ` · ${featured.procedureTime}` : ""}
-              </p>
-              <p className="mt-1 text-sm">
-                <span className="border-border inline-block rounded-full border px-3 py-0.5 text-xs">
-                  {procedureStatusLabels[featured.status]}
-                </span>
-              </p>
-            </div>
-            {upcoming?.procedureDate ? (
-              <ProcedureCountdown
-                targetIso={upcoming.procedureDate.toISOString()}
-              />
-            ) : null}
-          </div>
-
-          {featured.checklistItems.length > 0 ? (
-            <div className="mt-4">
-              <ChecklistProgress
-                done={
-                  featured.checklistItems.filter(
-                    (item) => item.patientCompletedAt,
-                  ).length
-                }
-                total={featured.checklistItems.length}
-              />
-            </div>
-          ) : null}
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Link
-              href={`/portal/procedures/${featured.id}` as Route}
-              className="bg-ink text-canvas rounded-full px-5 py-2.5 text-sm font-semibold"
-            >
-              <span className="lang-ar">عرض التعليمات الكاملة</span>
-              <span className="lang-en">View full instructions</span>
-            </Link>
-            <Link
-              href={"/portal/messages" as Route}
-              className="border-border rounded-full border px-5 py-2.5 text-sm font-semibold"
-            >
-              <span className="lang-ar">أرسل سؤالًا للفريق</span>
-              <span className="lang-en">Ask the team</span>
-            </Link>
-          </div>
-
-          {!featured.instructionsPublishedAt ? (
-            <p className="mt-3 text-sm opacity-70">
-              <span className="lang-ar">
-                تعليمات هذه العملية قيد الإعداد — سيخبرك المركز عند نشرها.
-              </span>
-              <span className="lang-en">
-                Instructions are being prepared — the clinic will let you know
-                when they are ready.
-              </span>
-            </p>
-          ) : null}
-          <ul className="patient-timeline">
-            <li>
-              <span>
-                <strong>
-                  <span className="lang-ar">تم تسجيل العملية</span>
-                  <span className="lang-en">Procedure registered</span>
-                </strong>
-                <span className="block text-sm opacity-70">
-                  {formatDate(featured.createdAt)}
-                </span>
-              </span>
-            </li>
-            <li>
-              <span>
-                <strong>
-                  <span className="lang-ar">حالة العملية</span>
-                  <span className="lang-en">Current status</span>
-                </strong>
-                <span className="block text-sm opacity-70">
-                  {procedureStatusLabels[featured.status]}
-                </span>
-              </span>
-            </li>
-            {featured.instructionsPublishedAt ? (
-              <li>
-                <span>
-                  <strong>
-                    <span className="lang-ar">التعليمات متاحة</span>
-                    <span className="lang-en">Instructions available</span>
-                  </strong>
-                  <span className="block text-sm opacity-70">
-                    {formatDate(featured.instructionsPublishedAt)}
-                  </span>
-                </span>
-              </li>
-            ) : null}
-          </ul>
-        </section>
-      ) : (
-        <section className="border-border rounded-3xl border border-dashed bg-white/70 p-8 text-center shadow-sm">
-          <p className="font-semibold">
-            <span className="lang-ar">لا توجد عمليات مسجلة لك بعد.</span>
-            <span className="lang-en">No procedures on file yet.</span>
-          </p>
-          <p className="mt-1 text-sm opacity-70">
-            <span className="lang-ar">
-              لم تتم إضافة أي عملية لحسابك بعد. عند إضافة العملية من المركز ستظهر التعليمات والمتابعات هنا.
-            </span>
-            <span className="lang-en">
-              Once the clinic adds your procedure, its details will appear
-              here.
-            </span>
-          </p>
-        </section>
-      )}
-
-      <section className="patient-care-path" aria-label="مسار الرعاية">
-        <article>
-          <span aria-hidden="true">1</span>
-          <div>
-            <strong>
-              <span className="lang-ar">راجع التعليمات</span>
-              <span className="lang-en">Review instructions</span>
-            </strong>
-            <p>
-              <span className="lang-ar">
-                اقرأ خطوات ما قبل وبعد العملية واحفظ المستندات المهمة.
-              </span>
-              <span className="lang-en">
-                Read your care steps and keep important documents handy.
-              </span>
-            </p>
-          </div>
-        </article>
-        <article>
-          <span aria-hidden="true">2</span>
-          <div>
-            <strong>
-              <span className="lang-ar">تابع المواعيد</span>
-              <span className="lang-en">Track appointments</span>
-            </strong>
-            <p>
-              <span className="lang-ar">
-                ستظهر مواعيد المتابعة القادمة وأي تحديثات من المركز هنا.
-              </span>
-              <span className="lang-en">
-                Your upcoming follow-ups and clinic updates stay visible here.
-              </span>
-            </p>
-          </div>
-        </article>
-        <article>
-          <span aria-hidden="true">3</span>
-          <div>
-            <strong>
-              <span className="lang-ar">تواصل عند الحاجة</span>
-              <span className="lang-en">Message when needed</span>
-            </strong>
-            <p>
-              <span className="lang-ar">
-                أرسل سؤالك للفريق بدل البحث عن أرقام أو تعليمات متفرقة.
-              </span>
-              <span className="lang-en">
-                Ask the care team directly without hunting for scattered details.
-              </span>
-            </p>
-          </div>
-        </article>
+      <section className="portal-summary-grid" aria-label="ملخص حساب المريض">
+        <PatientSummaryCard
+          label="رسائل جديدة"
+          value={patient.messages.length}
+          hint="ردود غير مقروءة من الفريق"
+          icon={<IconMessageDots />}
+          href="/portal/messages"
+        />
+        <PatientSummaryCard
+          label="مستندات"
+          value={patient.documents.length}
+          hint="ملفات متاحة للعرض والتنزيل"
+          icon={<IconDocumentText />}
+          href="/portal/documents"
+        />
+        <PatientSummaryCard
+          label="مواعيد قادمة"
+          value={patient.appointments.length}
+          hint={nextAppointment ? formatDate(nextAppointment.appointmentDate) : "لا يوجد موعد قريب"}
+          icon={<IconCalendarCheck />}
+        />
+        <PatientSummaryCard
+          label="تعليمات"
+          value={patient.procedures.length}
+          hint={featured ? "آخر ملف رعاية مضاف" : "لم تُضف عملية بعد"}
+          icon={<IconClipboardCheck />}
+          href={featured ? `/portal/procedures/${featured.id}` : undefined}
+        />
       </section>
 
-      <section className="patient-portal-cards">
-        <Link
-          href={"/portal/messages" as Route}
-          className="patient-portal-card transition-shadow hover:shadow-md"
-        >
-          <span className="patient-portal-card__icon" aria-hidden="true"><IconMessageDots /></span>
-          <strong>{patient.messages.length}</strong>
-          <p className="text-sm opacity-75">
-            <span className="lang-ar">ردود جديدة من الفريق</span>
-            <span className="lang-en">New replies from the team</span>
-          </p>
-        </Link>
-        <Link
-          href={"/portal/documents" as Route}
-          className="patient-portal-card transition-shadow hover:shadow-md"
-        >
-          <span className="patient-portal-card__icon" aria-hidden="true"><IconDocumentText /></span>
-          <strong>{patient.documents.length}</strong>
-          <p className="text-sm opacity-75">
-            <span className="lang-ar">مستندات متاحة لك</span>
-            <span className="lang-en">Documents available</span>
-          </p>
-        </Link>
-        <div className="patient-portal-card">
-          <span className="patient-portal-card__icon" aria-hidden="true"><IconCalendarCheck /></span>
-          <strong>{patient.appointments.length}</strong>
-          <p className="text-sm opacity-75">
-            <span className="lang-ar">مواعيد متابعة قادمة</span>
-            <span className="lang-en">Upcoming follow-ups</span>
-          </p>
+      <section className="portal-dashboard-grid">
+        <div className="portal-dashboard-grid__main">
+          {featured ? (
+            <PortalCard
+              title={upcoming ? "العملية القادمة" : "آخر تعليمات متاحة"}
+              description="راجع التفاصيل الأساسية والتعليمات المنشورة من المركز."
+              action={
+                <span className="portal-status-pill">
+                  {procedureStatusLabels[featured.status]}
+                </span>
+              }
+            >
+              <div className="portal-procedure-card">
+                <div>
+                  <h2>
+                    {featured.customProcedureName ||
+                      featured.template?.nameAr ||
+                      "إجراء طبي"}
+                  </h2>
+                  <p>
+                    {featured.doctor?.nameAr || featured.surgeonName || "فريق ريجوفيرا"}
+                    {featured.procedureDate ? ` · ${formatDate(featured.procedureDate)}` : ""}
+                    {featured.procedureTime ? ` · ${featured.procedureTime}` : ""}
+                  </p>
+                </div>
+                {upcoming?.procedureDate ? (
+                  <ProcedureCountdown targetIso={upcoming.procedureDate.toISOString()} />
+                ) : null}
+              </div>
+
+              {totalChecklist > 0 ? (
+                <ChecklistProgress done={completedChecklist} total={totalChecklist} />
+              ) : (
+                <p className="portal-muted-note">
+                  ستظهر قائمة المهام هنا عند إضافة تعليمات أو خطوات متابعة لهذه العملية.
+                </p>
+              )}
+
+              <div className="portal-action-row">
+                <Link
+                  href={`/portal/procedures/${featured.id}` as Route}
+                  className="portal-btn portal-btn--primary"
+                >
+                  عرض التعليمات
+                </Link>
+                <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--secondary">
+                  إرسال سؤال
+                </Link>
+              </div>
+
+              {!featured.instructionsPublishedAt ? (
+                <p className="portal-muted-note">
+                  تعليمات هذه العملية قيد الإعداد، وسيخبرك المركز عند نشرها.
+                </p>
+              ) : null}
+            </PortalCard>
+          ) : (
+            <PortalEmptyState
+              icon={<IconClipboardCheck />}
+              title="لا توجد عملية مسجلة بعد"
+              description="عند إضافة العملية من المركز ستظهر هنا التعليمات، المواعيد، والمستندات المرتبطة بها."
+              action={
+                <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--primary">
+                  تواصل مع الفريق
+                </Link>
+              }
+            />
+          )}
+
+          {patient.appointments.length > 0 ? (
+            <PortalCard title="المواعيد القادمة" description="متابعة سريعة لمواعيدك المؤكدة أو المجدولة.">
+              <ul className="portal-list">
+                {patient.appointments.map((appointment) => (
+                  <li key={appointment.id}>
+                    <div>
+                      <strong>
+                        {formatDate(appointment.appointmentDate)}
+                        {appointment.appointmentTime ? ` · ${appointment.appointmentTime}` : ""}
+                      </strong>
+                      <span>
+                        {appointment.appointmentType ?? "متابعة"}
+                        {appointment.doctor?.nameAr ? ` · ${appointment.doctor.nameAr}` : ""}
+                      </span>
+                    </div>
+                    <span className="portal-status-pill">
+                      {appointmentStatusLabels[appointment.status]}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </PortalCard>
+          ) : null}
         </div>
-        <Link
-          href={featured ? (`/portal/procedures/${featured.id}` as Route) : ("/portal" as Route)}
-          className="patient-portal-card transition-shadow hover:shadow-md"
-        >
-          <span className="patient-portal-card__icon" aria-hidden="true"><IconClipboardCheck /></span>
-          <strong>{patient.procedures.length}</strong>
-          <p className="text-sm opacity-75">
-            <span className="lang-ar">تعليماتي</span>
-            <span className="lang-en">My instructions</span>
-          </p>
-        </Link>
-      </section>
 
-      {patient.appointments.length > 0 ? (
-        <section className="border-border rounded-3xl border p-5">
-          <h2 className="font-bold">
-            <span className="lang-ar">مواعيدك القادمة</span>
-            <span className="lang-en">Your upcoming appointments</span>
-          </h2>
-          <ul className="mt-3 grid gap-2">
-            {patient.appointments.map((appointment) => (
-              <li
-                key={appointment.id}
-                className="border-border flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-sm"
-              >
-                <span className="font-semibold">
-                  {formatDate(appointment.appointmentDate)}
-                  {appointment.appointmentTime
-                    ? ` · ${appointment.appointmentTime}`
-                    : ""}
-                </span>
-                <span className="opacity-75">
-                  {appointment.appointmentType ?? "متابعة"}
-                  {appointment.doctor?.nameAr
-                    ? ` · ${appointment.doctor.nameAr}`
-                    : ""}
-                </span>
-                <span className="border-border rounded-full border px-3 py-0.5 text-xs">
-                  {appointmentStatusLabels[appointment.status]}
-                </span>
+        <aside className="portal-dashboard-grid__side">
+          <PortalCard title="بطاقة المريض" description="معلومات مختصرة للرجوع السريع." compact>
+            <dl className="portal-profile-list">
+              <div>
+                <dt>رقم الملف</dt>
+                <dd dir="ltr">{patient.fileNumber}</dd>
+              </div>
+              <div>
+                <dt>الجوال</dt>
+                <dd dir="ltr">{maskPhone(patient.phone)}</dd>
+              </div>
+              <div>
+                <dt>آخر دخول</dt>
+                <dd>{formatDate(patient.lastLoginAt)}</dd>
+              </div>
+            </dl>
+          </PortalCard>
+
+          <PortalCard title="آخر ما تحتاج مراجعته" compact>
+            <ul className="portal-care-list">
+              <li>
+                <span>1</span>
+                <p>افتح التعليمات قبل العملية وبعدها وتأكد من اكتمال الخطوات.</p>
               </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+              <li>
+                <span>2</span>
+                <p>راجع المستندات الجديدة واحفظ الملفات المهمة.</p>
+              </li>
+              <li>
+                <span>3</span>
+                <p>أرسل سؤالك للفريق من الرسائل بدل الاعتماد على محادثات متفرقة.</p>
+              </li>
+            </ul>
+          </PortalCard>
+        </aside>
+      </section>
 
       {patient.procedures.length > 1 ? (
-        <section className="border-border rounded-3xl border p-5">
-          <h2 className="font-bold">
-            <span className="lang-ar">عملياتك الأخرى</span>
-            <span className="lang-en">Other procedures</span>
-          </h2>
-          <ul className="mt-3 grid gap-2">
+        <PortalCard title="عمليات أخرى" description="ملفات الرعاية السابقة أو الإضافية.">
+          <ul className="portal-list">
             {patient.procedures
               .filter((procedure) => procedure.id !== featured?.id)
               .map((procedure) => (
                 <li key={procedure.id}>
-                  <Link
-                    href={`/portal/procedures/${procedure.id}` as Route}
-                    className="border-border flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-4 py-3 text-sm transition-shadow hover:shadow-md"
-                  >
-                    <span className="font-semibold">
+                  <Link href={`/portal/procedures/${procedure.id}` as Route}>
+                    <strong>
                       {procedure.customProcedureName ||
                         procedure.template?.nameAr ||
-                        "إجراء"}
-                    </span>
-                    <span className="opacity-75">
-                      {formatDate(procedure.procedureDate)}
-                    </span>
-                    <span className="border-border rounded-full border px-3 py-0.5 text-xs">
-                      {procedureStatusLabels[procedure.status]}
-                    </span>
+                        "إجراء طبي"}
+                    </strong>
+                    <span>{formatDate(procedure.procedureDate)}</span>
                   </Link>
+                  <span className="portal-status-pill">
+                    {procedureStatusLabels[procedure.status]}
+                  </span>
                 </li>
               ))}
           </ul>
-        </section>
+        </PortalCard>
       ) : null}
     </div>
   );
@@ -426,16 +330,15 @@ const currentTime = Date.now();
 
 function PortalPromoLink({ href, label }: { href: string; label: string }) {
   const isInternal = href.startsWith("/");
-  const className = "patient-portal-promo__cta";
   if (isInternal) {
     return (
-      <Link href={href as Route} className={className}>
+      <Link href={href as Route} className="portal-btn portal-btn--primary">
         {label}
       </Link>
     );
   }
   return (
-    <a href={href} className={className} target="_blank" rel="noreferrer">
+    <a href={href} className="portal-btn portal-btn--primary" target="_blank" rel="noreferrer">
       {label}
     </a>
   );
@@ -444,28 +347,28 @@ function PortalPromoLink({ href, label }: { href: string; label: string }) {
 function ChecklistProgress({ done, total }: { done: number; total: number }) {
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
   return (
-    <div>
-      <div className="flex items-center justify-between text-sm">
-        <span className="font-semibold">
-          <span className="lang-ar">قائمة مهامك</span>
-          <span className="lang-en">Your checklist</span>
-        </span>
-        <span className="opacity-75" dir="ltr">
+    <div className="portal-checklist-progress">
+      <div>
+        <span>قائمة المهام</span>
+        <strong dir="ltr">
           {done}/{total} ({percent}%)
-        </span>
+        </strong>
       </div>
       <div
-        className="border-border mt-2 h-2.5 overflow-hidden rounded-full border"
+        className="portal-checklist-progress__bar"
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}
         aria-valuemax={100}
       >
-        <div
-          className="bg-ink h-full rounded-full transition-[width]"
-          style={{ width: `${percent}%` }}
-        />
+        <span style={{ width: `${percent}%` }} />
       </div>
     </div>
   );
+}
+
+function maskPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 7) return "•••";
+  return `${digits.slice(0, 4)}•••${digits.slice(-2)}`;
 }
