@@ -3,6 +3,13 @@ import type { Route } from "next";
 
 import { ProcedureCountdown } from "@/components/portal/ProcedureCountdown";
 import {
+  IconSparkle,
+  IconMessageDots,
+  IconDocumentText,
+  IconCalendarCheck,
+  IconClipboardCheck,
+} from "@/components/portal/PortalIcons";
+import {
   appointmentStatusLabels,
   formatDate,
   procedureStatusLabels,
@@ -101,7 +108,7 @@ const currentTime = Date.now();
         >
           <div className="patient-portal-promo__copy">
             <span className="patient-portal-card__icon" aria-hidden="true">
-              R
+              <IconSparkle />
             </span>
             <h2>{portalSettings.portalBannerTitle}</h2>
             <p>{portalSettings.portalBannerBody}</p>
@@ -309,7 +316,7 @@ const currentTime = Date.now();
           href={"/portal/messages" as Route}
           className="patient-portal-card transition-shadow hover:shadow-md"
         >
-          <span className="patient-portal-card__icon" aria-hidden="true">M</span>
+          <span className="patient-portal-card__icon" aria-hidden="true"><IconMessageDots /></span>
           <strong>{patient.messages.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">ردود جديدة من الفريق</span>
@@ -320,7 +327,7 @@ const currentTime = Date.now();
           href={"/portal/documents" as Route}
           className="patient-portal-card transition-shadow hover:shadow-md"
         >
-          <span className="patient-portal-card__icon" aria-hidden="true">D</span>
+          <span className="patient-portal-card__icon" aria-hidden="true"><IconDocumentText /></span>
           <strong>{patient.documents.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">مستندات متاحة لك</span>
@@ -328,7 +335,7 @@ const currentTime = Date.now();
           </p>
         </Link>
         <div className="patient-portal-card">
-          <span className="patient-portal-card__icon" aria-hidden="true">F</span>
+          <span className="patient-portal-card__icon" aria-hidden="true"><IconCalendarCheck /></span>
           <strong>{patient.appointments.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">مواعيد متابعة قادمة</span>
@@ -339,7 +346,7 @@ const currentTime = Date.now();
           href={featured ? (`/portal/procedures/${featured.id}` as Route) : ("/portal" as Route)}
           className="patient-portal-card transition-shadow hover:shadow-md"
         >
-          <span className="patient-portal-card__icon" aria-hidden="true">I</span>
+          <span className="patient-portal-card__icon" aria-hidden="true"><IconClipboardCheck /></span>
           <strong>{patient.procedures.length}</strong>
           <p className="text-sm opacity-75">
             <span className="lang-ar">تعليماتي</span>

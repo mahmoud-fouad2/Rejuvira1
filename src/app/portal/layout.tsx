@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { LanguageToggle } from "@/components/layout/LanguageToggle";
+import { PortalNav } from "@/components/portal/PortalNav";
 import { logoutAction } from "./actions";
 import { getPatientSession } from "@/lib/portal/patient-auth";
 
@@ -47,21 +48,7 @@ export default async function PortalLayout({
             </form>
           </div>
         </div>
-        <nav
-          aria-label="تنقل البوابة"
-          className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2"
-        >
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href as Route}
-              className="border-border rounded-full border px-4 py-1.5 text-sm whitespace-nowrap transition-opacity hover:opacity-80"
-            >
-              <span className="lang-ar">{item.label}</span>
-              <span className="lang-en">{item.labelEn}</span>
-            </Link>
-          ))}
-        </nav>
+        <PortalNav items={NAV_ITEMS} />
       </header>
       <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
       <footer className="border-border mx-auto max-w-6xl border-t px-4 py-6 text-center text-xs opacity-70">
