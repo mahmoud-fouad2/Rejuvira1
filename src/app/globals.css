@@ -18778,20 +18778,52 @@ html[data-theme="dark"] .gallery-card__divider {
 }
 
 .portal-announcement-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  min-height: 252px;
+  display: flex;
   align-items: center;
-  padding: 16px;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(249, 246, 253, 0.9)),
+    #fff;
+}
+
+.portal-announcement-card--image {
+  min-height: clamp(280px, 24vw, 390px);
+  align-items: flex-end;
+  padding: 28px;
 }
 
 .portal-announcement-card__image {
-  width: 112px;
-  height: 72px;
-  border-radius: 12px;
+  position: absolute;
+  inset: 0;
+  z-index: -2;
   background-size: cover;
   background-position: center;
-  border: 1px solid rgba(31, 16, 64, 0.1);
+}
+
+.portal-announcement-card__image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.72)),
+    linear-gradient(180deg, rgba(31, 16, 64, 0.04), rgba(31, 16, 64, 0.14));
+}
+
+.portal-announcement-card__copy {
+  max-width: min(520px, 100%);
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 20px;
+  box-shadow: 0 16px 40px rgba(31, 16, 64, 0.12);
+  backdrop-filter: blur(12px);
 }
 
 .portal-announcement-card__icon {
@@ -19172,20 +19204,20 @@ html[data-theme="dark"] .gallery-card__divider {
   .portal-list li,
   .portal-list a,
   .portal-message-form__actions,
-  .portal-results-row,
-  .portal-announcement-card {
+  .portal-results-row {
     align-items: stretch;
     flex-direction: column;
     display: grid;
   }
 
   .portal-announcement-card {
-    grid-template-columns: 1fr;
+    min-height: 260px;
+    padding: 18px;
+    align-items: end;
   }
 
-  .portal-announcement-card__image {
-    width: 100%;
-    height: 120px;
+  .portal-announcement-card__copy {
+    padding: 16px;
   }
 
   .portal-message-bubble {

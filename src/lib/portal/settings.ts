@@ -61,8 +61,8 @@ export const DEFAULT_PORTAL_SETTINGS: PortalSettings = {
   portalBannerBody:
     "تابع تعليماتك ومواعيدك ورسائلك من مكان واحد، وستظهر هنا أي عروض أو تنبيهات مهمة من المركز.",
   portalBannerImageUrl: "/media/portal/patient-portal-banner.png",
-  portalBannerCtaLabel: "تواصل مع الفريق",
-  portalBannerCtaHref: "/portal/messages",
+  portalBannerCtaLabel: "",
+  portalBannerCtaHref: "",
 };
 
 function parseNumber(value: unknown, fallback: number) {

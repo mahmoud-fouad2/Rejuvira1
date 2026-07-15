@@ -31,6 +31,8 @@ type ImagePickerProps = {
   enableAspectChoice?: boolean;
   /** Show free-form aspect option. Default true. */
   allowFreeAspect?: boolean;
+  /** Hide the manual URL textbox when the workflow should be upload-only. */
+  showUrlInput?: boolean;
   onChange?: (value: string) => void;
 };
 
@@ -153,6 +155,7 @@ export function ImagePicker({
   aspect: aspectProp = 1,
   enableAspectChoice = true,
   allowFreeAspect = true,
+  showUrlInput = true,
   onChange,
 }: ImagePickerProps) {
   const inputId = useId();
@@ -428,14 +431,16 @@ export function ImagePicker({
         ) : null}
       </div>
 
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => updateValue(event.target.value)}
-        dir="ltr"
-        placeholder="https://... or /media/..."
-        className="admin-input mt-2 text-[11px]"
-      />
+      {showUrlInput ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => updateValue(event.target.value)}
+          dir="ltr"
+          placeholder="https://... or /media/..."
+          className="admin-input mt-2 text-[11px]"
+        />
+      ) : null}
 
       {helper ? (
         <p className="mt-1 text-[11px] text-[color:var(--admin-text-faint)]">

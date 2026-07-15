@@ -195,78 +195,147 @@ async function buildPdf(rows: PatientExportRow[]) {
     path.join(process.cwd(), "public", "assets", "fonts", "IBMPlexSansArabic-Regular.ttf"),
   );
   const font = await pdfDoc.embedFont(regularBytes, { subset: true });
-  const page = pdfDoc.addPage([842, 595]);
-  const width = page.getWidth();
-  let y = 535;
-  page.drawRectangle({
-    x: 32,
-    y: 500,
-    width: width - 64,
-    height: 58,
-    color: rgb(0.965, 0.94, 0.91),
-    borderColor: rgb(0.55, 0.35, 0.72),
-    borderWidth: 0.8,
-  });
-  page.drawText("Rejuvera Center - Patient Register", {
-    x: 52,
-    y: 528,
-    size: 16,
-    font,
-    color: rgb(0.16, 0.06, 0.28),
-  });
-  page.drawText(`Generated: ${new Date().toISOString().slice(0, 10)} | Rows: ${rows.length}`, {
-    x: 52,
-    y: 508,
-    size: 9,
-    font,
-    color: rgb(0.38, 0.33, 0.45),
-  });
-  y = 470;
-  const headers = ["Patient", "File", "Phone", "Account", "Procedure", "Doctor", "Unread"];
-  const xs = [52, 188, 280, 382, 482, 620, 760];
-  headers.forEach((header, index) => {
-    page.drawText(header, {
-      x: xs[index] ?? 52,
-      y,
+  let logoBytes: Buffer | null = null;
+  try {
+    logoBytes = await readFile(
+      path.join(process.cwd(), "public", "media", "brand", "logo-dark.png"),
+    );
+  } catch {
+    logoBytes = null;
+  }
+  const logo = logoBytes ? await pdfDoc.embedPng(logoBytes) : null;
+
+  const pageSize: [number, number] = [842, 595];
+  const margin = 34;
+  const tableWidth = pageSize[0] - margin * 2;
+  const rowHeight = 24;
+  const headerHeight = 86;
+  const footerY = 24;
+  const columns = [
+    { header: "المريض", width: 142, key: "name" as const },
+    { header: "رقم الملف", width: 94, key: "fileNumber" as const },
+    { header: "الجوال", width: 90, key: "phone" as const },
+    { header: "الحساب", width: 82, key: "accountStatus" as const },
+    { header: "آخر عملية", width: 132, key: "latestProcedure" as const },
+    { header: "الطبيب", width: 100, key: "doctor" as const },
+    { header: "المتابعة", width: 92, key: "nextAppointment" as const },
+    { header: "رسائل", width: tableWidth - 732, key: "unreadMessages" as const },
+  ];
+
+  function safe(value: unknown, max = 24) {
+    return String(value || "—").slice(0, max);
+  }
+
+  function drawRight(page: ReturnType<typeof pdfDoc.addPage>, text: string, x: number, y: number, size: number, color = rgb(0.13, 0.09, 0.24)) {
+    const shaped = pdfText(text);
+    const width = font.widthOfTextAtSize(shaped, size);
+    page.drawText(shaped, { x: x - width, y, size, font, color });
+  }
+
+  function drawHeader(page: ReturnType<typeof pdfDoc.addPage>, pageNo: number) {
+    page.drawRectangle({
+      x: margin,
+      y: pageSize[1] - headerHeight,
+      width: tableWidth,
+      height: 58,
+      color: rgb(0.985, 0.975, 0.995),
+      borderColor: rgb(0.86, 0.82, 0.9),
+      borderWidth: 0.7,
+    });
+    page.drawRectangle({
+      x: pageSize[0] - margin - 7,
+      y: pageSize[1] - headerHeight,
+      width: 7,
+      height: 58,
+      color: rgb(0.54, 0.31, 0.76),
+    });
+    if (logo) {
+      const logoWidth = 62;
+      page.drawImage(logo, {
+        x: margin + 16,
+        y: pageSize[1] - 74,
+        width: logoWidth,
+        height: (logo.height / logo.width) * logoWidth,
+      });
+    }
+    drawRight(page, "تقرير سجل المرضى", pageSize[0] - margin - 22, pageSize[1] - 55, 17, rgb(0.2, 0.06, 0.32));
+    drawRight(
+      page,
+      `تاريخ التصدير ${new Date().toISOString().slice(0, 10)} · عدد النتائج ${rows.length}`,
+      pageSize[0] - margin - 22,
+      pageSize[1] - 76,
+      9,
+      rgb(0.42, 0.39, 0.48),
+    );
+    page.drawText(`Page ${pageNo}`, {
+      x: margin,
+      y: footerY,
       size: 8,
       font,
-      color: rgb(0.33, 0.2, 0.45),
+      color: rgb(0.42, 0.39, 0.48),
     });
-  });
-  y -= 16;
-  for (const row of rows.slice(0, 28)) {
-    page.drawLine({
-      start: { x: 52, y: y + 10 },
-      end: { x: 790, y: y + 10 },
-      thickness: 0.35,
-      color: rgb(0.88, 0.84, 0.9),
+    page.drawText("Rejuvera Center - internal use", {
+      x: margin,
+      y: footerY + 12,
+      size: 8,
+      font,
+      color: rgb(0.42, 0.39, 0.48),
     });
-    [
-      row.name,
-      row.fileNumber,
-      row.phone,
-      row.accountStatus,
-      row.latestProcedure,
-      row.doctor,
-      String(row.unreadMessages),
-    ].forEach((text, index) => {
-      page.drawText(pdfText(String(text).slice(0, index === 4 ? 24 : 18)), {
-        x: xs[index] ?? 52,
-        y,
-        size: 7.5,
-        font,
-        color: rgb(0.13, 0.1, 0.18),
-      });
-    });
-    y -= 15;
   }
-  page.drawText("For internal Rejuvera staff use only.", {
-    x: 52,
-    y: 28,
-    size: 8,
-    font,
-    color: rgb(0.45, 0.4, 0.5),
-  });
+
+  function drawTableHeader(page: ReturnType<typeof pdfDoc.addPage>, y: number) {
+    page.drawRectangle({
+      x: margin,
+      y: y - rowHeight + 3,
+      width: tableWidth,
+      height: rowHeight,
+      color: rgb(0.955, 0.94, 0.98),
+    });
+    let x = margin + tableWidth;
+    for (const column of columns) {
+      drawRight(page, column.header, x - 8, y - 13, 7.8, rgb(0.2, 0.06, 0.32));
+      x -= column.width;
+    }
+  }
+
+  let pageNumber = 0;
+  let page = pdfDoc.addPage(pageSize);
+  pageNumber += 1;
+  drawHeader(page, pageNumber);
+  let y = pageSize[1] - 112;
+  drawTableHeader(page, y);
+  y -= rowHeight;
+
+  for (const row of rows) {
+    if (y < 56) {
+      page = pdfDoc.addPage(pageSize);
+      pageNumber += 1;
+      drawHeader(page, pageNumber);
+      y = pageSize[1] - 112;
+      drawTableHeader(page, y);
+      y -= rowHeight;
+    }
+    page.drawLine({
+      start: { x: margin, y: y + rowHeight - 2 },
+      end: { x: margin + tableWidth, y: y + rowHeight - 2 },
+      thickness: 0.3,
+      color: rgb(0.88, 0.85, 0.91),
+    });
+    let x = margin + tableWidth;
+    for (const column of columns) {
+      const value =
+        column.key === "unreadMessages"
+          ? String(row.unreadMessages)
+          : safe(row[column.key], column.key === "latestProcedure" ? 28 : 22);
+      drawRight(page, value, x - 8, y + 6, 7.4);
+      x -= column.width;
+    }
+    y -= rowHeight;
+  }
+
+  if (!rows.length) {
+    drawRight(page, "لا توجد نتائج مطابقة للفلاتر الحالية.", pageSize[0] - margin, y - 10, 10, rgb(0.42, 0.39, 0.48));
+  }
   return Buffer.from(await pdfDoc.save());
 }
 

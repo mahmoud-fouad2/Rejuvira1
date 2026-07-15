@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import type { PortalActionState } from "@/app/admin/patients/actions";
+import { ImagePicker } from "@/components/admin/ImagePicker";
 import { updatePortalSettingsAction } from "@/app/admin/patients/actions";
 import type { PortalSettings } from "@/lib/portal/settings";
 
@@ -187,13 +188,16 @@ export function PortalSettingsForm({ settings }: { settings: PortalSettings }) {
             </label>
             <label>
               <span className="admin-field-label">رابط صورة البانر</span>
-              <input
+              <ImagePicker
                 name="portalBannerImageUrl"
                 defaultValue={settings.portalBannerImageUrl}
-                maxLength={500}
-                className="admin-input"
-                dir="ltr"
-                placeholder="/media/portal/patient-portal-banner.png"
+                namespace="media/uploads"
+                label="صورة البنر التسويقي"
+                helper="ارفع تصميمًا عريضًا للبوابة. المقاس المقترح 1920×640 أو قريب من 3:1."
+                aspect={3}
+                enableAspectChoice={false}
+                allowFreeAspect={false}
+                showUrlInput={false}
               />
             </label>
           </div>
@@ -207,12 +211,6 @@ export function PortalSettingsForm({ settings }: { settings: PortalSettings }) {
               className="admin-input"
             />
           </label>
-          {settings.portalBannerImageUrl ? (
-            <div
-              className="patient-portal-admin-preview__image"
-              style={{ backgroundImage: `url("${settings.portalBannerImageUrl}")` }}
-            />
-          ) : null}
         </div>
       </section>
 

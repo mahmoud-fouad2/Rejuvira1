@@ -84,6 +84,9 @@ export default async function PortalHomePage() {
   const completedChecklist =
     featured?.checklistItems.filter((item) => item.patientCompletedAt).length ?? 0;
   const totalChecklist = featured?.checklistItems.length ?? 0;
+  const hasBannerCopy = Boolean(
+    portalSettings.portalBannerTitle.trim() || portalSettings.portalBannerBody.trim(),
+  );
 
   return (
     <div className="portal-dashboard">
@@ -107,16 +110,12 @@ export default async function PortalHomePage() {
             </span>
           </>
         }
-        action={
-          <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--primary">
-            <span className="lang-ar">تواصل مع الفريق</span>
-            <span className="lang-en">Contact the team</span>
-          </Link>
-        }
       />
 
       {portalSettings.portalBannerEnabled ? (
-        <section className="portal-announcement-card">
+        <section
+          className={`portal-announcement-card${portalSettings.portalBannerImageUrl ? " portal-announcement-card--image" : ""}`}
+        >
           {portalSettings.portalBannerImageUrl ? (
             <div
               className="portal-announcement-card__image"
@@ -124,13 +123,19 @@ export default async function PortalHomePage() {
               aria-hidden="true"
             />
           ) : null}
-          <div>
-            <span className="portal-announcement-card__icon" aria-hidden="true">
-              <IconSparkle />
-            </span>
-            <h2>{portalSettings.portalBannerTitle}</h2>
-            <p>{portalSettings.portalBannerBody}</p>
-          </div>
+          {hasBannerCopy ? (
+            <div className="portal-announcement-card__copy">
+              <span className="portal-announcement-card__icon" aria-hidden="true">
+                <IconSparkle />
+              </span>
+              {portalSettings.portalBannerTitle ? (
+                <h2>{portalSettings.portalBannerTitle}</h2>
+              ) : null}
+              {portalSettings.portalBannerBody ? (
+                <p>{portalSettings.portalBannerBody}</p>
+              ) : null}
+            </div>
+          ) : null}
           {portalSettings.portalBannerCtaLabel && portalSettings.portalBannerCtaHref ? (
             <PortalPromoLink
               href={portalSettings.portalBannerCtaHref}
@@ -231,11 +236,6 @@ export default async function PortalHomePage() {
               icon={<IconClipboardCheck />}
               title="لا توجد عملية مسجلة بعد"
               description="عند إضافة العملية من المركز ستظهر هنا التعليمات، المواعيد، والمستندات المرتبطة بها."
-              action={
-                <Link href={"/portal/messages" as Route} className="portal-btn portal-btn--primary">
-                  تواصل مع الفريق
-                </Link>
-              }
             />
           )}
 

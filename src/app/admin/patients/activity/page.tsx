@@ -24,6 +24,7 @@ const ACTION_LABELS: Record<string, string> = {
   "patient.password_changed": "تغيير كلمة مرور",
   "patient.login": "تسجيل دخول مريض",
   "patient.login_failed": "محاولة دخول فاشلة",
+  "patient.profile_pdf_generated": "طباعة ملف المريض PDF",
   "procedure.created": "إضافة عملية",
   "procedure.updated": "تعديل عملية",
   "procedure.archived": "أرشفة عملية",

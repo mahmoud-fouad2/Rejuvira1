@@ -110,6 +110,7 @@ export default async function AdminPatientsPage(props: {
   const canActivate = hasPortalCapability(role, "patients.sendActivation");
   const canAddProcedure = hasPortalCapability(role, "procedures.create");
   const canExport = hasPortalCapability(role, "stats.export");
+  const canPrintPatient = hasPortalCapability(role, "pdf.print");
 
   const page = Math.max(1, Number.parseInt(param(params, "page"), 10) || 1);
   const search = param(params, "q");
@@ -516,6 +517,15 @@ export default async function AdminPatientsPage(props: {
                             <Link href={`/admin/patients/${patient.id}` as Route}>
                               فتح الملف
                             </Link>
+                            {canPrintPatient ? (
+                              <a
+                                href={`/api/admin/patients/${patient.id}/pdf`}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                ملف المريض PDF
+                              </a>
+                            ) : null}
                             {canAddProcedure ? (
                               <Link
                                 href={

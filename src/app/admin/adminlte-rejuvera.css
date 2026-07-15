@@ -1298,6 +1298,71 @@ html[dir="rtl"] .admin-shell .main-sidebar {
   font-variant-numeric: tabular-nums;
 }
 
+.admin-patient-permissions-card {
+  overflow: hidden;
+}
+
+.admin-patient-permissions-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.68rem;
+  padding: 0.85rem;
+}
+
+.admin-patient-permission {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.78rem;
+  border: 1px solid rgba(138, 78, 193, 0.14);
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(135deg, rgba(138, 78, 193, 0.075), rgba(201, 162, 106, 0.055)),
+    #fff;
+  box-shadow: 0 10px 24px rgba(21, 14, 39, 0.04);
+}
+
+.admin-patient-permission header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-patient-permission header strong {
+  color: var(--admin-accent);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.admin-patient-permission h3,
+.admin-patient-permission p {
+  margin: 0;
+}
+
+.admin-patient-permission h3 {
+  color: var(--admin-text);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.admin-patient-permission p {
+  color: var(--admin-text-soft);
+  font-size: 0.73rem;
+  line-height: 1.7;
+}
+
+.patient-portal-banner-picker {
+  margin-top: 0.9rem;
+  grid-column: 1 / -1;
+}
+
+.patient-portal-banner-picker .rv-image-picker__preview {
+  min-height: 220px;
+  aspect-ratio: 3 / 1;
+  border-radius: 0.9rem;
+}
+
 .admin-collapsible-card > summary {
   cursor: pointer;
   list-style: none;
@@ -4884,6 +4949,18 @@ html[dir="rtl"] .admin-shell .main-sidebar {
 @media (max-width: 1180px) {
   .admin-executive-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1280px) {
+  .admin-patient-permissions-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-patient-permissions-grid {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -16,6 +16,12 @@ const initialState: AdminUserActionState = {
 const roleOptions = [
   { value: UserRole.SUPER_ADMIN, label: "إدارة عليا / Super Admin" },
   { value: UserRole.ADMIN, label: "مدير / Admin" },
+  { value: UserRole.COORDINATOR, label: "منسق مرضى / Patient management" },
+  { value: UserRole.MEDICAL_DIRECTOR, label: "مدير طبي / Medical director" },
+  { value: UserRole.DOCTOR, label: "طبيب / Doctor" },
+  { value: UserRole.NURSE, label: "تمريض / Nurse" },
+  { value: UserRole.RECEPTIONIST, label: "استقبال / Reception" },
+  { value: UserRole.AUDITOR, label: "مراجع / Auditor" },
   { value: UserRole.EDITOR, label: "محرر / Editor" },
   { value: UserRole.VIEWER, label: "كول سنتر / Leads only" },
 ] as const;

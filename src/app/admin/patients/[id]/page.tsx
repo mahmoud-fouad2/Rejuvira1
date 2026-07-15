@@ -137,6 +137,16 @@ export default async function PatientFilePage(props: {
               طباعة آخر تعليمات
             </a>
           ) : null}
+          {canPrint ? (
+            <a
+              href={`/api/admin/patients/${patient.id}/pdf`}
+              target="_blank"
+              rel="noreferrer"
+              className="admin-btn-secondary"
+            >
+              طباعة ملف المريض
+            </a>
+          ) : null}
           {canArchive ? (
             patient.archivedAt ? (
               <form action={restorePatientAction}>

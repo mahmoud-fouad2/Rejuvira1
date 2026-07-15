@@ -17,9 +17,53 @@ import { getAdminUsers } from "@/lib/content-repository";
 const roleOrder: readonly UserRole[] = [
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
+  UserRole.MEDICAL_DIRECTOR,
+  UserRole.DOCTOR,
+  UserRole.NURSE,
+  UserRole.COORDINATOR,
+  UserRole.RECEPTIONIST,
+  UserRole.AUDITOR,
   UserRole.EDITOR,
   UserRole.VIEWER,
 ];
+
+const patientPermissionRoles = [
+  {
+    role: UserRole.COORDINATOR,
+    scope: "صلاحية إدارة المرضى التشغيلية",
+    tone: "إضافة وتعديل",
+    description:
+      "الدور المخصص للموظف المسؤول عن إنشاء ملفات المرضى، إضافة العمليات، تنظيم المتابعات، وإرسال روابط التفعيل بدون فتح صلاحيات السوبر أدمن.",
+  },
+  {
+    role: UserRole.MEDICAL_DIRECTOR,
+    scope: "اعتماد طبي",
+    tone: "مراجعة واعتماد",
+    description:
+      "يراجع ملفات المرضى والقوالب والتعليمات الطبية ويعتمد المحتوى قبل النشر.",
+  },
+  {
+    role: UserRole.DOCTOR,
+    scope: "طبيب",
+    tone: "ملفات وتعليمات",
+    description:
+      "يتابع ملفات المرضى والعمليات، يخصص التعليمات، ويرد على رسائل المرضى حسب الصلاحيات.",
+  },
+  {
+    role: UserRole.NURSE,
+    scope: "تمريض",
+    tone: "متابعة ورسائل",
+    description:
+      "يتابع المهام والمتابعات، يراجع تأكيدات القراءة، ويتعامل مع رسائل المرضى اليومية.",
+  },
+  {
+    role: UserRole.RECEPTIONIST,
+    scope: "استقبال",
+    tone: "قراءة محدودة",
+    description:
+      "يبحث عن المرضى ويطلع على البيانات الأساسية والمواعيد بدون تعديل طبي أو طباعة حساسة.",
+  },
+] as const;
 
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -97,6 +141,34 @@ export default async function AdminUsersPage() {
               <strong>{group.users.length}</strong>
               <small>{roleDescriptions[group.role].summary}</small>
             </div>
+          ))}
+        </div>
+      </article>
+
+      <article className="admin-card admin-patient-permissions-card">
+        <div className="admin-card__header">
+          <div>
+            <div className="admin-card__subtitle">إدارة المرضى</div>
+            <div className="admin-card__title">
+              <span className="lang-ar">صلاحيات مخصصة لبوابة وملفات المرضى</span>
+              <span className="lang-en">Patient management roles</span>
+            </div>
+            <p className="admin-text-soft" style={{ margin: "0.25rem 0 0" }}>
+              اختر دور منسق مرضى للموظف التشغيلي، أو دور طبي عند الحاجة لمراجعة
+              التعليمات والملفات بدون منحه صلاحيات إدارة النظام بالكامل.
+            </p>
+          </div>
+        </div>
+        <div className="admin-patient-permissions-grid">
+          {patientPermissionRoles.map((item) => (
+            <section key={item.role} className="admin-patient-permission">
+              <header>
+                <span className="admin-chip">{roleLabels[item.role]}</span>
+                <strong>{item.tone}</strong>
+              </header>
+              <h3>{item.scope}</h3>
+              <p>{item.description}</p>
+            </section>
           ))}
         </div>
       </article>
