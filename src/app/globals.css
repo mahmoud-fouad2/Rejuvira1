@@ -18036,7 +18036,11 @@ html[data-theme="dark"] .gallery-card__divider {
 /* Patient portal dashboard */
 .patient-portal-dashboard {
   display: grid;
+  width: min(100%, 1240px);
+  margin-inline: auto;
   gap: 1rem;
+  padding-inline: clamp(0.75rem, 1.6vw, 1.25rem);
+  padding-block: clamp(0.9rem, 1.7vw, 1.35rem);
 }
 
 .patient-portal-hero {
@@ -18047,7 +18051,7 @@ html[data-theme="dark"] .gallery-card__divider {
   background:
     linear-gradient(135deg, rgba(72, 35, 116, 0.1), rgba(201, 162, 106, 0.13)),
     rgba(255, 255, 255, 0.78);
-  padding: clamp(1rem, 2vw, 1.35rem);
+  padding: clamp(1rem, 2vw, 1.45rem);
   box-shadow: 0 20px 55px rgba(43, 22, 74, 0.08);
 }
 
@@ -18100,10 +18104,11 @@ html[data-theme="dark"] .gallery-card__divider {
 .patient-portal-promo {
   position: relative;
   display: flex;
+  justify-content: flex-end;
   align-items: flex-end;
-  min-height: clamp(14rem, 30vw, 21rem);
+  min-height: clamp(16rem, 28vw, 21rem);
   border: 1px solid var(--color-border, #ded6ea);
-  border-radius: 1.1rem;
+  border-radius: 1rem;
   background-position: center;
   background-size: cover;
   padding: clamp(1rem, 3vw, 1.8rem);
@@ -18114,6 +18119,8 @@ html[data-theme="dark"] .gallery-card__divider {
 .patient-portal-promo::before {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background: linear-gradient(
     180deg,
     rgba(34, 19, 56, 0.12) 0%,
@@ -18128,7 +18135,7 @@ html[data-theme="dark"] .gallery-card__divider {
   z-index: 1;
   display: grid;
   gap: 0.6rem;
-  max-width: 30rem;
+  width: min(100%, 31rem);
   border-radius: 0.85rem;
   background: rgba(255, 255, 255, 0.86);
   backdrop-filter: blur(10px);
@@ -18153,6 +18160,8 @@ html[data-theme="dark"] .gallery-card__divider {
 }
 
 .patient-portal-promo__cta {
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-self: start;
   align-items: center;

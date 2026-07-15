@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import type { Route } from "next";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -11,6 +10,13 @@ type Props = {
   sidebar: React.ReactNode;
   topbarMeta: React.ReactNode;
   children: React.ReactNode;
+};
+
+type RouteEntry = {
+  href: string;
+  ar: string;
+  en: string;
+  aliases?: string[];
 };
 
 export function AdminMobileShell({
@@ -26,13 +32,11 @@ export function AdminMobileShell({
   const pathname = usePathname();
   const router = useRouter();
 
-  // Close drawer on route change.
   useEffect(() => {
     setOpen(false);
     setNoticeOpen(false);
   }, [pathname]);
 
-  // Close on Escape.
   useEffect(() => {
     if (!open) return;
     const handler = (event: KeyboardEvent) => {
@@ -42,7 +46,6 @@ export function AdminMobileShell({
     return () => window.removeEventListener("keydown", handler);
   }, [open]);
 
-  // Lock body scroll when drawer is open.
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -52,7 +55,7 @@ export function AdminMobileShell({
     };
   }, [open]);
 
-  const pageLabel = routeLabels[pathname] ?? segmentLabel(pathname);
+  const pageLabel = labelForRoute(pathname);
   const breadcrumbs = buildBreadcrumbs(pathname);
 
   function toggleNavigation() {
@@ -70,11 +73,12 @@ export function AdminMobileShell({
     event.preventDefault();
     const query = quickSearch.trim().toLowerCase();
     if (!query) return;
-    const match = quickRoutes.find((route) =>
-      [route.ar, route.en, route.href].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
+    const match = quickRoutes.find((route) => {
+      const searchable = [route.ar, route.en, route.href, ...(route.aliases ?? [])]
+        .join(" ")
+        .toLowerCase();
+      return searchable.includes(query);
+    });
     if (match) {
       router.push(match.href as Route);
       setQuickSearch("");
@@ -106,7 +110,7 @@ export function AdminMobileShell({
           <button
             type="button"
             className="admin-shell__nav-toggle"
-            aria-label="Toggle menu"
+            aria-label="فتح وإغلاق القائمة"
             aria-expanded={open}
             onClick={toggleNavigation}
           >
@@ -162,7 +166,7 @@ export function AdminMobileShell({
           <input
             value={quickSearch}
             onChange={(event) => setQuickSearch(event.target.value)}
-            placeholder="بحث سريع داخل الإدارة"
+            placeholder="ابحث: مريض، عملية، طلب، قوالب..."
             aria-label="بحث سريع داخل الإدارة"
           />
         </form>
@@ -195,9 +199,21 @@ export function AdminMobileShell({
                 <span className="admin-shell__notification-title">
                   مركز المتابعة
                 </span>
-                <Link href="/admin/crm">مراجعة الطلبات والليدز</Link>
-                <Link href="/admin/logs">فحص السجلات والأخطاء</Link>
-                <Link href="/admin/maintenance">أدوات الصيانة والنسخ</Link>
+                <Link href={"/admin/patients/messages" as Route}>
+                  رسائل المرضى
+                </Link>
+                <Link href={"/admin/patients?add=1" as Route}>
+                  إضافة مريض سريعًا
+                </Link>
+                <Link href={"/admin/crm" as Route}>
+                  مراجعة الطلبات والليدز
+                </Link>
+                <Link href={"/admin/logs" as Route}>
+                  فحص السجلات والأخطاء
+                </Link>
+                <Link href={"/admin/maintenance" as Route}>
+                  أدوات الصيانة والنسخ
+                </Link>
               </div>
             ) : null}
           </div>
@@ -217,42 +233,158 @@ export function AdminMobileShell({
   );
 }
 
-const routeLabels: Record<string, string> = {
-  "/admin": "نظرة عامة",
-  "/admin/content": "المحتوى",
-  "/admin/crm": "الطلبات",
-  "/admin/devices": "الأجهزة",
-  "/admin/doctors": "الأطباء",
-  "/admin/gallery": "المعرض",
-  "/admin/journal": "المجلة",
-  "/admin/logs": "السجلات",
-  "/admin/maintenance": "الصيانة",
-  "/admin/media": "الميديا",
-  "/admin/pages": "صفحات مخصصة",
-  "/admin/service-categories": "أقسام الخدمات",
-  "/admin/services": "الخدمات",
-  "/admin/settings": "الإعدادات",
-  "/admin/stats": "الإحصائيات",
-  "/admin/users": "المستخدمون",
-  "/admin/webhooks": "ويب هوكس",
-};
+const routeEntries: RouteEntry[] = [
+  { href: "/admin", ar: "نظرة عامة", en: "Overview", aliases: ["dashboard"] },
+  { href: "/admin/content", ar: "المحتوى", en: "Content" },
+  { href: "/admin/crm", ar: "الطلبات", en: "Leads", aliases: ["crm"] },
+  { href: "/admin/devices", ar: "الأجهزة", en: "Devices" },
+  { href: "/admin/doctors", ar: "الأطباء", en: "Doctors" },
+  { href: "/admin/gallery", ar: "المعرض", en: "Gallery" },
+  { href: "/admin/journal", ar: "المجلة", en: "Journal" },
+  { href: "/admin/logs", ar: "السجلات", en: "Logs" },
+  { href: "/admin/maintenance", ar: "الصيانة", en: "Maintenance" },
+  { href: "/admin/media", ar: "الميديا", en: "Media" },
+  { href: "/admin/pages", ar: "صفحات مخصصة", en: "Custom pages" },
+  {
+    href: "/admin/service-categories",
+    ar: "أقسام الخدمات",
+    en: "Service categories",
+  },
+  { href: "/admin/services", ar: "الخدمات", en: "Services" },
+  { href: "/admin/settings", ar: "الإعدادات", en: "Settings" },
+  { href: "/admin/stats", ar: "الإحصائيات", en: "Analytics" },
+  { href: "/admin/users", ar: "المستخدمون", en: "Users" },
+  { href: "/admin/webhooks", ar: "ويب هوكس", en: "Webhooks" },
+  {
+    href: "/admin/integration-tools",
+    ar: "التكاملات",
+    en: "Integrations",
+  },
+  {
+    href: "/admin/patients",
+    ar: "إدارة المرضى",
+    en: "Patients",
+    aliases: ["patient", "patients", "مريض", "مرضى"],
+  },
+  {
+    href: "/admin/patients/new",
+    ar: "إضافة مريض",
+    en: "New patient",
+    aliases: ["add patient"],
+  },
+  {
+    href: "/admin/patients/procedures",
+    ar: "العمليات",
+    en: "Procedures",
+    aliases: ["عملية", "procedures"],
+  },
+  {
+    href: "/admin/patients/follow-ups",
+    ar: "المتابعات",
+    en: "Follow-ups",
+    aliases: ["follow up", "متابعة"],
+  },
+  {
+    href: "/admin/patients/messages",
+    ar: "رسائل المرضى",
+    en: "Patient messages",
+    aliases: ["رسائل", "messages"],
+  },
+  {
+    href: "/admin/patients/feedback",
+    ar: "التقييمات",
+    en: "Feedback",
+  },
+  {
+    href: "/admin/patients/templates",
+    ar: "قوالب التعليمات",
+    en: "Instruction templates",
+    aliases: ["templates", "قوالب"],
+  },
+  { href: "/admin/patients/import", ar: "استيراد", en: "Import" },
+  {
+    href: "/admin/patients/stats",
+    ar: "إحصائيات المرضى",
+    en: "Patient analytics",
+  },
+  {
+    href: "/admin/patients/activity",
+    ar: "سجل نشاط المرضى",
+    en: "Patient activity",
+  },
+  {
+    href: "/admin/patients/settings",
+    ar: "إعدادات بوابة المرضى",
+    en: "Patient portal settings",
+  },
+];
 
-const quickRoutes = Object.entries(routeLabels).map(([href, ar]) => ({
-  href,
-  ar,
-  en: href.replace("/admin", "admin").replaceAll("/", " "),
-}));
+const routeLabels = Object.fromEntries(
+  routeEntries.map((route) => [route.href, route.ar]),
+) as Record<string, string>;
+
+const quickRoutes = routeEntries;
+
+const patientSections = routeEntries.filter((route) =>
+  route.href.startsWith("/admin/patients/"),
+);
+
+function labelForRoute(pathname: string) {
+  if (routeLabels[pathname]) return routeLabels[pathname];
+  if (pathname.startsWith("/admin/patients/templates/")) {
+    return "قالب تعليمات";
+  }
+  if (pathname.startsWith("/admin/patients/procedures/")) {
+    return "ملف عملية";
+  }
+  if (pathname.endsWith("/add-procedure")) {
+    return "إضافة عملية";
+  }
+  if (pathname.endsWith("/edit")) {
+    return "تعديل مريض";
+  }
+  if (pathname.startsWith("/admin/patients/")) {
+    return "ملف مريض";
+  }
+  if (pathname.startsWith("/admin/pages/")) {
+    return "صفحة مخصصة";
+  }
+  if (pathname.startsWith("/admin/integration-tools/")) {
+    return "أداة تكامل";
+  }
+  return segmentLabel(pathname);
+}
 
 function segmentLabel(pathname: string) {
   const segment = pathname.split("/").filter(Boolean).at(-1);
   if (!segment) return "لوحة الإدارة";
+  if (/^[0-9a-f-]{24,}$/i.test(segment)) return "تفاصيل";
   return decodeURIComponent(segment).replaceAll("-", " ");
 }
 
 function buildBreadcrumbs(pathname: string) {
-  const crumbs = [{ href: "/admin", label: "لوحة الإدارة" }];
+  const crumbs = [{ href: "/admin", label: routeLabels["/admin"] ?? "لوحة الإدارة" }];
   if (pathname === "/admin") return crumbs;
-  const label = routeLabels[pathname] ?? segmentLabel(pathname);
-  crumbs.push({ href: pathname, label });
+
+  if (pathname.startsWith("/admin/patients")) {
+    crumbs.push({
+      href: "/admin/patients",
+      label: routeLabels["/admin/patients"] ?? "إدارة المرضى",
+    });
+    if (pathname === "/admin/patients") return crumbs;
+
+    const section = patientSections.find(
+      (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
+    );
+    if (section && section.href !== "/admin/patients") {
+      crumbs.push({ href: section.href, label: section.ar });
+      if (pathname === section.href) return crumbs;
+    }
+
+    crumbs.push({ href: pathname, label: labelForRoute(pathname) });
+    return crumbs;
+  }
+
+  crumbs.push({ href: pathname, label: labelForRoute(pathname) });
   return crumbs;
 }

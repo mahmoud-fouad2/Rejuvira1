@@ -112,14 +112,14 @@ const currentTime = Date.now();
             </span>
             <h2>{portalSettings.portalBannerTitle}</h2>
             <p>{portalSettings.portalBannerBody}</p>
+            {portalSettings.portalBannerCtaLabel &&
+            portalSettings.portalBannerCtaHref ? (
+              <PortalPromoLink
+                href={portalSettings.portalBannerCtaHref}
+                label={portalSettings.portalBannerCtaLabel}
+              />
+            ) : null}
           </div>
-          {portalSettings.portalBannerCtaLabel &&
-          portalSettings.portalBannerCtaHref ? (
-            <PortalPromoLink
-              href={portalSettings.portalBannerCtaHref}
-              label={portalSettings.portalBannerCtaLabel}
-            />
-          ) : null}
         </section>
       ) : null}
 
