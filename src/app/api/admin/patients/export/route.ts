@@ -6,7 +6,7 @@ import { PatientAccountStatus, ProcedureStatus, type UserRole } from "@prisma/cl
 
 import { auth } from "@/auth";
 import { formatDate } from "@/lib/portal/labels";
-import { containsArabic, shapeArabicLine } from "@/lib/portal/arabic-shaper";
+import { drawBidiSafeText } from "@/lib/portal/arabic-shaper";
 import { displayPhone, hasPortalCapability } from "@/lib/portal/permissions";
 import { prisma } from "@/lib/prisma";
 
@@ -180,10 +180,6 @@ async function rowsForRequest(request: NextRequest, role: UserRole) {
   });
 }
 
-function pdfText(text: string) {
-  return containsArabic(text) ? shapeArabicLine(text) : text;
-}
-
 async function buildPdf(rows: PatientExportRow[]) {
   const [{ PDFDocument, rgb }, fontkitModule] = await Promise.all([
     import("pdf-lib"),
@@ -227,9 +223,10 @@ async function buildPdf(rows: PatientExportRow[]) {
   }
 
   function drawRight(page: ReturnType<typeof pdfDoc.addPage>, text: string, x: number, y: number, size: number, color = rgb(0.13, 0.09, 0.24)) {
-    const shaped = pdfText(text);
-    const width = font.widthOfTextAtSize(shaped, size);
-    page.drawText(shaped, { x: x - width, y, size, font, color });
+    // Some lines mix Arabic with a date or digits (e.g. the export date in
+    // the header), so this must not be a single drawText() call — see
+    // arabic-shaper.ts for why that would reverse the Latin/digit part.
+    drawBidiSafeText(page, text, { x, y, size, font, color, align: "right" });
   }
 
   function drawHeader(page: ReturnType<typeof pdfDoc.addPage>, pageNo: number) {

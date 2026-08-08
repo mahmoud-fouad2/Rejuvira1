@@ -9,7 +9,12 @@ import { maskPhone } from "@/lib/portal/permissions";
 import { renderPlaceholders } from "@/lib/portal/placeholders";
 import { getPortalSettings } from "@/lib/portal/settings";
 import { encodeQr } from "@/lib/portal/qrcode";
-import { containsArabic, shapeArabicLine } from "@/lib/portal/arabic-shaper";
+import {
+  bidiSafeTextWidth,
+  containsArabic,
+  drawBidiSafeText,
+  shapeArabicLine,
+} from "@/lib/portal/arabic-shaper";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -72,7 +77,7 @@ function wrapText(
     let current = "";
     for (const word of words) {
       const candidate = current ? `${current} ${word}` : word;
-      const width = font.widthOfTextAtSize(shapeSafe(font, candidate), size);
+      const width = bidiSafeTextWidth(font, candidate, size);
       if (width <= maxWidth || !current) {
         current = candidate;
       } else {
@@ -107,24 +112,21 @@ function drawLine(
     ctx.addPage();
   }
 
-  const shaped = shapeSafe(font, text);
-  let width = 0;
-  try {
-    width = font.widthOfTextAtSize(shaped, size);
-  } catch {
-    width = 0;
-  }
-  let x = MARGIN;
-  if (align === "right") x = PAGE_WIDTH - MARGIN - width;
-  if (align === "center") x = (PAGE_WIDTH - width) / 2;
+  const anchorX =
+    align === "right"
+      ? PAGE_WIDTH - MARGIN
+      : align === "center"
+        ? PAGE_WIDTH / 2
+        : MARGIN;
 
   try {
-    ctx.page.drawText(shaped, {
-      x,
+    drawBidiSafeText(ctx.page, text, {
+      x: anchorX,
       y: ctx.cursorY - size,
       size,
       font,
       color: rgbOf(color),
+      align,
     });
   } catch {
     /* skip unrenderable line rather than fail the whole document */
@@ -205,7 +207,11 @@ export async function buildInstructionsPdf(options: {
     const boldBytes = await readFile(
       path.join(fontDir, "IBMPlexSansArabic-Bold.woff2"),
     );
-    boldFont = await pdfDoc.embedFont(boldBytes, { subset: true });
+    // subset:false is required here: fontkit's WOFF2 glyph subsetter for this
+    // font throws a RangeError from an internal deferred callback that
+    // bypasses try/catch (crashes the process, not just this request) when
+    // subset:true is used. Do not change this back to subset:true.
+    boldFont = await pdfDoc.embedFont(boldBytes, { subset: false });
   } catch {
     boldFont = font;
   }
@@ -268,26 +274,24 @@ export async function buildInstructionsPdf(options: {
     drawFooter: (page, pageNumber) => {
       const size = 7.5;
       const y = MARGIN - 14;
+      // These lines can mix Arabic with a date or a Latin name, so they are
+      // drawn with drawBidiSafeText (see arabic-shaper.ts) rather than a
+      // single page.drawText() call, which would reverse the Latin/date part.
       const parts = [
         footerLine1,
-        `${shapeSafe(font, "طُبع في")} ${formatDateTime(now)} — ${shapeSafe(font, options.generatedByName)}`,
-        shapeSafe(font, portal.pdfFooterText).slice(0, 160),
+        `طُبع في ${formatDateTime(now)} — ${options.generatedByName}`,
+        portal.pdfFooterText.slice(0, 160),
       ].filter(Boolean);
       let lineY = y + parts.length * 10;
       for (const part of parts) {
-        let width = 0;
         try {
-          width = font.widthOfTextAtSize(part, size);
-        } catch {
-          width = 0;
-        }
-        try {
-          page.drawText(part, {
-            x: (PAGE_WIDTH - width) / 2,
+          drawBidiSafeText(page, part, {
+            x: PAGE_WIDTH / 2,
             y: lineY,
             size,
             font,
             color: rgb(SOFT.r, SOFT.g, SOFT.b),
+            align: "center",
           });
         } catch {
           /* ignore */

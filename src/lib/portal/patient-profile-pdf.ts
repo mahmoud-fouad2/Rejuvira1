@@ -15,8 +15,9 @@ import {
   procedureStatusLabels,
 } from "@/lib/portal/labels";
 import {
+  bidiSafeTextWidth,
   containsArabic,
-  shapeArabicLine,
+  drawBidiSafeText,
 } from "@/lib/portal/arabic-shaper";
 import {
   displayPhone,
@@ -64,132 +65,14 @@ function cleanPdfText(value: unknown) {
     .trim();
 }
 
-type PdfTextRun = {
-  text: string;
-  direction: "rtl" | "ltr" | "neutral";
-};
-
-function isArabicChar(char: string) {
-  return /[\u0600-\u06ff\u0750-\u077f\u08a0-\u08ff\ufb50-\ufdff\ufe70-\ufeff]/u.test(char);
-}
-
-function isLtrTokenStart(char: string) {
-  return /[A-Za-z0-9]/u.test(char);
-}
-
-function isLtrTokenPart(char: string) {
-  return /[A-Za-z0-9@._:+/#%-]/u.test(char);
-}
-
-function pushRun(runs: PdfTextRun[], direction: PdfTextRun["direction"], text: string) {
-  if (!text) return;
-  const last = runs.at(-1);
-  if (last?.direction === direction) {
-    last.text += text;
-  } else {
-    runs.push({ direction, text });
-  }
-}
-
-function splitPdfTextRuns(text: string): PdfTextRun[] {
-  const runs: PdfTextRun[] = [];
-  const chars = Array.from(text);
-  for (let i = 0; i < chars.length; i += 1) {
-    const char = chars[i] as string;
-
-    if (isLtrTokenStart(char)) {
-      let token = char;
-      while (i + 1 < chars.length) {
-        const next = chars[i + 1] as string;
-        if (isLtrTokenPart(next)) {
-          i += 1;
-          token += chars[i] as string;
-          continue;
-        }
-
-        let lookahead = i + 1;
-        let spaces = "";
-        while (lookahead < chars.length && /\s/u.test(chars[lookahead] as string)) {
-          spaces += chars[lookahead] as string;
-          lookahead += 1;
-        }
-        if (spaces && lookahead < chars.length && isLtrTokenStart(chars[lookahead] as string)) {
-          token += spaces;
-          i = lookahead;
-          token += chars[i] as string;
-          continue;
-        }
-
-        break;
-      }
-      pushRun(runs, "ltr", token);
-      continue;
-    }
-
-    if (isArabicChar(char)) {
-      pushRun(runs, "rtl", char);
-    } else {
-      pushRun(runs, "neutral", char);
-    }
-  }
-  return runs;
-}
-
-function runWidth(font: PDFFont, text: string, size: number) {
-  try {
-    return font.widthOfTextAtSize(text, size);
-  } catch {
-    return 0;
-  }
-}
-
+/**
+ * Width and drawing for lines that may mix Arabic with Latin/digits are
+ * delegated to the shared, tested helpers in arabic-shaper.ts (see that
+ * module's docblock for why a plain drawText() call reverses mixed-script
+ * lines). This wrapper just applies this file's text-cleaning first.
+ */
 function textWidth(font: PDFFont, text: string, size: number) {
-  const clean = cleanPdfText(text);
-  try {
-    if (containsArabic(clean)) {
-      return splitPdfTextRuns(clean).reduce(
-        (width, run) => width + runWidth(font, run.text, size),
-        0,
-      );
-    }
-    return font.widthOfTextAtSize(shapeArabicLine(clean), size);
-  } catch {
-    return 0;
-  }
-}
-
-function drawSegmentedRtlText(
-  ctx: Ctx,
-  text: string,
-  x: number,
-  y: number,
-  size: number,
-  font: PDFFont,
-  color: { r: number; g: number; b: number },
-  align: "left" | "right" | "center",
-) {
-  const runs = splitPdfTextRuns(text);
-  const width = runs.reduce((total, run) => total + runWidth(font, run.text, size), 0);
-  let rightEdge = x;
-  if (align === "left") rightEdge = x + width;
-  if (align === "center") rightEdge = x + width / 2;
-
-  for (const run of runs) {
-    const currentWidth = runWidth(font, run.text, size);
-    const drawX = rightEdge - currentWidth;
-    try {
-      ctx.page.drawText(run.text, {
-        x: drawX,
-        y,
-        size,
-        font,
-        color: rgbOf(color),
-      });
-    } catch {
-      /* Skip only the fragment that the PDF font cannot render. */
-    }
-    rightEdge = drawX;
-  }
+  return bidiSafeTextWidth(font, cleanPdfText(text), size);
 }
 
 function drawText(
@@ -207,29 +90,16 @@ function drawText(
   const size = options.size ?? 10;
   const font = options.bold ? ctx.boldFont : ctx.font;
   const clean = cleanPdfText(text || "—");
-  const shaped = shapeArabicLine(clean);
-  const width = textWidth(font, clean, size);
   const align = options.align ?? (containsArabic(clean) ? "right" : "left");
-  let drawX = x;
-  if (align === "right") drawX = x - width;
-  if (align === "center") drawX = x - width / 2;
 
-  if (containsArabic(clean)) {
-    drawSegmentedRtlText(ctx, shaped, x, y, size, font, options.color ?? INK, align);
-    return;
-  }
-
-  try {
-    ctx.page.drawText(shaped, {
-      x: drawX,
-      y,
-      size,
-      font,
-      color: rgbOf(options.color ?? INK),
-    });
-  } catch {
-    /* Ignore unrenderable fragments; the rest of the report remains useful. */
-  }
+  drawBidiSafeText(ctx.page, clean, {
+    x,
+    y,
+    size,
+    font,
+    color: rgbOf(options.color ?? INK),
+    align,
+  });
 }
 
 function wrap(font: PDFFont, text: string, size: number, maxWidth: number) {
@@ -526,8 +396,21 @@ export async function buildPatientProfilePdf(options: {
   const [regularBytes] = await Promise.all([
     readFile(path.join(fontDir, "IBMPlexSansArabic-Regular.ttf")),
   ]);
-  const font = await pdfDoc.embedFont(regularBytes, { subset: false });
-  const boldFont: PDFFont = font;
+  // Subsetting only embeds glyphs actually used, keeping the PDF small.
+  const font = await pdfDoc.embedFont(regularBytes, { subset: true });
+  let boldFont: PDFFont;
+  try {
+    const boldBytes = await readFile(
+      path.join(fontDir, "IBMPlexSansArabic-Bold.woff2"),
+    );
+    // subset:false is intentional here: fontkit's WOFF2 glyph subsetter for
+    // this font throws a RangeError from an internal deferred callback that
+    // bypasses try/catch (crashes the process, not just this request), so
+    // the bold font must be embedded unsubsetted.
+    boldFont = await pdfDoc.embedFont(boldBytes, { subset: false });
+  } catch {
+    boldFont = font;
+  }
 
   let logo: PDFImage | null = null;
   try {
