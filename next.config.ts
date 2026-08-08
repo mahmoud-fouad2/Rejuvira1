@@ -49,7 +49,7 @@ function buildCsp(frameAncestors: string) {
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     "connect-src 'self' https: wss:",
-    "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://www.faheemly.com https://*.faheemly.com",
+    "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://tr.snapchat.com https://www.faheemly.com https://*.faheemly.com",
     "media-src 'self' https: data:",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
