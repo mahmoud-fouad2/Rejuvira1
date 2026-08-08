@@ -33,8 +33,9 @@ function buildCsp(frameAncestors: string) {
   // TikTok Pixel (events.js) loads from analytics.tiktok.com.
   const tiktokScriptOrigins =
     "https://analytics.tiktok.com https://*.tiktok.com";
-  // Snap Pixel's official loader (scevent.min.js).
-  const snapchatScriptOrigins = "https://sc-static.net";
+  // Snap Pixel loader plus the account-specific runtime configuration it loads.
+  const snapchatScriptOrigins =
+    "https://sc-static.net https://tr.snapchat.com";
   // Faheemly chat/booking widget loader (admin-configured integration).
   const widgetScriptOrigins =
     "https://www.faheemly.com https://*.faheemly.com";
