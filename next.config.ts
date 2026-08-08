@@ -33,14 +33,16 @@ function buildCsp(frameAncestors: string) {
   // TikTok Pixel (events.js) loads from analytics.tiktok.com.
   const tiktokScriptOrigins =
     "https://analytics.tiktok.com https://*.tiktok.com";
+  // Snap Pixel's official loader (scevent.min.js).
+  const snapchatScriptOrigins = "https://sc-static.net";
   // Faheemly chat/booking widget loader (admin-configured integration).
   const widgetScriptOrigins =
     "https://www.faheemly.com https://*.faheemly.com";
 
   return [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${widgetScriptOrigins}`.trim(),
-    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${widgetScriptOrigins}`,
+    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${snapchatScriptOrigins} ${widgetScriptOrigins}`.trim(),
+    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${snapchatScriptOrigins} ${widgetScriptOrigins}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
