@@ -128,6 +128,12 @@ export function bidiSafeTextWidth(font: PDFFont, text: string, size: number): nu
  * Draw a line of text that may mix Arabic with Latin/digits without
  * reversing the Latin/digit portion. For pure single-script lines this is
  * equivalent to a plain drawText() call.
+ *
+ * `align` is required on purpose: pure-LTR text defaults to left-anchored at
+ * `x` while Arabic-containing text defaults to right-anchored at `x` (right
+ * being the natural reading start for RTL content) if left implicit, so an
+ * omitted align would silently flip meaning depending on the text's script.
+ * Callers must resolve their own default explicitly before calling.
  */
 export function drawBidiSafeText(
   page: PDFPage,
@@ -138,7 +144,7 @@ export function drawBidiSafeText(
     size: number;
     font: PDFFont;
     color: RGB;
-    align?: "left" | "right" | "center";
+    align: "left" | "right" | "center";
   },
 ): void {
   const { x, y, size, font, color } = options;
