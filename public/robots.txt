@@ -6,6 +6,10 @@ Disallow: /api/admin
 Disallow: /api/admin/
 Disallow: /api/auth
 Disallow: /api/auth/
+Disallow: /portal
+Disallow: /portal/
+Disallow: /patient-login
+Disallow: /patient-login/
 Disallow: /forbidden
 Disallow: /forbidden/
 Disallow: /login

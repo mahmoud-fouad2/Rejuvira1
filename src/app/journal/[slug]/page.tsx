@@ -36,6 +36,13 @@ export async function generateMetadata({
     description: post.excerpt,
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
     },
     openGraph: {
       title: post.title,
@@ -44,6 +51,8 @@ export async function generateMetadata({
       images: [post.coverImageUrl],
       type: "article",
       publishedTime: post.publishedAt,
+      locale: "ar_SA",
+      alternateLocale: "en_US",
     },
     twitter: {
       card: "summary_large_image",
@@ -54,6 +63,12 @@ export async function generateMetadata({
     robots: {
       index: true,
       follow: true,
+    },
+    other: {
+      "geo.region": "SA-01",
+      "geo.placename": "Riyadh",
+      "geo.position": "24.7225835;46.6527524",
+      ICBM: "24.7225835, 46.6527524",
     },
   };
 }
@@ -87,14 +102,16 @@ export default async function JournalDetailPage({
   const journalJsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "@id": `${postUrl}#article`,
     headline: post.title,
     description: post.excerpt,
     image: post.coverImageUrl,
     datePublished: post.publishedAt,
     url: postUrl,
+    inLanguage: ["ar", "en"],
+    mainEntityOfPage: postUrl,
     publisher: {
-      "@type": "Organization",
-      name: "Rejuvera Center",
+      "@id": `${getSiteUrl()}#organization`,
     },
   };
   const breadcrumbJsonLd = {

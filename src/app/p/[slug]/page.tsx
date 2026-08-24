@@ -46,12 +46,21 @@ export async function generateMetadata({
     keywords: page.keywords.length ? [...page.keywords] : undefined,
     alternates: {
       canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
     },
     openGraph: {
       title: ogTitle,
       description: ogDescription,
       url: canonicalUrl,
       type: "website",
+      locale: "ar_SA",
+      alternateLocale: "en_US",
       ...(page.ogImage ? { images: [{ url: page.ogImage }] } : {}),
     },
     twitter: {
@@ -60,9 +69,15 @@ export async function generateMetadata({
       description: ogDescription,
       ...(page.ogImage ? { images: [page.ogImage] } : {}),
     },
-    other: page.hashtags.length
-      ? { "article:tag": page.hashtags.join(", ") }
-      : undefined,
+    other: {
+      "geo.region": "SA-01",
+      "geo.placename": "Riyadh",
+      "geo.position": "24.7225835;46.6527524",
+      ICBM: "24.7225835, 46.6527524",
+      ...(page.hashtags.length
+        ? { "article:tag": page.hashtags.join(", ") }
+        : {}),
+    },
     ...(robots ? { robots } : {}),
   };
 }
