@@ -4,6 +4,7 @@ import {
   type FormEvent,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -247,17 +248,30 @@ export function ContactForm({
     [isPending, siteKey],
   );
 
+  const uniqueServices = useMemo(() => {
+    const seen = new Set<string>();
+    const result: ServiceRecord[] = [];
+    for (const s of services) {
+      const key = (s.name || "").trim().toLowerCase();
+      if (!key || seen.has(key) || seen.has(s.slug)) continue;
+      seen.add(key);
+      seen.add(s.slug);
+      result.push(s);
+    }
+    return result;
+  }, [services]);
+
   return (
     <form
       ref={formRef}
       action="/api/contact"
       method="post"
       onSubmit={handleSubmit}
-      className={["grid gap-5", formClassName].filter(Boolean).join(" ")}
+      className={[compact ? "grid gap-3.5" : "grid gap-5", formClassName].filter(Boolean).join(" ")}
     >
-      <div className="grid gap-5 md:grid-cols-2">
-        <label className="grid gap-2">
-          <span className="text-ink-strong text-sm font-semibold tracking-tight">
+      <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-5 md:grid-cols-2"}>
+        <label className="grid gap-1.5">
+          <span className="text-ink-strong text-xs sm:text-sm font-semibold tracking-tight">
             <span className="lang-ar">الاسم الكامل</span>
             <span className="lang-en">Full name</span>
           </span>
@@ -269,8 +283,8 @@ export function ContactForm({
             required
           />
         </label>
-        <label className="grid gap-2">
-          <span className="text-ink-strong text-sm font-semibold tracking-tight">
+        <label className="grid gap-1.5">
+          <span className="text-ink-strong text-xs sm:text-sm font-semibold tracking-tight">
             <span className="lang-ar">رقم الجوال</span>
             <span className="lang-en">Phone number</span>
           </span>
@@ -290,8 +304,8 @@ export function ContactForm({
           />
         </label>
       </div>
-      <label className="grid gap-2">
-        <span className="text-ink-strong text-sm font-semibold tracking-tight">
+      <label className="grid gap-1.5">
+        <span className="text-ink-strong text-xs sm:text-sm font-semibold tracking-tight">
           <span className="lang-ar">الخدمة المطلوبة</span>
           <span className="lang-en">Requested service</span>
         </span>
@@ -312,7 +326,7 @@ export function ContactForm({
                 : GENERAL_INQUIRY_SERVICE_EN}
             </option>
           )}
-          {services.map((service) => (
+          {uniqueServices.map((service) => (
             <option key={service.id} value={service.slug}>
               {service.name}
             </option>

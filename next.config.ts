@@ -24,10 +24,15 @@ const isProd = process.env.NODE_ENV === "production";
 function buildCsp(frameAncestors: string) {
   const googleScriptOrigins = [
     "https://www.google.com",
+    "https://*.google.com",
     "https://www.gstatic.com",
+    "https://*.gstatic.com",
     "https://www.googletagmanager.com",
+    "https://*.googletagmanager.com",
     "https://www.googleadservices.com",
     "https://googleads.g.doubleclick.net",
+    "https://*.recaptcha.net",
+    "https://www.recaptcha.net",
   ].join(" ");
   const metaScriptOrigins = "https://connect.facebook.net";
   // TikTok Pixel (events.js) loads from analytics.tiktok.com.
@@ -48,8 +53,9 @@ function buildCsp(frameAncestors: string) {
     "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' https: wss:",
-    "frame-src 'self' https://www.google.com https://www.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://tr.snapchat.com https://www.faheemly.com https://*.faheemly.com",
+    "connect-src 'self' https: wss: data: blob:",
+    "frame-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.gstatic.com https://*.recaptcha.net https://www.recaptcha.net https://www.googletagmanager.com https://*.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://tr.snapchat.com https://www.faheemly.com https://*.faheemly.com",
+    "child-src 'self' https://www.google.com https://*.google.com https://*.gstatic.com https://*.recaptcha.net blob:",
     "media-src 'self' https: data:",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
@@ -147,6 +153,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "rejuvera.sa" },
       { protocol: "https", hostname: "www.rejuvera.sa" },
       { protocol: "https", hostname: "cdn.rejuvera.sa" },
+      { protocol: "https", hostname: "ma-fo.info" },
     ],
   },
   env: {

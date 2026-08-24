@@ -169,55 +169,49 @@ export function BookingModal({
                 style={{
                   position: "relative",
                   zIndex: 1,
-                  width: "min(100%, 44rem)",
-                  maxHeight: "min(88dvh, 46rem)",
+                  width: "min(100%, 34rem)",
+                  maxHeight: "min(92dvh, 38rem)",
                   margin: "auto",
+                  padding: "clamp(1.1rem, 2.5vw, 1.6rem)",
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                 }}
               >
-                <div className="rv-booking-head">
-                  <span className="rv-v0-pill">
-                    <span className="lang-ar">حجز موعد</span>
-                    <span className="lang-en">Appointment booking</span>
-                  </span>
+                <div className="flex items-start justify-between gap-3 border-b border-purple-900/10 dark:border-purple-300/10 pb-3">
+                  <div>
+                    <h2 id={titleId} className="font-serif text-lg font-bold text-ink sm:text-xl leading-tight">
+                      <span className="lang-ar">طلب حجز موعد</span>
+                      <span className="lang-en">Book an Appointment</span>
+                    </h2>
+                    <p className="text-xs text-ink-soft mt-0.5">
+                      <span className="lang-ar">
+                        أدخلي بياناتك وسيتواصل معك فريق الاستقبال لتأكيد الموعد.
+                      </span>
+                      <span className="lang-en">
+                        Enter your details and our team will confirm your appointment.
+                      </span>
+                    </p>
+                  </div>
                   <button
                     type="button"
-                    className="rv-booking-close"
+                    className="rv-booking-close shrink-0"
                     onClick={startClose}
                     aria-label="Close"
                   >
                     ×
                   </button>
                 </div>
-                <h2 id={titleId} className="rv-booking-title">
-                  <span className="lang-ar">
-                    احجزي موعدك بخطوات بسيطة، وسيتواصل معك فريق ريجوفيرا لتأكيد
-                    التفاصيل.
-                  </span>
-                  <span className="lang-en">
-                    Book in a few simple steps and our team will confirm the
-                    details.
-                  </span>
-                </h2>
-                <p className="rv-booking-lead">
-                  <span className="lang-ar">
-                    اكتبي الاسم ورقم الجوال واختاري الخدمة الأقرب لاحتياجك.
-                  </span>
-                  <span className="lang-en">
-                    Enter your name, phone number, and the service you are
-                    interested in.
-                  </span>
-                </p>
-                <ContactForm
-                  services={services}
-                  recaptchaSiteKey={recaptchaSiteKey}
-                  compact
-                  source={source}
-                  submitLabelAr="إرسال طلب الحجز"
-                  submitLabelEn="Send booking request"
-                  formClassName="rv-booking-form"
-                />
+                <div className="mt-3.5">
+                  <ContactForm
+                    services={services}
+                    recaptchaSiteKey={recaptchaSiteKey}
+                    compact
+                    source={source}
+                    submitLabelAr="إرسال طلب الحجز"
+                    submitLabelEn="Send booking request"
+                    formClassName="rv-booking-form"
+                  />
+                </div>
               </div>
             </div>,
             document.body,
