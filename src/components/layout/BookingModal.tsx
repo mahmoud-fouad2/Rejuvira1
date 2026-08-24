@@ -135,7 +135,8 @@ export function BookingModal({
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "clamp(0.75rem, 3vw, 1.5rem)",
-                overflow: "auto",
+                overflowX: "hidden",
+                overflowY: "auto",
                 overscrollBehavior: "contain",
               }}
             >
@@ -173,6 +174,7 @@ export function BookingModal({
                   maxHeight: "min(92dvh, 38rem)",
                   margin: "auto",
                   padding: "clamp(1.1rem, 2.5vw, 1.6rem)",
+                  overflowX: "hidden",
                   overflowY: "auto",
                   overscrollBehavior: "contain",
                 }}

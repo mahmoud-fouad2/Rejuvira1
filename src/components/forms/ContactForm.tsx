@@ -369,7 +369,8 @@ export function ContactForm({
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute h-px w-px -translate-x-[9999px] overflow-hidden opacity-0"
+        className="pointer-events-none absolute inset-0 -z-50 h-0 w-0 overflow-hidden opacity-0"
+        style={{ display: "none" }}
       >
         <label>
           Company

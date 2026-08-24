@@ -46,7 +46,7 @@ function buildCsp(frameAncestors: string) {
     "https://www.faheemly.com https://*.faheemly.com";
 
   return [
-    "default-src 'self'",
+    `default-src 'self' ${googleScriptOrigins} data: blob:`,
     `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${snapchatScriptOrigins} ${widgetScriptOrigins}`.trim(),
     `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${snapchatScriptOrigins} ${widgetScriptOrigins}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

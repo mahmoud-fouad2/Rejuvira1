@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -10506,6 +10506,7 @@ html[data-theme="dark"] .rv-v0-pay-card {
   );
   padding: clamp(1.1rem, 3vw, 2rem);
   box-shadow: 0 34px 90px rgba(20, 10, 36, 0.32);
+  overflow-x: hidden;
 }
 
 .rv-booking-head {
