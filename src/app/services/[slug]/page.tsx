@@ -5,9 +5,11 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { StickyMobileCta } from "@/components/public/StickyMobileCta";
 import {
   getDoctors,
   getDevices,
+  getRuntimeSettings,
   getServiceBySlug,
 } from "@/lib/content-repository";
 import { getCoreServiceSeo } from "@/lib/core-search";
@@ -102,10 +104,11 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [service, doctors, devices] = await Promise.all([
+  const [service, doctors, devices, runtimeSettings] = await Promise.all([
     getServiceBySlug(slug),
     getDoctors(),
     getDevices(),
+    getRuntimeSettings(),
   ]);
 
   if (!service) {
@@ -389,6 +392,13 @@ export default async function ServiceDetailPage({
           </div>
         </section>
       </main>
+      <StickyMobileCta
+        titleAr={service.name}
+        titleEn={service.nameEn ?? service.name}
+        whatsappNumber={runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone}
+        bookingHref="/contact"
+        whatsappMessage={`مرحباً ريجوفيرا، أود حجز استشارة لخدمة ${service.name}.`}
+      />
       <SiteFooter />
     </div>
   );

@@ -351,6 +351,50 @@ export default async function AdminPage() {
         </div>
       </div>
 
+      {/* Quick Launch Bar */}
+      <section className="mb-4 flex flex-wrap items-center gap-2.5 rounded-2xl border border-purple-900/10 bg-white/70 dark:bg-purple-950/20 p-2.5 shadow-sm backdrop-blur-sm">
+        <span className="px-2 text-xs font-bold text-purple-900 dark:text-purple-300">
+          <span className="lang-ar">إجراء سريع:</span>
+          <span className="lang-en">Quick Actions:</span>
+        </span>
+        <Link
+          href={"/admin/patients?add=1" as Route}
+          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl bg-purple-900 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-purple-800"
+        >
+          <span>+</span>
+          <span className="lang-ar">مريض جديد</span>
+          <span className="lang-en">New Patient</span>
+        </Link>
+        <Link
+          href={"/admin/crm" as Route}
+          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-purple-900/15 bg-white/80 dark:bg-purple-900/30 px-3.5 py-1.5 text-xs font-bold text-purple-950 dark:text-purple-200 shadow-sm transition hover:border-purple-900/30"
+        >
+          <span>+</span>
+          <span className="lang-ar">ليد جديد</span>
+          <span className="lang-en">New Lead</span>
+        </Link>
+        <Link
+          href={"/admin/journal" as Route}
+          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-purple-900/15 bg-white/80 dark:bg-purple-900/30 px-3.5 py-1.5 text-xs font-bold text-purple-950 dark:text-purple-200 shadow-sm transition hover:border-purple-900/30"
+        >
+          <span>+</span>
+          <span className="lang-ar">مقال جديد</span>
+          <span className="lang-en">New Article</span>
+        </Link>
+        <Link
+          href={"/admin/media" as Route}
+          className="inline-flex min-h-[36px] items-center gap-1.5 rounded-xl border border-purple-900/15 bg-white/80 dark:bg-purple-900/30 px-3.5 py-1.5 text-xs font-bold text-purple-950 dark:text-purple-200 shadow-sm transition hover:border-purple-900/30"
+        >
+          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <path d="m21 15-5-5L5 21" />
+          </svg>
+          <span className="lang-ar">إدارة الوسائط</span>
+          <span className="lang-en">Media Library</span>
+        </Link>
+      </section>
+
       <section className="admin-command-center">
         <div className="admin-command-center__copy">
           <span className="admin-command-center__eyebrow">

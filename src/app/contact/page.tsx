@@ -19,14 +19,15 @@ function digitsOnly(value: string) {
   return value.replace(/\D/g, "");
 }
 
-function toSaudiWhatsappHref(value: string) {
+function toSaudiWhatsappHref(value: string, message?: string) {
   const digits = digitsOnly(value);
   const normalized = digits.startsWith("966")
     ? digits
     : digits.startsWith("0")
       ? `966${digits.slice(1)}`
       : `966${digits}`;
-  return `https://wa.me/${normalized}`;
+  const text = message ? `?text=${encodeURIComponent(message)}` : "";
+  return `https://wa.me/${normalized}${text}`;
 }
 
 export default async function ContactPage() {
@@ -41,13 +42,14 @@ export default async function ContactPage() {
   const secondaryDigits = digitsOnly(runtimeSettings.contact.phoneSecondary);
   const contactChannels = [
     {
-      labelAr: "واتساب",
-      labelEn: "WhatsApp",
+      labelAr: "واتساب مباشر",
+      labelEn: "Direct WhatsApp",
       value: runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
-      hintAr: `زمن الرد المستهدف ${runtimeSettings.ops.sla}`,
-      hintEn: `Target response time ${runtimeSettings.ops.sla}`,
+      hintAr: `زمن الرد المستهدف ${runtimeSettings.ops.sla} — محادثة فورية`,
+      hintEn: `Target response time ${runtimeSettings.ops.sla} — Instant chat`,
       href: toSaudiWhatsappHref(
         runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
+        "مرحباً مركز ريجوفيرا، أود الاستفسار عن استشارة وخدمات التجميل.",
       ),
       kind: "whatsapp" as const,
     },

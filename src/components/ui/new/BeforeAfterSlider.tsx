@@ -119,7 +119,7 @@ export function BeforeAfterSlider({
       onPointerCancel={endDrag}
       onLostPointerCapture={endDrag}
       data-dragging={dragging || undefined}
-      style={{ aspectRatio: "4/5", touchAction: "none" }}
+      style={{ aspectRatio: "4/5", touchAction: "pan-y" }}
     >
       {/* After image (full layer) */}
       <Image

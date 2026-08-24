@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { BrandLogo } from "@/components/layout/BrandLogo";
 import { LanguageToggle } from "@/components/layout/LanguageToggle";
 import { PortalNav } from "@/components/portal/PortalNav";
+import { PortalMobileNav } from "@/components/portal/PortalMobileNav";
 import { logoutAction } from "./actions";
 import { getPatientSession } from "@/lib/portal/patient-auth";
 
@@ -64,6 +65,7 @@ export default async function PortalLayout({
           </Link>
         </p>
       </footer>
+      <PortalMobileNav />
     </div>
   );
 }

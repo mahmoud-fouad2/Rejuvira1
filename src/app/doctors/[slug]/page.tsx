@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { BookingModal } from "@/components/layout/BookingModal";
+import { StickyMobileCta } from "@/components/public/StickyMobileCta";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 import {
   getDevices,
@@ -545,6 +546,13 @@ export default async function DoctorDetailPage({
           </div>
         </section>
       </main>
+      <StickyMobileCta
+        titleAr={doctor.name}
+        titleEn={doctor.nameEn ?? doctor.name}
+        whatsappNumber={runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone}
+        bookingHref="/contact"
+        whatsappMessage={`مرحباً ريجوفيرا، أود حجز استشارة طبية مع ${doctor.name}.`}
+      />
       <SiteFooter />
     </div>
   );

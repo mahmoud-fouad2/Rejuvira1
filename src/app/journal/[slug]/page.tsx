@@ -145,7 +145,7 @@ export default async function JournalDetailPage({
           <p className="text-ink-soft font-mono text-xs tracking-[0.36em] uppercase">
             {post.category}
           </p>
-          <h1 className="balanced-text text-ink mt-4 font-serif text-5xl leading-[1.1] tracking-[-0.02em]">
+          <h1 className="balanced-text text-ink mt-4 font-serif text-4xl md:text-5xl leading-[1.15] tracking-[-0.02em]">
             {post.title}
           </h1>
           <div className="text-ink-faint mt-5 flex flex-wrap gap-3 text-sm">
@@ -154,7 +154,7 @@ export default async function JournalDetailPage({
               {new Date(post.publishedAt).toLocaleDateString("ar-SA")}
             </span>
           </div>
-          <p className="text-ink-soft mt-6 max-w-3xl text-base leading-8">
+          <p className="text-ink-soft mt-6 max-w-3xl text-base md:text-lg leading-8">
             {post.excerpt}
           </p>
         </section>
@@ -171,7 +171,7 @@ export default async function JournalDetailPage({
                   return (
                     <div
                       key={paragraph}
-                      className="rv-journal-prose text-ink-soft text-base leading-9"
+                      className="rv-journal-prose text-ink-strong/90 text-base md:text-lg leading-[2] md:leading-[2.2]"
                       // sanitized server-side in admin actions before persistence.
                       dangerouslySetInnerHTML={{ __html: paragraph }}
                     />
@@ -180,7 +180,7 @@ export default async function JournalDetailPage({
                 return (
                   <p
                     key={paragraph}
-                    className="text-ink-soft text-base leading-9"
+                    className="text-ink-strong/90 text-base md:text-lg leading-[2] md:leading-[2.2]"
                   >
                     {paragraph}
                   </p>
@@ -198,7 +198,7 @@ export default async function JournalDetailPage({
                   <Link
                     key={service.id}
                     href={`/services/${service.slug}`}
-                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-4 py-4 text-sm"
+                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-4 py-4 text-sm hover:border-purple-mid/40 transition-colors"
                   >
                     <span className="text-ink block font-semibold">
                       {service.name}
@@ -219,7 +219,7 @@ export default async function JournalDetailPage({
                   <Link
                     key={doctor.id}
                     href={`/doctors/${doctor.slug}`}
-                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-4 py-4 text-sm"
+                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-4 py-4 text-sm hover:border-purple-mid/40 transition-colors"
                   >
                     <span className="text-ink block font-semibold">
                       {doctor.name}
@@ -244,7 +244,7 @@ export default async function JournalDetailPage({
               </p>
               <Link
                 href="/contact"
-                className="bg-ink text-canvas mt-5 inline-flex rounded-full px-4 py-2 text-sm font-semibold"
+                className="bg-ink text-canvas mt-5 inline-flex rounded-full px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
               >
                 ابدئي مسار التواصل
               </Link>
