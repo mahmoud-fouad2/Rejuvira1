@@ -4,12 +4,14 @@ import { fireSnapSignUp } from "@/lib/snap-pixel";
 
 type DataLayerEvent = Record<string, unknown> & { event: string };
 type MetaPixelFunction = (...args: unknown[]) => void;
+type TikTokPixelFunction = (...args: unknown[]) => void;
 
 declare global {
   interface Window {
     dataLayer?: DataLayerEvent[];
     fbq?: MetaPixelFunction;
     gtag?: (...args: unknown[]) => void;
+    ttq?: TikTokPixelFunction;
   }
 }
 
@@ -82,6 +84,24 @@ function dispatchMetaLead(
   }
 }
 
+/**
+ * Fire ttq.track('Lead') via the TikTok Pixel already loaded by the admin's
+ * customHeadCode snippet.  Retries up to ~3 s in case the snippet loads
+ * slightly after React hydration — matches the same pattern as dispatchMetaLead.
+ *
+ * Called ONLY from trackLeadConversion(), which itself is called only after a
+ * confirmed successful server response, so no duplicate-firing risk exists.
+ */
+function dispatchTikTokLead(attempt = 0) {
+  if (typeof window.ttq === "function") {
+    window.ttq("track", "Lead");
+    return;
+  }
+  if (attempt < 12) {
+    window.setTimeout(() => dispatchTikTokLead(attempt + 1), 250);
+  }
+}
+
 export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
@@ -139,6 +159,13 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
     event: "form_success",
     ...safePayload,
   });
+
+  // TikTok Pixel — standard Lead event.
+  // Fires exactly once per successful submission; dispatchTikTokLead() retries
+  // for up to ~3 s in case the ttq snippet loads after React hydration.
+  // PAGE_VIEW (ttq.page()) is handled separately by the existing pixel snippet
+  // in the admin customHeadCode — we never touch that here.
+  dispatchTikTokLead();
 
   // Snap Pixel — SIGN_UP with hashed PII and deduplication ID.
   // The dedupId is generated server-side and returned in the API response;
