@@ -18022,17 +18022,6 @@ html[data-theme="dark"] .gallery-card__divider {
   }
 }
 
-/* LTR (English) flip */
-@media (max-width: 767px) {
-  html[data-lang="en"] .rv-mobile-details {
-    justify-self: end !important;
-    grid-area: actions !important;
-  }
-  html[data-lang="en"] .rv-mobile-inline-actions {
-    justify-self: start !important;
-    grid-area: menu !important;
-  }
-}
 
 /* Patient portal dashboard */
 .patient-portal-dashboard {

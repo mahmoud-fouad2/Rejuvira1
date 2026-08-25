@@ -182,15 +182,26 @@ export function SiteMegaMenu({
               </span>
             </p>
           </div>
-          <Link
-            href="/services"
-            className="rv-mega-panel-all"
-            onClick={() => setOpen(false)}
-          >
-            <span className="lang-ar">كل الخدمات</span>
-            <span className="lang-en">All services</span>
-            <span aria-hidden>←</span>
-          </Link>
+          <div className="flex flex-wrap items-center gap-2 max-sm:w-full max-sm:justify-center">
+            <Link
+              href="/services"
+              className="rv-mega-panel-all"
+              onClick={() => setOpen(false)}
+            >
+              <span className="lang-ar">كل الخدمات</span>
+              <span className="lang-en">All services</span>
+              <span aria-hidden>←</span>
+            </Link>
+            <Link
+              href="/doctors"
+              className="rv-mega-panel-all"
+              onClick={() => setOpen(false)}
+            >
+              <span className="lang-ar">كل الأطباء</span>
+              <span className="lang-en">All doctors</span>
+              <span aria-hidden>←</span>
+            </Link>
+          </div>
         </div>
         <div className="rv-mega-grid">
           {columns.map((column) => (
