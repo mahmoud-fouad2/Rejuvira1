@@ -1,5 +1,7 @@
 "use client";
 
+import { fireSnapSignUp } from "@/lib/snap-pixel";
+
 type DataLayerEvent = Record<string, unknown> & { event: string };
 type MetaPixelFunction = (...args: unknown[]) => void;
 
@@ -22,6 +24,16 @@ export type LeadConversionPayload = {
   utmCampaign?: string | undefined;
   utmContent?: string | undefined;
   path?: string | undefined;
+  /** Raw phone number captured from the form (for Snap setUserData + SIGN_UP). */
+  phone?: string | undefined;
+  /** Raw email captured from the form (for Snap setUserData + SIGN_UP). */
+  email?: string | undefined;
+  /**
+   * Shared deduplication ID sent to both the browser Snap Pixel and the
+   * server-side Snap CAPI so Snap can de-duplicate the two signals.
+   * Generated server-side and returned in the API response.
+   */
+  snapDedupId?: string | undefined;
 };
 
 function cleanPayload(payload: LeadConversionPayload) {
@@ -127,6 +139,13 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
     event: "form_success",
     ...safePayload,
   });
+
+  // Snap Pixel — SIGN_UP with hashed PII and deduplication ID.
+  // The dedupId is generated server-side and returned in the API response;
+  // it is mirrored to the server-side CAPI call so Snap deduplicates both.
+  if (payload.phone && payload.snapDedupId) {
+    fireSnapSignUp(payload.phone, payload.email, payload.snapDedupId);
+  }
 }
 
 export function leadPayloadFromForm(
@@ -152,5 +171,8 @@ export function leadPayloadFromForm(
     utmMedium: get("utmMedium", "utm_medium"),
     utmCampaign: get("utmCampaign", "utm_campaign"),
     utmContent: get("utmContent", "utm_content"),
+    // PII for Snap setUserData — never sent to analytics layers, only to Snap.
+    phone: get("phone"),
+    email: get("email"),
   };
 }

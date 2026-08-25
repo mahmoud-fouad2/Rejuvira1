@@ -215,6 +215,17 @@ export function ContactForm({
       } catch {
         /* token stays empty — server accepts the lead and tags it for review */
       }
+
+      // Generate a dedup ID now (before the fetch) so the server CAPI call
+      // and the browser Pixel SIGN_UP event can share the exact same value.
+      const snapDedupId =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `rv_snap_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+      const formData = new FormData(form);
+      formData.set("snapDedupId", snapDedupId);
+
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
@@ -222,7 +233,7 @@ export function ContactForm({
           "x-requested-with": "fetch",
           "x-rejuvera-current-url": window.location.href,
         },
-        body: new FormData(form),
+        body: formData,
       }).catch(() => null);
       if (!response) {
         setState({
@@ -234,12 +245,18 @@ export function ContactForm({
         return;
       }
       const rawData = (await response.json().catch(() => null)) as
-        | Partial<ContactActionState>
+        | (Partial<ContactActionState> & { snapDedupId?: string })
         | null;
       const data = normalizeContactActionState(rawData, response.ok);
       setState(data);
       if (response.ok && data.status === "success" && !data.duplicate) {
-        trackLeadConversion(leadPayloadFromForm(form, "contact_form"));
+        // The server echoes back the dedupId it used for CAPI.
+        // Prefer it; fall back to the one we generated locally.
+        const confirmedDedupId = rawData?.snapDedupId ?? snapDedupId;
+        trackLeadConversion({
+          ...leadPayloadFromForm(form, "contact_form"),
+          snapDedupId: confirmedDedupId,
+        });
         form.reset();
         if (tokenInputRef.current) tokenInputRef.current.value = "";
       }

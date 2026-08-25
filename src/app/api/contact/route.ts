@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -29,6 +30,7 @@ import {
   SAUDI_MOBILE_ERROR_MESSAGE,
   SAUDI_MOBILE_REGEX,
 } from "@/lib/saudi-phone";
+import { sendSnapSignUpCapi } from "@/lib/snap-capi";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -54,6 +56,8 @@ const contactSchema = z.object({
   utmMedium: z.string().max(120).optional().or(z.literal("")),
   utmCampaign: z.string().max(120).optional().or(z.literal("")),
   utmContent: z.string().max(120).optional().or(z.literal("")),
+  /** Client-generated deduplication ID for Snap Pixel / CAPI dedup. */
+  snapDedupId: z.string().max(128).optional().or(z.literal("")),
 });
 
 function formString(formData: FormData, key: string) {
@@ -128,6 +132,8 @@ export async function POST(request: Request) {
       utmContent:
         formString(formData, "utmContent") ||
         formString(formData, "utm_content"),
+      // Snap dedup ID: sent by the client before firing the browser Pixel event.
+      snapDedupId: formString(formData, "snapDedupId"),
     },
     request,
   );
@@ -365,7 +371,38 @@ export async function POST(request: Request) {
       payload: buildContactWebhookPayload("contact_submission.created", false),
     });
 
+    // Snap Conversions API (server-side).
+    // Use the client-supplied dedupId when present so the server CAPI event
+    // and the browser Pixel SIGN_UP event share the same dedup key.
+    // If the client did not supply one (e.g. non-JSON submission) we generate
+    // a fresh ID here; the browser will not have a matching Pixel event for it
+    // but the CAPI event is still sent with the best available data.
+    const snapDedupId = parsed.data.snapDedupId || randomUUID();
+    void sendSnapSignUpCapi({
+      dedupId: snapDedupId,
+      phone: parsed.data.phone,
+      email: parsed.data.email || undefined,
+      ip: clientIp !== "unknown" ? clientIp : undefined,
+      userAgent: request.headers.get("user-agent") ?? undefined,
+      pageUrl: request.headers.get("referer") ?? undefined,
+    });
+
     revalidatePath("/admin/crm");
+
+    // Return snapDedupId in the JSON response so the browser can fire the
+    // matching Pixel SIGN_UP event with the same client_dedup_id.
+    if (wantsJson(request)) {
+      return NextResponse.json(
+        {
+          ok: true,
+          status: "success",
+          message:
+            "تم استلام طلبك بنجاح، وسيتواصل معك الفريق في أقرب وقت. / Your request has been received.",
+          snapDedupId,
+        },
+        { status: 200 },
+      );
+    }
 
     return response(
       request,
