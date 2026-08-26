@@ -622,29 +622,15 @@ export async function SiteFooter() {
               <span className="lang-ar">اعتمادات ومعايير</span>
               <span className="lang-en">Trust &amp; Compliance</span>
             </p>
-            <ul className="rv-v0-trust-strip" aria-label="Trust badges">
-              {trustBadges.map((badge) => (
-                <li key={badge.src} className="rv-v0-trust-badge">
-                  <Image
-                    src={badge.src}
-                    alt={badge.alt}
-                    width={120}
-                    height={48}
-                    className="rv-v0-trust-badge-img"
-                    unoptimized
-                  />
-                </li>
-              ))}
-              <li className="flex items-center justify-center">
-                <Image
-                  src="/media/trust-icons.png"
-                  alt="Trust Icons"
-                  width={400}
-                  height={80}
-                  className="h-10 sm:h-14 w-auto object-contain"
-                />
-              </li>
-            </ul>
+            <div className="flex items-center justify-center py-1">
+              <Image
+                src="/media/trust-icons.png"
+                alt="اعتمادات ومعايير الجودة - Trust Badges"
+                width={1577}
+                height={297}
+                className="h-14 sm:h-20 md:h-24 w-auto max-w-full object-contain filter drop-shadow-sm transition-transform hover:scale-[1.02]"
+              />
+            </div>
           </div>
 
           <div className="rv-v0-footer-strip-block">
