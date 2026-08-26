@@ -24,20 +24,44 @@ const quickLinks = [
 // constrained box and uses next/image with explicit width/height (no `fill`).
 const trustBadges = [
   {
+    src: "/media/trust/badge-iso9001.png",
+    alt: "شهادة ISO 9001 المعتمده للجودة",
+    isPng: true,
+  },
+  {
+    src: "/media/trust/badge-cbahi.png",
+    alt: "اعتماد المركز السعودي لاعتماد المنشآت الصحية - CBAHI",
+    isPng: true,
+  },
+  {
+    src: "/media/trust/badge-shield.png",
+    alt: "شعار الاعتماد الطبي السعودي",
+    isPng: true,
+  },
+  {
+    src: "/media/trust/badge-emblem.png",
+    alt: "ترخيص وزارة الصحة - المملكة العربية السعودية",
+    isPng: true,
+  },
+  {
     src: "/media/trust/moh.svg",
     alt: "وزارة الصحة السعودية - Ministry of Health KSA",
+    isPng: false,
   },
   {
     src: "/media/trust/saudi-health-council.svg",
     alt: "الهيئة السعودية للتخصصات الصحية - Saudi Health Council",
+    isPng: false,
   },
   {
     src: "/media/trust/cbahi.svg",
     alt: "اعتماد المركز السعودي لاعتماد المنشآت الصحية - CBAHI",
+    isPng: false,
   },
   {
     src: "/media/trust/iso-9001.svg",
     alt: "شهادة ISO 9001 لإدارة الجودة - ISO 9001 quality certified",
+    isPng: false,
   },
 ] as const;
 
@@ -622,15 +646,24 @@ export async function SiteFooter() {
               <span className="lang-ar">اعتمادات ومعايير</span>
               <span className="lang-en">Trust &amp; Compliance</span>
             </p>
-            <div className="flex items-center justify-center py-1">
-              <Image
-                src="/media/trust-icons.png"
-                alt="اعتمادات ومعايير الجودة - Trust Badges"
-                width={1577}
-                height={297}
-                className="h-14 sm:h-20 md:h-24 w-auto max-w-full object-contain filter drop-shadow-sm transition-transform hover:scale-[1.02]"
-              />
-            </div>
+            <ul className="rv-v0-trust-strip flex flex-wrap items-center justify-center gap-3 sm:gap-4" aria-label="Trust badges">
+              {trustBadges.map((badge) => (
+                <li key={badge.src} className="flex items-center justify-center">
+                  <Image
+                    src={badge.src}
+                    alt={badge.alt}
+                    width={badge.isPng ? 64 : 120}
+                    height={badge.isPng ? 64 : 48}
+                    className={
+                      badge.isPng
+                        ? "h-11 w-11 sm:h-14 sm:w-14 object-contain transition-transform hover:scale-105"
+                        : "h-8 sm:h-10 w-auto object-contain transition-transform hover:scale-105"
+                    }
+                    unoptimized={!badge.isPng}
+                  />
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="rv-v0-footer-strip-block">
