@@ -635,6 +635,15 @@ export async function SiteFooter() {
                   />
                 </li>
               ))}
+              <li className="flex items-center justify-center">
+                <Image
+                  src="/media/trust-icons.png"
+                  alt="Trust Icons"
+                  width={400}
+                  height={80}
+                  className="h-10 sm:h-14 w-auto object-contain"
+                />
+              </li>
             </ul>
           </div>
 
