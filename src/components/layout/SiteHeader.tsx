@@ -1,4 +1,4 @@
-﻿import { ContentStatus } from "@/lib/prisma-enums";
+import { ContentStatus } from "@/lib/prisma-enums";
 import Link from "next/link";
 import { cookies } from "next/headers";
 
@@ -15,6 +15,7 @@ import { BookingModal } from "./BookingModal";
 import { BrandLogo } from "./BrandLogo";
 import { LanguageToggle } from "./LanguageToggle";
 import { ThemeToggle } from "./ThemeToggle";
+import { HolidayBanner } from "./HolidayBanner";
 
 const navLinks = [
   { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
@@ -87,6 +88,7 @@ export async function SiteHeader() {
 
   return (
     <header className="rv-v0-header sticky top-0 z-50">
+      <HolidayBanner />
       <div className="rv-v0-top-strip">
         <div className="rv-v0-top-inner mx-auto max-w-[var(--max-width)] px-4 sm:px-6 lg:px-8">
           <div className="rv-v0-top-contact" dir="ltr">
