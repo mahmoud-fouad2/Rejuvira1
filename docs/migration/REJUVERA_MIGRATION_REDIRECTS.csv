@@ -1,0 +1,25 @@
+old_url,new_url,status,reason,target_http_status
+https://rejuveraclinics.com/,https://rejuvera.sa/,READY - target verified live,homepage,200
+https://rejuveraclinics.com/من-نحن/,https://rejuvera.sa/about,READY - target verified live,about page (client-specified mapping),200
+https://rejuveraclinics.com/انصل-بنا/,https://rejuvera.sa/contact,READY - target verified live,contact page (client-specified mapping),200
+https://rejuveraclinics.com/booking/,https://rejuvera.sa/contact,READY - target verified live,booking -> contact form (client-specified mapping),200
+https://rejuveraclinics.com/خدماتنا/,https://rejuvera.sa/services,READY - target verified live,services hub (client-specified mapping),200
+https://rejuveraclinics.com/جراحة-التجميل/,https://rejuvera.sa/p/plastic-surgery-riyadh,READY - target verified live,plastic surgery hub landing page (client-specified mapping),200
+https://rejuveraclinics.com/التجميل-النسائي/,https://rejuvera.sa/services/female-aesthetic-care,READY - target verified live,female aesthetics (client-specified mapping),200
+https://rejuveraclinics.com/تجميل-نسائي-t/,https://rejuvera.sa/services/female-aesthetic-care,READY - target verified live,female aesthetics variant slug (client-specified mapping),200
+https://rejuveraclinics.com/ليزر-ازاله-الشعر/,https://rejuvera.sa/services/laser-hair-removal,READY - target verified live,laser hair removal (client-specified mapping),200
+[ALL old face/neck lift landing-page variants - exact old URLs not yet enumerated],https://rejuvera.sa/services/face-neck-lift,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)",client directive: old content primarily discusses combined face+neck lifting; NEEDS Phase 10 to enumerate the actual old URLs,200
+https://rejuveraclinics.com/عملية-شد-الترهلات/,https://rejuvera.sa/services/full-body-lift,READY - target verified live,sagging skin / full body lift (client-specified mapping),200
+https://rejuveraclinics.com/عمليات-شد-البطن/,https://rejuvera.sa/services/tummy-tuck,READY - target verified live,tummy tuck (client-specified mapping),200
+https://rejuveraclinics.com/عمليات-شد-الفخذين/,https://rejuvera.sa/services/thigh-lift,BLOCKED - target does not exist yet,thigh lift (client-specified mapping) - TARGET DOES NOT EXIST YET,404
+https://rejuveraclinics.com/عملية-شفط-وشد-الذراعين/,https://rejuvera.sa/services/arm-lift,READY - target verified live,arm lift (client-specified mapping),200
+[old Brazilian butt lift page - exact old URL not yet enumerated],https://rejuvera.sa/services/brazilian-butt-lift,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)",client directive; needs Phase 10 to find the actual old URL,200
+[old VASER/liposuction pages - exact old URLs not yet enumerated],https://rejuvera.sa/services/liposuction,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)","client directive; needs Phase 10. NOTE: canonical target itself has an unresolved case-duplicate at /services/Liposuction, see canonical-routes.csv",200
+[old 360 body-contouring pages - exact old URLs not yet enumerated],https://rejuvera.sa/services/body-contouring,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)","client directive; needs Phase 10. NOTE: this page already exists live - verify it is actually surgical/360 body contouring content, not confused with non-surgical",200
+https://rejuveraclinics.com/عمليات-شد-الجفن/,https://rejuvera.sa/services/upper-lower-eyelid-surgery,READY - target verified live,eyelid surgery (client-specified mapping),200
+[all old rhinoplasty landing pages - exact old URLs not yet enumerated],https://rejuvera.sa/services/rhinoplasty,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)",client directive; needs Phase 10,200
+[old breast-lift pages - exact old URLs not yet enumerated],https://rejuvera.sa/services/breast-lift,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)",client directive; needs Phase 10. TARGET DOES NOT EXIST YET,404
+[old breast-augmentation pages - exact old URLs not yet enumerated],https://rejuvera.sa/services/breast-augmentation-reshaping,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)",client directive; needs Phase 10,200
+[all old gynecomastia landing pages - exact old URLs not yet enumerated],https://rejuvera.sa/services/gynecomastia-surgery,"PENDING - old URL(s) not yet enumerated (Phase 10 blocked, see audit)",client directive; needs Phase 10,200
+https://rejuveraclinics.com/حقن-الفيلر/,https://rejuvera.sa/services/dermal-fillers,BLOCKED - target does not exist yet,dermal fillers (client-specified mapping) - TARGET DOES NOT EXIST YET,404
+https://rejuveraclinics.com/البوتوكس-botox/,https://rejuvera.sa/services/botox,BLOCKED - target does not exist yet,botox (client-specified mapping) - TARGET DOES NOT EXIST YET,404
