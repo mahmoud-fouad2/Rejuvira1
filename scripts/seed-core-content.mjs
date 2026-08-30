@@ -606,6 +606,54 @@ const services = [
     image: images.clinic,
     doctors: ["sabah-alrashid"],
   },
+  {
+    slug: "breast-lift",
+    nameAr: "شد الصدر",
+    nameEn: "Breast Lift",
+    categorySlug: "plastic-surgery",
+    excerptAr:
+      "إجراء تجميلي لرفع وشد أنسجة الصدر المترهلة واستعادة شكل أكثر تناسقًا وثباتًا.",
+    excerptEn:
+      "A cosmetic procedure to lift and firm sagging breast tissue for a more balanced, supported shape.",
+    image: images.body,
+    doctors: breastTeam,
+  },
+  {
+    slug: "thigh-lift",
+    nameAr: "شد الفخذين",
+    nameEn: "Thigh Lift",
+    categorySlug: "plastic-surgery",
+    excerptAr:
+      "إجراء جراحي لشد ترهلات الفخذين وتحسين تناسق الجزء السفلي من الجسم، خاصة بعد فقدان الوزن الكبير.",
+    excerptEn:
+      "A surgical procedure to tighten sagging thigh skin and improve lower-body contour, particularly after major weight loss.",
+    image: images.body,
+    doctors: plasticSurgeons,
+  },
+  {
+    slug: "dermal-fillers",
+    nameAr: "حقن الفيلر",
+    nameEn: "Dermal Fillers",
+    categorySlug: "dermatology-aesthetic-procedures",
+    excerptAr:
+      "حقن تجميلية غير جراحية لإعادة الامتلاء وتحسين ملامح الوجه بنتائج مؤقتة تحتاج متابعة دورية.",
+    excerptEn:
+      "A non-surgical injectable treatment to restore facial volume and refine features, with temporary results that require periodic follow-up.",
+    image: images.face,
+    doctors: dermatologyTeam,
+  },
+  {
+    slug: "botox",
+    nameAr: "حقن البوتوكس",
+    nameEn: "Botox Injections",
+    categorySlug: "dermatology-aesthetic-procedures",
+    excerptAr:
+      "حقن غير جراحية لتنعيم خطوط التعبير والتجاعيد الدقيقة بنتائج مؤقتة تحتاج متابعة دورية.",
+    excerptEn:
+      "Non-surgical injections that soften expression lines and fine wrinkles, with temporary results requiring periodic follow-up.",
+    image: images.face,
+    doctors: dermatologyTeam,
+  },
 ];
 
 function descriptionForService(service) {
