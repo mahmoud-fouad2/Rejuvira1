@@ -11,8 +11,22 @@ import { createServiceDraft, updateService } from "@/lib/content-repository";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Lowercase + hyphenated, matching the slug format enforced elsewhere in the
+// app (e.g. landing pages). Without this, "Liposuction" and "liposuction"
+// were accepted as two distinct slugs, creating a duplicate service page.
+const SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+const slugField = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3)
+  .refine((value) => SLUG_PATTERN.test(value), {
+    message:
+      "الرابط يجب أن يكون بأحرف إنجليزية صغيرة وأرقام وشرطات فقط (مثال: service-name).",
+  });
+
 const serviceSchema = z.object({
-  slug: z.string().min(3),
+  slug: slugField,
   name: z.string().min(3),
   nameEn: z.string().optional().or(z.literal("")),
   category: z.string().min(2),
