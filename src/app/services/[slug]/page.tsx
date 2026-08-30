@@ -34,17 +34,25 @@ export async function generateMetadata({
   const coreSeo = getCoreServiceSeo(service);
   const titleAr =
     service.seoTitleAr ?? coreSeo?.seoTitleAr ?? `${service.name} | ريجوفيرا`;
+  // Deliberately does NOT fall back to service.name (Arabic) here: this value
+  // is concatenated into the page <title>/OG title as "titleAr — titleEn", so
+  // falling back to the Arabic name would duplicate it into the English half
+  // (confirmed live for a service missing nameEn). A generic brand fallback
+  // keeps the title valid without duplicating content.
   const titleEn =
     service.seoTitleEn ??
     coreSeo?.seoTitleEn ??
-    `${service.nameEn ?? service.name} | Rejuvera`;
+    `${service.nameEn ?? "Rejuvera Medical Center"} | Rejuvera`;
   const descriptionAr =
     service.seoDescriptionAr ?? coreSeo?.seoDescriptionAr ?? service.excerpt;
+  // Same reasoning as titleEn above: do not fall back to service.excerpt
+  // (Arabic) here, since it would duplicate the Arabic text already used for
+  // descriptionAr into the "English" half of the meta description.
   const descriptionEn =
     service.seoDescriptionEn ??
     coreSeo?.seoDescriptionEn ??
     service.excerptEn ??
-    service.excerpt;
+    "Learn more about this service at Rejuvera Medical Center in Riyadh.";
   const title = `${titleAr} — ${titleEn}`;
   const description = `${descriptionAr} ${descriptionEn}`;
 
