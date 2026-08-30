@@ -1,0 +1,14 @@
+source_url,target_url,status_code,include_subdomains,subpath_matching,preserve_query_string
+https://rejuveraclinics.com/,https://rejuvera.sa/,301,false,false,true
+https://rejuveraclinics.com/من-نحن/,https://rejuvera.sa/about,301,false,false,true
+https://rejuveraclinics.com/انصل-بنا/,https://rejuvera.sa/contact,301,false,false,true
+https://rejuveraclinics.com/booking/,https://rejuvera.sa/contact,301,false,false,true
+https://rejuveraclinics.com/خدماتنا/,https://rejuvera.sa/services,301,false,false,true
+https://rejuveraclinics.com/جراحة-التجميل/,https://rejuvera.sa/p/plastic-surgery-riyadh,301,false,false,true
+https://rejuveraclinics.com/التجميل-النسائي/,https://rejuvera.sa/services/female-aesthetic-care,301,false,false,true
+https://rejuveraclinics.com/تجميل-نسائي-t/,https://rejuvera.sa/services/female-aesthetic-care,301,false,false,true
+https://rejuveraclinics.com/ليزر-ازاله-الشعر/,https://rejuvera.sa/services/laser-hair-removal,301,false,false,true
+https://rejuveraclinics.com/عملية-شد-الترهلات/,https://rejuvera.sa/services/full-body-lift,301,false,false,true
+https://rejuveraclinics.com/عمليات-شد-البطن/,https://rejuvera.sa/services/tummy-tuck,301,false,false,true
+https://rejuveraclinics.com/عملية-شفط-وشد-الذراعين/,https://rejuvera.sa/services/arm-lift,301,false,false,true
+https://rejuveraclinics.com/عمليات-شد-الجفن/,https://rejuvera.sa/services/upper-lower-eyelid-surgery,301,false,false,true
