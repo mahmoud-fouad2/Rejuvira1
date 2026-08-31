@@ -6,6 +6,14 @@ type DataLayerEvent = Record<string, unknown> & { event: string };
 type MetaPixelFunction = (...args: unknown[]) => void;
 type TikTokPixelFunction = (...args: unknown[]) => void;
 
+const GOOGLE_ADS_CONVERSIONS = {
+  leadSubmit: "AW-16511038360/FNSTCK7k4uocEJjnicE9",
+  phoneClick: "AW-16511038360/VzZpCLHk4uocEJjnicE9",
+  whatsappClick: "AW-16511038360/qfJzCKvk4uocEJjnicE9",
+} as const;
+
+type GoogleAdsConversion = keyof typeof GOOGLE_ADS_CONVERSIONS;
+
 declare global {
   interface Window {
     dataLayer?: DataLayerEvent[];
@@ -102,6 +110,67 @@ function dispatchTikTokLead(attempt = 0) {
   }
 }
 
+function dispatchGoogleAdsConversion(
+  conversion: GoogleAdsConversion,
+  params: {
+    transactionId?: string | undefined;
+    pageLocation?: string | undefined;
+  } = {},
+  attempt = 0,
+) {
+  if (typeof window.gtag === "function") {
+    window.gtag("event", "conversion", {
+      send_to: GOOGLE_ADS_CONVERSIONS[conversion],
+      value: 1,
+      currency: "SAR",
+      ...(params.transactionId
+        ? { transaction_id: params.transactionId }
+        : {}),
+      ...(params.pageLocation ? { page_location: params.pageLocation } : {}),
+    });
+    return;
+  }
+
+  // The Google tag is loaded after hydration. Retry briefly so a successful
+  // lead or a fast contact-link click is not lost during initial page load.
+  if (attempt < 20) {
+    window.setTimeout(
+      () => dispatchGoogleAdsConversion(conversion, params, attempt + 1),
+      250,
+    );
+  }
+}
+
+export function trackContactLinkConversion(
+  kind: "phone" | "whatsapp",
+  link: { href: string; text?: string | undefined },
+) {
+  if (typeof window === "undefined") return;
+  window.dataLayer = window.dataLayer || [];
+
+  const eventName = kind === "phone" ? "phone_click" : "whatsapp_click";
+  const eventId = createMetaEventId().replace("rv_lead_", `rv_${kind}_`);
+  const payload = {
+    event: eventName,
+    eventId,
+    linkUrl: link.href,
+    linkText: link.text?.trim() || undefined,
+    pagePath: window.location.pathname,
+    pageUrl: window.location.href,
+  };
+
+  // Keep a readable dataLayer event for diagnostics and future GTM use. The
+  // Google Ads conversion itself is sent directly to its dedicated action.
+  window.dataLayer.push(payload);
+  dispatchGoogleAdsConversion(
+    kind === "phone" ? "phoneClick" : "whatsappClick",
+    {
+      transactionId: eventId,
+      pageLocation: window.location.href,
+    },
+  );
+}
+
 export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
@@ -136,6 +205,11 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   if (typeof window.gtag === "function") {
     window.gtag("event", "lead_submit", ga4Payload);
   }
+
+  dispatchGoogleAdsConversion("leadSubmit", {
+    transactionId: metaEventId,
+    pageLocation: safePayload.pageUrl,
+  });
 
   dispatchMetaLead(
     {
