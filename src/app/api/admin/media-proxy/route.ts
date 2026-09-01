@@ -2,11 +2,28 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import {
+  getSignedReadUrl,
+  isR2Configured,
+  type StorageNamespace,
+} from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_PROXY_BYTES = 12 * 1024 * 1024;
+const READABLE_NAMESPACES: readonly StorageNamespace[] = [
+  "doctors",
+  "services",
+  "devices",
+  "gallery",
+  "journal",
+  "brand",
+  "trust",
+  "payments",
+  "pages",
+  "media/uploads",
+];
 const TRUSTED_STATIC_HOSTS = new Set([
   "rejuvera.sa",
   "www.rejuvera.sa",
@@ -56,6 +73,18 @@ function badRequest(message: string, status = 400) {
   return NextResponse.json({ ok: false, error: message }, { status });
 }
 
+function isReadableR2Key(value: string) {
+  const key = value.trim().replace(/^\/+/, "");
+  return (
+    key.length > 0 &&
+    key.length <= 512 &&
+    !key.includes("..") &&
+    READABLE_NAMESPACES.some(
+      (namespace) => key === namespace || key.startsWith(`${namespace}/`),
+    )
+  );
+}
+
 export async function GET(request: Request) {
   const session = await auth();
   if (
@@ -67,21 +96,28 @@ export async function GET(request: Request) {
 
   const requestUrl = new URL(request.url);
   const rawUrl = requestUrl.searchParams.get("url");
-  if (!rawUrl) return badRequest("Missing url");
+  const rawKey = requestUrl.searchParams.get("key")?.trim() ?? "";
+  if (!rawUrl && !rawKey) return badRequest("Missing url or key");
 
   let sourceUrl: URL;
-  try {
-    sourceUrl = new URL(rawUrl);
-  } catch {
-    return badRequest("Invalid url");
-  }
+  if (rawKey) {
+    if (!isReadableR2Key(rawKey)) return badRequest("Invalid media key");
+    if (!isR2Configured()) return badRequest("R2 is not configured", 503);
+    sourceUrl = new URL(getSignedReadUrl(rawKey));
+  } else {
+    try {
+      sourceUrl = new URL(rawUrl!);
+    } catch {
+      return badRequest("Invalid url");
+    }
 
-  if (!["https:", "http:"].includes(sourceUrl.protocol)) {
-    return badRequest("Unsupported url protocol");
-  }
+    if (!["https:", "http:"].includes(sourceUrl.protocol)) {
+      return badRequest("Unsupported url protocol");
+    }
 
-  if (!allowedMediaHost(sourceUrl.hostname)) {
-    return badRequest("Media host is not allowed", 403);
+    if (!allowedMediaHost(sourceUrl.hostname)) {
+      return badRequest("Media host is not allowed", 403);
+    }
   }
 
   const upstream = await fetch(sourceUrl, {

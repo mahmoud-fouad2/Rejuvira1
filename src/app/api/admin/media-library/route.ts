@@ -6,6 +6,7 @@ import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { recordAppLog } from "@/lib/app-log";
 import { prisma } from "@/lib/prisma";
 import { getReferenceAssets } from "@/lib/reference-assets";
+import { buildPublicMediaUrl, normalizeMediaUrl } from "@/lib/media-url";
 import { deleteObject, isR2Configured } from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
@@ -55,7 +56,7 @@ function addItem(
   items: Map<string, MediaLibraryItem>,
   input: MediaLibraryItem,
 ) {
-  const url = input.url.trim();
+  const url = normalizeMediaUrl(input.url);
   if (!isImageUrl(url) || items.has(url)) return;
   items.set(url, { ...input, url });
 }
@@ -68,13 +69,18 @@ function uploadedUrlFromLog(
   message: string,
   meta: Record<string, unknown> | null,
 ) {
-  const storedUrl = String(meta?.publicUrl ?? "").trim();
-  if (isImageUrl(storedUrl)) return storedUrl;
-
   const key = uploadedKeyFromLog(message);
-  const publicBase = process.env.R2_PUBLIC_BASE_URL?.replace(/\/$/, "");
-  if (!key || !publicBase) return "";
-  return `${publicBase}/${key.replace(/^\/+/, "")}`;
+  const publicBase = process.env.R2_PUBLIC_BASE_URL;
+  if (key && publicBase) {
+    try {
+      return buildPublicMediaUrl(publicBase, key);
+    } catch {
+      // Fall back to the stored value so the rest of the library remains usable.
+    }
+  }
+
+  const storedUrl = normalizeMediaUrl(String(meta?.publicUrl ?? ""));
+  return isImageUrl(storedUrl) ? storedUrl : "";
 }
 
 function uploadedFileName(key: string, meta: Record<string, unknown> | null) {
@@ -406,10 +412,7 @@ export async function DELETE(request: Request) {
           kind: "media",
           OR: [
             ...(key
-              ? [
-                  { message: `Uploaded ${key}` },
-                  { message: { contains: key } },
-                ]
+              ? [{ message: `Uploaded ${key}` }, { message: { contains: key } }]
               : []),
             ...(url ? [{ meta: { path: ["publicUrl"], equals: url } }] : []),
           ],
@@ -434,9 +437,6 @@ export async function DELETE(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Delete failed";
-    return NextResponse.json(
-      { ok: false, error: message },
-      { status: 500 },
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

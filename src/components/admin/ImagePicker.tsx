@@ -1,8 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Cropper, { type Area } from "react-easy-crop";
+
+import { normalizeMediaUrl } from "@/lib/media-url";
 
 type Namespace =
   | "doctors"
@@ -42,6 +51,7 @@ type MediaLibraryItem = {
   category: string;
   source: string;
   updatedAt?: string;
+  key?: string;
 };
 
 const DEFAULT_ACCEPT = "image/png,image/jpeg,image/webp,image/avif";
@@ -220,8 +230,9 @@ export function ImagePicker({
 
   const updateValue = useCallback(
     (next: string) => {
-      setValue(next);
-      onChange?.(next);
+      const normalized = normalizeMediaUrl(next);
+      setValue(normalized);
+      onChange?.(normalized);
     },
     [onChange],
   );
@@ -311,7 +322,7 @@ export function ImagePicker({
     if (!res.ok || !("ok" in data) || !data.ok) {
       throw new Error("error" in data ? data.error : "Upload failed");
     }
-    return data.url;
+    return normalizeMediaUrl(data.url);
   }
 
   async function handleFile(file: File) {
@@ -563,7 +574,8 @@ export function ImagePicker({
                 </p>
               ) : libraryStatus === "error" ? (
                 <p className="rv-image-picker__library-state is-error">
-                  تعذر تحميل مكتبة الصور. يمكنك الاستمرار بالرفع أو الرابط اليدوي.
+                  تعذر تحميل مكتبة الصور. يمكنك الاستمرار بالرفع أو الرابط
+                  اليدوي.
                 </p>
               ) : filteredLibraryItems.length === 0 ? (
                 <p className="rv-image-picker__library-state">
@@ -585,7 +597,11 @@ export function ImagePicker({
                     >
                       <span className="rv-image-picker__library-thumb">
                         <Image
-                          src={item.url}
+                          src={
+                            item.key
+                              ? `${ADMIN_MEDIA_PROXY}?key=${encodeURIComponent(item.key)}`
+                              : item.url
+                          }
                           alt={item.label}
                           fill
                           className="object-cover"

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { prepareImageUpload } from "@/lib/client-image-upload";
+import { normalizeMediaUrl } from "@/lib/media-url";
 
 type MediaLibraryItem = {
   url: string;
@@ -55,17 +56,20 @@ function categoryLabel(category: string) {
 function MediaImagePreview({
   url,
   label,
+  objectKey,
 }: {
   url: string;
   label: string;
+  objectKey?: string;
 }) {
-  const [imgSrc, setImgSrc] = useState(url);
+  const normalizedUrl = normalizeMediaUrl(url);
+  const [imgSrc, setImgSrc] = useState(normalizedUrl);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    setImgSrc(url);
+    setImgSrc(normalizedUrl);
     setHasError(false);
-  }, [url]);
+  }, [normalizedUrl]);
 
   if (hasError) {
     return (
@@ -101,9 +105,14 @@ function MediaImagePreview({
       className="object-contain"
       unoptimized
       onError={() => {
-        if (imgSrc === url && /^https?:\/\//i.test(url)) {
-          // Fallback to media-proxy if direct external load fails
-          setImgSrc(`/api/admin/media-proxy?url=${encodeURIComponent(url)}`);
+        if (imgSrc === normalizedUrl && /^https?:\/\//i.test(normalizedUrl)) {
+          // Uploaded files can still be previewed privately when the public
+          // bucket URL is temporarily unavailable or misconfigured.
+          setImgSrc(
+            objectKey
+              ? `/api/admin/media-proxy?key=${encodeURIComponent(objectKey)}`
+              : `/api/admin/media-proxy?url=${encodeURIComponent(normalizedUrl)}`,
+          );
         } else {
           setHasError(true);
         }
@@ -206,7 +215,7 @@ export function AdminMediaLibrary() {
         throw new Error("error" in payload ? payload.error : "Upload failed");
       }
 
-      const uploadedUrl = payload.publicUrl || payload.url;
+      const uploadedUrl = normalizeMediaUrl(payload.publicUrl || payload.url);
       setItems((current) => [
         {
           url: uploadedUrl,
@@ -436,7 +445,11 @@ export function AdminMediaLibrary() {
               return (
                 <section key={item.url} className="admin-media-library__item">
                   <div className="admin-media-library__preview">
-                    <MediaImagePreview url={item.url} label={item.label} />
+                    <MediaImagePreview
+                      url={item.url}
+                      label={item.label}
+                      {...(item.key ? { objectKey: item.key } : {})}
+                    />
                     <span className="admin-media-library__category">
                       <span className="lang-ar">{label.ar}</span>
                       <span className="lang-en">{label.en}</span>

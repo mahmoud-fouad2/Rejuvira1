@@ -17,6 +17,11 @@
 
 import { createHash, createHmac, randomBytes } from "node:crypto";
 
+import {
+  buildPublicMediaUrl,
+  normalizePublicMediaBaseUrl,
+} from "@/lib/media-url";
+
 export type R2Credentials = {
   accountId: string;
   endpoint: string;
@@ -79,7 +84,11 @@ export function getR2Credentials(): R2Credentials {
     accessKeyId,
     secretAccessKey,
     ...(process.env.R2_PUBLIC_BASE_URL
-      ? { publicBaseUrl: process.env.R2_PUBLIC_BASE_URL.replace(/\/$/, "") }
+      ? {
+          publicBaseUrl: normalizePublicMediaBaseUrl(
+            process.env.R2_PUBLIC_BASE_URL,
+          ),
+        }
       : {}),
   };
 }
@@ -254,9 +263,7 @@ export async function uploadObject(
     size: payload.length,
     contentType,
   };
-  if (creds.publicBaseUrl) {
-    result.publicUrl = `${creds.publicBaseUrl}/${key.replace(/^\/+/, "")}`;
-  }
+  if (creds.publicBaseUrl) result.publicUrl = url;
   return result;
 }
 
@@ -288,7 +295,7 @@ export async function deleteObject(key: string): Promise<boolean> {
  * the bucket. This is the right thing to give to the browser when
  * R2_PUBLIC_BASE_URL is not configured.
  */
-function getSignedReadUrl(
+export function getSignedReadUrl(
   key: string,
   ttlSeconds: number = DEFAULT_SIGNED_URL_TTL,
 ): string {
@@ -353,7 +360,7 @@ function getSignedReadUrl(
 function publicUrl(key: string): string {
   const creds = getR2Credentials();
   if (creds.publicBaseUrl) {
-    return `${creds.publicBaseUrl}/${key.replace(/^\/+/, "")}`;
+    return buildPublicMediaUrl(creds.publicBaseUrl, key);
   }
   return getSignedReadUrl(key);
 }
