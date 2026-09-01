@@ -71,9 +71,40 @@ async function renderCroppedBlob(
   rotation: number,
 ): Promise<Blob> {
   const image = await loadImage(src);
-  const naturalWidth = image.naturalWidth || image.width;
-  const naturalHeight = image.naturalHeight || image.height;
-  const radian = (rotation * Math.PI) / 180;
+  const naturalWidth = image.naturalWidth || image.width || 1;
+  const naturalHeight = image.naturalHeight || image.height || 1;
+  const cleanRotation = ((rotation % 360) + 360) % 360;
+  const radian = (cleanRotation * Math.PI) / 180;
+
+  const cropW = Math.max(1, Math.round(area.width || naturalWidth));
+  const cropH = Math.max(1, Math.round(area.height || naturalHeight));
+  const cropX = Math.round(area.x || 0);
+  const cropY = Math.round(area.y || 0);
+
+  const scale = Math.min(1, MAX_OUTPUT_SIDE / Math.max(cropW, cropH));
+  const outW = Math.max(1, Math.round(cropW * scale));
+  const outH = Math.max(1, Math.round(cropH * scale));
+
+  if (cleanRotation === 0) {
+    const canvas = document.createElement("canvas");
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Canvas 2D context unavailable.");
+
+    ctx.drawImage(image, cropX, cropY, cropW, cropH, 0, 0, outW, outH);
+
+    return await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (blob) =>
+          blob && blob.size > 0
+            ? resolve(blob)
+            : reject(new Error("Empty crop output")),
+        "image/webp",
+        0.9,
+      );
+    });
+  }
 
   // Compute the bounding box of the rotated image so we can place it.
   const rotatedWidth = Math.max(
@@ -107,35 +138,21 @@ async function renderCroppedBlob(
   );
 
   const out = document.createElement("canvas");
-  const scale = Math.min(
-    1,
-    MAX_OUTPUT_SIDE / Math.max(area.width, area.height),
-  );
-  out.width = Math.max(1, Math.round(area.width * scale));
-  out.height = Math.max(1, Math.round(area.height * scale));
+  out.width = outW;
+  out.height = outH;
   const outCtx = out.getContext("2d");
   if (!outCtx) throw new Error("Canvas 2D context unavailable.");
 
-  // Convert source-pixel area into rotated-stage coordinates: react-easy-crop
-  // already returns pixels in the rotated stage space when we pass the same
-  // rotation, so we copy directly.
-  outCtx.drawImage(
-    stage,
-    area.x,
-    area.y,
-    area.width,
-    area.height,
-    0,
-    0,
-    out.width,
-    out.height,
-  );
+  outCtx.drawImage(stage, cropX, cropY, cropW, cropH, 0, 0, outW, outH);
 
   return await new Promise<Blob>((resolve, reject) => {
     out.toBlob(
-      (blob) => (blob ? resolve(blob) : reject(new Error("Empty crop output"))),
+      (blob) =>
+        blob && blob.size > 0
+          ? resolve(blob)
+          : reject(new Error("Empty crop output")),
       "image/webp",
-      0.88,
+      0.9,
     );
   });
 }
@@ -277,32 +294,6 @@ export function ImagePicker({
     });
   }, [libraryCategory, libraryItems, librarySearch]);
 
-  async function handleFile(file: File) {
-    setError(null);
-    if (!file.type.startsWith("image/")) {
-      setError("الملف ليس صورة / Not an image file.");
-      return;
-    }
-    if (file.size > MAX_SOURCE_BYTES) {
-      setError("Image is too large. Please choose an image under 12 MB.");
-      return;
-    }
-    try {
-      if (sourceObjectUrlRef.current) {
-        URL.revokeObjectURL(sourceObjectUrlRef.current);
-      }
-      const objectUrl = URL.createObjectURL(file);
-      sourceObjectUrlRef.current = objectUrl;
-      setEditorSource(objectUrl);
-      setRotation(0);
-      setZoom(1);
-      setCrop({ x: 0, y: 0 });
-      setEditorOpen(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Read failed");
-    }
-  }
-
   async function uploadBlob(
     blob: Blob,
     suggestedName: string,
@@ -321,6 +312,28 @@ export function ImagePicker({
       throw new Error("error" in data ? data.error : "Upload failed");
     }
     return data.url;
+  }
+
+  async function handleFile(file: File) {
+    setError(null);
+    if (!file.type.startsWith("image/")) {
+      setError("الملف ليس صورة / Not an image file.");
+      return;
+    }
+    if (file.size > MAX_SOURCE_BYTES) {
+      setError("Image is too large. Please choose an image under 12 MB.");
+      return;
+    }
+    setBusy(true);
+    try {
+      // Upload directly as pristine original file
+      const url = await uploadBlob(file, file.name);
+      updateValue(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleApply() {
