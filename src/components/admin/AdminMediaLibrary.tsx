@@ -31,11 +31,6 @@ const CATEGORY_LABELS: Record<string, { ar: string; en: string }> = {
   Pages: { ar: "الصفحات المخصصة", en: "Custom pages" },
 };
 
-function previewUrl(url: string) {
-  if (!/^https?:\/\//i.test(url)) return url;
-  return `/api/admin/media-proxy?url=${encodeURIComponent(url)}`;
-}
-
 function formatBytes(bytes?: number) {
   if (!bytes || bytes < 1) return "";
   if (bytes < 1024) return `${bytes} B`;
@@ -57,6 +52,66 @@ function categoryLabel(category: string) {
   return CATEGORY_LABELS[category] ?? { ar: category, en: category };
 }
 
+function MediaImagePreview({
+  url,
+  label,
+}: {
+  url: string;
+  label: string;
+}) {
+  const [imgSrc, setImgSrc] = useState(url);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setImgSrc(url);
+    setHasError(false);
+  }, [url]);
+
+  if (hasError) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center p-3 text-center text-[color:var(--admin-text-faint)]">
+        <svg
+          className="h-8 w-8 opacity-50"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="1.5"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+        <span className="mt-1 text-[10px] font-medium">
+          <span className="lang-ar">معاينة غير متوفرة</span>
+          <span className="lang-en">Preview unavailable</span>
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={imgSrc}
+      alt={label}
+      fill
+      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 33vw, 22vw"
+      className="object-contain"
+      unoptimized
+      onError={() => {
+        if (imgSrc === url && /^https?:\/\//i.test(url)) {
+          // Fallback to media-proxy if direct external load fails
+          setImgSrc(`/api/admin/media-proxy?url=${encodeURIComponent(url)}`);
+        } else {
+          setHasError(true);
+        }
+      }}
+    />
+  );
+}
+
 export function AdminMediaLibrary() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [items, setItems] = useState<MediaLibraryItem[]>([]);
@@ -65,7 +120,9 @@ export function AdminMediaLibrary() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [deletingKeyOrUrl, setDeletingKeyOrUrl] = useState<string | null>(null);
+  const [confirmDeleteUrl, setConfirmDeleteUrl] = useState<string | null>(null);
 
   const loadLibrary = useCallback(async () => {
     setLoading(true);
@@ -96,10 +153,10 @@ export function AdminMediaLibrary() {
   }, [loadLibrary]);
 
   useEffect(() => {
-    if (!copiedUrl) return;
-    const timeout = window.setTimeout(() => setCopiedUrl(null), 2200);
+    if (!toastMessage) return;
+    const timeout = window.setTimeout(() => setToastMessage(null), 2500);
     return () => window.clearTimeout(timeout);
-  }, [copiedUrl]);
+  }, [toastMessage]);
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
@@ -165,6 +222,7 @@ export function AdminMediaLibrary() {
       ]);
       setCategory("Uploads");
       setQuery("");
+      setToastMessage("تم رفع الصورة بنجاح / Image uploaded successfully");
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -179,9 +237,45 @@ export function AdminMediaLibrary() {
   async function copyUrl(url: string) {
     try {
       await navigator.clipboard.writeText(url);
-      setCopiedUrl(url);
+      setToastMessage("تم نسخ رابط الصورة / Image URL copied");
     } catch {
       setError("تعذر نسخ الرابط تلقائيًا / Could not copy the URL.");
+    }
+  }
+
+  async function deleteMediaItem(item: MediaLibraryItem) {
+    setDeletingKeyOrUrl(item.url);
+    setError(null);
+    try {
+      const res = await fetch("/api/admin/media-library", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: item.key, url: item.url }),
+      });
+      const payload = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+        message?: string;
+      };
+      if (!res.ok || !payload.ok) {
+        throw new Error(payload.error || "Delete failed");
+      }
+
+      setItems((current) =>
+        current.filter(
+          (i) => i.url !== item.url && (item.key ? i.key !== item.key : true),
+        ),
+      );
+      setConfirmDeleteUrl(null);
+      setToastMessage("تم حذف الصورة بنجاح / Image deleted successfully");
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "تعذر حذف الصورة / Could not delete image.",
+      );
+    } finally {
+      setDeletingKeyOrUrl(null);
     }
   }
 
@@ -197,11 +291,12 @@ export function AdminMediaLibrary() {
           <p className="mt-1 max-w-3xl text-xs leading-6 text-[color:var(--admin-text-faint)]">
             <span className="lang-ar">
               كل الصور المرفوعة أو المرتبطة بالمحتوى في مكان واحد. يمكنك رفع
-              صورة جديدة، البحث عن صورة سابقة، ثم نسخ رابطها واستخدامه مرة أخرى.
+              صورة جديدة، البحث عن صورة سابقة، نسخ رابطها، أو حذف الصور غير
+              المطلوبة.
             </span>
             <span className="lang-en">
-              Find uploaded and in-use images, upload new media, and copy a URL
-              for reuse anywhere in the website.
+              Find uploaded and in-use images, upload new media, copy URLs for
+              reuse, or delete unwanted uploaded media.
             </span>
           </p>
         </div>
@@ -297,10 +392,9 @@ export function AdminMediaLibrary() {
         </div>
       ) : null}
 
-      {copiedUrl ? (
+      {toastMessage ? (
         <div className="admin-media-library__toast" role="status">
-          <span className="lang-ar">تم نسخ رابط الصورة</span>
-          <span className="lang-en">Image URL copied</span>
+          <span>{toastMessage}</span>
         </div>
       ) : null}
 
@@ -336,17 +430,13 @@ export function AdminMediaLibrary() {
               const meta = [formatBytes(item.size), formatDate(item.updatedAt)]
                 .filter(Boolean)
                 .join(" · ");
+              const isConfirmingDelete = confirmDeleteUrl === item.url;
+              const isDeletingThis = deletingKeyOrUrl === item.url;
+
               return (
                 <section key={item.url} className="admin-media-library__item">
                   <div className="admin-media-library__preview">
-                    <Image
-                      src={previewUrl(item.url)}
-                      alt={item.label}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 33vw, 22vw"
-                      className="object-contain"
-                      unoptimized
-                    />
+                    <MediaImagePreview url={item.url} label={item.label} />
                     <span className="admin-media-library__category">
                       <span className="lang-ar">{label.ar}</span>
                       <span className="lang-en">{label.en}</span>
@@ -373,25 +463,71 @@ export function AdminMediaLibrary() {
                       aria-label={`Image URL: ${item.label}`}
                       onFocus={(event) => event.currentTarget.select()}
                     />
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        className="admin-btn-primary min-w-0 px-2 text-[11px]"
-                        onClick={() => void copyUrl(item.url)}
-                      >
-                        <span className="lang-ar">نسخ الرابط</span>
-                        <span className="lang-en">Copy URL</span>
-                      </button>
-                      <a
-                        className="admin-btn-secondary min-w-0 px-2 text-[11px]"
-                        href={item.url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <span className="lang-ar">فتح الصورة</span>
-                        <span className="lang-en">Open</span>
-                      </a>
-                    </div>
+
+                    {isConfirmingDelete ? (
+                      <div className="rounded-lg border border-[rgba(179,51,75,0.3)] bg-[rgba(179,51,75,0.08)] p-2 text-xs">
+                        <p className="font-semibold text-[color:var(--admin-danger)]">
+                          <span className="lang-ar">
+                            هل أنت متأكد من حذف الصورة؟
+                          </span>
+                          <span className="lang-en">Delete this image?</span>
+                        </p>
+                        <div className="mt-2 flex gap-1.5">
+                          <button
+                            type="button"
+                            className="admin-btn-danger min-h-[1.85rem] flex-1 py-1 text-[11px]"
+                            disabled={isDeletingThis}
+                            onClick={() => void deleteMediaItem(item)}
+                          >
+                            {isDeletingThis ? (
+                              <span className="admin-button-spinner" />
+                            ) : null}
+                            <span className="lang-ar">تأكيد الحذف</span>
+                            <span className="lang-en">Confirm</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn-secondary min-h-[1.85rem] flex-1 py-1 text-[11px]"
+                            disabled={isDeletingThis}
+                            onClick={() => setConfirmDeleteUrl(null)}
+                          >
+                            <span className="lang-ar">إلغاء</span>
+                            <span className="lang-en">Cancel</span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-1.5 pt-1">
+                        <button
+                          type="button"
+                          className="admin-btn-primary min-w-0 px-1 py-1 text-[11px]"
+                          onClick={() => void copyUrl(item.url)}
+                          title="نسخ الرابط"
+                        >
+                          <span className="lang-ar">نسخ الرابط</span>
+                          <span className="lang-en">Copy</span>
+                        </button>
+                        <a
+                          className="admin-btn-secondary min-w-0 px-1 py-1 text-center text-[11px]"
+                          href={item.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="فتح الصورة"
+                        >
+                          <span className="lang-ar">فتح</span>
+                          <span className="lang-en">Open</span>
+                        </a>
+                        <button
+                          type="button"
+                          className="admin-btn-danger min-w-0 px-1 py-1 text-[11px]"
+                          onClick={() => setConfirmDeleteUrl(item.url)}
+                          title="حذف الصورة"
+                        >
+                          <span className="lang-ar">حذف</span>
+                          <span className="lang-en">Delete</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </section>
               );

@@ -3,8 +3,10 @@ import type { Prisma } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
+import { recordAppLog } from "@/lib/app-log";
 import { prisma } from "@/lib/prisma";
 import { getReferenceAssets } from "@/lib/reference-assets";
+import { deleteObject, isR2Configured } from "@/lib/storage/r2";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -324,4 +326,117 @@ export async function GET() {
     },
     { headers: { "Cache-Control": "private, no-store" } },
   );
+}
+
+function extractKeyFromMediaUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname.replace(/^\/+/, "");
+    // If it has a namespace prefix like media/uploads, doctors, services, etc.
+    if (
+      path.startsWith("media/uploads/") ||
+      path.startsWith("doctors/") ||
+      path.startsWith("services/") ||
+      path.startsWith("devices/") ||
+      path.startsWith("gallery/") ||
+      path.startsWith("journal/") ||
+      path.startsWith("brand/") ||
+      path.startsWith("trust/") ||
+      path.startsWith("payments/") ||
+      path.startsWith("pages/")
+    ) {
+      return path;
+    }
+  } catch {
+    // Relative path or invalid URL
+    const clean = url.replace(/^\/+/, "");
+    if (
+      clean.startsWith("media/uploads/") ||
+      clean.startsWith("doctors/") ||
+      clean.startsWith("services/")
+    ) {
+      return clean;
+    }
+  }
+  return "";
+}
+
+export async function DELETE(request: Request) {
+  const session = await auth();
+  const role = session?.user?.role;
+  if (!role || !canAccessAdminRoute("/admin/media", role)) {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  }
+
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      key?: string;
+      url?: string;
+    };
+    let key = typeof body?.key === "string" ? body.key.trim() : "";
+    const url = typeof body?.url === "string" ? body.url.trim() : "";
+
+    if (!key && url) {
+      key = extractKeyFromMediaUrl(url);
+    }
+
+    if (!key && !url) {
+      return NextResponse.json(
+        { ok: false, error: "Missing key or url to delete" },
+        { status: 400 },
+      );
+    }
+
+    // 1. Delete from Cloudflare R2 if configured and key is known
+    if (key && isR2Configured()) {
+      try {
+        await deleteObject(key);
+      } catch (err) {
+        console.warn(`[media-library] R2 delete warning for ${key}:`, err);
+      }
+    }
+
+    // 2. Remove from AppLog upload records so it disappears from Uploads list
+    if (key || url) {
+      await prisma.appLog.deleteMany({
+        where: {
+          kind: "media",
+          OR: [
+            ...(key
+              ? [
+                  { message: `Uploaded ${key}` },
+                  { message: { contains: key } },
+                ]
+              : []),
+            ...(url ? [{ meta: { path: ["publicUrl"], equals: url } }] : []),
+          ],
+        },
+      });
+    }
+
+    await recordAppLog({
+      level: "info",
+      kind: "media",
+      message: `Deleted media ${key || url}`,
+      meta: {
+        key,
+        url,
+        actor: session.user.email ?? session.user.id ?? "unknown",
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      message: "تم حذف الصورة بنجاح / Image deleted successfully",
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Delete failed";
+    return NextResponse.json(
+      { ok: false, error: message },
+      { status: 500 },
+    );
+  }
 }

@@ -10,7 +10,16 @@ const MAX_PROXY_BYTES = 12 * 1024 * 1024;
 const TRUSTED_STATIC_HOSTS = new Set([
   "rejuvera.sa",
   "www.rejuvera.sa",
+  "cdn.rejuvera.sa",
+  "media.rejuvera.sa",
+  "rejuveracenter.sa",
+  "www.rejuveracenter.sa",
+  "cdn.rejuveracenter.sa",
+  "media.rejuveracenter.sa",
   "rejuvira1.onrender.com",
+  "localhost",
+  "127.0.0.1",
+  "ma-fo.info",
 ]);
 
 function hostFromEnvUrl(value: string | undefined) {
@@ -27,13 +36,19 @@ function allowedMediaHost(hostname: string) {
   const configuredHosts = [
     hostFromEnvUrl(process.env.R2_PUBLIC_BASE_URL),
     hostFromEnvUrl(process.env.R2_ENDPOINT),
+    hostFromEnvUrl(process.env.NEXT_PUBLIC_SITE_URL),
+    hostFromEnvUrl(process.env.APP_URL),
   ].filter((value): value is string => Boolean(value));
 
   return (
     TRUSTED_STATIC_HOSTS.has(host) ||
     configuredHosts.includes(host) ||
     host.endsWith(".r2.dev") ||
-    host.endsWith(".r2.cloudflarestorage.com")
+    host.endsWith(".r2.cloudflarestorage.com") ||
+    host.endsWith(".cloudflarestorage.com") ||
+    host.endsWith(".onrender.com") ||
+    host.endsWith(".rejuvera.sa") ||
+    host.endsWith(".rejuveracenter.sa")
   );
 }
 

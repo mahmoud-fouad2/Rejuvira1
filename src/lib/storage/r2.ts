@@ -260,6 +260,28 @@ export async function uploadObject(
   return result;
 }
 
+export async function deleteObject(key: string): Promise<boolean> {
+  const creds = getR2Credentials();
+  const safeKey = key.replace(/^\/+/, "");
+  const signed = signRequest(creds, {
+    method: "DELETE",
+    key: safeKey,
+  });
+
+  const response = await fetch(signed.url, {
+    method: "DELETE",
+    headers: signed.headers,
+  });
+  if (!response.ok && response.status !== 404) {
+    const text = await response.text().catch(() => "");
+    throw new Error(
+      `R2 delete failed (${response.status} ${response.statusText}): ${text || "no body"}`,
+    );
+  }
+
+  return true;
+}
+
 /**
  * Generate a query-string-signed GET URL for a single object.
  * The URL is valid for `ttlSeconds` (default 1 hour) and includes
