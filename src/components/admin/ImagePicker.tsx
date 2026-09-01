@@ -71,15 +71,25 @@ async function renderCroppedBlob(
   rotation: number,
 ): Promise<Blob> {
   const image = await loadImage(src);
+  const naturalWidth = image.naturalWidth || image.width;
+  const naturalHeight = image.naturalHeight || image.height;
   const radian = (rotation * Math.PI) / 180;
 
   // Compute the bounding box of the rotated image so we can place it.
-  const rotatedWidth =
-    Math.abs(image.width * Math.cos(radian)) +
-    Math.abs(image.height * Math.sin(radian));
-  const rotatedHeight =
-    Math.abs(image.width * Math.sin(radian)) +
-    Math.abs(image.height * Math.cos(radian));
+  const rotatedWidth = Math.max(
+    1,
+    Math.round(
+      Math.abs(naturalWidth * Math.cos(radian)) +
+        Math.abs(naturalHeight * Math.sin(radian)),
+    ),
+  );
+  const rotatedHeight = Math.max(
+    1,
+    Math.round(
+      Math.abs(naturalWidth * Math.sin(radian)) +
+        Math.abs(naturalHeight * Math.cos(radian)),
+    ),
+  );
 
   const stage = document.createElement("canvas");
   stage.width = rotatedWidth;
@@ -88,7 +98,13 @@ async function renderCroppedBlob(
   if (!stageCtx) throw new Error("Canvas 2D context unavailable.");
   stageCtx.translate(rotatedWidth / 2, rotatedHeight / 2);
   stageCtx.rotate(radian);
-  stageCtx.drawImage(image, -image.width / 2, -image.height / 2);
+  stageCtx.drawImage(
+    image,
+    -naturalWidth / 2,
+    -naturalHeight / 2,
+    naturalWidth,
+    naturalHeight,
+  );
 
   const out = document.createElement("canvas");
   const scale = Math.min(
@@ -119,21 +135,29 @@ async function renderCroppedBlob(
     out.toBlob(
       (blob) => (blob ? resolve(blob) : reject(new Error("Empty crop output"))),
       "image/webp",
-      0.84,
+      0.88,
     );
   });
 }
 
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new window.Image();
-    if (isRemoteUrl(src)) {
-      img.crossOrigin = "anonymous";
-    }
-    img.onload = () => resolve(img);
+async function loadImage(src: string): Promise<HTMLImageElement> {
+  const img = new window.Image();
+  if (isRemoteUrl(src)) {
+    img.crossOrigin = "anonymous";
+  }
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
     img.onerror = () => reject(new Error("Could not load image"));
     img.src = src;
   });
+  if ("decode" in img) {
+    try {
+      await img.decode();
+    } catch {
+      // Decode is optional
+    }
+  }
+  return img;
 }
 
 function isRemoteUrl(src: string) {
