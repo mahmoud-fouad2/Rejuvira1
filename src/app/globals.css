@@ -13536,17 +13536,7 @@ html[data-theme="dark"] .admin-shell {
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-bottom: 1px solid var(--admin-border);
-  background:
-    linear-gradient(45deg, var(--admin-panel-soft) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--admin-panel-soft) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--admin-panel-soft) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--admin-panel-soft) 75%);
-  background-position:
-    0 0,
-    0 0.5rem,
-    0.5rem -0.5rem,
-    -0.5rem 0;
-  background-size: 1rem 1rem;
+  background: var(--admin-panel-soft);
 }
 
 .admin-media-library__preview img {
