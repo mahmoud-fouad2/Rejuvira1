@@ -19,7 +19,33 @@ declare global {
   }
 }
 
+function setupFaheemlyProxyInterceptor() {
+  if (typeof window === "undefined") return;
+  const win = window as unknown as { __faheemly_proxy_set?: boolean };
+  if (win.__faheemly_proxy_set) return;
+  win.__faheemly_proxy_set = true;
+
+  const originalFetch = window.fetch;
+  window.fetch = function (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> {
+    if (
+      typeof input === "string" &&
+      /https?:\/\/(?:www\.)?faheemly\.com\/api\/widget\//.test(input)
+    ) {
+      const proxiedUrl = input.replace(
+        /https?:\/\/(?:www\.)?faheemly\.com\/api\/widget\//,
+        `${window.location.origin}/api/widget/`,
+      );
+      return originalFetch.call(this, proxiedUrl, init);
+    }
+    return originalFetch.apply(this, [input, init]);
+  };
+}
+
 function appendSnippet(target: HTMLElement, html: string, marker: string) {
+  setupFaheemlyProxyInterceptor();
   const existing = document.querySelectorAll(
     `[data-rejuvira-snippet="${marker}"]`,
   );
@@ -57,6 +83,15 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
         /https?:\/\/faheemly\.com/g,
         "https://www.faheemly.com",
       );
+
+      // Route Faheemly config calls to our same-origin /api/widget proxy
+      if (
+        scriptContent.includes("faheemly") ||
+        sourceScript.hasAttribute("data-business-id")
+      ) {
+        script.setAttribute("data-api-url", window.location.origin);
+      }
+
       nextNode = script;
     }
     if (nextNode instanceof HTMLElement) {
