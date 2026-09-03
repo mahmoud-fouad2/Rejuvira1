@@ -47,15 +47,25 @@ function buildCsp(frameAncestors: string) {
 
   return [
     `default-src 'self' ${googleScriptOrigins} data: blob:`,
-    `script-src 'self' 'unsafe-inline' ${isProd ? "" : "'unsafe-eval'"} https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${snapchatScriptOrigins} ${widgetScriptOrigins}`.trim(),
-    `script-src-elem 'self' 'unsafe-inline' https://www.chatbase.co https://*.chatbase.co ${googleScriptOrigins} ${metaScriptOrigins} ${tiktokScriptOrigins} ${snapchatScriptOrigins} ${widgetScriptOrigins}`,
+    [
+      "script-src 'self' 'unsafe-inline'",
+      !isProd && "'unsafe-eval'",
+      "https://www.chatbase.co",
+      "https://*.chatbase.co",
+      googleScriptOrigins,
+      metaScriptOrigins,
+      tiktokScriptOrigins,
+      snapchatScriptOrigins,
+      widgetScriptOrigins,
+    ]
+      .filter(Boolean)
+      .join(" "),
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     "connect-src 'self' https: wss: data: blob:",
     "frame-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.gstatic.com https://*.recaptcha.net https://www.recaptcha.net https://www.googletagmanager.com https://*.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://tr.snapchat.com https://www.faheemly.com https://*.faheemly.com",
-    "child-src 'self' https://www.google.com https://*.google.com https://*.gstatic.com https://*.recaptcha.net blob:",
+    "child-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.recaptcha.net blob:",
     "media-src 'self' https: data:",
     "worker-src 'self' blob:",
     "manifest-src 'self'",
@@ -76,9 +86,7 @@ const adminCsp = buildCsp("frame-ancestors 'none'");
 const careerCsp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
-  "script-src-elem 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
-  "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm",
   "connect-src 'self' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
