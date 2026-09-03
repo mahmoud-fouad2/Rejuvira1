@@ -32,11 +32,11 @@ function setupFaheemlyProxyInterceptor() {
   ): Promise<Response> {
     if (
       typeof input === "string" &&
-      /https?:\/\/(?:www\.)?faheemly\.com\/api\/widget\//.test(input)
+      /https?:\/\/(?:www\.)?faheemly\.com\/api\//.test(input)
     ) {
       const proxiedUrl = input.replace(
-        /https?:\/\/(?:www\.)?faheemly\.com\/api\/widget\//,
-        `${window.location.origin}/api/widget/`,
+        /https?:\/\/(?:www\.)?faheemly\.com\/api\//,
+        `${window.location.origin}/api/`,
       );
       return originalFetch.call(this, proxiedUrl, init);
     }

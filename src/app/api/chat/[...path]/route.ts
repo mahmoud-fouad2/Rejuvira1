@@ -7,7 +7,7 @@ export async function GET(
   props: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await props.params;
-  return proxyFaheemlyRequest(request, '/api/widget/' + (path || []).join('/'));
+  return proxyFaheemlyRequest(request, '/api/chat/' + (path || []).join('/'));
 }
 
 export async function POST(
@@ -15,9 +15,9 @@ export async function POST(
   props: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await props.params;
-  return proxyFaheemlyRequest(request, '/api/widget/' + (path || []).join('/'));
+  return proxyFaheemlyRequest(request, '/api/chat/' + (path || []).join('/'));
 }
 
 export async function OPTIONS(request: Request) {
-  return proxyFaheemlyRequest(request, '/api/widget');
+  return proxyFaheemlyRequest(request, '/api/chat');
 }
