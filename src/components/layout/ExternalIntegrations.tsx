@@ -26,8 +26,14 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
   existing.forEach((node) => node.remove());
   if (!html.trim()) return;
 
+  // Auto-fix non-www faheemly URLs to prevent 307 redirect CORS blocks
+  const normalizedHtml = html.replace(
+    /https?:\/\/faheemly\.com/g,
+    "https://www.faheemly.com",
+  );
+
   const template = document.createElement("template");
-  template.innerHTML = html.trim();
+  template.innerHTML = normalizedHtml.trim();
   const nodes = Array.from(template.content.childNodes);
   nodes.forEach((node) => {
     let nextNode = node.cloneNode(true) as ChildNode;
@@ -38,9 +44,19 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
       if (scriptContent.includes("chatbase")) return;
       const script = document.createElement("script");
       Array.from(sourceScript.attributes).forEach((attr) => {
-        script.setAttribute(attr.name, attr.value);
+        const val =
+          attr.name === "src"
+            ? attr.value.replace(
+                /https?:\/\/faheemly\.com/g,
+                "https://www.faheemly.com",
+              )
+            : attr.value;
+        script.setAttribute(attr.name, val);
       });
-      script.text = sourceScript.text;
+      script.text = sourceScript.text.replace(
+        /https?:\/\/faheemly\.com/g,
+        "https://www.faheemly.com",
+      );
       nextNode = script;
     }
     if (nextNode instanceof HTMLElement) {
