@@ -63,7 +63,26 @@ function buildCsp(frameAncestors: string) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
-    "connect-src 'self' https: wss: data: blob:",
+    // Narrowed from a blanket `https:` to the origins actually observed via
+    // live network capture (analytics/pixel beacons + the Faheemly widget's
+    // API calls). The Faheemly widget calls its own AWS-hosted backend
+    // directly (not just faheemly.com), hence the ecs.us-west-2 wildcard.
+    [
+      "connect-src 'self'",
+      googleScriptOrigins,
+      "https://analytics.google.com",
+      "https://*.google-analytics.com",
+      metaScriptOrigins,
+      "https://www.facebook.com",
+      tiktokScriptOrigins,
+      snapchatScriptOrigins,
+      "https://*.snapchat.com",
+      widgetScriptOrigins,
+      "https://*.ecs.us-west-2.on.aws",
+      "wss:",
+      "data:",
+      "blob:",
+    ].join(" "),
     "frame-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.gstatic.com https://*.recaptcha.net https://www.recaptcha.net https://www.googletagmanager.com https://*.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://tr.snapchat.com https://www.faheemly.com https://*.faheemly.com",
     "child-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.recaptcha.net blob:",
     "media-src 'self' https: data:",
