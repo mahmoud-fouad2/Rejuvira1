@@ -28,7 +28,13 @@ export async function proxyFaheemlyRequest(
     if (
       lower === "host" ||
       lower === "connection" ||
-      lower === "content-length"
+      lower === "content-length" ||
+      // Never forward the visitor's own rejuvera.sa cookies (which may
+      // include an authenticated admin session token) or auth headers to
+      // this third-party upstream — the widget backend has no legitimate
+      // use for them.
+      lower === "cookie" ||
+      lower === "authorization"
     ) {
       continue;
     }

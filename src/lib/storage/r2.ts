@@ -263,7 +263,10 @@ export async function uploadObject(
     size: payload.length,
     contentType,
   };
-  if (creds.publicBaseUrl) result.publicUrl = url;
+  // Only advertise `publicUrl` for genuinely public, permanent URLs — a
+  // signed URL for a private namespace expires and should not be mistaken
+  // for one, e.g. stored long-lived in a DB field.
+  if (creds.publicBaseUrl && !isPrivateKey(key)) result.publicUrl = url;
   return result;
 }
 
@@ -357,7 +360,24 @@ export function getSignedReadUrl(
   return url.toString();
 }
 
+// Namespaces holding sensitive, non-public content: always served via a
+// signed, expiring URL, never via the permanent public CDN base — even
+// when R2_PUBLIC_BASE_URL is configured for the (public) media namespaces.
+const PRIVATE_STORAGE_NAMESPACES: readonly StorageNamespace[] = [
+  "backups",
+  "payments",
+];
+
+function isPrivateKey(key: string): boolean {
+  return PRIVATE_STORAGE_NAMESPACES.some(
+    (namespace) => key === namespace || key.startsWith(`${namespace}/`),
+  );
+}
+
 function publicUrl(key: string): string {
+  if (isPrivateKey(key)) {
+    return getSignedReadUrl(key);
+  }
   const creds = getR2Credentials();
   if (creds.publicBaseUrl) {
     return buildPublicMediaUrl(creds.publicBaseUrl, key);
