@@ -30,7 +30,11 @@ function buildCsp(frameAncestors: string) {
     "https://www.googletagmanager.com",
     "https://*.googletagmanager.com",
     "https://www.googleadservices.com",
-    "https://googleads.g.doubleclick.net",
+    // Google Ads/Analytics conversion tracking uses several doubleclick.net
+    // subdomains beyond googleads.g. (e.g. ad.doubleclick.net for the
+    // cross-domain conversion "ccm/s/collect" beacon) — wildcard the whole
+    // Google-owned domain rather than allowlisting each one piecemeal.
+    "https://*.doubleclick.net",
     "https://*.recaptcha.net",
     "https://www.recaptcha.net",
   ].join(" ");
@@ -75,6 +79,9 @@ function buildCsp(frameAncestors: string) {
       metaScriptOrigins,
       "https://www.facebook.com",
       tiktokScriptOrigins,
+      // TikTok Pixel's IP-enrichment beacon calls a separate registered
+      // domain (tiktokw.us), not a tiktok.com subdomain.
+      "https://*.tiktokw.us",
       snapchatScriptOrigins,
       "https://*.snapchat.com",
       widgetScriptOrigins,
