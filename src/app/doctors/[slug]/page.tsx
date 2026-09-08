@@ -18,7 +18,7 @@ import {
 } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
-import { buildCanonicalAlternates, getSiteUrl } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -39,11 +39,17 @@ export async function generateMetadata({
   const titleAr = isLoai
     ? "د. لؤي السالمي | شد الوجه والرقبة وجراحة التجميل بالرياض"
     : `${doctor.name} | ${doctor.specialty}`;
+  const titleEn = isLoai
+    ? "Dr. Loai Al-Salmi | Facelift, Neck Lift and Plastic Surgery Riyadh"
+    : `${doctor.nameEn ?? doctor.name} | ${doctor.specialtyEn ?? doctor.specialty}`;
   const descriptionAr = isLoai
     ? "الملف الطبي لد. لؤي السالمي استشاري جراحة التجميل والترميم في ريجوفيرا بالرياض، مع خدمات شد الوجه والرقبة وعلاج الوذمة الشحمية والتخطيط الجراحي المتخصص."
     : doctor.summary;
-  const title = titleAr;
-  const description = descriptionAr;
+  const descriptionEn = isLoai
+    ? "Medical profile of Dr. Loai Al-Salmi, consultant plastic and reconstructive surgeon at Rejuvera Riyadh, with specialist assessment for facelift, neck lift, lipedema, and plastic surgery."
+    : (doctor.summaryEn ?? doctor.summary);
+  const title = `${titleAr} — ${titleEn}`;
+  const description = `${descriptionAr} ${descriptionEn}`;
 
   return {
     title,
@@ -75,7 +81,16 @@ export async function generateMetadata({
       description,
       images: [doctor.coverImageUrl],
     },
-    alternates: buildCanonicalAlternates(`/doctors/${doctor.slug}`),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
+    },
     robots: {
       index: true,
       follow: true,

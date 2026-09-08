@@ -15,7 +15,7 @@ import {
 } from "@/lib/content-repository";
 import { getCoreServiceSeo } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
-import { buildCanonicalAlternates, getSiteUrl } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -40,13 +40,22 @@ export async function generateMetadata({
   // falling back to the Arabic name would duplicate it into the English half
   // (confirmed live for a service missing nameEn). A generic brand fallback
   // keeps the title valid without duplicating content.
+  const titleEn =
+    service.seoTitleEn ??
+    coreSeo?.seoTitleEn ??
+    `${service.nameEn ?? "Rejuvera Medical Center"} | Rejuvera`;
   const descriptionAr =
     service.seoDescriptionAr ?? coreSeo?.seoDescriptionAr ?? service.excerpt;
   // Same reasoning as titleEn above: do not fall back to service.excerpt
   // (Arabic) here, since it would duplicate the Arabic text already used for
   // descriptionAr into the "English" half of the meta description.
-  const title = titleAr;
-  const description = descriptionAr;
+  const descriptionEn =
+    service.seoDescriptionEn ??
+    coreSeo?.seoDescriptionEn ??
+    service.excerptEn ??
+    "Learn more about this service at Rejuvera Medical Center in Riyadh.";
+  const title = `${titleAr} — ${titleEn}`;
+  const description = `${descriptionAr} ${descriptionEn}`;
 
   return {
     title,
@@ -81,7 +90,16 @@ export async function generateMetadata({
       description,
       images: [service.coverImageUrl],
     },
-    alternates: buildCanonicalAlternates(`/services/${service.slug}`),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
+    },
     robots: {
       index: true,
       follow: true,

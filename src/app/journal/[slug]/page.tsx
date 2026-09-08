@@ -11,7 +11,7 @@ import {
   getJournalPostBySlug,
   getServices,
 } from "@/lib/content-repository";
-import { buildCanonicalAlternates, getSiteUrl } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -35,7 +35,16 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: buildCanonicalAlternates(`/journal/${post.slug}`),
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        en: `${canonicalUrl}?lang=en`,
+        "en-US": `${canonicalUrl}?lang=en`,
+        "x-default": canonicalUrl,
+      },
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -107,9 +116,6 @@ export default async function JournalDetailPage({
     inLanguage: ["ar", "en"],
     mainEntityOfPage: postUrl,
     publisher: {
-      "@id": `${getSiteUrl()}#organization`,
-    },
-    author: {
       "@id": `${getSiteUrl()}#organization`,
     },
   };
