@@ -176,6 +176,7 @@ export default async function RootLayout({
   const runtimeSettings = await getRuntimeSettings();
   const headerStore = await headers();
   const cookieStore = await cookies();
+  const nonce = headerStore.get("x-nonce") ?? "";
   const pathname =
     headerStore.get("x-pathname") ?? headerStore.get("x-invoke-path") ?? "/";
   const url = headerStore.get("x-url");
@@ -219,6 +220,7 @@ export default async function RootLayout({
         <Script
           id="rejuvira-boot"
           strategy="beforeInteractive"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var d=document.documentElement;var defaultTheme=${JSON.stringify(initialTheme)};var serverLang=${JSON.stringify(initialLang)};var queryLang=new URLSearchParams(location.search).get("lang");var c=document.cookie.match(/(?:^|;\\s*)rejuvira-lang=(en|ar)\\b/);var cookieLang=c?c[1]:null;var l=localStorage.getItem("rejuvira-lang");if(l!=="en"&&l!=="ar")l=null;var effective=(queryLang==="en"||queryLang==="ar")?queryLang:((cookieLang==="en"||cookieLang==="ar")?cookieLang:((l==="en"||l==="ar")?l:serverLang||"ar"));d.setAttribute("data-lang",effective);d.lang=effective;d.dir=effective==="ar"?"rtl":"ltr";var t=localStorage.getItem("rejuvira-theme");if(t!=="dark"&&t!=="light"){t=defaultTheme==="dark"?"dark":"light";}d.setAttribute("data-theme",t);}catch(e){}})();`,
           }}
@@ -226,11 +228,13 @@ export default async function RootLayout({
         <script
           id="rejuvira-local-business-ld"
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
         />
         <script
           id="rejuvera-site-creator-ld"
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteCreatorLd) }}
         />
         {googleTagConfig?.kind === "gtag" ? (
@@ -243,6 +247,7 @@ export default async function RootLayout({
             <Script
               id="rejuvera-google-tag-init"
               strategy="afterInteractive"
+              nonce={nonce}
               dangerouslySetInnerHTML={{
                 __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',${JSON.stringify(googleTagConfig.id)});`,
               }}
@@ -253,6 +258,7 @@ export default async function RootLayout({
           <Script
             id="rejuvera-google-tag-manager"
             strategy="afterInteractive"
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);var dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+encodeURIComponent(i)+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',${JSON.stringify(googleTagConfig.id)});`,
             }}
@@ -291,6 +297,7 @@ export default async function RootLayout({
             <Script
               id="rejuvera-utm-hidden-fields"
               strategy="afterInteractive"
+              nonce={nonce}
               dangerouslySetInnerHTML={{
                 __html: `(function(){try{var keys=["utm_source","utm_medium","utm_campaign","utm_content"];var params=new URLSearchParams(window.location.search);var stored={};try{stored=JSON.parse(localStorage.getItem("rejuvera_utm")||"{}")||{};}catch(e){stored={};}var changed=false;keys.forEach(function(k){var v=params.get(k);if(v){stored[k]=v;changed=true;}});if(changed)localStorage.setItem("rejuvera_utm",JSON.stringify(stored));var aliases={utm_source:"utmSource",utm_medium:"utmMedium",utm_campaign:"utmCampaign",utm_content:"utmContent"};function fill(){keys.forEach(function(k){var v=stored[k]||"";document.querySelectorAll('input[name="'+k+'"],input[name="'+aliases[k]+'"]').forEach(function(input){if(!input.value)input.value=v;});});document.querySelectorAll('input[name="pageUrl"],input[name="landingPageUrl"]').forEach(function(input){if(!input.value)input.value=window.location.href;});document.querySelectorAll('input[name="referrerUrl"]').forEach(function(input){if(!input.value)input.value=document.referrer||"";});}fill();new MutationObserver(fill).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}})();`,
               }}
@@ -312,6 +319,7 @@ export default async function RootLayout({
           <Script
             id="rv-scroll-reveal"
             strategy="afterInteractive"
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `(function(){var o=new IntersectionObserver(function(e){e.forEach(function(i){if(i.isIntersecting){i.target.classList.add('is-visible');o.unobserve(i.target);}});},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});document.querySelectorAll('.rv-reveal,.rv-reveal-left,.rv-reveal-scale,.rv-v0-section-title,.rv-v0-services-grid,.rv-v0-devices-grid,.rv-v0-trust-grid,.rv-v0-testimonials,.rv-v0-wide-stats,.rv-v0-partners,.rv-v0-gallery-grid,.rv-doctors-section,.rv-strip-section,.rv-v0-home-contact-section').forEach(function(el){o.observe(el);});})();`,
             }}
@@ -319,6 +327,7 @@ export default async function RootLayout({
           <Script
             id="rv-header-scroll"
             strategy="afterInteractive"
+            nonce={nonce}
             dangerouslySetInnerHTML={{
               __html: `(function(){var h=document.querySelector('.rv-v0-header');if(!h)return;window.addEventListener('scroll',function(){h.classList.toggle('is-scrolled',window.scrollY>20);},{passive:true});})();`,
             }}

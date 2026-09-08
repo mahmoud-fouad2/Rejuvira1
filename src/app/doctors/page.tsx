@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { getCspNonce } from "@/lib/csp-nonce";
 import { getDoctors, getMediaSelections } from "@/lib/content-repository";
 import { buildCollectionPageJsonLd, buildPageMetadata } from "@/lib/seo";
 
@@ -12,9 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DoctorsPage() {
-  const [doctors, mediaSelections] = await Promise.all([
+  const [doctors, mediaSelections, nonce] = await Promise.all([
     getDoctors(),
     getMediaSelections(),
+    getCspNonce(),
   ]);
   const featuredDoctorsCount = doctors.filter(
     (doctor) => doctor.featured,
@@ -32,6 +34,7 @@ export default async function DoctorsPage() {
       <script
         id="doctors-collection-ld"
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(doctorsJsonLd) }}
       />
       <SiteHeader />

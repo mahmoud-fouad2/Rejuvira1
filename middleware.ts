@@ -6,6 +6,7 @@ import {
   buildCanonicalUrl,
   shouldRedirectToCanonicalHost,
 } from "@/lib/canonical-host";
+import { buildCsp } from "@/lib/csp";
 
 /**
  * Edge middleware:
@@ -88,8 +89,24 @@ export default auth((request) => {
 
   const isAdminRoute = nextUrl.pathname.startsWith("/admin");
   const isLoginRoute = nextUrl.pathname.startsWith("/login");
+  const isForbiddenRoute = nextUrl.pathname.startsWith("/forbidden");
   const isApiAdminRoute = nextUrl.pathname.startsWith("/api/admin");
   const hasAuthenticatedUser = Boolean(session?.user?.id);
+
+  // Fresh nonce per request for the CSP script-src. Set on the request
+  // headers (not just the response) so Next's own renderer picks it up and
+  // nonces its own internal scripts (hydration bootstrap, RSC streaming) —
+  // without this, hydration silently breaks once a browser stops honoring
+  // the 'unsafe-inline' fallback.
+  const nonce = btoa(crypto.randomUUID());
+  const cspValue = buildCsp(
+    isAdminRoute || isLoginRoute || isForbiddenRoute
+      ? "frame-ancestors 'none'"
+      : "frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googleusercontent.com",
+    nonce,
+  );
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", cspValue);
 
   if (isAdminRoute && !hasAuthenticatedUser) {
     const url = buildCanonicalUrl("/login");
@@ -122,6 +139,7 @@ export default auth((request) => {
   });
 
   response.headers.set("x-request-id", requestId);
+  response.headers.set("Content-Security-Policy", cspValue);
 
   // Sensitive surfaces should never be cached by browsers/CDNs.
   if (isAdminRoute || isApiAdminRoute || isLoginRoute) {

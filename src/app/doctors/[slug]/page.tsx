@@ -8,6 +8,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { BookingModal } from "@/components/layout/BookingModal";
 import { StickyMobileCta } from "@/components/public/StickyMobileCta";
+import { getCspNonce } from "@/lib/csp-nonce";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 import {
   getDevices,
@@ -17,7 +18,7 @@ import {
 } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
-import { getSiteUrl } from "@/lib/seo";
+import { buildCanonicalAlternates, getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -38,17 +39,11 @@ export async function generateMetadata({
   const titleAr = isLoai
     ? "د. لؤي السالمي | شد الوجه والرقبة وجراحة التجميل بالرياض"
     : `${doctor.name} | ${doctor.specialty}`;
-  const titleEn = isLoai
-    ? "Dr. Loai Al-Salmi | Facelift, Neck Lift and Plastic Surgery Riyadh"
-    : `${doctor.nameEn ?? doctor.name} | ${doctor.specialtyEn ?? doctor.specialty}`;
   const descriptionAr = isLoai
     ? "الملف الطبي لد. لؤي السالمي استشاري جراحة التجميل والترميم في ريجوفيرا بالرياض، مع خدمات شد الوجه والرقبة وعلاج الوذمة الشحمية والتخطيط الجراحي المتخصص."
     : doctor.summary;
-  const descriptionEn = isLoai
-    ? "Medical profile of Dr. Loai Al-Salmi, consultant plastic and reconstructive surgeon at Rejuvera Riyadh, with specialist assessment for facelift, neck lift, lipedema, and plastic surgery."
-    : (doctor.summaryEn ?? doctor.summary);
-  const title = `${titleAr} — ${titleEn}`;
-  const description = `${descriptionAr} ${descriptionEn}`;
+  const title = titleAr;
+  const description = descriptionAr;
 
   return {
     title,
@@ -80,16 +75,7 @@ export async function generateMetadata({
       description,
       images: [doctor.coverImageUrl],
     },
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        ar: canonicalUrl,
-        "ar-SA": canonicalUrl,
-        en: `${canonicalUrl}?lang=en`,
-        "en-US": `${canonicalUrl}?lang=en`,
-        "x-default": canonicalUrl,
-      },
-    },
+    alternates: buildCanonicalAlternates(`/doctors/${doctor.slug}`),
     robots: {
       index: true,
       follow: true,
@@ -151,12 +137,14 @@ export default async function DoctorDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [doctor, services, devices, runtimeSettings] = await Promise.all([
-    getDoctorBySlug(slug),
-    getServices(),
-    getDevices(),
-    getRuntimeSettings(),
-  ]);
+  const [doctor, services, devices, runtimeSettings, nonce] =
+    await Promise.all([
+      getDoctorBySlug(slug),
+      getServices(),
+      getDevices(),
+      getRuntimeSettings(),
+      getCspNonce(),
+    ]);
 
   if (!doctor) {
     notFound();
@@ -258,6 +246,7 @@ export default async function DoctorDetailPage({
       <script
         id={`doctor-structured-data-${doctor.slug}`}
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(doctorJsonLd),
         }}
@@ -265,6 +254,7 @@ export default async function DoctorDetailPage({
       <script
         id={`doctor-breadcrumb-data-${doctor.slug}`}
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
         }}

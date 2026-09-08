@@ -6,109 +6,15 @@ import type { NextConfig } from "next";
  */
 const imageUnoptimized = process.env.IMAGE_UNOPTIMIZED === "1";
 
-const isProd = process.env.NODE_ENV === "production";
-
 /**
- * Content Security Policy.
- *
- * Notes:
- * - We use `'unsafe-inline'` for scripts because the root layout ships small
- *   bootstrap snippets (theme/lang) and JSON-LD via `next/script` inline.
- *   Adding nonces would require threading them through each Script and the
- *   server response — out of scope here. Lighthouse will still flag this audit
- *   as "could be stronger", but the policy still mitigates many XSS vectors.
- * - In dev we relax `script-src` to allow `'unsafe-eval'` for HMR.
- * - We allow third-party origins we actively integrate with: Chatbase, Google
- *   Maps embed, Google reCAPTCHA/Tag, Cloudflare R2 (image hosting).
+ * The public/admin Content-Security-Policy is built and set per-request by
+ * middleware.ts (src/lib/csp.ts's `buildCsp`), because it carries a fresh
+ * nonce on every request. next.config.ts can only emit a static header, so
+ * it no longer sets Content-Security-Policy for the routes middleware
+ * covers — see `securityHeaders` / `adminFrameProtectionHeaders` below.
+ * `/career/*` is a deliberate exception (middleware's matcher excludes it)
+ * and keeps its own static, `unsafe-inline`-based policy here.
  */
-function buildCsp(frameAncestors: string) {
-  const googleScriptOrigins = [
-    "https://www.google.com",
-    "https://*.google.com",
-    "https://www.gstatic.com",
-    "https://*.gstatic.com",
-    "https://www.googletagmanager.com",
-    "https://*.googletagmanager.com",
-    "https://www.googleadservices.com",
-    // Google Ads/Analytics conversion tracking uses several doubleclick.net
-    // subdomains beyond googleads.g. (e.g. ad.doubleclick.net for the
-    // cross-domain conversion "ccm/s/collect" beacon) — wildcard the whole
-    // Google-owned domain rather than allowlisting each one piecemeal.
-    "https://*.doubleclick.net",
-    "https://*.recaptcha.net",
-    "https://www.recaptcha.net",
-  ].join(" ");
-  const metaScriptOrigins = "https://connect.facebook.net";
-  // TikTok Pixel (events.js) loads from analytics.tiktok.com.
-  const tiktokScriptOrigins =
-    "https://analytics.tiktok.com https://*.tiktok.com";
-  // Snap Pixel loader plus the account-specific runtime configuration it loads.
-  const snapchatScriptOrigins =
-    "https://sc-static.net https://tr.snapchat.com";
-  // Faheemly chat/booking widget loader (admin-configured integration).
-  const widgetScriptOrigins =
-    "https://www.faheemly.com https://*.faheemly.com";
-
-  return [
-    `default-src 'self' ${googleScriptOrigins} data: blob:`,
-    [
-      "script-src 'self' 'unsafe-inline'",
-      !isProd && "'unsafe-eval'",
-      "https://www.chatbase.co",
-      "https://*.chatbase.co",
-      googleScriptOrigins,
-      metaScriptOrigins,
-      tiktokScriptOrigins,
-      snapchatScriptOrigins,
-      widgetScriptOrigins,
-    ]
-      .filter(Boolean)
-      .join(" "),
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data: blob: https:",
-    "font-src 'self' data: https://fonts.gstatic.com",
-    // Narrowed from a blanket `https:` to the origins actually observed via
-    // live network capture (analytics/pixel beacons + the Faheemly widget's
-    // API calls). The Faheemly widget calls its own AWS-hosted backend
-    // directly (not just faheemly.com), hence the ecs.us-west-2 wildcard.
-    [
-      "connect-src 'self'",
-      googleScriptOrigins,
-      "https://analytics.google.com",
-      "https://*.google-analytics.com",
-      metaScriptOrigins,
-      "https://www.facebook.com",
-      tiktokScriptOrigins,
-      // TikTok Pixel's IP-enrichment beacon calls a separate registered
-      // domain (tiktokw.us), not a tiktok.com subdomain.
-      "https://*.tiktokw.us",
-      snapchatScriptOrigins,
-      "https://*.snapchat.com",
-      widgetScriptOrigins,
-      "https://*.ecs.us-west-2.on.aws",
-      "wss:",
-      "data:",
-      "blob:",
-    ].join(" "),
-    "frame-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.gstatic.com https://*.recaptcha.net https://www.recaptcha.net https://www.googletagmanager.com https://*.googletagmanager.com https://www.chatbase.co https://*.chatbase.co https://tr.snapchat.com https://www.faheemly.com https://*.faheemly.com",
-    "child-src 'self' https://www.google.com https://*.google.com https://www.gstatic.com https://*.recaptcha.net blob:",
-    "media-src 'self' https: data:",
-    "worker-src 'self' blob:",
-    "manifest-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    frameAncestors,
-    "upgrade-insecure-requests",
-  ]
-    .filter(Boolean)
-    .join("; ");
-}
-
-const publicCsp = buildCsp(
-  "frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googleusercontent.com",
-);
-const adminCsp = buildCsp("frame-ancestors 'none'");
 const careerCsp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://cdnjs.cloudflare.com",
@@ -129,7 +35,6 @@ const careerCsp = [
 ].join("; ");
 
 const securityHeaders = [
-  { key: "Content-Security-Policy", value: publicCsp },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
@@ -152,7 +57,6 @@ const securityHeaders = [
 ];
 
 const adminFrameProtectionHeaders = [
-  { key: "Content-Security-Policy", value: adminCsp },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
@@ -237,6 +141,9 @@ const nextConfig: NextConfig = {
         headers: [{ key: "X-Robots-Tag", value: "all" }],
       },
       // robots.txt + sitemap files: short cache, plus permissive indexing.
+      // These file routes are excluded from middleware.ts's matcher (by
+      // extension), so they no longer get a CSP from there either — they
+      // never render HTML/script, so a locked-down static policy is enough.
       {
         source: "/robots.txt",
         headers: [
@@ -245,6 +152,7 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "text/plain; charset=utf-8" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {
@@ -255,6 +163,7 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {
@@ -265,6 +174,7 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {
@@ -275,6 +185,7 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {
@@ -285,6 +196,7 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {
@@ -295,6 +207,7 @@ const nextConfig: NextConfig = {
             value: "public, max-age=300, must-revalidate",
           },
           { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {
@@ -306,6 +219,7 @@ const nextConfig: NextConfig = {
           },
           { key: "Content-Type", value: "text/plain; charset=utf-8" },
           { key: "X-Robots-Tag", value: "all" },
+          { key: "Content-Security-Policy", value: "default-src 'none'" },
         ],
       },
       {

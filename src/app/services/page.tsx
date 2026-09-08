@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Badge } from "@/components/ui/Badge";
 import { ServicesGrid } from "@/components/public/ServicesGrid";
+import { getCspNonce } from "@/lib/csp-nonce";
 import {
   getMediaSelections,
   getServiceCategories,
@@ -32,11 +33,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ServicesPage() {
-  const [allServices, allCategories, mediaSelections] = await Promise.all([
-    getServices(),
-    getServiceCategories(),
-    getMediaSelections(),
-  ]);
+  const [allServices, allCategories, mediaSelections, nonce] =
+    await Promise.all([
+      getServices(),
+      getServiceCategories(),
+      getMediaSelections(),
+      getCspNonce(),
+    ]);
   const services = allServices.filter(
     (service) => service.status === ContentStatus.PUBLISHED,
   );
@@ -77,6 +80,7 @@ export default async function ServicesPage() {
       <script
         id="services-collection-ld"
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
       />
       <SiteHeader />

@@ -5,12 +5,13 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { getCspNonce } from "@/lib/csp-nonce";
 import {
   getDoctors,
   getJournalPostBySlug,
   getServices,
 } from "@/lib/content-repository";
-import { getSiteUrl } from "@/lib/seo";
+import { buildCanonicalAlternates, getSiteUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -34,16 +35,7 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
-    alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        ar: canonicalUrl,
-        "ar-SA": canonicalUrl,
-        en: `${canonicalUrl}?lang=en`,
-        "en-US": `${canonicalUrl}?lang=en`,
-        "x-default": canonicalUrl,
-      },
-    },
+    alternates: buildCanonicalAlternates(`/journal/${post.slug}`),
     openGraph: {
       title: post.title,
       description: post.excerpt,
@@ -88,7 +80,11 @@ export default async function JournalDetailPage({
     notFound();
   }
 
-  const [services, doctors] = await Promise.all([getServices(), getDoctors()]);
+  const [services, doctors, nonce] = await Promise.all([
+    getServices(),
+    getDoctors(),
+    getCspNonce(),
+  ]);
 
   const relatedServiceSlugSet = new Set(post.relatedServiceSlugs);
   const doctorsBySlug = new Map(doctors.map((doctor) => [doctor.slug, doctor]));
@@ -111,6 +107,9 @@ export default async function JournalDetailPage({
     inLanguage: ["ar", "en"],
     mainEntityOfPage: postUrl,
     publisher: {
+      "@id": `${getSiteUrl()}#organization`,
+    },
+    author: {
       "@id": `${getSiteUrl()}#organization`,
     },
   };
@@ -145,6 +144,7 @@ export default async function JournalDetailPage({
       <script
         id={`journal-structured-data-${post.slug}`}
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(journalJsonLd),
         }}
@@ -152,6 +152,7 @@ export default async function JournalDetailPage({
       <script
         id={`journal-breadcrumb-data-${post.slug}`}
         type="application/ld+json"
+        nonce={nonce}
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbJsonLd),
         }}
