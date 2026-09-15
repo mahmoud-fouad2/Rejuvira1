@@ -264,6 +264,14 @@ export default async function RootLayout({
             }}
           />
         ) : null}
+        <Script
+          id="rejuvera-google-phone-conversion"
+          strategy="afterInteractive"
+          nonce={nonce}
+          dangerouslySetInnerHTML={{
+            __html: `window.gtag_report_phone_conversion=function(url){var callback=function(){if(typeof url!=='undefined'){window.location=url;}};if(typeof window.gtag!=='function'){callback();return false;}window.gtag('event','conversion',{'send_to':'AW-16511038360/VzZpCLHk4uocEJjnicE9','event_callback':callback});return false;};`,
+          }}
+        />
       </head>
       <body className="page-enter flex min-h-full min-w-0 flex-col">
         {googleTagConfig?.kind === "gtm" ? (

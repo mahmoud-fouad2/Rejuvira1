@@ -1,4 +1,5 @@
 import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
+import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 import type { RuntimeSettings, ServiceRecord } from "@/lib/content-repository";
@@ -119,22 +120,25 @@ export function HomeContactSection({
             </ul>
 
             <div className="rv-v0-home-contact-channels">
-              <a href={telHref} className="rv-v0-home-contact-channel">
+              <PhoneCallLink
+                href={telHref}
+                className="rv-v0-home-contact-channel"
+              >
                 <span className="rv-v0-home-contact-channel-icon">
                   <PhoneGlyph />
                 </span>
                 <div>
                   <span className="rv-v0-home-contact-channel-label">
                     <span className="lang-ar">اتصلي بنا</span>
-                    <span className="lang-en">Phone</span>
+                    <span className="lang-en">Call us</span>
                   </span>
                   <span className="rv-v0-home-contact-channel-value" dir="ltr">
                     {settings.contact.phone}
                   </span>
                 </div>
-              </a>
+              </PhoneCallLink>
               {secondaryTelHref ? (
-                <a
+                <PhoneCallLink
                   href={secondaryTelHref}
                   className="rv-v0-home-contact-channel"
                 >
@@ -153,7 +157,7 @@ export function HomeContactSection({
                       {settings.contact.phoneSecondary}
                     </span>
                   </div>
-                </a>
+                </PhoneCallLink>
               ) : null}
               <a
                 href={`mailto:${settings.contact.email}`}

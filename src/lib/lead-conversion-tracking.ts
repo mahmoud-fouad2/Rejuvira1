@@ -229,11 +229,6 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
     metaEventId,
   );
 
-  window.dataLayer.push({
-    event: "form_success",
-    ...safePayload,
-  });
-
   // TikTok Pixel — standard Lead event.
   // Fires exactly once per successful submission; dispatchTikTokLead() retries
   // for up to ~3 s in case the ttq snippet loads after React hydration.

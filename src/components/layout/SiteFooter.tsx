@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import type { Route } from "next";
 
 import { BookingModal } from "@/components/layout/BookingModal";
@@ -539,25 +540,31 @@ export async function SiteFooter() {
             </h3>
             <ul className="rv-v0-footer-contact-list mt-5 space-y-3 text-sm">
               <li>
-                <a href={telPrimary} className="rv-v0-footer-contact-row">
+                <PhoneCallLink
+                  href={telPrimary}
+                  className="rv-v0-footer-contact-row"
+                >
                   <span className="rv-v0-footer-contact-icon">
                     <PhoneIcon />
                   </span>
                   <span dir="ltr" className="rv-v0-footer-contact-text">
                     {primaryPhone}
                   </span>
-                </a>
+                </PhoneCallLink>
               </li>
               {telSecondary ? (
                 <li>
-                  <a href={telSecondary} className="rv-v0-footer-contact-row">
+                  <PhoneCallLink
+                    href={telSecondary}
+                    className="rv-v0-footer-contact-row"
+                  >
                     <span className="rv-v0-footer-contact-icon">
                       <PhoneIcon />
                     </span>
                     <span dir="ltr" className="rv-v0-footer-contact-text">
                       {secondaryPhone}
                     </span>
-                  </a>
+                  </PhoneCallLink>
                 </li>
               ) : null}
               <li>

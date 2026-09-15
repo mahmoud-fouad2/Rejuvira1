@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import type { Route } from "next";
 import { notFound } from "next/navigation";
 
+import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { BookingModal } from "@/components/layout/BookingModal";
@@ -353,10 +354,10 @@ export default async function DoctorDetailPage({
                   <span className="lang-en">WhatsApp now</span>
                 </a>
               ) : null}
-              <a href={telHref} className="rv-doctor-cta-call">
+              <PhoneCallLink href={telHref} className="rv-doctor-cta-call">
                 <PhoneGlyph />
                 <span dir="ltr">{runtimeSettings.contact.phone}</span>
-              </a>
+              </PhoneCallLink>
             </div>
           </div>
         </section>

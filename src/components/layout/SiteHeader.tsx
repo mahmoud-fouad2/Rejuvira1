@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 
 import { SiteMegaMenu } from "@/components/navigation/SiteMegaMenu";
+import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import {
   getDevices,
   getDoctors,
@@ -94,15 +95,18 @@ export async function SiteHeader() {
               <Icon path="M4 6h16v12H4zM4 7l8 6 8-6" />
               {runtimeSettings.contact.email}
             </a>
-            <a href={primaryTel}>
+            <PhoneCallLink href={primaryTel}>
               <Icon path="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.92.33 1.82.62 2.68a2 2 0 0 1-.45 2.11L8 9.79a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.86.29 1.76.5 2.68.62A2 2 0 0 1 22 16.92Z" />
               {runtimeSettings.contact.phone}
-            </a>
+            </PhoneCallLink>
             {secondaryTel ? (
-              <a href={secondaryTel} className="rv-v0-top-contact-secondary">
+              <PhoneCallLink
+                href={secondaryTel}
+                className="rv-v0-top-contact-secondary"
+              >
                 <Icon path="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.92.33 1.82.62 2.68a2 2 0 0 1-.45 2.11L8 9.79a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.86.29 1.76.5 2.68.62A2 2 0 0 1 22 16.92Z" />
                 {runtimeSettings.contact.phoneSecondary}
-              </a>
+              </PhoneCallLink>
             ) : null}
           </div>
           <div className="rv-v0-top-location">

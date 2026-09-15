@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
+import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SocialIconCluster } from "@/components/layout/SocialIconCluster";
@@ -53,7 +54,7 @@ export default async function ContactPage() {
       ),
       kind: "whatsapp" as const,
     },
-    ...(primaryDigits && primaryDigits !== whatsappDigits
+    ...(primaryDigits
       ? [
           {
             labelAr: "الهاتف الرئيسي",
@@ -141,39 +142,57 @@ export default async function ContactPage() {
             </div>
 
             <div className="mt-10 grid gap-4">
-              {contactChannels.map((ch) => (
-                <a
-                  key={ch.labelAr}
-                  href={ch.href}
-                  target={ch.kind === "whatsapp" ? "_blank" : undefined}
-                  rel={
-                    ch.kind === "whatsapp" ? "noopener noreferrer" : undefined
-                  }
-                  className="group border-line bg-surface hover:border-purple-mid/25 flex items-center justify-between rounded-[1.8rem] border px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_oklch(22%_0.06_285/0.09)]"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="bg-ink-strong flex h-12 w-12 items-center justify-center rounded-full shadow-md ring-1 ring-white/10">
-                      <ContactChannelGlyph kind={ch.kind} />
-                    </span>
-                    <div>
-                      <p
-                        className="text-ink-strong text-base font-medium"
-                        dir="ltr"
-                      >
-                        {ch.value}
-                      </p>
-                      <p className="text-ink-soft mt-1.5 text-xs">
-                        <span className="lang-ar">{ch.hintAr}</span>
-                        <span className="lang-en">{ch.hintEn}</span>
-                      </p>
+              {contactChannels.map((ch) => {
+                const content = (
+                  <>
+                    <div className="flex items-center gap-4">
+                      <span className="bg-ink-strong flex h-12 w-12 items-center justify-center rounded-full shadow-md ring-1 ring-white/10">
+                        <ContactChannelGlyph kind={ch.kind} />
+                      </span>
+                      <div>
+                        <p
+                          className="text-ink-strong text-base font-medium"
+                          dir="ltr"
+                        >
+                          {ch.value}
+                        </p>
+                        <p className="text-ink-soft mt-1.5 text-xs">
+                          <span className="lang-ar">{ch.hintAr}</span>
+                          <span className="lang-en">{ch.hintEn}</span>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-ink-soft group-hover:text-ink-strong text-[10px] font-semibold tracking-[0.24em] uppercase transition-colors">
-                    <span className="lang-ar">{ch.labelAr}</span>
-                    <span className="lang-en">{ch.labelEn}</span>
-                  </span>
-                </a>
-              ))}
+                    <span className="text-ink-soft group-hover:text-ink-strong text-[10px] font-semibold tracking-[0.24em] uppercase transition-colors">
+                      <span className="lang-ar">{ch.labelAr}</span>
+                      <span className="lang-en">{ch.labelEn}</span>
+                    </span>
+                  </>
+                );
+                const className =
+                  "group border-line bg-surface hover:border-purple-mid/25 flex items-center justify-between rounded-[1.8rem] border px-6 py-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_oklch(22%_0.06_285/0.09)]";
+
+                return ch.kind === "phone" ? (
+                  <PhoneCallLink
+                    key={ch.labelAr}
+                    href={ch.href}
+                    className={className}
+                  >
+                    {content}
+                  </PhoneCallLink>
+                ) : (
+                  <a
+                    key={ch.labelAr}
+                    href={ch.href}
+                    target={ch.kind === "whatsapp" ? "_blank" : undefined}
+                    rel={
+                      ch.kind === "whatsapp" ? "noopener noreferrer" : undefined
+                    }
+                    className={className}
+                  >
+                    {content}
+                  </a>
+                );
+              })}
             </div>
           </article>
 

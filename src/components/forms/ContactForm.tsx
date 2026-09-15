@@ -248,6 +248,11 @@ export function ContactForm({
         | (Partial<ContactActionState> & { snapDedupId?: string })
         | null;
       const data = normalizeContactActionState(rawData, response.ok);
+      const isConfirmedSuccessfulLead =
+        response.ok &&
+        rawData?.ok === true &&
+        rawData.status === "success" &&
+        rawData.duplicate !== true;
       setState(data);
       if (response.ok && data.status === "success" && !data.duplicate) {
         // The server echoes back the dedupId it used for CAPI.
@@ -257,6 +262,13 @@ export function ContactForm({
           ...leadPayloadFromForm(form, "contact_form"),
           snapDedupId: confirmedDedupId,
         });
+        if (isConfirmedSuccessfulLead) {
+          window.dataLayer = window.dataLayer || [];
+          window.dataLayer.push({
+            event: "form_success",
+            form_name: "booking",
+          });
+        }
         form.reset();
         if (tokenInputRef.current) tokenInputRef.current.value = "";
       }

@@ -32,6 +32,7 @@ export function LeadConversionTracker() {
       };
 
       if (normalizedHref.startsWith("tel:")) {
+        if (anchor.dataset.googleAdsPhoneCta === "true") return;
         trackContactLinkConversion("phone", link);
         return;
       }
