@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 
+import { getRuntimeSettings } from "@/lib/content-repository";
+
 const UPSTREAM_ORIGIN = "https://dralsalmi.com";
 const UPSTREAM_PREFIX = "/career";
 const LOCAL_PREFIX = "/career";
 const UPSTREAM_HOST = "dralsalmi.com";
+
+// Shared secret the upstream's Cloudflare rule can match to let this proxy through.
+const PROXY_KEY_HEADER = "x-rejuvera-proxy-key";
+// Bounds time-to-headers (and HTML buffering); form posts get longer.
+const UPSTREAM_TIMEOUT_MS = 20_000;
+const UPSTREAM_WRITE_TIMEOUT_MS = 60_000;
+const ASSET_PATH =
+  /\.(?:js|mjs|css|map|json|xml|txt|pdf|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|eot|mp4|webm)$/i;
 
 const HOP_BY_HOP_HEADERS = new Set([
   "connection",
@@ -220,18 +230,33 @@ function buildUpstreamHeaders(request: Request) {
   headers.set("x-forwarded-prefix", LOCAL_PREFIX);
   headers.set("x-forwarded-proto", "https");
 
+  const proxyKey = process.env.CAREER_PROXY_SECRET;
+  if (proxyKey) headers.set(PROXY_KEY_HEADER, proxyKey);
+
   return headers;
 }
 
-function renderCareerFallbackHtml(request: Request) {
+type FallbackContact = { whatsappDigits: string; email: string };
+
+function renderCareerFallbackHtml(request: Request, contact: FallbackContact) {
   const origin = getRequestOrigin(request, new URL(request.url));
+  const whatsappButton = contact.whatsappDigits
+    ? `<a href="https://wa.me/${contact.whatsappDigits}?text=${encodeURIComponent("السلام عليكم، أرغب في التقديم على فرصة وظيفية في مركز ريجوفيرا")}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            <span>التواصل عبر واتساب</span>
+          </a>`
+    : "";
+  const emailButton = contact.email
+    ? `<a href="mailto:${contact.email}?subject=${encodeURIComponent("طلب توظيف - مركز ريجوفيرا")}" class="btn btn-secondary">
+            <span>إرسال عبر البريد الإلكتروني</span>
+          </a>`
+    : "";
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>التوظيف والانضمام لفريق العمل | مجمع ريجوفيرا الطبي</title>
-  <meta name="description" content="انضم إلى نخبة الكوادر الطبية والإدارية في مجمع ريجوفيرا الطبي بالرياض. فرص وظيفية متميزة في جراحة التجميل والجلدية والأسنان والتمريض.">
+  <title>التوظيف والانضمام لفريق العمل | مركز ريجوفيرا الطبي</title>
+  <meta name="description" content="انضم إلى نخبة الكوادر الطبية والإدارية في مركز ريجوفيرا الطبي بالرياض. فرص وظيفية متميزة في جراحة التجميل والجلدية والأسنان والتمريض.">
   <link rel="icon" href="/favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -444,7 +469,7 @@ function renderCareerFallbackHtml(request: Request) {
     <div class="container">
       <nav class="nav">
         <a href="${origin}/" class="logo">
-          <span>مجمع ريجوفيرا الطبي</span>
+          <span>مركز ريجوفيرا الطبي</span>
         </a>
         <ul class="nav-links">
           <li><a href="${origin}/">الرئيسية</a></li>
@@ -459,7 +484,7 @@ function renderCareerFallbackHtml(request: Request) {
   <section class="hero">
     <div class="container">
       <span class="hero-badge">فرص وظيفية واعدة</span>
-      <h1>انضم إلى فريق مجمع ريجوفيرا الطبي</h1>
+      <h1>انضم إلى فريق مركز ريجوفيرا الطبي</h1>
       <p>نبحث دائمًا عن الكفاءات الطبية والإدارية المتميزة لتقديم أرقى مستويات الرعاية التجميلية والصحية في الرياض.</p>
     </div>
   </section>
@@ -515,17 +540,12 @@ function renderCareerFallbackHtml(request: Request) {
 
         <div class="info-badge">
           <span>✓</span>
-          <span>يتم فرز ومراجعة كافة الطلبات بسرية تامة خلال 48 ساعة.</span>
+          <span>يتم التعامل مع جميع الطلبات بسرية.</span>
         </div>
 
         <div class="contact-box">
-          <a href="https://wa.me/966500000000?text=%D8%A7%D9%84%D8%B3%D9%84%D8%A7%D9%85%20%D8%B9%D9%84%D9%8A%D9%83%D9%85%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%AA%D9%82%D8%AF%D9%8A%D9%85%20%D8%B9%D9%84%D9%89%20%D9%81%D8%B1%D8%B5%D8%A9%20%D9%88%D8%B8%D9%8A%D9%81%D9%8A%D8%A9%20%D9%81%D9%8A%20%D9%85%D8%AC%D9%85%D8%B9%20%D8%B1%D9%8A%D8%AC%D9%88%D9%81%D9%8A%D8%B1%D8%A7" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-            <span>واتساب الموارد البشرية</span>
-          </a>
-
-          <a href="mailto:careers@rejuvera.sa?subject=%D8%B7%D9%84%D8%A8%20%D8%AA%D9%88%D8%B8%D9%8A%D9%81%20-%20%D9%85%D8%AC%D9%85%D8%B9%20%D8%B1%D9%8A%D8%AC%D9%88%D9%81%D9%8A%D8%B1%D8%A7" class="btn btn-secondary">
-            <span>إرسال عبر البريد الإلكتروني</span>
-          </a>
+          ${whatsappButton}
+          ${emailButton}
         </div>
       </div>
     </div>
@@ -533,12 +553,78 @@ function renderCareerFallbackHtml(request: Request) {
 
   <footer class="footer">
     <div class="container">
-      <p>© ${new Date().getFullYear()} مجمع ريجوفيرا الطبي | Rejuvera Medical Center. جميع الحقوق محفوظة.</p>
+      <p>© ${new Date().getFullYear()} مركز ريجوفيرا الطبي | Rejuvera Medical Center. جميع الحقوق محفوظة.</p>
       <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #9ca3af;">الرياض - المملكة العربية السعودية</p>
     </div>
   </footer>
 </body>
 </html>`;
+}
+
+async function fallbackContact(): Promise<FallbackContact> {
+  try {
+    const { contact } = await getRuntimeSettings();
+    const digits = (contact.whatsapp || contact.phone || "").replace(/\D/g, "");
+    const whatsappDigits = !digits
+      ? ""
+      : digits.startsWith("966")
+        ? digits
+        : digits.startsWith("0")
+          ? `966${digits.slice(1)}`
+          : `966${digits}`;
+    const email = /^[^\s@<>"'&]+@[^\s@<>"'&]+\.[^\s@<>"'&]+$/.test(
+      contact.email ?? "",
+    )
+      ? contact.email
+      : "";
+    return { whatsappDigits, email };
+  } catch {
+    return { whatsappDigits: "", email: "" };
+  }
+}
+
+let lastFallbackLogAt = 0;
+
+function logFallback(reason: string) {
+  const now = Date.now();
+  if (now - lastFallbackLogAt < 60_000) return;
+  lastFallbackLogAt = now;
+  console.warn(
+    `[career-proxy] serving the native fallback instead of the upstream portal: ${reason} ` +
+      `(CAREER_PROXY_SECRET ${process.env.CAREER_PROXY_SECRET ? "set" : "NOT set"})`,
+  );
+}
+
+async function fallbackFor(request: Request, pathname: string, reason: string) {
+  logFallback(reason);
+
+  const headers = new Headers();
+  headers.set("content-security-policy", careerProxyCsp);
+  headers.set("x-content-type-options", "nosniff");
+  headers.set("x-career-proxy", "rejuvera-native-fallback");
+  headers.set("cache-control", "no-store");
+
+  const isPage =
+    (request.method === "GET" || request.method === "HEAD") &&
+    !ASSET_PATH.test(pathname);
+  if (!isPage) {
+    // Never answer a form post or an asset request with a fake 200 page.
+    headers.set("content-type", "text/plain; charset=utf-8");
+    headers.set("retry-after", "60");
+    return new Response("Career portal temporarily unavailable", {
+      status: 503,
+      headers,
+    });
+  }
+
+  headers.set("content-type", "text/html; charset=utf-8");
+  if (request.method === "HEAD") {
+    return new Response(null, { status: 200, headers });
+  }
+  return new Response(
+    renderCareerFallbackHtml(request, await fallbackContact()),
+    { status: 200, headers },
+  );
 }
 
 export async function proxyCareerRequest(request: Request) {
@@ -550,32 +636,34 @@ export async function proxyCareerRequest(request: Request) {
     });
   }
 
-  const fallbackHeaders = new Headers();
-  fallbackHeaders.set("content-type", "text/html; charset=utf-8");
-  fallbackHeaders.set("content-security-policy", careerProxyCsp);
-  fallbackHeaders.set("x-content-type-options", "nosniff");
-  fallbackHeaders.set("x-career-proxy", "rejuvera-native-fallback");
+  const controller = new AbortController();
+  const timer = setTimeout(
+    () => controller.abort(),
+    request.method === "GET" || request.method === "HEAD"
+      ? UPSTREAM_TIMEOUT_MS
+      : UPSTREAM_WRITE_TIMEOUT_MS,
+  );
 
   try {
-    const upstreamUrl = upstreamUrlFor(request);
     const upstreamInit: RequestInit = {
       method: request.method,
       headers: buildUpstreamHeaders(request),
       redirect: "manual",
       cache: "no-store",
+      signal: controller.signal,
     };
     const body = await requestBodyFor(request);
     if (body) upstreamInit.body = body;
 
-    const upstream = await fetch(upstreamUrl, upstreamInit);
+    const upstream = await fetch(upstreamUrlFor(request), upstreamInit);
 
-    // If upstream returns 403, 5xx, or Cloudflare Challenge, serve native fallback directly with HTTP 200
     if (upstream.status === 403 || upstream.status >= 500) {
-      if (request.method === "HEAD") {
-        return new Response(null, { status: 200, headers: fallbackHeaders });
-      }
-      const html = renderCareerFallbackHtml(request);
-      return new Response(html, { status: 200, headers: fallbackHeaders });
+      const challenged = upstream.headers.get("cf-mitigated") === "challenge";
+      return await fallbackFor(
+        request,
+        url.pathname,
+        `upstream answered ${upstream.status}${challenged ? " (Cloudflare challenge)" : ""}`,
+      );
     }
 
     const headers = responseHeadersFrom(upstream, request);
@@ -587,22 +675,33 @@ export async function proxyCareerRequest(request: Request) {
     const contentType = upstream.headers.get("content-type") || "";
     if (contentType.includes("text/html")) {
       const text = await upstream.text();
-      // Guard against Cloudflare challenge HTML returned on 200/other status
-      if (text.includes("<title>Just a moment...") || text.includes("cf-mitigated")) {
-        const html = renderCareerFallbackHtml(request);
-        return new Response(html, { status: 200, headers: fallbackHeaders });
+      // Cloudflare can also return its challenge page with a 200.
+      if (
+        text.includes("<title>Just a moment...") ||
+        text.includes("cf-mitigated")
+      ) {
+        return await fallbackFor(
+          request,
+          url.pathname,
+          "upstream returned a Cloudflare challenge page",
+        );
       }
-      const html = rewriteHtml(text, request);
-      return new Response(html, { status: upstream.status, headers });
+      return new Response(rewriteHtml(text, request), {
+        status: upstream.status,
+        headers,
+      });
     }
 
     return new Response(upstream.body, { status: upstream.status, headers });
-  } catch {
-    // Network / origin failure fallback
-    if (request.method === "HEAD") {
-      return new Response(null, { status: 200, headers: fallbackHeaders });
-    }
-    const html = renderCareerFallbackHtml(request);
-    return new Response(html, { status: 200, headers: fallbackHeaders });
+  } catch (error) {
+    return await fallbackFor(
+      request,
+      url.pathname,
+      controller.signal.aborted
+        ? "no answer from the upstream in time"
+        : `network error (${error instanceof Error ? error.name : "unknown"})`,
+    );
+  } finally {
+    clearTimeout(timer);
   }
 }

@@ -114,7 +114,6 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "Content-Security-Policy", value: careerCsp },
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Career-Proxy", value: "dralsalmi.com" },
         ],
       },
       {
