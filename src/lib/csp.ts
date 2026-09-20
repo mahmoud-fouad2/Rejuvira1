@@ -62,7 +62,10 @@ export function buildCsp(frameAncestors: string, nonce: string) {
     ]
       .filter(Boolean)
       .join(" "),
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    [
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      widgetScriptOrigins,
+    ].join(" "),
     "img-src 'self' data: blob: https:",
     "font-src 'self' data: https://fonts.gstatic.com",
     // Narrowed from a blanket `https:` to the origins actually observed via
