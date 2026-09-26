@@ -2,10 +2,28 @@ import { NextResponse } from "next/server";
 
 import { getRuntimeSettings } from "@/lib/content-repository";
 
-const UPSTREAM_ORIGIN = "https://dralsalmi.com";
+const UPSTREAM_ORIGIN =
+  process.env.CAREER_UPSTREAM_ORIGIN?.replace(/\/+$/, "") ||
+  "https://mail.dralsalmi.com";
+const UPSTREAM_FALLBACK_ORIGINS = [
+  "https://ntk.zut.mybluehost.me",
+  "https://dralsalmi.com",
+] as const;
+const UPSTREAM_REWRITE_ORIGINS = Array.from(
+  new Set([
+    UPSTREAM_ORIGIN,
+    "https://mail.dralsalmi.com",
+    "https://ntk.zut.mybluehost.me",
+    "https://www.dralsalmi.com",
+    "https://dralsalmi.com",
+  ]),
+);
 const UPSTREAM_PREFIX = "/career";
 const LOCAL_PREFIX = "/career";
 const UPSTREAM_HOST = "dralsalmi.com";
+
+const DEFAULT_UPSTREAM_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
 
 // Shared secret the upstream's Cloudflare rule can match to let this proxy through.
 const PROXY_KEY_HEADER = "x-rejuvera-proxy-key";
@@ -19,6 +37,7 @@ const HOP_BY_HOP_HEADERS = new Set([
   "connection",
   "content-encoding",
   "content-length",
+  "host-header",
   "keep-alive",
   "proxy-authenticate",
   "proxy-authorization",
@@ -69,24 +88,26 @@ function getRequestOrigin(request: Request, fallbackUrl: URL) {
   return `${proto}://${host}`;
 }
 
-function upstreamUrlFor(request: Request) {
+function upstreamUrlFor(request: Request, origin = UPSTREAM_ORIGIN) {
   const url = new URL(request.url);
   const suffix = url.pathname.slice(LOCAL_PREFIX.length);
-  const upstream = new URL(`${UPSTREAM_PREFIX}${suffix || "/"}`, UPSTREAM_ORIGIN);
+  const upstream = new URL(`${UPSTREAM_PREFIX}${suffix || "/"}`, origin);
   upstream.search = url.search;
   return upstream;
 }
 
 function rewriteOutboundLocation(value: string, request: Request) {
   const requestOrigin = getRequestOrigin(request, new URL(request.url));
-  if (value.startsWith(`${UPSTREAM_ORIGIN}${UPSTREAM_PREFIX}`)) {
-    return `${requestOrigin}${value.slice(UPSTREAM_ORIGIN.length)}`;
+  for (const origin of UPSTREAM_REWRITE_ORIGINS) {
+    if (value.startsWith(`${origin}${UPSTREAM_PREFIX}`)) {
+      return `${requestOrigin}${value.slice(origin.length)}`;
+    }
+    if (value.startsWith(`${origin}/`)) {
+      return `${requestOrigin}${LOCAL_PREFIX}${value.slice(origin.length)}`;
+    }
   }
   if (value.startsWith(UPSTREAM_PREFIX)) {
     return `${requestOrigin}${value}`;
-  }
-  if (value.startsWith(`${UPSTREAM_ORIGIN}/`)) {
-    return `${requestOrigin}${LOCAL_PREFIX}${value.slice(UPSTREAM_ORIGIN.length)}`;
   }
   if (value.startsWith("/")) {
     return `${requestOrigin}${LOCAL_PREFIX}${value}`;
@@ -94,10 +115,17 @@ function rewriteOutboundLocation(value: string, request: Request) {
   return value;
 }
 
-function rewriteInboundReferer(value: string | null, request: Request) {
+function rewriteInboundReferer(
+  value: string | null,
+  request: Request,
+  upstreamOrigin = UPSTREAM_ORIGIN,
+) {
   if (!value) return null;
   const requestOrigin = getRequestOrigin(request, new URL(request.url));
-  return value.replace(`${requestOrigin}${LOCAL_PREFIX}`, `${UPSTREAM_ORIGIN}${UPSTREAM_PREFIX}`);
+  return value.replace(
+    `${requestOrigin}${LOCAL_PREFIX}`,
+    `${upstreamOrigin}${UPSTREAM_PREFIX}`,
+  );
 }
 
 function filteredCookieHeader(value: string | null) {
@@ -193,11 +221,19 @@ function responseHeadersFrom(upstream: Response, request: Request) {
 
 function rewriteHtml(html: string, request: Request) {
   const requestOrigin = getRequestOrigin(request, new URL(request.url));
-  return html
-    .replaceAll(`${UPSTREAM_ORIGIN}${UPSTREAM_PREFIX}/`, `${requestOrigin}${LOCAL_PREFIX}/`)
-    .replaceAll(`${UPSTREAM_ORIGIN}${UPSTREAM_PREFIX}`, `${requestOrigin}${LOCAL_PREFIX}`)
-    .replaceAll(`${UPSTREAM_ORIGIN}/career/`, `${requestOrigin}${LOCAL_PREFIX}/`)
-    .replaceAll(`${UPSTREAM_ORIGIN}/career`, `${requestOrigin}${LOCAL_PREFIX}`);
+  let output = html;
+  for (const origin of UPSTREAM_REWRITE_ORIGINS) {
+    output = output
+      .replaceAll(
+        `${origin}${UPSTREAM_PREFIX}/`,
+        `${requestOrigin}${LOCAL_PREFIX}/`,
+      )
+      .replaceAll(
+        `${origin}${UPSTREAM_PREFIX}`,
+        `${requestOrigin}${LOCAL_PREFIX}`,
+      );
+  }
+  return output;
 }
 
 async function requestBodyFor(request: Request) {
@@ -205,7 +241,7 @@ async function requestBodyFor(request: Request) {
   return await request.arrayBuffer();
 }
 
-function buildUpstreamHeaders(request: Request) {
+function buildUpstreamHeaders(request: Request, upstreamOrigin = UPSTREAM_ORIGIN) {
   const requestUrl = new URL(request.url);
   const requestOrigin = getRequestOrigin(request, requestUrl);
   const headers = new Headers();
@@ -215,15 +251,24 @@ function buildUpstreamHeaders(request: Request) {
     if (value) headers.set(key, value);
   }
 
+  const ua = headers.get("user-agent")?.trim();
+  if (!ua || ua === "Mozilla/5.0") {
+    headers.set("user-agent", DEFAULT_UPSTREAM_USER_AGENT);
+  }
+
   const cookie = filteredCookieHeader(request.headers.get("cookie"));
   if (cookie) headers.set("cookie", cookie);
 
-  const referer = rewriteInboundReferer(request.headers.get("referer"), request);
+  const referer = rewriteInboundReferer(
+    request.headers.get("referer"),
+    request,
+    upstreamOrigin,
+  );
   if (referer) headers.set("referer", referer);
 
   const origin = request.headers.get("origin");
   if (origin === requestOrigin) {
-    headers.set("origin", UPSTREAM_ORIGIN);
+    headers.set("origin", upstreamOrigin);
   }
 
   headers.set("x-forwarded-host", requestUrl.host);
@@ -636,72 +681,78 @@ export async function proxyCareerRequest(request: Request) {
     });
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(
-    () => controller.abort(),
-    request.method === "GET" || request.method === "HEAD"
-      ? UPSTREAM_TIMEOUT_MS
-      : UPSTREAM_WRITE_TIMEOUT_MS,
+  const candidateOrigins = Array.from(
+    new Set([UPSTREAM_ORIGIN, ...UPSTREAM_FALLBACK_ORIGINS]),
   );
+  const body = await requestBodyFor(request);
+  let lastFailureReason = "no upstream candidates";
 
-  try {
-    const upstreamInit: RequestInit = {
-      method: request.method,
-      headers: buildUpstreamHeaders(request),
-      redirect: "manual",
-      cache: "no-store",
-      signal: controller.signal,
-    };
-    const body = await requestBodyFor(request);
-    if (body) upstreamInit.body = body;
-
-    const upstream = await fetch(upstreamUrlFor(request), upstreamInit);
-
-    if (upstream.status === 403 || upstream.status >= 500) {
-      const challenged = upstream.headers.get("cf-mitigated") === "challenge";
-      return await fallbackFor(
-        request,
-        url.pathname,
-        `upstream answered ${upstream.status}${challenged ? " (Cloudflare challenge)" : ""}`,
-      );
-    }
-
-    const headers = responseHeadersFrom(upstream, request);
-
-    if (request.method === "HEAD") {
-      return new Response(null, { status: upstream.status, headers });
-    }
-
-    const contentType = upstream.headers.get("content-type") || "";
-    if (contentType.includes("text/html")) {
-      const text = await upstream.text();
-      // Cloudflare can also return its challenge page with a 200.
-      if (
-        text.includes("<title>Just a moment...") ||
-        text.includes("cf-mitigated")
-      ) {
-        return await fallbackFor(
-          request,
-          url.pathname,
-          "upstream returned a Cloudflare challenge page",
-        );
-      }
-      return new Response(rewriteHtml(text, request), {
-        status: upstream.status,
-        headers,
-      });
-    }
-
-    return new Response(upstream.body, { status: upstream.status, headers });
-  } catch (error) {
-    return await fallbackFor(
-      request,
-      url.pathname,
-      controller.signal.aborted
-        ? "no answer from the upstream in time"
-        : `network error (${error instanceof Error ? error.name : "unknown"})`,
+  for (const candidateOrigin of candidateOrigins) {
+    const controller = new AbortController();
+    const timer = setTimeout(
+      () => controller.abort(),
+      request.method === "GET" || request.method === "HEAD"
+        ? UPSTREAM_TIMEOUT_MS
+        : UPSTREAM_WRITE_TIMEOUT_MS,
     );
-  } finally {
-    clearTimeout(timer);
+
+    try {
+      const upstreamInit: RequestInit = {
+        method: request.method,
+        headers: buildUpstreamHeaders(request, candidateOrigin),
+        redirect: "manual",
+        cache: "no-store",
+        signal: controller.signal,
+      };
+      if (body) upstreamInit.body = body;
+
+      const upstream = await fetch(
+        upstreamUrlFor(request, candidateOrigin),
+        upstreamInit,
+      );
+
+      if (
+        upstream.status === 403 ||
+        upstream.status === 406 ||
+        upstream.status >= 500
+      ) {
+        const challenged = upstream.headers.get("cf-mitigated") === "challenge";
+        lastFailureReason = `${candidateOrigin} answered ${upstream.status}${challenged ? " (Cloudflare challenge)" : ""}`;
+        continue;
+      }
+
+      const headers = responseHeadersFrom(upstream, request);
+
+      if (request.method === "HEAD") {
+        return new Response(null, { status: upstream.status, headers });
+      }
+
+      const contentType = upstream.headers.get("content-type") || "";
+      if (contentType.includes("text/html")) {
+        const text = await upstream.text();
+        // Cloudflare can also return its challenge page with a 200.
+        if (
+          text.includes("<title>Just a moment...") ||
+          text.includes("cf-mitigated")
+        ) {
+          lastFailureReason = `${candidateOrigin} returned a Cloudflare challenge page`;
+          continue;
+        }
+        return new Response(rewriteHtml(text, request), {
+          status: upstream.status,
+          headers,
+        });
+      }
+
+      return new Response(upstream.body, { status: upstream.status, headers });
+    } catch (error) {
+      lastFailureReason = controller.signal.aborted
+        ? `${candidateOrigin} timed out`
+        : `${candidateOrigin} network error (${error instanceof Error ? error.name : "unknown"})`;
+    } finally {
+      clearTimeout(timer);
+    }
   }
+
+  return await fallbackFor(request, url.pathname, lastFailureReason);
 }
