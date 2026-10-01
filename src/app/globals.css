@@ -16148,6 +16148,101 @@ html[data-lang="en"] .rv-v0-home-contact-copy {
   margin: revert;
   border-radius: revert;
 }
+.rv-custom-page__semantic-title {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.rv-custom-page__privacy-note {
+  margin: 0.75rem 0 0 !important;
+  color: inherit;
+  font-size: 0.75rem !important;
+  line-height: 1.65 !important;
+  text-align: center;
+  opacity: 0.78;
+}
+.rv-custom-page__privacy-note a {
+  color: inherit !important;
+  font-weight: 700;
+  text-decoration: underline !important;
+}
+.rv-custom-page__contact-cta {
+  width: min(1080px, calc(100% - 2rem));
+  margin: clamp(2rem, 5vw, 4rem) auto 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border: 1px solid rgba(74, 36, 118, 0.15);
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, #f8f1ff, #fff8ec);
+  color: #321851;
+  box-shadow: 0 18px 50px rgba(42, 18, 73, 0.1);
+  direction: rtl;
+}
+.rv-custom-page__contact-cta h2 {
+  margin: 0.2rem 0 0.35rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+}
+.rv-custom-page__contact-cta p {
+  margin: 0;
+  line-height: 1.7;
+}
+.rv-custom-page__contact-kicker {
+  color: #6c3798;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.rv-custom-page__contact-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.rv-custom-page__contact-actions a {
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.75rem 1.15rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+.rv-custom-page__contact-call {
+  background: #4a2476;
+  color: #fff !important;
+}
+.rv-custom-page__contact-book {
+  border: 1px solid rgba(74, 36, 118, 0.22);
+  background: #fff;
+  color: #4a2476 !important;
+}
+html[data-theme="dark"] .rv-custom-page__contact-cta {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, #2b1b3c, #21172a);
+  color: #f7efff;
+}
+@media (max-width: 680px) {
+  .rv-custom-page__contact-cta {
+    width: min(100% - 1.25rem, 1080px);
+    align-items: stretch;
+    flex-direction: column;
+    border-radius: 1.15rem;
+  }
+  .rv-custom-page__contact-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
 
 .admin-tag-chip {
   display: inline-flex;

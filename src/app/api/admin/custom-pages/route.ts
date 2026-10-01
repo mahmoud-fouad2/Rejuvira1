@@ -7,6 +7,10 @@ import { auth } from "@/auth";
 import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { adminActionErrorMessage } from "@/lib/admin-action-errors";
 import {
+  repairCustomPageMediaUrls,
+  unwrapAdminMediaProxyUrl,
+} from "@/lib/custom-page-media";
+import {
   createCustomPage,
   deleteCustomPage,
   deleteCustomPages,
@@ -132,7 +136,9 @@ function slugify(value: string) {
 function normalizeOptionalUrl(value: string) {
   if (!value) return "";
   try {
-    const url = new URL(value);
+    const url = new URL(
+      unwrapAdminMediaProxyUrl(repairCustomPageMediaUrls(value)),
+    );
     return ["http:", "https:"].includes(url.protocol) ? url.toString() : "";
   } catch {
     return "";
@@ -170,7 +176,9 @@ function customPagePayload(formData: FormData) {
     slug,
     titleAr,
     titleEn,
-    htmlContent: formHtmlString(formData, "htmlContent"),
+    htmlContent: repairCustomPageMediaUrls(
+      formHtmlString(formData, "htmlContent"),
+    ),
     seoTitle,
     seoDescription,
     metaTitle,

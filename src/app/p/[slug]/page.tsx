@@ -1,11 +1,26 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { ContentStatus } from "@prisma/client";
 
+import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
-import { getCustomPageBySlug } from "@/lib/content-repository";
+import {
+  getCustomPageBySlug,
+  getRuntimeSettings,
+} from "@/lib/content-repository";
 import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
+import {
+  optimizeCustomPageImages,
+  repairCustomPageMediaUrls,
+  unwrapAdminMediaProxyUrl,
+} from "@/lib/custom-page-media";
+import {
+  buildCustomPageJsonLd,
+  hasCustomPageH1,
+  resolveCustomPageSeo,
+} from "@/lib/custom-page-quality";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import { getSiteUrl } from "@/lib/seo";
 
@@ -22,6 +37,14 @@ function readPageLayout(html: string) {
   return match?.[1] ?? "theme";
 }
 
+function absoluteMediaUrl(value?: string | null) {
+  if (!value) return undefined;
+  const repaired = unwrapAdminMediaProxyUrl(repairCustomPageMediaUrls(value));
+  if (/^https?:\/\//i.test(repaired)) return repaired;
+  if (repaired.startsWith("/")) return `${getSiteUrl()}${repaired}`;
+  return undefined;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -32,27 +55,22 @@ export async function generateMetadata({
   if (!page || page.status !== ContentStatus.PUBLISHED) {
     return { title: "Rejuvera" };
   }
+  const seo = resolveCustomPageSeo(page);
   const robots = page.noindex ? "noindex,nofollow" : undefined;
-  const title = page.metaTitle || page.seoTitle || page.titleAr;
-  const description =
-    page.metaDescription || page.seoDescription || page.titleEn || undefined;
+  const title = seo.title;
+  const description = seo.description;
   const canonicalSlug = page.seoSlug || page.slug;
   const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
-  const ogTitle = page.ogTitle || title;
-  const ogDescription = page.ogDescription || description;
+  const ogTitle = title;
+  const ogDescription = description;
+  const ogImage = absoluteMediaUrl(page.ogImage);
   return {
-    title,
+    metadataBase: new URL(getSiteUrl()),
+    title: { absolute: title },
     description,
     keywords: page.keywords.length ? [...page.keywords] : undefined,
     alternates: {
       canonical: canonicalUrl,
-      languages: {
-        ar: canonicalUrl,
-        "ar-SA": canonicalUrl,
-        en: `${canonicalUrl}?lang=en`,
-        "en-US": `${canonicalUrl}?lang=en`,
-        "x-default": canonicalUrl,
-      },
     },
     openGraph: {
       title: ogTitle,
@@ -61,13 +79,13 @@ export async function generateMetadata({
       type: "website",
       locale: "ar_SA",
       alternateLocale: "en_US",
-      ...(page.ogImage ? { images: [{ url: page.ogImage }] } : {}),
+      ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {
-      card: page.ogImage ? "summary_large_image" : "summary",
+      card: ogImage ? "summary_large_image" : "summary",
       title: ogTitle,
       description: ogDescription,
-      ...(page.ogImage ? { images: [page.ogImage] } : {}),
+      ...(ogImage ? { images: [ogImage] } : {}),
     },
     other: {
       "geo.region": "SA-01",
@@ -91,7 +109,11 @@ export default async function CustomPage({
 }) {
   const { slug } = await params;
   const query = searchParams ? await searchParams : {};
-  const page = await getCustomPageBySlug(slug);
+  const [page, runtimeSettings, headerStore] = await Promise.all([
+    getCustomPageBySlug(slug),
+    getRuntimeSettings(),
+    headers(),
+  ]);
   if (!page) notFound();
   if (page.status !== ContentStatus.PUBLISHED) {
     notFound();
@@ -101,14 +123,33 @@ export default async function CustomPage({
   const showHeader = readBuilderBoolean(page.htmlContent, "header");
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
+  const repairedHtml = repairCustomPageMediaUrls(page.htmlContent);
   const safeHtml = hardenCustomPageLeadForms(
-    sanitizeHtml(page.htmlContent),
+    sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
     undefined,
     page.slug,
   );
+  const seo = resolveCustomPageSeo(page);
+  const canonicalSlug = page.seoSlug || page.slug;
+  const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
+  const pageJsonLd = buildCustomPageJsonLd({
+    page,
+    title: seo.title,
+    description: seo.description,
+    canonicalUrl,
+    image: absoluteMediaUrl(page.ogImage),
+  });
+  const semanticTitle = seo.title.split("|")[0]?.trim() || page.titleAr;
+  const phoneDigits = runtimeSettings.contact.phone.replace(/\D/g, "");
+  const nonce = headerStore.get("x-nonce") ?? "";
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        nonce={nonce}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
+      />
       {showHeader ? <SiteHeader /> : null}
       <main
         className={`rv-custom-page rv-custom-page--${pageLayout} ${
@@ -124,7 +165,7 @@ export default async function CustomPage({
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                 : query.lead === "duplicate"
                   ? "border-amber-200 bg-amber-50 text-amber-800"
-                : "border-red-200 bg-red-50 text-red-800"
+                  : "border-red-200 bg-red-50 text-red-800"
             }`}
           >
             {query.lead === "success"
@@ -134,6 +175,9 @@ export default async function CustomPage({
                 : "تعذر إرسال الطلب. يرجى مراجعة البيانات والمحاولة مرة أخرى."}
           </div>
         ) : null}
+        {!hasCustomPageH1(repairedHtml) ? (
+          <h1 className="rv-custom-page__semantic-title">{semanticTitle}</h1>
+        ) : null}
         <article
           className={`rv-custom-page__content ${
             isUploadedHtml ? "rv-custom-page__content--uploaded" : ""
@@ -141,6 +185,31 @@ export default async function CustomPage({
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
+        <aside
+          className="rv-custom-page__contact-cta"
+          aria-label="التواصل والحجز"
+        >
+          <div>
+            <p className="rv-custom-page__contact-kicker">
+              تحتاج مساعدة قبل الحجز؟
+            </p>
+            <h2>تواصل مع فريق ريجوفيرا</h2>
+            <p>اتصل بنا مباشرة أو أرسل طلبك ليؤكد الفريق التفاصيل المناسبة.</p>
+          </div>
+          <div className="rv-custom-page__contact-actions">
+            {phoneDigits ? (
+              <PhoneCallLink
+                href={`tel:${phoneDigits}`}
+                className="rv-custom-page__contact-call"
+              >
+                اتصال مباشر
+              </PhoneCallLink>
+            ) : null}
+            <a href="/contact" className="rv-custom-page__contact-book">
+              احجز استشارة
+            </a>
+          </div>
+        </aside>
       </main>
       {showFooter ? <SiteFooter /> : null}
     </>

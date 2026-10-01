@@ -70,6 +70,16 @@ function neutralizePrematureLeadSubmitTracking(html: string) {
   );
 }
 
+function ensurePrivacyNotice(html: string) {
+  return html.replace(/<form\b[\s\S]*?<\/form>/gi, (form) => {
+    if (/href\s*=\s*(?:"\/privacy|'\/privacy)/i.test(form)) return form;
+
+    const notice =
+      '<p class="rv-custom-page__privacy-note">بإرسال الطلب، أنت توافق على استخدام البيانات للتواصل معك وفق <a href="/privacy" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>.</p>';
+    return form.replace(/<\/form>\s*$/i, `${notice}</form>`);
+  });
+}
+
 export function hardenCustomPageLeadForms(
   html: string,
   renderedAt = Date.now(),
@@ -88,8 +98,10 @@ export function hardenCustomPageLeadForms(
     },
   );
 
-  return withGuardedForms.replace(
+  const withHardenedPhones = withGuardedForms.replace(
     /<input\b([^>]*\bname\s*=\s*(?:"phone"|'phone'|phone)[^>]*)>/gi,
     hardenPhoneInput,
   );
+
+  return ensurePrivacyNotice(withHardenedPhones);
 }
