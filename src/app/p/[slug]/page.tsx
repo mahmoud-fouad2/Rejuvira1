@@ -55,7 +55,7 @@ export async function generateMetadata({
   if (!page || page.status !== ContentStatus.PUBLISHED) {
     return { title: "Rejuvera" };
   }
-  const seo = resolveCustomPageSeo(page);
+  const seo = resolveCustomPageSeo(page, slug);
   const robots = page.noindex ? "noindex,nofollow" : undefined;
   const title = seo.title;
   const description = seo.description;
@@ -129,11 +129,12 @@ export default async function CustomPage({
     undefined,
     page.slug,
   );
-  const seo = resolveCustomPageSeo(page);
+  const seo = resolveCustomPageSeo(page, slug);
   const canonicalSlug = page.seoSlug || page.slug;
   const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
   const pageJsonLd = buildCustomPageJsonLd({
     page,
+    routeSlug: slug,
     title: seo.title,
     description: seo.description,
     canonicalUrl,

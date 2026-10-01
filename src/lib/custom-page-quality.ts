@@ -137,8 +137,11 @@ function fallbackDescription(page: CustomPageRecord) {
   return `تعرف على ${page.titleAr} في مركز ريجوفيرا بالرياض، وابدأ بخطوة واضحة لحجز التقييم ومناقشة الخيارات المناسبة.`;
 }
 
-export function resolveCustomPageSeo(page: CustomPageRecord) {
-  const override = SEO_OVERRIDES[page.slug];
+export function resolveCustomPageSeo(
+  page: CustomPageRecord,
+  routeSlug = page.seoSlug || page.slug,
+) {
+  const override = SEO_OVERRIDES[routeSlug] || SEO_OVERRIDES[page.slug];
   const rawTitle =
     override?.title || page.metaTitle || page.seoTitle || page.titleAr;
   const rawDescription = override?.description || fallbackDescription(page);
@@ -155,13 +158,15 @@ export function hasCustomPageH1(html: string) {
 
 export function buildCustomPageJsonLd(input: {
   page: CustomPageRecord;
+  routeSlug?: string | undefined;
   title: string;
   description: string;
   canonicalUrl: string;
   image?: string | null | undefined;
 }) {
   const siteUrl = getSiteUrl();
-  const doctorName = DOCTOR_NAMES[input.page.slug];
+  const doctorName =
+    DOCTOR_NAMES[input.routeSlug || ""] || DOCTOR_NAMES[input.page.slug];
   const pageId = `${input.canonicalUrl}#webpage`;
   const pageNode = {
     "@type": doctorName ? "ProfilePage" : "WebPage",
