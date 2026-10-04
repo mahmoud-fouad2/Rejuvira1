@@ -139,6 +139,31 @@ function dispatchGoogleAdsConversion(
   }
 }
 
+function dispatchGoogleAnalyticsLead(
+  requestId: string,
+  formType?: string,
+  attempt = 0,
+) {
+  const event = buildLeadDataLayerEvent(requestId, formType);
+
+  if (typeof window.gtag === "function") {
+    window.gtag("event", event.event, {
+      request_id: event.request_id,
+      form_name: event.form_name,
+    });
+    return;
+  }
+
+  // Keep a single lead_submit source while allowing the Google tag a brief
+  // window to finish loading after hydration.
+  if (attempt < 20) {
+    window.setTimeout(
+      () => dispatchGoogleAnalyticsLead(requestId, formType, attempt + 1),
+      250,
+    );
+  }
+}
+
 export function trackContactLinkConversion(kind: "phone" | "whatsapp") {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
@@ -165,13 +190,13 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
     return false;
   }
 
-  window.dataLayer = window.dataLayer || [];
   const metaEventId = `rv_lead_${requestId}`;
   const pageUrl = window.location.href;
 
-  // GTM receives exactly one generic event. Patient details and service names
-  // intentionally stay out of the public analytics layer.
-  window.dataLayer.push(buildLeadDataLayerEvent(requestId, payload.formType));
+  // gtag writes one lead_submit command to the existing dataLayer and forwards
+  // it to GA4. Do not also push a second object with the same event name.
+  // Only non-PII identifiers are included.
+  dispatchGoogleAnalyticsLead(requestId, payload.formType);
 
   dispatchGoogleAdsConversion("leadSubmit", {
     transactionId: requestId,
