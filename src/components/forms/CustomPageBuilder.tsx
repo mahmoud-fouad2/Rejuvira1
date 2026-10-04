@@ -402,7 +402,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   },
   contact: {
     title: "ابدئي بخطوة واضحة",
-    body: "الهاتف|0114999959\nواتساب|0114999959\nالبريد|info@rejuvera.sa",
+    body: "الهاتف|0553999514\nواتساب|0114999959\nالبريد|info@rejuvera.sa",
     buttonLabel: "افتحي صفحة التواصل",
     buttonHref: "/contact",
     accent: "#4a2476",

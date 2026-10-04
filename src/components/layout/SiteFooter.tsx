@@ -352,14 +352,20 @@ function toSaudiWhatsappDigits(value: string) {
   return `966${digits}`;
 }
 
-export async function SiteFooter() {
+export async function SiteFooter({
+  phoneOverride,
+}: {
+  phoneOverride?: string;
+} = {}) {
   const [runtimeSettings, services] = await Promise.all([
     getRuntimeSettings(),
     getServices(),
   ]);
 
-  const primaryPhone = runtimeSettings.contact.phone;
-  const secondaryPhone = runtimeSettings.contact.phoneSecondary;
+  const primaryPhone = phoneOverride?.trim() || runtimeSettings.contact.phone;
+  const secondaryPhone = phoneOverride
+    ? ""
+    : runtimeSettings.contact.phoneSecondary;
   const primaryEmail = runtimeSettings.contact.email;
 
   const telPrimary = `tel:${sanitizeDigits(primaryPhone)}`;
@@ -367,7 +373,7 @@ export async function SiteFooter() {
     ? `tel:${sanitizeDigits(secondaryPhone)}`
     : null;
   const waDigits = toSaudiWhatsappDigits(
-    runtimeSettings.contact.whatsapp || primaryPhone,
+    runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
   );
   const waHref = waDigits ? `https://wa.me/${waDigits}` : null;
 
@@ -653,9 +659,15 @@ export async function SiteFooter() {
               <span className="lang-ar">اعتمادات ومعايير</span>
               <span className="lang-en">Trust &amp; Compliance</span>
             </p>
-            <ul className="rv-v0-trust-strip flex flex-wrap items-center justify-center gap-3 sm:gap-4" aria-label="Trust badges">
+            <ul
+              className="rv-v0-trust-strip flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+              aria-label="Trust badges"
+            >
               {trustBadges.map((badge) => (
-                <li key={badge.src} className="flex items-center justify-center">
+                <li
+                  key={badge.src}
+                  className="flex items-center justify-center"
+                >
                   <Image
                     src={badge.src}
                     alt={badge.alt}
@@ -663,8 +675,8 @@ export async function SiteFooter() {
                     height={badge.isPng ? 64 : 48}
                     className={
                       badge.isPng
-                        ? "h-11 w-11 sm:h-14 sm:w-14 object-contain transition-transform hover:scale-105"
-                        : "h-8 sm:h-10 w-auto object-contain transition-transform hover:scale-105"
+                        ? "h-11 w-11 object-contain transition-transform hover:scale-105 sm:h-14 sm:w-14"
+                        : "h-8 w-auto object-contain transition-transform hover:scale-105 sm:h-10"
                     }
                     unoptimized={!badge.isPng}
                   />
@@ -701,12 +713,14 @@ export async function SiteFooter() {
               © {new Date().getFullYear()} {runtimeSettings.brand.siteName} ·{" "}
               {runtimeSettings.contact.domain}
             </p>
-            <span aria-hidden className="opacity-40">·</span>
+            <span aria-hidden className="opacity-40">
+              ·
+            </span>
             <a
               href="https://ma-fo.info"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 opacity-80 hover:opacity-100 hover:text-[color:var(--rv-ink)] transition-opacity"
+              className="inline-flex items-center gap-1.5 opacity-80 transition-opacity hover:text-[color:var(--rv-ink)] hover:opacity-100"
               title="Developed by Mahmoud Fouad"
             >
               <span className="font-mono text-[11px] font-medium">By</span>

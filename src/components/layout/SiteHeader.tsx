@@ -54,7 +54,11 @@ function MenuIcon() {
   return <Icon path="M4 7h16M4 12h16M4 17h16" className="h-5 w-5" />;
 }
 
-export async function SiteHeader() {
+export async function SiteHeader({
+  phoneOverride,
+}: {
+  phoneOverride?: string;
+} = {}) {
   const [runtimeSettings, services, doctors, devices, cookieStore] =
     await Promise.all([
       getRuntimeSettings(),
@@ -77,10 +81,12 @@ export async function SiteHeader() {
     (device) => device.status === ContentStatus.PUBLISHED,
   );
 
-  const primaryTel = `tel:${runtimeSettings.contact.phone.replace(/\D/g, "")}`;
-  const secondaryTel = runtimeSettings.contact.phoneSecondary
-    ? `tel:${runtimeSettings.contact.phoneSecondary.replace(/\D/g, "")}`
-    : null;
+  const primaryPhone = phoneOverride?.trim() || runtimeSettings.contact.phone;
+  const primaryTel = `tel:${primaryPhone.replace(/\D/g, "")}`;
+  const secondaryTel =
+    !phoneOverride && runtimeSettings.contact.phoneSecondary
+      ? `tel:${runtimeSettings.contact.phoneSecondary.replace(/\D/g, "")}`
+      : null;
 
   const linkByHref = Object.fromEntries(
     navLinks.map((l) => [l.href, l]),
@@ -97,7 +103,7 @@ export async function SiteHeader() {
             </a>
             <PhoneCallLink href={primaryTel}>
               <Icon path="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.92.33 1.82.62 2.68a2 2 0 0 1-.45 2.11L8 9.79a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.86.29 1.76.5 2.68.62A2 2 0 0 1 22 16.92Z" />
-              {runtimeSettings.contact.phone}
+              {primaryPhone}
             </PhoneCallLink>
             {secondaryTel ? (
               <PhoneCallLink
@@ -170,17 +176,17 @@ export async function SiteHeader() {
               doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
               devices={publishedDevices}
             />
-            {(["/gallery", "/journal", "/about", "/career", "/contact"] as const).map(
-              (href) => {
-                const link = linkByHref[href];
-                return (
-                  <Link key={href} href={href} className="rv-v0-nav-link">
-                    <span className="lang-ar">{link.labelAr}</span>
-                    <span className="lang-en">{link.labelEn}</span>
-                  </Link>
-                );
-              },
-            )}
+            {(
+              ["/gallery", "/journal", "/about", "/career", "/contact"] as const
+            ).map((href) => {
+              const link = linkByHref[href];
+              return (
+                <Link key={href} href={href} className="rv-v0-nav-link">
+                  <span className="lang-ar">{link.labelAr}</span>
+                  <span className="lang-en">{link.labelEn}</span>
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="rv-nav-actions">

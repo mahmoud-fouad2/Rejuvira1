@@ -6,11 +6,11 @@ import { ContentStatus } from "@prisma/client";
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { getCustomPageBySlug } from "@/lib/content-repository";
 import {
-  getCustomPageBySlug,
-  getRuntimeSettings,
-} from "@/lib/content-repository";
-import { normalizeClinicContactHtml } from "@/lib/clinic-contact";
+  LANDING_PAGE_PHONE_DISPLAY,
+  normalizeClinicContactHtml,
+} from "@/lib/clinic-contact";
 import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
 import { verifyLeadReceipt } from "@/lib/lead-receipt";
 import {
@@ -111,9 +111,8 @@ export default async function CustomPage({
 }) {
   const { slug } = await params;
   const query = searchParams ? await searchParams : {};
-  const [page, runtimeSettings, headerStore] = await Promise.all([
+  const [page, headerStore] = await Promise.all([
     getCustomPageBySlug(slug),
-    getRuntimeSettings(),
     headers(),
   ]);
   if (!page) notFound();
@@ -145,7 +144,7 @@ export default async function CustomPage({
     image: absoluteMediaUrl(page.ogImage),
   });
   const semanticTitle = seo.title.split("|")[0]?.trim() || page.titleAr;
-  const phoneDigits = runtimeSettings.contact.phone.replace(/\D/g, "");
+  const phoneDigits = LANDING_PAGE_PHONE_DISPLAY;
   const nonce = headerStore.get("x-nonce") ?? "";
   const leadReceipt = verifyLeadReceipt(query.lead_receipt);
   const verifiedLeadState =
@@ -162,7 +161,9 @@ export default async function CustomPage({
         nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
       />
-      {showHeader ? <SiteHeader /> : null}
+      {showHeader ? (
+        <SiteHeader phoneOverride={LANDING_PAGE_PHONE_DISPLAY} />
+      ) : null}
       <main
         className={`rv-custom-page rv-custom-page--${pageLayout} ${
           isUploadedHtml ? "rv-custom-page--uploaded" : ""
@@ -221,7 +222,9 @@ export default async function CustomPage({
           </div>
         </aside>
       </main>
-      {showFooter ? <SiteFooter /> : null}
+      {showFooter ? (
+        <SiteFooter phoneOverride={LANDING_PAGE_PHONE_DISPLAY} />
+      ) : null}
     </>
   );
 }
