@@ -148,11 +148,29 @@ for (const path of ["/", "/services", "/doctors", "/contact", "/site-map"]) {
   );
 }
 const englishService = await read("/services/facelift-surgery?lang=en");
+assert.equal(englishService.status, 200);
 const englishSchema = jsonLd(englishService.body).find(
   (item) => item["@type"] === "MedicalWebPage",
 );
 assert.equal(englishSchema.inLanguage, "en");
 assert.equal(englishSchema.url, `${origin}/services/facelift-surgery?lang=en`);
+for (const slug of [
+  "facelift-surgery",
+  "neck-lift-surgery",
+  "lipedema-treatment",
+]) {
+  const page = await read(`/services/${slug}`);
+  assert.equal(page.status, 200, `Existing service URL unavailable: ${slug}`);
+  const listed = urls.includes(`${origin}/services/${slug}`);
+  const noindex = /<meta name="robots" content="[^"]*\bnoindex\b/.test(
+    page.body,
+  );
+  assert.equal(
+    noindex,
+    !listed,
+    `Publication directives disagree with sitemap: ${slug}`,
+  );
+}
 const article = await read("/journal/choose-plastic-surgeon-riyadh");
 assert.ok(
   !/<meta name="author"/.test(article.body),

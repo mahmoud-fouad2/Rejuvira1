@@ -25,7 +25,9 @@ assert.equal(
   canonical(service.body),
   `${canonicalOrigin}/services/facelift-surgery`,
 );
-assert.ok(service.body.includes("كيف أختار أفضل دكتور شد وجه في الرياض؟"));
+if (!/<meta name="robots" content="noindex/.test(service.body)) {
+  assert.ok(service.body.includes("كيف أختار أفضل دكتور شد وجه في الرياض؟"));
+}
 const englishService = await read("/services/facelift-surgery?lang=en");
 assert.equal(englishService.status, 200);
 assert.equal(
@@ -33,7 +35,7 @@ assert.equal(
   `${canonicalOrigin}/services/facelift-surgery?lang=en`,
 );
 assert.ok(!/<title>[^<]*[\u0600-\u06ff]/.test(englishService.body));
-console.log("PASS service search questions and localized canonical/title");
+console.log("PASS existing service URL and localized canonical/title");
 
 const secondPage = await read("/journal?page=2");
 assert.equal(secondPage.status, 200);

@@ -36,7 +36,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const doctor = await getDoctorBySlug(slug);
 
-  if (!doctor || doctor.status !== ContentStatus.PUBLISHED) notFound();
+  if (!doctor) notFound();
 
   const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
   const isLoai = doctor.slug === "loai-alsalmi";
@@ -100,7 +100,7 @@ export async function generateMetadata({
       languages: localized.languages,
     },
     robots: {
-      index: true,
+      index: doctor.status === ContentStatus.PUBLISHED,
       follow: true,
     },
   };
@@ -172,7 +172,7 @@ export default async function DoctorDetailPage({
     ],
   );
 
-  if (!doctor || doctor.status !== ContentStatus.PUBLISHED) {
+  if (!doctor) {
     notFound();
   }
 

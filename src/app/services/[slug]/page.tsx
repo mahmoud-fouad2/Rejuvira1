@@ -39,7 +39,7 @@ export async function generateMetadata({
   if (publicSlug !== slug) permanentRedirect(`/services/${publicSlug}`);
   const service = await getServiceBySlug(slug);
 
-  if (!service || service.status !== ContentStatus.PUBLISHED) notFound();
+  if (!service) notFound();
 
   const arUrl = new URL(`/services/${service.slug}`, getSiteUrl()).href;
   const coreSeo = getCoreServiceSeo(service);
@@ -95,7 +95,7 @@ export async function generateMetadata({
       },
     },
     robots: {
-      index: true,
+      index: service.status === ContentStatus.PUBLISHED,
       follow: true,
     },
   };
@@ -122,7 +122,7 @@ export default async function ServiceDetailPage({
       getJournalPosts(),
     ]);
 
-  if (!service || service.status !== ContentStatus.PUBLISHED) {
+  if (!service) {
     notFound();
   }
 
@@ -141,7 +141,8 @@ export default async function ServiceDetailPage({
   const english =
     hasEnglishServiceContent(service) && (await searchParams).lang === "en";
   const serviceUrl = `${getSiteUrl()}/services/${service.slug}${english ? "?lang=en" : ""}`;
-  const guide = servicePatientGuide(service.slug);
+  const published = service.status === ContentStatus.PUBLISHED;
+  const guide = published ? servicePatientGuide(service.slug) : undefined;
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "MedicalWebPage",
@@ -151,7 +152,11 @@ export default async function ServiceDetailPage({
     image: service.coverImageUrl,
     url: serviceUrl,
     inLanguage: english ? "en" : "ar",
-    dateModified: serviceContentModifiedAt(service.updatedAt),
+    ...(published
+      ? { dateModified: serviceContentModifiedAt(service.updatedAt) }
+      : service.updatedAt
+        ? { dateModified: service.updatedAt }
+        : {}),
     isPartOf: { "@id": `${getSiteUrl()}#website` },
     publisher: { "@id": `${getSiteUrl()}#organization` },
     ...(guide ? { citation: guide.sources.map((source) => source.url) } : {}),
@@ -413,16 +418,20 @@ export default async function ServiceDetailPage({
             </article>
           </div>
         </section>
-        <ServicePatientGuide
-          service={service}
-          services={services}
-          posts={posts}
-        />
-        <ServiceSearchQuestions
-          slug={service.slug}
-          name={service.name}
-          nameEn={service.nameEn}
-        />
+        {published && (
+          <>
+            <ServicePatientGuide
+              service={service}
+              services={services}
+              posts={posts}
+            />
+            <ServiceSearchQuestions
+              slug={service.slug}
+              name={service.name}
+              nameEn={service.nameEn}
+            />
+          </>
+        )}
       </main>
       <StickyMobileCta
         titleAr={service.name}
