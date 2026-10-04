@@ -17,6 +17,7 @@ import {
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
 import { getLeadRequestMetadata } from "@/lib/lead-request-metadata";
+import { createLeadReceipt } from "@/lib/lead-receipt";
 import {
   evaluateLeadIntakeGuard,
   LEAD_DUPLICATE_MESSAGE,
@@ -56,6 +57,10 @@ const contactSchema = z.object({
   utmMedium: z.string().max(120).optional().or(z.literal("")),
   utmCampaign: z.string().max(120).optional().or(z.literal("")),
   utmContent: z.string().max(120).optional().or(z.literal("")),
+  utmTerm: z.string().max(120).optional().or(z.literal("")),
+  gclid: z.string().max(250).optional().or(z.literal("")),
+  gbraid: z.string().max(250).optional().or(z.literal("")),
+  wbraid: z.string().max(250).optional().or(z.literal("")),
   /** Client-generated deduplication ID for Snap Pixel / CAPI dedup. */
   snapDedupId: z.string().max(128).optional().or(z.literal("")),
 });
@@ -80,6 +85,7 @@ function response(
   message: string,
   init?: ResponseInit,
   leadState?: "success" | "error" | "duplicate",
+  receipt?: string | null,
 ) {
   if (wantsJson(request)) {
     return NextResponse.json(
@@ -96,6 +102,7 @@ function response(
   const referer = request.headers.get("referer") || "/contact";
   const url = new URL(referer, request.url);
   url.searchParams.set("lead", leadState ?? status);
+  if (receipt) url.searchParams.set("lead_receipt", receipt);
   return NextResponse.redirect(url, { status: 303 });
 }
 
@@ -132,6 +139,11 @@ export async function POST(request: Request) {
       utmContent:
         formString(formData, "utmContent") ||
         formString(formData, "utm_content"),
+      utmTerm:
+        formString(formData, "utmTerm") || formString(formData, "utm_term"),
+      gclid: formString(formData, "gclid"),
+      gbraid: formString(formData, "gbraid"),
+      wbraid: formString(formData, "wbraid"),
       // Snap dedup ID: sent by the client before firing the browser Pixel event.
       snapDedupId: formString(formData, "snapDedupId"),
     },
@@ -146,12 +158,7 @@ export async function POST(request: Request) {
     )
       ? SAUDI_MOBILE_ERROR_MESSAGE
       : "يرجى مراجعة بيانات التواصل والخدمة المطلوبة قبل الإرسال. / Please review your details before submitting.";
-    return response(
-      request,
-      "error",
-      errorMessage,
-      { status: 400 },
-    );
+    return response(request, "error", errorMessage, { status: 400 });
   }
 
   const intakeGuard = evaluateLeadIntakeGuard(formData);
@@ -262,13 +269,13 @@ export async function POST(request: Request) {
     ...(recaptchaUnverified ? [RECAPTCHA_UNVERIFIED_TAG] : []),
   ];
   const isGeneralInquiry = isGeneralInquiryService(parsed.data.serviceSlug);
-  const selectedService = parsed.data.serviceSlug && !isGeneralInquiry
-    ? await getServiceByReference(parsed.data.serviceSlug)
-    : null;
-  const serviceArabicName =
-    isGeneralInquiry
-      ? GENERAL_INQUIRY_SERVICE_AR
-      : selectedService?.name || parsed.data.serviceSlug || undefined;
+  const selectedService =
+    parsed.data.serviceSlug && !isGeneralInquiry
+      ? await getServiceByReference(parsed.data.serviceSlug)
+      : null;
+  const serviceArabicName = isGeneralInquiry
+    ? GENERAL_INQUIRY_SERVICE_AR
+    : selectedService?.name || parsed.data.serviceSlug || undefined;
 
   try {
     const result = await createContactLead({
@@ -278,9 +285,7 @@ export async function POST(request: Request) {
       source: parsed.data.source || "Website contact form",
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(selectedService?.slug
-        ? { serviceSlug: selectedService.slug }
-        : {}),
+      ...(selectedService?.slug ? { serviceSlug: selectedService.slug } : {}),
       ...(leadTags.length ? { tags: leadTags } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),
@@ -288,8 +293,21 @@ export async function POST(request: Request) {
         ? { utmCampaign: parsed.data.utmCampaign }
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
+      ...(parsed.data.utmTerm ? { utmTerm: parsed.data.utmTerm } : {}),
+      ...(parsed.data.gclid ? { gclid: parsed.data.gclid } : {}),
+      ...(parsed.data.gbraid ? { gbraid: parsed.data.gbraid } : {}),
+      ...(parsed.data.wbraid ? { wbraid: parsed.data.wbraid } : {}),
       ...getLeadRequestMetadata(request),
     });
+
+    if (result.mode === "preview") {
+      return response(
+        request,
+        "error",
+        "تعذّر حفظ الطلب الآن. الرجاء المحاولة مرة أخرى. / Could not save your request.",
+        { status: 503 },
+      );
+    }
 
     const buildContactWebhookPayload = (
       event: "contact_submission.created",
@@ -325,6 +343,10 @@ export async function POST(request: Request) {
       utmMedium: parsed.data.utmMedium || undefined,
       utmCampaign: parsed.data.utmCampaign || undefined,
       utmContent: parsed.data.utmContent || undefined,
+      utmTerm: parsed.data.utmTerm || undefined,
+      gclid: parsed.data.gclid || undefined,
+      gbraid: parsed.data.gbraid || undefined,
+      wbraid: parsed.data.wbraid || undefined,
       utm_source: parsed.data.utmSource || undefined,
       utm_medium: parsed.data.utmMedium || undefined,
       utm_campaign: parsed.data.utmCampaign || undefined,
@@ -352,6 +374,8 @@ export async function POST(request: Request) {
             duplicate: true,
             message: LEAD_DUPLICATE_MESSAGE,
             submissionId: result.submission.id,
+            requestId: result.submission.id,
+            saved: true,
           },
           { status: 200 },
         );
@@ -362,6 +386,7 @@ export async function POST(request: Request) {
         LEAD_DUPLICATE_MESSAGE,
         { status: 200 },
         "duplicate",
+        createLeadReceipt(result.submission.id, "duplicate"),
       );
     }
 
@@ -399,6 +424,9 @@ export async function POST(request: Request) {
           message:
             "تم استلام طلبك بنجاح، وسيتواصل معك الفريق في أقرب وقت. / Your request has been received.",
           snapDedupId,
+          submissionId: result.submission.id,
+          requestId: result.submission.id,
+          saved: true,
         },
         { status: 200 },
       );
@@ -408,6 +436,9 @@ export async function POST(request: Request) {
       request,
       "success",
       "تم استلام طلبك بنجاح، وسيتواصل معك الفريق في أقرب وقت. / Your request has been received.",
+      undefined,
+      "success",
+      createLeadReceipt(result.submission.id, "success"),
     );
   } catch (error) {
     await recordAppLog({

@@ -173,7 +173,7 @@ export function SettingsForm({ groups }: { groups: readonly SettingsGroup[] }) {
         <input
           name="phoneSecondary"
           defaultValue={getFieldValue(groups, "contact", "phoneSecondary")}
-          placeholder="الرقم الموحد (مثال: 9200 17403)"
+          placeholder="لا يظهر رقم ثانوي في الواجهة العامة"
           className="border-line bg-surface text-ink focus:border-gold rounded-[1.15rem] border px-4 py-3 text-sm outline-none"
           required
           dir="ltr"

@@ -51,10 +51,15 @@ const payloadSchema = z
     utmMedium: z.string().max(120).optional(),
     utmCampaign: z.string().max(120).optional(),
     utmContent: z.string().max(120).optional(),
+    utmTerm: z.string().max(120).optional(),
+    gclid: z.string().max(250).optional(),
+    gbraid: z.string().max(250).optional(),
+    wbraid: z.string().max(250).optional(),
     utm_source: z.string().max(120).optional(),
     utm_medium: z.string().max(120).optional(),
     utm_campaign: z.string().max(120).optional(),
     utm_content: z.string().max(120).optional(),
+    utm_term: z.string().max(120).optional(),
     ipAddress: z.string().max(120).optional(),
     ip: z.string().max(120).optional(),
     country: z.string().max(80).optional(),
@@ -332,6 +337,18 @@ async function handleIngest(request: Request, context: RouteContext) {
       ...(pickFirst(data, ["utmContent", "utm_content"])
         ? { utmContent: pickFirst(data, ["utmContent", "utm_content"]) }
         : {}),
+      ...(pickFirst(data, ["utmTerm", "utm_term"])
+        ? { utmTerm: pickFirst(data, ["utmTerm", "utm_term"]) }
+        : {}),
+      ...(pickFirst(data, ["gclid"])
+        ? { gclid: pickFirst(data, ["gclid"]) }
+        : {}),
+      ...(pickFirst(data, ["gbraid"])
+        ? { gbraid: pickFirst(data, ["gbraid"]) }
+        : {}),
+      ...(pickFirst(data, ["wbraid"])
+        ? { wbraid: pickFirst(data, ["wbraid"]) }
+        : {}),
       source: sourceLabel,
       ...(serviceSlug && !isGeneralInquiry ? { serviceSlug } : {}),
       preferredLanguage: pickFirst(data, ["preferredLanguage"]) ?? "ar",
@@ -346,6 +363,13 @@ async function handleIngest(request: Request, context: RouteContext) {
       tags,
       status: webhook.defaultStatus,
     });
+    if (result.mode === "preview") {
+      return webhookResponse(
+        request,
+        { ok: false, error: "Lead could not be persisted" },
+        { status: 503 },
+      );
+    }
     if (result.mode === "duplicate") {
       await recordWebhookEvent({
         webhookId: webhook.id,
@@ -462,10 +486,15 @@ export async function GET(_request: Request, context: RouteContext) {
       "utmMedium",
       "utmCampaign",
       "utmContent",
+      "utmTerm",
+      "gclid",
+      "gbraid",
+      "wbraid",
       "utm_source",
       "utm_medium",
       "utm_campaign",
       "utm_content",
+      "utm_term",
     ],
   });
 }

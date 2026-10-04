@@ -29,6 +29,18 @@ function forceAttr(attrs: string, name: string, value: string) {
 }
 
 function formGuardFields(renderedAt: number, pageSlug?: string) {
+  const trackingFields = [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_content",
+    "utm_term",
+    "gclid",
+    "gbraid",
+    "wbraid",
+  ]
+    .map((name) => `<input type="hidden" name="${name}" value="">`)
+    .join("");
   return [
     `<input type="hidden" name="${LEAD_RENDERED_AT_FIELD}" value="${renderedAt}">`,
     `<input type="hidden" name="pageUrl" value="">`,
@@ -38,6 +50,7 @@ function formGuardFields(renderedAt: number, pageSlug?: string) {
           `<input type="hidden" name="landingPageSlug" value="${escapeAttr(pageSlug)}">`,
         ]
       : []),
+    trackingFields,
     `<div aria-hidden="true" style="position:absolute!important;inset:0 auto auto 0!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important;">`,
     `<label>Company<input type="text" name="${LEAD_HONEYPOT_FIELD}" tabindex="-1" autocomplete="off"></label>`,
     `</div>`,

@@ -7,16 +7,9 @@ import {
   trackLeadConversion,
 } from "@/lib/lead-conversion-tracking";
 
-function readParam(url: URL, ...keys: string[]) {
-  for (const key of keys) {
-    const value = url.searchParams.get(key);
-    if (value?.trim()) return value.trim();
-  }
-  return undefined;
-}
-
 export function LeadConversionTracker() {
   useEffect(() => {
+    let cancelled = false;
     const handleContactClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
@@ -26,14 +19,9 @@ export function LeadConversionTracker() {
 
       const href = anchor.href;
       const normalizedHref = href.toLowerCase();
-      const link = {
-        href,
-        text: anchor.textContent?.trim(),
-      };
-
       if (normalizedHref.startsWith("tel:")) {
         if (anchor.dataset.googleAdsPhoneCta === "true") return;
-        trackContactLinkConversion("phone", link);
+        trackContactLinkConversion("phone");
         return;
       }
 
@@ -42,34 +30,62 @@ export function LeadConversionTracker() {
         normalizedHref.includes("api.whatsapp.com/") ||
         normalizedHref.includes("whatsapp.com/")
       ) {
-        trackContactLinkConversion("whatsapp", link);
+        trackContactLinkConversion("whatsapp");
       }
     };
 
     document.addEventListener("click", handleContactClick, true);
 
-    const url = new URL(window.location.href);
-    if (url.searchParams.get("lead") === "success") {
-      const eventKey = `rejuvera:lead-submit:${url.pathname}:${url.search}`;
-      if (window.sessionStorage.getItem(eventKey) !== "1") {
-        window.sessionStorage.setItem(eventKey, "1");
+    const verifyRedirectedLead = async () => {
+      const url = new URL(window.location.href);
+      const receipt = url.searchParams.get("lead_receipt");
+      if (url.searchParams.get("lead") !== "success" || !receipt) return;
 
-        trackLeadConversion({
-          formType: "redirect_form",
-          source: readParam(url, "source") ?? "Lead form redirect",
-          serviceSlug: readParam(url, "serviceSlug", "service"),
-          serviceName: readParam(url, "serviceName", "serviceLabel"),
-          preferredLanguage: readParam(url, "lang", "preferredLanguage"),
-          utmSource: readParam(url, "utm_source", "utmSource"),
-          utmMedium: readParam(url, "utm_medium", "utmMedium"),
-          utmCampaign: readParam(url, "utm_campaign", "utmCampaign"),
-          utmContent: readParam(url, "utm_content", "utmContent"),
-          path: url.pathname,
+      const response = await fetch("/api/lead-receipt", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify({ receipt }),
+      }).catch(() => null);
+      if (!response?.ok || cancelled) return;
+
+      const proof = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        requestId?: string;
+        state?: string;
+      } | null;
+      if (
+        proof?.ok !== true ||
+        proof.state !== "success" ||
+        typeof proof.requestId !== "string"
+      ) {
+        return;
+      }
+
+      const tracked = trackLeadConversion({
+        requestId: proof.requestId,
+        formType: "redirect_form",
+        source: "Lead form redirect",
+        path: url.pathname,
+      });
+      if (tracked) {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: "form_success",
+          form_name: "booking",
         });
       }
-    }
 
-    return () => document.removeEventListener("click", handleContactClick, true);
+      url.searchParams.delete("lead_receipt");
+      window.history.replaceState({}, "", url);
+    };
+
+    void verifyRedirectedLead();
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("click", handleContactClick, true);
+    };
   }, []);
 
   return null;

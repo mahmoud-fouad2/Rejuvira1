@@ -17,6 +17,7 @@ import {
   isGeneralInquiryService,
 } from "@/lib/general-inquiry";
 import { getLeadRequestMetadata } from "@/lib/lead-request-metadata";
+import { createLeadReceipt } from "@/lib/lead-receipt";
 import {
   evaluateLeadIntakeGuard,
   LEAD_DUPLICATE_MESSAGE,
@@ -59,6 +60,9 @@ const leadSchema = z.object({
   utmCampaign: z.string().max(120).optional().or(z.literal("")),
   utmContent: z.string().max(120).optional().or(z.literal("")),
   utmTerm: z.string().max(120).optional().or(z.literal("")),
+  gclid: z.string().max(250).optional().or(z.literal("")),
+  gbraid: z.string().max(250).optional().or(z.literal("")),
+  wbraid: z.string().max(250).optional().or(z.literal("")),
   pageUrl: z.string().max(1000).optional().or(z.literal("")),
   landingPageUrl: z.string().max(1000).optional().or(z.literal("")),
   landingPagePath: z.string().max(500).optional().or(z.literal("")),
@@ -143,6 +147,9 @@ async function readLeadPayload(request: Request) {
         payloadString(payload, "utm_content"),
       utmTerm:
         payloadString(payload, "utmTerm") || payloadString(payload, "utm_term"),
+      gclid: payloadString(payload, "gclid"),
+      gbraid: payloadString(payload, "gbraid"),
+      wbraid: payloadString(payload, "wbraid"),
       pageUrl: payloadString(payload, "pageUrl"),
       landingPageUrl: payloadString(payload, "landingPageUrl"),
       landingPagePath:
@@ -191,13 +198,17 @@ async function readLeadPayload(request: Request) {
       formString(formData, "utmContent") || formString(formData, "utm_content"),
     utmTerm:
       formString(formData, "utmTerm") || formString(formData, "utm_term"),
+    gclid: formString(formData, "gclid"),
+    gbraid: formString(formData, "gbraid"),
+    wbraid: formString(formData, "wbraid"),
     pageUrl: formString(formData, "pageUrl"),
     landingPageUrl: formString(formData, "landingPageUrl"),
     landingPagePath:
       formString(formData, "landingPagePath") ||
       formString(formData, "landingPagePathname"),
     landingPageSlug:
-      formString(formData, "landingPageSlug") || formString(formData, "pageSlug"),
+      formString(formData, "landingPageSlug") ||
+      formString(formData, "pageSlug"),
     referrerUrl: formString(formData, "referrerUrl"),
     [LEAD_HONEYPOT_FIELD]: formString(formData, LEAD_HONEYPOT_FIELD),
     [LEAD_RENDERED_AT_FIELD]: formString(formData, LEAD_RENDERED_AT_FIELD),
@@ -208,10 +219,14 @@ function extractCustomPageSlugFromUrl(value?: string | null) {
   if (!value) return "";
   try {
     const url = new URL(value);
-    const match = url.pathname.match(/^\/p\/([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?:\/)?$/i);
+    const match = url.pathname.match(
+      /^\/p\/([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?:\/)?$/i,
+    );
     return match?.[1]?.toLowerCase() ?? "";
   } catch {
-    const match = value.match(/\/p\/([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?:[/?#]|$)/i);
+    const match = value.match(
+      /\/p\/([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)(?:[/?#]|$)/i,
+    );
     return match?.[1]?.toLowerCase() ?? "";
   }
 }
@@ -222,6 +237,7 @@ function response(
   message: string,
   init?: ResponseInit,
   leadState?: "success" | "error" | "duplicate",
+  receipt?: string | null,
 ) {
   if (wantsJson(request)) {
     return NextResponse.json(
@@ -237,6 +253,7 @@ function response(
   const referer = request.headers.get("referer") || "/contact";
   const url = new URL(referer, request.url);
   url.searchParams.set("lead", leadState ?? status);
+  if (receipt) url.searchParams.set("lead_receipt", receipt);
   return NextResponse.redirect(url, { status: 303 });
 }
 
@@ -354,20 +371,20 @@ export async function POST(request: Request) {
       parsed.data.serviceName ||
       parsed.data.serviceType;
     const isGeneralInquiry = isGeneralInquiryService(serviceReference);
-    const selectedService = serviceReference && !isGeneralInquiry
-      ? await getServiceByReference(serviceReference)
-      : null;
-    const serviceArabicName =
-      isGeneralInquiry
-        ? GENERAL_INQUIRY_SERVICE_AR
-        : selectedService?.name ||
-          parsed.data.serviceTypeAr ||
-          parsed.data.serviceLabel ||
-          parsed.data.serviceName ||
-          parsed.data.serviceType ||
-          parsed.data.offerName ||
-          parsed.data.serviceSlug ||
-          undefined;
+    const selectedService =
+      serviceReference && !isGeneralInquiry
+        ? await getServiceByReference(serviceReference)
+        : null;
+    const serviceArabicName = isGeneralInquiry
+      ? GENERAL_INQUIRY_SERVICE_AR
+      : selectedService?.name ||
+        parsed.data.serviceTypeAr ||
+        parsed.data.serviceLabel ||
+        parsed.data.serviceName ||
+        parsed.data.serviceType ||
+        parsed.data.offerName ||
+        parsed.data.serviceSlug ||
+        undefined;
     const landingPageUrl =
       parsed.data.landingPageUrl ||
       parsed.data.pageUrl ||
@@ -394,9 +411,7 @@ export async function POST(request: Request) {
       source: parsed.data.source || "Landing page form",
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(selectedService?.slug
-        ? { serviceSlug: selectedService.slug }
-        : {}),
+      ...(selectedService?.slug ? { serviceSlug: selectedService.slug } : {}),
       ...(isGeneralInquiry ? { tags: [GENERAL_INQUIRY_SERVICE_AR] } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),
@@ -404,12 +419,25 @@ export async function POST(request: Request) {
         ? { utmCampaign: parsed.data.utmCampaign }
         : {}),
       ...(parsed.data.utmContent ? { utmContent: parsed.data.utmContent } : {}),
+      ...(parsed.data.utmTerm ? { utmTerm: parsed.data.utmTerm } : {}),
+      ...(parsed.data.gclid ? { gclid: parsed.data.gclid } : {}),
+      ...(parsed.data.gbraid ? { gbraid: parsed.data.gbraid } : {}),
+      ...(parsed.data.wbraid ? { wbraid: parsed.data.wbraid } : {}),
       ...(leadNotes ? { notes: leadNotes } : {}),
       ...getLeadRequestMetadata(request, {
         referrerUrl: parsed.data.referrerUrl || undefined,
         landingPageUrl: landingPageUrl || undefined,
       }),
     });
+
+    if (result.mode === "preview") {
+      return response(
+        request,
+        "error",
+        "تعذر حفظ الطلب الآن. الرجاء المحاولة مرة أخرى. / Could not save your request.",
+        { status: 503 },
+      );
+    }
 
     const buildLeadWebhookPayload = (
       event: "landing_lead.created",
@@ -455,6 +483,9 @@ export async function POST(request: Request) {
       utmCampaign: parsed.data.utmCampaign || undefined,
       utmContent: parsed.data.utmContent || undefined,
       utmTerm: parsed.data.utmTerm || undefined,
+      gclid: parsed.data.gclid || undefined,
+      gbraid: parsed.data.gbraid || undefined,
+      wbraid: parsed.data.wbraid || undefined,
       utm_source: parsed.data.utmSource || undefined,
       utm_medium: parsed.data.utmMedium || undefined,
       utm_campaign: parsed.data.utmCampaign || undefined,
@@ -520,6 +551,8 @@ export async function POST(request: Request) {
             duplicate: true,
             message: LEAD_DUPLICATE_MESSAGE,
             submissionId: result.submission.id,
+            requestId: result.submission.id,
+            saved: true,
           },
           { status: 200 },
         );
@@ -530,6 +563,7 @@ export async function POST(request: Request) {
         LEAD_DUPLICATE_MESSAGE,
         { status: 200 },
         "duplicate",
+        createLeadReceipt(result.submission.id, "duplicate"),
       );
     }
 
@@ -548,6 +582,8 @@ export async function POST(request: Request) {
           message: "Lead captured",
           submissionId:
             result.mode === "database" ? result.submission.id : undefined,
+          requestId: result.submission.id,
+          saved: true,
         },
         { status: 201 },
       );
@@ -556,6 +592,9 @@ export async function POST(request: Request) {
       request,
       "success",
       "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريبا. / Your request has been received.",
+      undefined,
+      "success",
+      createLeadReceipt(result.submission.id, "success"),
     );
   } catch (error) {
     await recordAppLog({
@@ -603,6 +642,9 @@ export async function GET() {
       "utm_campaign",
       "utm_content",
       "utm_term",
+      "gclid",
+      "gbraid",
+      "wbraid",
       "landingPageUrl",
       "landingPagePath",
       "landingPageSlug",

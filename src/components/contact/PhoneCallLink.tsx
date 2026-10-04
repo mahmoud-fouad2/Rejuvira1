@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentPropsWithoutRef, MouseEvent } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 
 declare global {
   interface Window {
@@ -16,13 +16,10 @@ type PhoneCallLinkProps = Omit<
 };
 
 export function PhoneCallLink({ href, ...props }: PhoneCallLinkProps) {
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = () => {
     const reportConversion = window.gtag_report_phone_conversion;
     if (typeof reportConversion !== "function") return;
-
-    if (reportConversion(event.currentTarget.href) === false) {
-      event.preventDefault();
-    }
+    reportConversion(href);
   };
 
   return (

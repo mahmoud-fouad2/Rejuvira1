@@ -113,10 +113,15 @@ function trackingHiddenInputs() {
     "utm_medium",
     "utm_campaign",
     "utm_content",
+    "utm_term",
+    "gclid",
+    "gbraid",
+    "wbraid",
     "utmSource",
     "utmMedium",
     "utmCampaign",
     "utmContent",
+    "utmTerm",
   ]
     .map((name) => `<input type="hidden" name="${name}" value="">`)
     .join("");

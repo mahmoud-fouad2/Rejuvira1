@@ -402,7 +402,7 @@ const presets: Record<BlockKind, Omit<BuilderBlock, "id" | "kind">> = {
   },
   contact: {
     title: "ابدئي بخطوة واضحة",
-    body: "الهاتف|0114999959\nواتساب|9200 17403\nالبريد|info@rejuvera.sa",
+    body: "الهاتف|0114999959\nواتساب|0114999959\nالبريد|info@rejuvera.sa",
     buttonLabel: "افتحي صفحة التواصل",
     buttonHref: "/contact",
     accent: "#4a2476",
@@ -592,10 +592,15 @@ function trackingHiddenInputs() {
     "utm_medium",
     "utm_campaign",
     "utm_content",
+    "utm_term",
+    "gclid",
+    "gbraid",
+    "wbraid",
     "utmSource",
     "utmMedium",
     "utmCampaign",
     "utmContent",
+    "utmTerm",
   ]
     .map((name) => `<input type="hidden" name="${name}" value="">`)
     .join("");

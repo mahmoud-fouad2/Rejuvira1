@@ -3,6 +3,10 @@ export type RequestTrackingFields = {
   utmMedium?: string | undefined;
   utmCampaign?: string | undefined;
   utmContent?: string | undefined;
+  utmTerm?: string | undefined;
+  gclid?: string | undefined;
+  gbraid?: string | undefined;
+  wbraid?: string | undefined;
 };
 
 const trackingParams = [
@@ -10,11 +14,15 @@ const trackingParams = [
   ["utmMedium", "utm_medium"],
   ["utmCampaign", "utm_campaign"],
   ["utmContent", "utm_content"],
+  ["utmTerm", "utm_term"],
+  ["gclid", "gclid"],
+  ["gbraid", "gbraid"],
+  ["wbraid", "wbraid"],
 ] as const;
 
 function cleanTrackingValue(value: string | null | undefined) {
   const clean = value?.trim();
-  return clean ? clean.slice(0, 120) : "";
+  return clean ? clean.slice(0, 250) : "";
 }
 
 function getSearchParams(value: string | null, baseUrl: string) {
@@ -32,6 +40,10 @@ function readTrackingFromSearchParams(params: URLSearchParams | null) {
     utmMedium: "",
     utmCampaign: "",
     utmContent: "",
+    utmTerm: "",
+    gclid: "",
+    gbraid: "",
+    wbraid: "",
   };
   if (!params) return tracking;
 
@@ -54,6 +66,10 @@ export function getRequestTracking(request: Request) {
     utmMedium: "",
     utmCampaign: "",
     utmContent: "",
+    utmTerm: "",
+    gclid: "",
+    gbraid: "",
+    wbraid: "",
   };
 
   for (const candidate of candidates) {
@@ -82,5 +98,9 @@ export function mergeRequestTracking<T extends RequestTrackingFields>(
     utmCampaign:
       cleanTrackingValue(payload.utmCampaign) || tracking.utmCampaign,
     utmContent: cleanTrackingValue(payload.utmContent) || tracking.utmContent,
+    utmTerm: cleanTrackingValue(payload.utmTerm) || tracking.utmTerm,
+    gclid: cleanTrackingValue(payload.gclid) || tracking.gclid,
+    gbraid: cleanTrackingValue(payload.gbraid) || tracking.gbraid,
+    wbraid: cleanTrackingValue(payload.wbraid) || tracking.wbraid,
   };
 }

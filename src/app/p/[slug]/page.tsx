@@ -10,7 +10,9 @@ import {
   getCustomPageBySlug,
   getRuntimeSettings,
 } from "@/lib/content-repository";
+import { normalizeClinicContactHtml } from "@/lib/clinic-contact";
 import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
+import { verifyLeadReceipt } from "@/lib/lead-receipt";
 import {
   optimizeCustomPageImages,
   repairCustomPageMediaUrls,
@@ -105,7 +107,7 @@ export default async function CustomPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams?: Promise<{ lead?: string }>;
+  searchParams?: Promise<{ lead?: string; lead_receipt?: string }>;
 }) {
   const { slug } = await params;
   const query = searchParams ? await searchParams : {};
@@ -124,10 +126,12 @@ export default async function CustomPage({
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
   const repairedHtml = repairCustomPageMediaUrls(page.htmlContent);
-  const safeHtml = hardenCustomPageLeadForms(
-    sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
-    undefined,
-    page.slug,
+  const safeHtml = normalizeClinicContactHtml(
+    hardenCustomPageLeadForms(
+      sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
+      undefined,
+      page.slug,
+    ),
   );
   const seo = resolveCustomPageSeo(page, slug);
   const canonicalSlug = page.seoSlug || page.slug;
@@ -143,6 +147,13 @@ export default async function CustomPage({
   const semanticTitle = seo.title.split("|")[0]?.trim() || page.titleAr;
   const phoneDigits = runtimeSettings.contact.phone.replace(/\D/g, "");
   const nonce = headerStore.get("x-nonce") ?? "";
+  const leadReceipt = verifyLeadReceipt(query.lead_receipt);
+  const verifiedLeadState =
+    query.lead === "error"
+      ? "error"
+      : leadReceipt && leadReceipt.state === query.lead
+        ? leadReceipt.state
+        : undefined;
 
   return (
     <>
@@ -157,21 +168,19 @@ export default async function CustomPage({
           isUploadedHtml ? "rv-custom-page--uploaded" : ""
         }`}
       >
-        {query.lead === "success" ||
-        query.lead === "duplicate" ||
-        query.lead === "error" ? (
+        {verifiedLeadState ? (
           <div
             className={`mx-auto mt-6 max-w-4xl rounded-2xl border px-5 py-3 text-center text-sm font-semibold ${
-              query.lead === "success"
+              verifiedLeadState === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                : query.lead === "duplicate"
+                : verifiedLeadState === "duplicate"
                   ? "border-amber-200 bg-amber-50 text-amber-800"
                   : "border-red-200 bg-red-50 text-red-800"
             }`}
           >
-            {query.lead === "success"
+            {verifiedLeadState === "success"
               ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريباً."
-              : query.lead === "duplicate"
+              : verifiedLeadState === "duplicate"
                 ? "رقمك مسجل لدينا بالفعل، وسيتواصل معك الفريق في أقرب وقت."
                 : "تعذر إرسال الطلب. يرجى مراجعة البيانات والمحاولة مرة أخرى."}
           </div>

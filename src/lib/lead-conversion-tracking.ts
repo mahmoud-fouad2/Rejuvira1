@@ -1,6 +1,11 @@
 "use client";
 
 import { fireSnapSignUp } from "@/lib/snap-pixel";
+import { claimConversionId } from "@/lib/conversion-dedupe";
+import {
+  buildContactClickDataLayerEvent,
+  buildLeadDataLayerEvent,
+} from "@/lib/lead-analytics";
 
 type DataLayerEvent = Record<string, unknown> & { event: string };
 type MetaPixelFunction = (...args: unknown[]) => void;
@@ -13,6 +18,7 @@ const GOOGLE_ADS_CONVERSIONS = {
 } as const;
 
 type GoogleAdsConversion = keyof typeof GOOGLE_ADS_CONVERSIONS;
+const claimedLeadConversions = new Set<string>();
 
 declare global {
   interface Window {
@@ -24,6 +30,8 @@ declare global {
 }
 
 export type LeadConversionPayload = {
+  /** Stable, non-PII ID returned only after the lead is saved by the server. */
+  requestId?: string | undefined;
   formType?: string | undefined;
   source?: string | undefined;
   serviceSlug?: string | undefined;
@@ -45,14 +53,6 @@ export type LeadConversionPayload = {
    */
   snapDedupId?: string | undefined;
 };
-
-function cleanPayload(payload: LeadConversionPayload) {
-  return Object.fromEntries(
-    Object.entries(payload).filter(
-      ([, value]) => typeof value === "string" && value.trim().length > 0,
-    ),
-  );
-}
 
 function cleanEventParams(payload: Record<string, string | undefined>) {
   return Object.fromEntries(
@@ -123,9 +123,7 @@ function dispatchGoogleAdsConversion(
       send_to: GOOGLE_ADS_CONVERSIONS[conversion],
       value: 1,
       currency: "SAR",
-      ...(params.transactionId
-        ? { transaction_id: params.transactionId }
-        : {}),
+      ...(params.transactionId ? { transaction_id: params.transactionId } : {}),
       ...(params.pageLocation ? { page_location: params.pageLocation } : {}),
     });
     return;
@@ -141,74 +139,42 @@ function dispatchGoogleAdsConversion(
   }
 }
 
-export function trackContactLinkConversion(
-  kind: "phone" | "whatsapp",
-  link: { href: string; text?: string | undefined },
-) {
+export function trackContactLinkConversion(kind: "phone" | "whatsapp") {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
 
-  const eventName = kind === "phone" ? "phone_click" : "whatsapp_click";
   const eventId = createMetaEventId().replace("rv_lead_", `rv_${kind}_`);
-  const payload = {
-    event: eventName,
-    eventId,
-    linkUrl: link.href,
-    linkText: link.text?.trim() || undefined,
-    pagePath: window.location.pathname,
-    pageUrl: window.location.href,
-  };
-
-  // Keep a readable dataLayer event for diagnostics and future GTM use. The
-  // Google Ads conversion itself is sent directly to its dedicated action.
-  window.dataLayer.push(payload);
+  window.dataLayer.push(buildContactClickDataLayerEvent(kind, eventId));
   dispatchGoogleAdsConversion(
     kind === "phone" ? "phoneClick" : "whatsappClick",
-    {
-      transactionId: eventId,
-      pageLocation: window.location.href,
-    },
+    { transactionId: eventId },
   );
 }
 
 export function trackLeadConversion(payload: LeadConversionPayload = {}) {
-  if (typeof window === "undefined") return;
-  window.dataLayer = window.dataLayer || [];
-  const metaEventId = createMetaEventId();
-  const safePayload = {
-    ...cleanPayload(payload),
-    pagePath: payload.path ?? window.location.pathname,
-    pageUrl: window.location.href,
-    metaEventId,
-  };
-
-  const ga4Payload = cleanEventParams({
-    form_type: payload.formType,
-    lead_source: payload.source,
-    service_slug: payload.serviceSlug,
-    service_name: payload.serviceName,
-    preferred_language: payload.preferredLanguage,
-    utm_source: payload.utmSource,
-    utm_medium: payload.utmMedium,
-    utm_campaign: payload.utmCampaign,
-    utm_content: payload.utmContent,
-    page_path: safePayload.pagePath,
-    page_location: safePayload.pageUrl,
-    meta_event_id: metaEventId,
-  });
-
-  window.dataLayer.push({
-    event: "lead_submit",
-    ...safePayload,
-  });
-
-  if (typeof window.gtag === "function") {
-    window.gtag("event", "lead_submit", ga4Payload);
+  if (typeof window === "undefined") return false;
+  const requestId = payload.requestId?.trim();
+  if (!requestId) return false;
+  let storage: Storage | undefined;
+  try {
+    storage = window.sessionStorage;
+  } catch {
+    storage = undefined;
+  }
+  if (!claimConversionId(requestId, claimedLeadConversions, storage)) {
+    return false;
   }
 
+  window.dataLayer = window.dataLayer || [];
+  const metaEventId = `rv_lead_${requestId}`;
+  const pageUrl = window.location.href;
+
+  // GTM receives exactly one generic event. Patient details and service names
+  // intentionally stay out of the public analytics layer.
+  window.dataLayer.push(buildLeadDataLayerEvent(requestId, payload.formType));
+
   dispatchGoogleAdsConversion("leadSubmit", {
-    transactionId: metaEventId,
-    pageLocation: safePayload.pageUrl,
+    transactionId: requestId,
   });
 
   dispatchMetaLead(
@@ -223,8 +189,8 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
       utm_medium: payload.utmMedium,
       utm_campaign: payload.utmCampaign,
       utm_content: payload.utmContent,
-      page_path: safePayload.pagePath,
-      event_source_url: safePayload.pageUrl,
+      page_path: payload.path ?? window.location.pathname,
+      event_source_url: pageUrl,
     },
     metaEventId,
   );
@@ -242,6 +208,8 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   if (payload.phone && payload.snapDedupId) {
     fireSnapSignUp(payload.phone, payload.email, payload.snapDedupId);
   }
+
+  return true;
 }
 
 export function leadPayloadFromForm(

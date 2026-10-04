@@ -6,6 +6,7 @@ import {
   ABOUT_PROFILE_DEFAULTS,
   ABOUT_SECTION_DEFAULTS,
 } from "@/lib/about-content";
+import { CLINIC_PHONE_DISPLAY } from "@/lib/clinic-contact";
 import {
   GENERAL_INQUIRY_SERVICE_AR,
   hasGeneralInquiryTag,
@@ -160,6 +161,10 @@ export type CrmRecord = {
   utmMedium?: string | undefined;
   utmCampaign?: string | undefined;
   utmContent?: string | undefined;
+  utmTerm?: string | undefined;
+  gclid?: string | undefined;
+  gbraid?: string | undefined;
+  wbraid?: string | undefined;
   ipAddress?: string | undefined;
   country?: string | undefined;
   referrerUrl?: string | undefined;
@@ -566,6 +571,10 @@ export type CreateContactInput = {
   utmMedium?: string | undefined;
   utmCampaign?: string | undefined;
   utmContent?: string | undefined;
+  utmTerm?: string | undefined;
+  gclid?: string | undefined;
+  gbraid?: string | undefined;
+  wbraid?: string | undefined;
   ipAddress?: string | undefined;
   country?: string | undefined;
   referrerUrl?: string | undefined;
@@ -1871,11 +1880,11 @@ const seedSettings: SettingsGroup[] = [
     description:
       "الحد الأدنى التشغيلي الذي يظهر في الـ CTA والنماذج والواجهة العامة.",
     fields: [
-      { key: "phone", label: "الرقم الرئيسي", value: "0114999959" },
+      { key: "phone", label: "الرقم الرئيسي", value: CLINIC_PHONE_DISPLAY },
       {
         key: "phoneSecondary",
         label: "الرقم الموحد",
-        value: "9200 17403",
+        value: "",
       },
       {
         key: "email",
@@ -1887,7 +1896,7 @@ const seedSettings: SettingsGroup[] = [
         label: "البريد البديل",
         value: "info@rejuvera.sa",
       },
-      { key: "whatsapp", label: "واتساب", value: "0114999959" },
+      { key: "whatsapp", label: "واتساب", value: CLINIC_PHONE_DISPLAY },
       { key: "domain", label: "النطاق الرسمي", value: "rejuvera.sa" },
       {
         key: "addressAr",
@@ -3100,6 +3109,10 @@ export async function getCrmSubmissions(): Promise<CrmRecord[]> {
         utmMedium: submission.utmMedium ?? undefined,
         utmCampaign: submission.utmCampaign ?? undefined,
         utmContent: submission.utmContent ?? undefined,
+        utmTerm: submission.utmTerm ?? undefined,
+        gclid: submission.gclid ?? undefined,
+        gbraid: submission.gbraid ?? undefined,
+        wbraid: submission.wbraid ?? undefined,
         ipAddress: submission.ipAddress ?? undefined,
         country: submission.country ?? undefined,
         referrerUrl: submission.referrerUrl ?? undefined,
@@ -3294,6 +3307,12 @@ export async function getSettingsGroups() {
 export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
   const groups = await getSettingsGroups();
   const normalizeLegacyValue = (fieldKey: string, value: string) => {
+    if (fieldKey === "phone" || fieldKey === "whatsapp") {
+      return CLINIC_PHONE_DISPLAY;
+    }
+    if (fieldKey === "phoneSecondary") {
+      return "";
+    }
     if (
       fieldKey === "email" ||
       fieldKey === "emailSecondary" ||
@@ -3323,12 +3342,12 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
       phone: getValue(
         "contact",
         "phone",
-        process.env.CONTACT_PHONE_PRIMARY || "0114999959",
+        process.env.CONTACT_PHONE_PRIMARY || CLINIC_PHONE_DISPLAY,
       ),
       phoneSecondary: getValue(
         "contact",
         "phoneSecondary",
-        process.env.CONTACT_PHONE_SECONDARY || "9200 17403",
+        process.env.CONTACT_PHONE_SECONDARY || "",
       ),
       email: getValue(
         "contact",
@@ -3340,7 +3359,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "emailSecondary",
         process.env.CONTACT_EMAIL_SECONDARY || "info@rejuvera.sa",
       ),
-      whatsapp: getValue("contact", "whatsapp", "0114999959"),
+      whatsapp: getValue("contact", "whatsapp", CLINIC_PHONE_DISPLAY),
       domain: getValue("contact", "domain", "rejuvera.sa"),
       mapsEmbedUrl: getValue(
         "contact",
@@ -4576,6 +4595,10 @@ export async function createContactLead(
         ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
         ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
         ...(input.utmContent ? { utmContent: input.utmContent } : {}),
+        ...(input.utmTerm ? { utmTerm: input.utmTerm } : {}),
+        ...(input.gclid ? { gclid: input.gclid } : {}),
+        ...(input.gbraid ? { gbraid: input.gbraid } : {}),
+        ...(input.wbraid ? { wbraid: input.wbraid } : {}),
         ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
         ...(input.landingPageUrl
           ? { landingPageUrl: input.landingPageUrl }
@@ -4654,6 +4677,10 @@ export async function createContactLead(
       ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
       ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
       ...(input.utmContent ? { utmContent: input.utmContent } : {}),
+      ...(input.utmTerm ? { utmTerm: input.utmTerm } : {}),
+      ...(input.gclid ? { gclid: input.gclid } : {}),
+      ...(input.gbraid ? { gbraid: input.gbraid } : {}),
+      ...(input.wbraid ? { wbraid: input.wbraid } : {}),
       ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
       ...(input.country ? { country: input.country } : {}),
       ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),

@@ -341,6 +341,10 @@ function matchesSearch(submission: CrmRecord, rawTerm: string) {
       submission.utmMedium ?? "",
       submission.utmCampaign ?? "",
       submission.utmContent ?? "",
+      submission.utmTerm ?? "",
+      submission.gclid ?? "",
+      submission.gbraid ?? "",
+      submission.wbraid ?? "",
       submission.ipAddress ?? "",
       submission.userAgent ?? "",
       (submission.tags ?? []).join(" "),
@@ -754,7 +758,13 @@ export function CrmFilterBar({
   ).length;
   const unassignedCount = filtered.filter((item) => !item.assignedToId).length;
   const campaignCount = filtered.filter(
-    (item) => item.utmSource || item.utmMedium || item.utmCampaign,
+    (item) =>
+      item.utmSource ||
+      item.utmMedium ||
+      item.utmCampaign ||
+      item.gclid ||
+      item.gbraid ||
+      item.wbraid,
   ).length;
   const bookedCount = filtered.filter(
     (item) => item.status === SubmissionStatus.BOOKED,
@@ -2048,10 +2058,29 @@ export function CrmFilterBar({
                         selectedSubmission.utmMedium,
                         selectedSubmission.utmCampaign,
                         selectedSubmission.utmContent,
+                        selectedSubmission.utmTerm,
                       ]
                         .filter(Boolean)
                         .join(" / ") || "لا يوجد"}
                     </strong>
+                  </div>
+                  <div>
+                    <span className="admin-field-label">معرّفات إعلانات Google</span>
+                    <p dir="ltr">
+                      {[
+                        selectedSubmission.gclid
+                          ? `gclid=${selectedSubmission.gclid}`
+                          : "",
+                        selectedSubmission.gbraid
+                          ? `gbraid=${selectedSubmission.gbraid}`
+                          : "",
+                        selectedSubmission.wbraid
+                          ? `wbraid=${selectedSubmission.wbraid}`
+                          : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" / ") || "لا يوجد"}
+                    </p>
                   </div>
                   <div>
                     <span className="admin-field-label">IP</span>

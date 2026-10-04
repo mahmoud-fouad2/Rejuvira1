@@ -23,6 +23,7 @@ import {
   leadPayloadFromForm,
   trackLeadConversion,
 } from "@/lib/lead-conversion-tracking";
+import { isConfirmedSavedLead } from "@/lib/lead-success";
 import {
   SAUDI_MOBILE_INPUT_PATTERN,
   SAUDI_MOBILE_INPUT_TITLE,
@@ -35,6 +36,8 @@ type ContactActionState = {
   error?: string;
   duplicate?: boolean;
   submissionId?: string;
+  requestId?: string;
+  saved?: boolean;
 };
 
 const initialState: ContactActionState = {
@@ -53,10 +56,9 @@ function normalizeContactActionState(
 ): ContactActionState {
   if (!data || typeof data !== "object") {
     return {
-      status: responseOk ? "success" : "error",
-      message: responseOk
-        ? "تم استلام طلبك بنجاح، وسيتواصل معك الفريق قريبًا. / Your request has been received."
-        : "تعذر إرسال الطلب. الرجاء المحاولة مرة أخرى. / Could not submit your request.",
+      status: "error",
+      message:
+        "تعذر تأكيد حفظ الطلب. الرجاء المحاولة مرة أخرى. / Could not confirm that your request was saved.",
     };
   }
 
@@ -248,21 +250,21 @@ export function ContactForm({
         | (Partial<ContactActionState> & { snapDedupId?: string })
         | null;
       const data = normalizeContactActionState(rawData, response.ok);
-      const isConfirmedSuccessfulLead =
-        response.ok &&
-        rawData?.ok === true &&
-        rawData.status === "success" &&
-        rawData.duplicate !== true;
+      const isConfirmedSuccessfulLead = isConfirmedSavedLead(
+        response.ok,
+        rawData,
+      );
       setState(data);
-      if (response.ok && data.status === "success" && !data.duplicate) {
+      if (isConfirmedSuccessfulLead) {
         // The server echoes back the dedupId it used for CAPI.
         // Prefer it; fall back to the one we generated locally.
         const confirmedDedupId = rawData?.snapDedupId ?? snapDedupId;
-        trackLeadConversion({
+        const tracked = trackLeadConversion({
           ...leadPayloadFromForm(form, "contact_form"),
+          requestId: rawData?.requestId,
           snapDedupId: confirmedDedupId,
         });
-        if (isConfirmedSuccessfulLead) {
+        if (tracked) {
           window.dataLayer = window.dataLayer || [];
           window.dataLayer.push({
             event: "form_success",
@@ -386,10 +388,15 @@ export function ContactForm({
       <input type="hidden" name="utm_medium" defaultValue="" />
       <input type="hidden" name="utm_campaign" defaultValue="" />
       <input type="hidden" name="utm_content" defaultValue="" />
+      <input type="hidden" name="utm_term" defaultValue="" />
+      <input type="hidden" name="gclid" defaultValue="" />
+      <input type="hidden" name="gbraid" defaultValue="" />
+      <input type="hidden" name="wbraid" defaultValue="" />
       <input type="hidden" name="utmSource" defaultValue="" />
       <input type="hidden" name="utmMedium" defaultValue="" />
       <input type="hidden" name="utmCampaign" defaultValue="" />
       <input type="hidden" name="utmContent" defaultValue="" />
+      <input type="hidden" name="utmTerm" defaultValue="" />
       <input
         type="hidden"
         name={LEAD_RENDERED_AT_FIELD}

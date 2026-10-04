@@ -411,20 +411,17 @@ function ApiWebhookDocumentationCard({
             <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
               lead_submit
             </code>
-            لإنشاء Conversion في GTM / Google Ads. يوجد حدث بديل باسم
+            لإنشاء Conversion في GTM / Google Ads. ويصدر أيضًا حدث النجاح
             <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
               form_success
             </code>
-            للتوافق مع أي إعدادات قديمة.
+            مرة واحدة بعد تأكيد الحفظ من الخادم. لا تحتوي الأحداث العامة على
+            بيانات المريض أو اسم الخدمة.
           </p>
           <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">{`window.dataLayer.push({
   event: "lead_submit",
-  formType: "contact_form",
-  source: "Header booking modal",
-  serviceSlug: "rhinoplasty-nose-reshaping",
-  utmSource: "google",
-  pagePath: "/p/plastic-surgery-riyadh",
-  pageUrl: "https://rejuvera.sa/p/plastic-surgery-riyadh?utm_source=google"
+  request_id: "non-pii-server-request-id",
+  form_name: "contact_form"
 });`}</pre>
         </section>
 

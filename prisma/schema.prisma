@@ -226,6 +226,10 @@ model ContactSubmission {
   utmMedium         String?
   utmCampaign       String?
   utmContent        String?
+  utmTerm           String?
+  gclid             String?
+  gbraid            String?
+  wbraid            String?
   ipAddress         String?
   country           String?
   referrerUrl       String?          @db.Text
@@ -246,6 +250,7 @@ model ContactSubmission {
 
   @@index([phone, createdAt])
   @@index([ipAddress])
+  @@index([gclid])
 }
 
 model BlockedIp {
