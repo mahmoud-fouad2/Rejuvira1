@@ -186,19 +186,41 @@ export function ContactForm({
 
   useEffect(() => {
     if (!siteKey) return;
+    const form = formRef.current;
+    if (!form) return;
     let cancelled = false;
-    void loadRecaptchaScript(siteKey)
-      .then(() => {
-        if (cancelled) return;
-        window.grecaptcha?.ready(() => {
-          /* warm up */
+    let observer: IntersectionObserver | undefined;
+    const warmUp = () => {
+      observer?.disconnect();
+      void loadRecaptchaScript(siteKey)
+        .then(() => {
+          if (cancelled) return;
+          window.grecaptcha?.ready(() => {
+            /* warm up */
+          });
+        })
+        .catch(() => {
+          /* ignore script load failure */
         });
-      })
-      .catch(() => {
-        /* ignore script load failure */
-      });
+    };
+    // Start before the form becomes visible or on focus. Submission still
+    // acquires a fresh token even when warm-up has not run yet.
+    if (typeof IntersectionObserver === "function") {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) warmUp();
+        },
+        { rootMargin: "350px" },
+      );
+      observer.observe(form);
+    } else {
+      warmUp();
+    }
+    form.addEventListener("focusin", warmUp, { once: true });
     return () => {
       cancelled = true;
+      observer?.disconnect();
+      form.removeEventListener("focusin", warmUp);
     };
   }, [siteKey]);
 
@@ -298,11 +320,17 @@ export function ContactForm({
       action="/api/contact"
       method="post"
       onSubmit={handleSubmit}
-      className={[compact ? "grid gap-3.5" : "grid gap-5", formClassName].filter(Boolean).join(" ")}
+      className={[compact ? "grid gap-3.5" : "grid gap-5", formClassName]
+        .filter(Boolean)
+        .join(" ")}
     >
-      <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-5 md:grid-cols-2"}>
+      <div
+        className={
+          compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-5 md:grid-cols-2"
+        }
+      >
         <label className="grid gap-1.5">
-          <span className="text-ink-strong text-xs sm:text-sm font-semibold tracking-tight">
+          <span className="text-ink-strong text-xs font-semibold tracking-tight sm:text-sm">
             <span className="lang-ar">الاسم الكامل</span>
             <span className="lang-en">Full name</span>
           </span>
@@ -315,7 +343,7 @@ export function ContactForm({
           />
         </label>
         <label className="grid gap-1.5">
-          <span className="text-ink-strong text-xs sm:text-sm font-semibold tracking-tight">
+          <span className="text-ink-strong text-xs font-semibold tracking-tight sm:text-sm">
             <span className="lang-ar">رقم الجوال</span>
             <span className="lang-en">Phone number</span>
           </span>
@@ -336,7 +364,7 @@ export function ContactForm({
         </label>
       </div>
       <label className="grid gap-1.5">
-        <span className="text-ink-strong text-xs sm:text-sm font-semibold tracking-tight">
+        <span className="text-ink-strong text-xs font-semibold tracking-tight sm:text-sm">
           <span className="lang-ar">الخدمة المطلوبة</span>
           <span className="lang-en">Requested service</span>
         </span>

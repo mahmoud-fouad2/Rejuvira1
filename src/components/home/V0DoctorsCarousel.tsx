@@ -166,7 +166,7 @@ export function V0DoctorsCarousel({
                       fill
                       sizes="(max-width: 720px) 78vw, (max-width: 1100px) 38vw, 22rem"
                       className="object-cover object-top"
-                      loading={i < 2 ? "eager" : "lazy"}
+                      loading="lazy"
                     />
                     {doctor.featured ? (
                       <span className="rv-doctor-card-top-rated">

@@ -18,6 +18,8 @@ import {
 } from "@/lib/core-search";
 import { prisma } from "@/lib/prisma";
 import { normalizeClientIp } from "@/lib/rate-limit";
+import { publicationDateForSave } from "@/lib/journal-content";
+import { publicDeviceCertifications } from "@/lib/device-certifications";
 
 export type DoctorRecord = {
   id: string;
@@ -42,6 +44,7 @@ export type DoctorRecord = {
   status: ContentStatus;
   featured: boolean;
   serviceSlugs: readonly string[];
+  updatedAt?: string;
 };
 
 export type ServiceRecord = {
@@ -70,6 +73,7 @@ export type ServiceRecord = {
   deviceSlugs: readonly string[];
   status: ContentStatus;
   featured: boolean;
+  updatedAt?: string;
 };
 
 export type ServiceCategoryRecord = {
@@ -130,9 +134,11 @@ export type JournalPostRecord = {
   excerpt: string;
   excerptEn?: string | null;
   body: readonly string[];
+  bodyEn?: readonly string[];
   coverImageUrl: string;
   category: string;
   publishedAt: string;
+  updatedAt?: string;
   readingTime: string;
   relatedServiceSlugs: readonly string[];
   relatedDoctorSlugs: readonly string[];
@@ -2755,6 +2761,7 @@ export const getDoctors = cache(async () => {
       status: doctor.status,
       featured: doctor.isFeatured,
       serviceSlugs: doctor.services.map((service) => service.slug),
+      updatedAt: doctor.updatedAt.toISOString(),
     }));
     const databaseSlugs = new Set(databaseDoctors.map((doctor) => doctor.slug));
     const missingSeedDoctors = seedDoctors.filter(
@@ -2870,6 +2877,7 @@ export const getServices = cache(async () => {
       deviceSlugs: service.devices.map((device) => device.slug),
       status: service.status,
       featured: service.isFeatured,
+      updatedAt: service.updatedAt.toISOString(),
     }));
     const databaseSlugs = new Set(
       databaseServices.map((service) => service.slug),
@@ -2937,7 +2945,9 @@ export const getDevices = cache(async () => {
           device.gallery,
           deviceImageForSlug(device.slug),
         ),
-        certifications: toStringList(device.certifications),
+        certifications: publicDeviceCertifications(
+          toStringList(device.certifications),
+        ),
         serviceSlugs: device.services.map((service) => service.slug),
         status: device.status,
         featured: device.isFeatured,
@@ -3015,10 +3025,12 @@ export const getJournalPosts = cache(async () => {
       excerpt: post.excerptAr,
       excerptEn: post.excerptEn,
       body: toStringList(post.bodyAr),
+      bodyEn: toStringList(post.bodyEn),
       coverImageUrl: toDisplayAsset(post.coverImageUrl, serviceImages.journal),
       category: post.categoryKey,
       publishedAt:
         post.publishedAt?.toISOString() ?? post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
       readingTime: post.readingTimeLabel ?? "4 دقائق",
       relatedServiceSlugs: post.relatedServiceSlugs,
       relatedDoctorSlugs: post.relatedDoctorSlugs,
@@ -4332,9 +4344,17 @@ export async function updateJournalPostStatus(
     return { mode: "preview" as const, slug, status };
   }
 
-  const publishedAt =
-    status === ContentStatus.PUBLISHED ? new Date() : undefined;
   const seed = seedJournalPosts.find((post) => post.slug === slug);
+  const existing = await prisma.journalPost.findUnique({
+    where: { slug },
+    select: { publishedAt: true },
+  });
+  const originalDate = existing
+    ? existing.publishedAt
+    : seed
+      ? new Date(seed.publishedAt)
+      : null;
+  const publishedAt = publicationDateForSave(status, originalDate);
   const post = await prisma.journalPost.upsert({
     where: { slug },
     update: {
@@ -4380,6 +4400,17 @@ export async function updateJournalPost(input: UpdateJournalPostInput) {
     return { mode: "preview" as const, item: input };
   }
 
+  const existing = await prisma.journalPost.findUnique({
+    where: { id: input.id },
+    select: { publishedAt: true },
+  });
+  const seed = seedJournalPosts.find((post) => post.slug === input.slug);
+  const originalDate = existing
+    ? existing.publishedAt
+    : seed
+      ? new Date(seed.publishedAt)
+      : null;
+  const publishedAt = publicationDateForSave(input.status, originalDate);
   const data = {
     slug: input.slug,
     titleAr: input.title,
@@ -4393,9 +4424,7 @@ export async function updateJournalPost(input: UpdateJournalPostInput) {
     relatedServiceSlugs: input.relatedServiceSlugs,
     relatedDoctorSlugs: input.relatedDoctorSlugs,
     status: input.status,
-    ...(input.status === ContentStatus.PUBLISHED
-      ? { publishedAt: new Date() }
-      : {}),
+    ...(publishedAt ? { publishedAt } : {}),
   };
 
   const post = await prisma.journalPost.upsert({
@@ -4404,6 +4433,7 @@ export async function updateJournalPost(input: UpdateJournalPostInput) {
     create: {
       id: input.id,
       ...data,
+      ...(originalDate ? { publishedAt: originalDate } : {}),
     },
   });
 

@@ -1,15 +1,53 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
 import { ContentStatus } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getJournalPosts, getRuntimeSettings } from "@/lib/content-repository";
-import { buildPageMetadata } from "@/lib/seo";
+import { buildPageMetadata, getSiteUrl } from "@/lib/seo";
+import { journalPagePath, parseJournalPage } from "@/lib/journal-content";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return buildPageMetadata({ page: "journal", path: "/journal" });
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
+  const page = parseJournalPage((await searchParams).page);
+  if (page === null) return { robots: { index: false, follow: true } };
+  const publishedPosts = (await getJournalPosts()).filter(
+    (post) =>
+      (post.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED,
+  );
+  const totalPages = Math.max(
+    1,
+    Math.ceil(Math.max(0, publishedPosts.length - 1) / 9),
+  );
+  if (page > totalPages) return { robots: { index: false, follow: true } };
+  const metadata = await buildPageMetadata({
+    page: "journal",
+    path: journalPagePath(page),
+  });
+  const canonicalUrl = new URL(journalPagePath(page), getSiteUrl()).href;
+  return {
+    ...metadata,
+    title: {
+      absolute:
+        page === 1
+          ? "المجلة الطبية | ريجوفيرا بالرياض"
+          : `المجلة الطبية | الصفحة ${page} | ريجوفيرا`,
+    },
+    alternates: {
+      canonical: canonicalUrl,
+      languages: {
+        ar: canonicalUrl,
+        "ar-SA": canonicalUrl,
+        "x-default": canonicalUrl,
+      },
+    },
+  };
 }
 
 export default async function JournalPage({
@@ -26,7 +64,8 @@ export default async function JournalPage({
     (post) =>
       (post.status ?? ContentStatus.PUBLISHED) === ContentStatus.PUBLISHED,
   );
-  const currentPage = Math.max(1, Number(params?.page ?? "1") || 1);
+  const currentPage = parseJournalPage(params?.page);
+  if (currentPage === null) notFound();
   const pageSize = 9;
   const [featuredPost, ...allRestPosts] = publishedPosts;
   const restPosts = allRestPosts.slice(
@@ -34,6 +73,7 @@ export default async function JournalPage({
     currentPage * pageSize,
   );
   const totalPages = Math.max(1, Math.ceil(allRestPosts.length / pageSize));
+  if (currentPage > totalPages) notFound();
 
   return (
     <div className="relative z-10 min-h-screen">
@@ -169,7 +209,8 @@ export default async function JournalPage({
               return (
                 <Link
                   key={page}
-                  href={page === 1 ? "/journal" : `/journal?page=${page}`}
+                  href={journalPagePath(page) as Route}
+                  aria-current={page === currentPage ? "page" : undefined}
                   className={`rounded-full border px-4 py-2 text-sm font-semibold ${
                     page === currentPage
                       ? "border-purple-mid bg-ink-strong text-canvas"

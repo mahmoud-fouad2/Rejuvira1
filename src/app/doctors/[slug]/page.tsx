@@ -20,6 +20,7 @@ import {
 import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
 import { getSiteUrl } from "@/lib/seo";
+import { publicServiceSlug } from "@/lib/public-service-slug";
 
 export async function generateMetadata({
   params,
@@ -153,14 +154,15 @@ export default async function DoctorDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [doctor, services, devices, runtimeSettings, nonce] =
-    await Promise.all([
+  const [doctor, services, devices, runtimeSettings, nonce] = await Promise.all(
+    [
       getDoctorBySlug(slug),
       getServices(),
       getDevices(),
       getRuntimeSettings(),
       getCspNonce(),
-    ]);
+    ],
+  );
 
   if (!doctor) {
     notFound();
@@ -432,7 +434,7 @@ export default async function DoctorDetailPage({
               {relatedServices.map((service) => (
                 <Link
                   key={service.id}
-                  href={`/services/${service.slug}` as Route}
+                  href={`/services/${publicServiceSlug(service.slug)}` as Route}
                   className="rv-doctor-relcard"
                 >
                   <span className="rv-doctor-relcard-image">
@@ -555,7 +557,9 @@ export default async function DoctorDetailPage({
       <StickyMobileCta
         titleAr={doctor.name}
         titleEn={doctor.nameEn ?? doctor.name}
-        whatsappNumber={runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone}
+        whatsappNumber={
+          runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone
+        }
         bookingHref="/contact"
         whatsappMessage={`مرحباً ريجوفيرا، أود حجز استشارة طبية مع ${doctor.name}.`}
       />

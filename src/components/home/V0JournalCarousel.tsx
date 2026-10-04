@@ -107,7 +107,7 @@ export function V0JournalCarousel({ posts, fallbackImage }: Props) {
                     fill
                     sizes="(max-width: 768px) 86vw, 23rem"
                     className="object-cover"
-                    loading={i < 2 ? "eager" : "lazy"}
+                    loading="lazy"
                   />
                 </span>
                 <span className="rv-v0-home-journal-body">

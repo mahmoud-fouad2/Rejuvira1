@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { StickyMobileCta } from "@/components/public/StickyMobileCta";
+import { ServiceSearchQuestions } from "@/components/public/ServiceSearchQuestions";
 import { getCspNonce } from "@/lib/csp-nonce";
 import {
   getDoctors,
@@ -16,13 +17,19 @@ import {
 import { getCoreServiceSeo } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
 import { getSiteUrl } from "@/lib/seo";
+import { publicServiceSlug } from "@/lib/public-service-slug";
+import { hasEnglishServiceContent, resolveServiceSeo } from "@/lib/service-seo";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const publicSlug = publicServiceSlug(slug);
+  if (publicSlug !== slug) permanentRedirect(`/services/${publicSlug}`);
   const service = await getServiceBySlug(slug);
 
   if (!service) {
@@ -31,34 +38,17 @@ export async function generateMetadata({
     };
   }
 
-  const canonicalUrl = `${getSiteUrl()}/services/${service.slug}`;
+  const arUrl = new URL(`/services/${service.slug}`, getSiteUrl()).href;
   const coreSeo = getCoreServiceSeo(service);
-  const titleAr =
-    service.seoTitleAr ?? coreSeo?.seoTitleAr ?? `${service.name} | ريجوفيرا`;
-  // Deliberately does NOT fall back to service.name (Arabic) here: this value
-  // is concatenated into the page <title>/OG title as "titleAr — titleEn", so
-  // falling back to the Arabic name would duplicate it into the English half
-  // (confirmed live for a service missing nameEn). A generic brand fallback
-  // keeps the title valid without duplicating content.
-  const titleEn =
-    service.seoTitleEn ??
-    coreSeo?.seoTitleEn ??
-    `${service.nameEn ?? "Rejuvera Medical Center"} | Rejuvera`;
-  const descriptionAr =
-    service.seoDescriptionAr ?? coreSeo?.seoDescriptionAr ?? service.excerpt;
-  // Same reasoning as titleEn above: do not fall back to service.excerpt
-  // (Arabic) here, since it would duplicate the Arabic text already used for
-  // descriptionAr into the "English" half of the meta description.
-  const descriptionEn =
-    service.seoDescriptionEn ??
-    coreSeo?.seoDescriptionEn ??
-    service.excerptEn ??
-    "Learn more about this service at Rejuvera Medical Center in Riyadh.";
-  const title = `${titleAr} — ${titleEn}`;
-  const description = `${descriptionAr} ${descriptionEn}`;
+  const seo = resolveServiceSeo(service, coreSeo);
+  const hasEnglish = hasEnglishServiceContent(service);
+  const english = hasEnglish && (await searchParams).lang === "en";
+  const canonicalUrl = english ? `${arUrl}?lang=en` : arUrl;
+  const title = english ? seo.titleEn : seo.titleAr;
+  const description = english ? seo.descriptionEn : seo.descriptionAr;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     keywords: [
       service.name,
@@ -80,8 +70,8 @@ export async function generateMetadata({
       title,
       description,
       url: canonicalUrl,
-      locale: "ar_SA",
-      alternateLocale: "en_US",
+      locale: english ? "en_US" : "ar_SA",
+      ...(hasEnglish ? { alternateLocale: english ? "ar_SA" : "en_US" } : {}),
       images: [service.coverImageUrl],
     },
     twitter: {
@@ -93,11 +83,12 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ar: canonicalUrl,
-        "ar-SA": canonicalUrl,
-        en: `${canonicalUrl}?lang=en`,
-        "en-US": `${canonicalUrl}?lang=en`,
-        "x-default": canonicalUrl,
+        ar: arUrl,
+        "ar-SA": arUrl,
+        ...(hasEnglish
+          ? { en: `${arUrl}?lang=en`, "en-US": `${arUrl}?lang=en` }
+          : {}),
+        "x-default": arUrl,
       },
     },
     robots: {
@@ -113,14 +104,17 @@ export default async function ServiceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [service, doctors, devices, runtimeSettings, nonce] =
-    await Promise.all([
+  const publicSlug = publicServiceSlug(slug);
+  if (publicSlug !== slug) permanentRedirect(`/services/${publicSlug}`);
+  const [service, doctors, devices, runtimeSettings, nonce] = await Promise.all(
+    [
       getServiceBySlug(slug),
       getDoctors(),
       getDevices(),
       getRuntimeSettings(),
       getCspNonce(),
-    ]);
+    ],
+  );
 
   if (!service) {
     notFound();
@@ -404,11 +398,14 @@ export default async function ServiceDetailPage({
             </article>
           </div>
         </section>
+        <ServiceSearchQuestions slug={service.slug} />
       </main>
       <StickyMobileCta
         titleAr={service.name}
         titleEn={service.nameEn ?? service.name}
-        whatsappNumber={runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone}
+        whatsappNumber={
+          runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone
+        }
         bookingHref="/contact"
         whatsappMessage={`مرحباً ريجوفيرا، أود حجز استشارة لخدمة ${service.name}.`}
       />

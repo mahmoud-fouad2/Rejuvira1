@@ -20,7 +20,7 @@ function getCanonicalPath(path: string): string {
 
 function buildAlternates(path: string) {
   const url = getCanonicalPath(path);
-  const enUrl = path === "/" ? `${url}?lang=en` : `${url}?lang=en`;
+  const enUrl = `${url}${url.includes("?") ? "&" : "?"}lang=en`;
   const arUrl = url;
   return {
     canonical: arUrl,

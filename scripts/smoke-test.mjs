@@ -20,7 +20,7 @@ const checks = [
   {
     path: "/sitemap.xml",
     type: "application/xml",
-    contains: ["<urlset", "https://rejuvera.sa"],
+    contains: ["<sitemapindex", "https://rejuvera.sa"],
   },
   {
     path: "/robots.txt",
@@ -128,7 +128,10 @@ console.log(
 // --- Patient portal auth boundaries -------------------------------------
 // Unauthenticated access to the portal must never leak data: pages redirect
 // to /patient-login and the PDF/document APIs return 401.
-async function expectAuthGate(path, { allow = [301, 302, 307, 308, 401, 403] } = {}) {
+async function expectAuthGate(
+  path,
+  { allow = [301, 302, 307, 308, 401, 403] } = {},
+) {
   const response = await fetch(`${baseUrl}${path}`, {
     redirect: "manual",
     headers: { "user-agent": "rejuvera-smoke-test/1.0" },
@@ -152,11 +155,31 @@ await expectAuthGate("/portal");
 await expectAuthGate("/portal/messages");
 await expectAuthGate("/portal/documents");
 await expectAuthGate("/portal/account");
-await expectAuthGate("/api/portal/procedures/00000000-0000-0000-0000-000000000000/pdf");
-await expectAuthGate("/api/portal/documents/00000000-0000-0000-0000-000000000000");
+await expectAuthGate(
+  "/api/portal/procedures/00000000-0000-0000-0000-000000000000/pdf",
+);
+// This endpoint is not implemented. Its 404 is distinct from an auth gate.
+const unavailableDocumentPath =
+  "/api/portal/documents/00000000-0000-0000-0000-000000000000";
+const unavailableDocument = await fetch(
+  `${baseUrl}${unavailableDocumentPath}`,
+  { redirect: "manual" },
+);
+if (unavailableDocument.status !== 404) {
+  failures.push({
+    path: unavailableDocumentPath,
+    status: unavailableDocument.status,
+    reason: "unimplemented-document-route-did-not-404",
+  });
+}
+console.log(
+  `${unavailableDocument.status === 404 ? "PASS" : "FAIL"} ${unavailableDocument.status} ${unavailableDocumentPath} (unavailable route)`,
+);
 // Admin patient area must reject anonymous users (redirect to /login).
 await expectAuthGate("/admin/patients");
-await expectAuthGate("/api/admin/patients/procedures/00000000-0000-0000-0000-000000000000/pdf");
+await expectAuthGate(
+  "/api/admin/patients/procedures/00000000-0000-0000-0000-000000000000/pdf",
+);
 
 if (failures.length) {
   console.error("\nSmoke test failures:");

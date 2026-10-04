@@ -7,6 +7,7 @@ import {
   shouldRedirectToCanonicalHost,
 } from "@/lib/canonical-host";
 import { buildCsp } from "@/lib/csp";
+import { publicServiceSlug } from "@/lib/public-service-slug";
 
 /**
  * Edge middleware:
@@ -53,6 +54,24 @@ export default auth((request) => {
       buildCanonicalUrl(nextUrl.pathname, nextUrl.search),
       308,
     );
+  }
+
+  // Repair the verified legacy breast-lift URL before rendering/streaming.
+  if (nextUrl.pathname.startsWith("/services/")) {
+    try {
+      const slug = decodeURIComponent(
+        nextUrl.pathname.slice("/services/".length),
+      );
+      const publicSlug = publicServiceSlug(slug);
+      if (publicSlug !== slug) {
+        return NextResponse.redirect(
+          buildCanonicalUrl(`/services/${publicSlug}`, nextUrl.search),
+          308,
+        );
+      }
+    } catch {
+      // Leave malformed encoded paths to the normal route handler.
+    }
   }
 
   if (nextUrl.pathname === "/career") {

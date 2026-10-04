@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { JournalBody } from "@/components/public/JournalBody";
 import { getCspNonce } from "@/lib/csp-nonce";
 import {
   getDoctors,
@@ -12,11 +13,14 @@ import {
   getServices,
 } from "@/lib/content-repository";
 import { getSiteUrl } from "@/lib/seo";
+import { hasEnglishJournalContent } from "@/lib/journal-content";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getJournalPostBySlug(slug);
@@ -30,35 +34,42 @@ export async function generateMetadata({
     };
   }
 
-  const canonicalUrl = `${getSiteUrl()}/journal/${post.slug}`;
+  const hasEnglish = hasEnglishJournalContent(post);
+  const english = hasEnglish && (await searchParams).lang === "en";
+  const arUrl = `${getSiteUrl()}/journal/${post.slug}`;
+  const canonicalUrl = english ? `${arUrl}?lang=en` : arUrl;
+  const title = english ? post.titleEn! : post.title;
+  const description = english ? post.excerptEn! : post.excerpt;
 
   return {
-    title: post.title,
-    description: post.excerpt,
+    title,
+    description,
     alternates: {
       canonical: canonicalUrl,
       languages: {
-        ar: canonicalUrl,
-        "ar-SA": canonicalUrl,
-        en: `${canonicalUrl}?lang=en`,
-        "en-US": `${canonicalUrl}?lang=en`,
-        "x-default": canonicalUrl,
+        ar: arUrl,
+        "ar-SA": arUrl,
+        ...(hasEnglish
+          ? { en: `${arUrl}?lang=en`, "en-US": `${arUrl}?lang=en` }
+          : {}),
+        "x-default": arUrl,
       },
     },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       url: canonicalUrl,
       images: [post.coverImageUrl],
       type: "article",
       publishedTime: post.publishedAt,
-      locale: "ar_SA",
-      alternateLocale: "en_US",
+      locale: english ? "en_US" : "ar_SA",
+      ...(hasEnglish ? { alternateLocale: english ? "ar_SA" : "en_US" } : {}),
+      ...(post.updatedAt ? { modifiedTime: post.updatedAt } : {}),
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
+      title,
+      description,
       images: [post.coverImageUrl],
     },
     robots: {
@@ -76,8 +87,10 @@ export async function generateMetadata({
 
 export default async function JournalDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }) {
   const { slug } = await params;
   const post = await getJournalPostBySlug(slug);
@@ -95,6 +108,12 @@ export default async function JournalDetailPage({
     getCspNonce(),
   ]);
 
+  const english =
+    hasEnglishJournalContent(post) && (await searchParams).lang === "en";
+  const articleTitle = english ? post.titleEn! : post.title;
+  const articleExcerpt = english ? post.excerptEn! : post.excerpt;
+  const articleBody = english ? post.bodyEn! : post.body;
+  const articleLang = english ? "en" : "ar";
   const relatedServiceSlugSet = new Set(post.relatedServiceSlugs);
   const doctorsBySlug = new Map(doctors.map((doctor) => [doctor.slug, doctor]));
   const relatedServices = services.filter((service) =>
@@ -103,17 +122,18 @@ export default async function JournalDetailPage({
   const relatedDoctors = post.relatedDoctorSlugs
     .map((doctorSlug) => doctorsBySlug.get(doctorSlug))
     .filter((doctor) => doctor !== undefined);
-  const postUrl = `${getSiteUrl()}/journal/${post.slug}`;
+  const postUrl = `${getSiteUrl()}/journal/${post.slug}${english ? "?lang=en" : ""}`;
   const journalJsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "@id": `${postUrl}#article`,
-    headline: post.title,
-    description: post.excerpt,
+    headline: articleTitle,
+    description: articleExcerpt,
     image: post.coverImageUrl,
     datePublished: post.publishedAt,
+    ...(post.updatedAt ? { dateModified: post.updatedAt } : {}),
     url: postUrl,
-    inLanguage: ["ar", "en"],
+    inLanguage: articleLang,
     mainEntityOfPage: postUrl,
     publisher: {
       "@id": `${getSiteUrl()}#organization`,
@@ -138,7 +158,7 @@ export default async function JournalDetailPage({
       {
         "@type": "ListItem",
         position: 3,
-        name: post.title,
+        name: articleTitle,
         item: postUrl,
       },
     ],
@@ -165,52 +185,37 @@ export default async function JournalDetailPage({
       />
       <SiteHeader />
       <main className="section-shell pt-8 pb-20">
-        <section className="surface-panel rounded-[2.5rem] p-7 lg:p-10">
+        <section
+          lang={articleLang}
+          dir={english ? "ltr" : "rtl"}
+          className="surface-panel rounded-[2.5rem] p-7 lg:p-10"
+        >
           <p className="text-ink-soft font-mono text-xs tracking-[0.36em] uppercase">
             {post.category}
           </p>
-          <h1 className="balanced-text text-ink mt-4 font-serif text-4xl md:text-5xl leading-[1.15] tracking-[-0.02em]">
-            {post.title}
+          <h1 className="balanced-text text-ink mt-4 font-serif text-4xl leading-[1.15] tracking-[-0.02em] md:text-5xl">
+            {articleTitle}
           </h1>
           <div className="text-ink-faint mt-5 flex flex-wrap gap-3 text-sm">
             <span>{post.readingTime}</span>
             <span>
-              {new Date(post.publishedAt).toLocaleDateString("ar-SA")}
+              {new Date(post.publishedAt).toLocaleDateString(
+                english ? "en-US" : "ar-SA",
+              )}
             </span>
           </div>
-          <p className="text-ink-soft mt-6 max-w-3xl text-base md:text-lg leading-8">
-            {post.excerpt}
+          <p className="text-ink-soft mt-6 max-w-3xl text-base leading-8 md:text-lg">
+            {articleExcerpt}
           </p>
         </section>
 
         <section className="mt-6 grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-          <article className="surface-panel rounded-[2.5rem] p-7 lg:p-10">
-            <div className="grid gap-6">
-              {post.body.map((paragraph) => {
-                const looksLikeHtml =
-                  /<\/?(?:p|h2|h3|h4|ul|ol|li|blockquote|figure|img|hr|div|strong|em|a)\b/i.test(
-                    paragraph,
-                  );
-                if (looksLikeHtml) {
-                  return (
-                    <div
-                      key={paragraph}
-                      className="rv-journal-prose text-ink-strong/90 text-base md:text-lg leading-[2] md:leading-[2.2]"
-                      // sanitized server-side in admin actions before persistence.
-                      dangerouslySetInnerHTML={{ __html: paragraph }}
-                    />
-                  );
-                }
-                return (
-                  <p
-                    key={paragraph}
-                    className="text-ink-strong/90 text-base md:text-lg leading-[2] md:leading-[2.2]"
-                  >
-                    {paragraph}
-                  </p>
-                );
-              })}
-            </div>
+          <article
+            lang={articleLang}
+            dir={english ? "ltr" : "rtl"}
+            className="surface-panel rounded-[2.5rem] p-7 lg:p-10"
+          >
+            <JournalBody body={articleBody} title={articleTitle} />
           </article>
           <div className="grid gap-5">
             <article className="surface-panel rounded-[2rem] p-6">
@@ -222,7 +227,7 @@ export default async function JournalDetailPage({
                   <Link
                     key={service.id}
                     href={`/services/${service.slug}`}
-                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-4 py-4 text-sm hover:border-purple-mid/40 transition-colors"
+                    className="border-line bg-surface text-ink-soft hover:border-purple-mid/40 rounded-[1.4rem] border px-4 py-4 text-sm transition-colors"
                   >
                     <span className="text-ink block font-semibold">
                       {service.name}
@@ -243,7 +248,7 @@ export default async function JournalDetailPage({
                   <Link
                     key={doctor.id}
                     href={`/doctors/${doctor.slug}`}
-                    className="border-line bg-surface text-ink-soft rounded-[1.4rem] border px-4 py-4 text-sm hover:border-purple-mid/40 transition-colors"
+                    className="border-line bg-surface text-ink-soft hover:border-purple-mid/40 rounded-[1.4rem] border px-4 py-4 text-sm transition-colors"
                   >
                     <span className="text-ink block font-semibold">
                       {doctor.name}
@@ -268,7 +273,7 @@ export default async function JournalDetailPage({
               </p>
               <Link
                 href="/contact"
-                className="bg-ink text-canvas mt-5 inline-flex rounded-full px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
+                className="bg-ink text-canvas mt-5 inline-flex rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
               >
                 ابدئي مسار التواصل
               </Link>

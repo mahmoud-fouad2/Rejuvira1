@@ -11,6 +11,9 @@ import {
 } from "@/lib/content-repository";
 import { getCoreServiceDefinition } from "@/lib/core-search";
 import { getSiteUrl } from "@/lib/seo";
+import { hasEnglishJournalContent } from "@/lib/journal-content";
+import { publicServiceSlug } from "@/lib/public-service-slug";
+import { hasEnglishServiceContent } from "@/lib/service-seo";
 
 export const SITEMAP_PATHS = {
   index: "/sitemap.xml",
@@ -37,6 +40,7 @@ export type SitemapEntry = {
   priority: number;
   changeFrequency: ChangeFrequency;
   lastModified?: string | null;
+  hasEnglishContent?: boolean;
   images?: ReadonlyArray<{
     url: string;
     title?: string | null;
@@ -65,16 +69,20 @@ function isCleanSitemapPath(path: string) {
   if (!path.startsWith("/")) return false;
   if (path === "/career" || path === "/career/") return false;
   if (path.endsWith("/")) return false;
-  if (/\s/.test(path)) return false;
-  if (/[A-Z]/.test(path)) return false;
-  if (/[^\x00-\x7F]/.test(path)) return false;
+  if (/[?#]/.test(path)) return false;
+  if (
+    path.startsWith("/services/") &&
+    publicServiceSlug(path.slice("/services/".length)) !==
+      path.slice("/services/".length)
+  )
+    return false;
   return true;
 }
 
 export function absoluteUrl(pathOrUrl: string) {
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
   const path = normalizePath(pathOrUrl);
-  return `${getSiteUrl()}${path === "/" ? "/" : path}`;
+  return new URL(path, `${getSiteUrl()}/`).href;
 }
 
 function withEnglishVariant(url: string) {
@@ -116,7 +124,8 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
     getCustomPages(),
   ]);
 
-  const now = new Date().toISOString();
+  // Unknown content timestamps are omitted, not replaced with the crawl time.
+  const unknownLastModified = null;
   const staticEntries: SitemapEntry[] = [
     {
       path: "/",
@@ -124,7 +133,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       description: runtimeSettings.brand.seoDescription,
       priority: 1,
       changeFrequency: "weekly",
-      lastModified: now,
+      lastModified: unknownLastModified,
       images: compactImages([
         {
           url: runtimeSettings.media.ogImage,
@@ -142,35 +151,35 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       title: "عن Rejuvera Center",
       priority: 0.8,
       changeFrequency: "monthly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
     {
       path: "/contact",
       title: "تواصل معنا",
       priority: 0.9,
       changeFrequency: "monthly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
     {
       path: "/services",
       title: "الخدمات الطبية والتجميلية",
       priority: 0.95,
       changeFrequency: "weekly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
     {
       path: "/doctors",
       title: "الأطباء",
       priority: 0.9,
       changeFrequency: "weekly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
     {
       path: "/devices",
       title: "الأجهزة الطبية",
       priority: 0.85,
       changeFrequency: "weekly",
-      lastModified: now,
+      lastModified: unknownLastModified,
       images: compactImages(
         devices.filter(isPublished).map((device) => ({
           url: device.imageUrl,
@@ -184,7 +193,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       title: "معرض النتائج",
       priority: 0.7,
       changeFrequency: "weekly",
-      lastModified: now,
+      lastModified: unknownLastModified,
       images: compactImages(
         galleryItems.filter(isPublished).flatMap((item) => [
           {
@@ -205,28 +214,29 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       title: "المجلة الطبية",
       priority: 0.8,
       changeFrequency: "weekly",
-      lastModified: now,
+      lastModified: unknownLastModified,
+      hasEnglishContent: false,
     },
     {
       path: "/career",
       title: "التوظيف في Rejuvera Center",
       priority: 0.5,
       changeFrequency: "monthly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
     {
       path: "/privacy",
       title: "سياسة الخصوصية",
       priority: 0.4,
       changeFrequency: "yearly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
     {
       path: "/terms",
       title: "الشروط والأحكام",
       priority: 0.4,
       changeFrequency: "yearly",
-      lastModified: now,
+      lastModified: unknownLastModified,
     },
   ];
 
@@ -240,7 +250,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
         doctor.slug === "loai-alsalmi"
           ? ("weekly" as const)
           : ("monthly" as const),
-      lastModified: now,
+      lastModified: doctor.updatedAt ?? null,
       images: compactImages([
         {
           url: doctor.coverImageUrl || doctor.photoUrl,
@@ -257,7 +267,8 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       changeFrequency: getCoreServiceDefinition(service)
         ? ("weekly" as const)
         : ("monthly" as const),
-      lastModified: now,
+      lastModified: service.updatedAt ?? null,
+      hasEnglishContent: hasEnglishServiceContent(service),
       images: compactImages([
         {
           url: service.coverImageUrl,
@@ -272,7 +283,8 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       description: post.excerpt,
       priority: 0.65,
       changeFrequency: "monthly" as const,
-      lastModified: post.publishedAt,
+      lastModified: post.updatedAt ?? post.publishedAt,
+      hasEnglishContent: hasEnglishJournalContent(post),
       images: compactImages([
         {
           url: post.coverImageUrl,
@@ -317,7 +329,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
   });
 }
 
-export function renderSitemapIndexXml(lastModified = new Date().toISOString()) {
+export function renderSitemapIndexXml(lastModified?: string) {
   const sitemapUrls = [SITEMAP_PATHS.pages, SITEMAP_PATHS.images];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -326,7 +338,7 @@ ${sitemapUrls
   .map(
     (path) => `  <sitemap>
     <loc>${escapeXml(absoluteUrl(path))}</loc>
-    <lastmod>${escapeXml(lastModified)}</lastmod>
+    ${lastModified ? `<lastmod>${escapeXml(lastModified)}</lastmod>` : ""}
   </sitemap>`,
   )
   .join("\n")}
@@ -342,13 +354,17 @@ ${entries
     const url = absoluteUrl(entry.path);
     return `  <url>
     <loc>${escapeXml(url)}</loc>
-    <lastmod>${escapeXml(entry.lastModified || new Date().toISOString())}</lastmod>
+    ${entry.lastModified ? `<lastmod>${escapeXml(entry.lastModified)}</lastmod>` : ""}
     <changefreq>${entry.changeFrequency}</changefreq>
     <priority>${entry.priority.toFixed(2)}</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${escapeXml(url)}" />
     <xhtml:link rel="alternate" hreflang="ar-SA" href="${escapeXml(url)}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(withEnglishVariant(url))}" />
-    <xhtml:link rel="alternate" hreflang="en-US" href="${escapeXml(withEnglishVariant(url))}" />
+    ${
+      entry.hasEnglishContent === false
+        ? ""
+        : `<xhtml:link rel="alternate" hreflang="en" href="${escapeXml(withEnglishVariant(url))}" />
+    <xhtml:link rel="alternate" hreflang="en-US" href="${escapeXml(withEnglishVariant(url))}" />`
+    }
     <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(url)}" />
   </url>`;
   })
