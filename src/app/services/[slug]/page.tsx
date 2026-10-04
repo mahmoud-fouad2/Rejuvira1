@@ -7,18 +7,25 @@ import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { StickyMobileCta } from "@/components/public/StickyMobileCta";
 import { ServiceSearchQuestions } from "@/components/public/ServiceSearchQuestions";
+import { ServicePatientGuide } from "@/components/public/ServicePatientGuide";
 import { getCspNonce } from "@/lib/csp-nonce";
 import {
   getDoctors,
   getDevices,
   getRuntimeSettings,
   getServiceBySlug,
+  getServices,
+  getJournalPosts,
 } from "@/lib/content-repository";
 import { getCoreServiceSeo } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import { hasEnglishServiceContent, resolveServiceSeo } from "@/lib/service-seo";
+import {
+  servicePatientGuide,
+  serviceContentModifiedAt,
+} from "@/lib/service-patient-guides";
 
 export async function generateMetadata({
   params,
@@ -32,11 +39,7 @@ export async function generateMetadata({
   if (publicSlug !== slug) permanentRedirect(`/services/${publicSlug}`);
   const service = await getServiceBySlug(slug);
 
-  if (!service) {
-    return {
-      title: "الخدمة غير موجودة | Service not found",
-    };
-  }
+  if (!service || service.status !== ContentStatus.PUBLISHED) notFound();
 
   const arUrl = new URL(`/services/${service.slug}`, getSiteUrl()).href;
   const coreSeo = getCoreServiceSeo(service);
@@ -100,56 +103,68 @@ export async function generateMetadata({
 
 export default async function ServiceDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }) {
   const { slug } = await params;
   const publicSlug = publicServiceSlug(slug);
   if (publicSlug !== slug) permanentRedirect(`/services/${publicSlug}`);
-  const [service, doctors, devices, runtimeSettings, nonce] = await Promise.all(
-    [
+  const [service, doctors, devices, runtimeSettings, nonce, services, posts] =
+    await Promise.all([
       getServiceBySlug(slug),
       getDoctors(),
       getDevices(),
       getRuntimeSettings(),
       getCspNonce(),
-    ],
-  );
+      getServices(),
+      getJournalPosts(),
+    ]);
 
-  if (!service) {
+  if (!service || service.status !== ContentStatus.PUBLISHED) {
     notFound();
   }
 
   const doctorSlugSet = new Set(service.doctorSlugs);
   const deviceSlugSet = new Set(service.deviceSlugs);
-  const relatedDoctors = doctors.filter((doctor) =>
-    doctorSlugSet.has(doctor.slug),
+  const relatedDoctors = doctors.filter(
+    (doctor) =>
+      doctor.status === ContentStatus.PUBLISHED &&
+      doctorSlugSet.has(doctor.slug),
   );
   const relatedDevices = devices.filter(
     (device) =>
       device.status === ContentStatus.PUBLISHED &&
       deviceSlugSet.has(device.slug),
   );
-  const serviceUrl = `${getSiteUrl()}/services/${service.slug}`;
+  const english =
+    hasEnglishServiceContent(service) && (await searchParams).lang === "en";
+  const serviceUrl = `${getSiteUrl()}/services/${service.slug}${english ? "?lang=en" : ""}`;
+  const guide = servicePatientGuide(service.slug);
   const serviceJsonLd = {
     "@context": "https://schema.org",
-    "@type": "MedicalProcedure",
-    "@id": `${serviceUrl}#procedure`,
-    name: service.name,
-    alternateName: service.nameEn,
-    description: service.description,
+    "@type": "MedicalWebPage",
+    "@id": `${serviceUrl}#webpage`,
+    name: english ? service.nameEn : service.name,
+    description: english ? service.descriptionEn : service.description,
     image: service.coverImageUrl,
     url: serviceUrl,
-    procedureType: service.category,
-    inLanguage: ["ar", "en"],
-    areaServed: {
-      "@type": "City",
-      name: "Riyadh",
+    inLanguage: english ? "en" : "ar",
+    dateModified: serviceContentModifiedAt(service.updatedAt),
+    isPartOf: { "@id": `${getSiteUrl()}#website` },
+    publisher: { "@id": `${getSiteUrl()}#organization` },
+    ...(guide ? { citation: guide.sources.map((source) => source.url) } : {}),
+    mainEntity: {
+      "@type": "Service",
+      "@id": `${getSiteUrl()}/services/${service.slug}#service`,
+      name: english ? service.nameEn : service.name,
+      serviceType: english
+        ? (service.categoryEn ?? service.category)
+        : service.category,
+      provider: { "@id": `${getSiteUrl()}#organization` },
+      areaServed: { "@type": "City", name: "Riyadh" },
     },
-    provider: {
-      "@id": `${getSiteUrl()}#organization`,
-    },
-    mainEntityOfPage: serviceUrl,
   };
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -398,7 +413,16 @@ export default async function ServiceDetailPage({
             </article>
           </div>
         </section>
-        <ServiceSearchQuestions slug={service.slug} />
+        <ServicePatientGuide
+          service={service}
+          services={services}
+          posts={posts}
+        />
+        <ServiceSearchQuestions
+          slug={service.slug}
+          name={service.name}
+          nameEn={service.nameEn}
+        />
       </main>
       <StickyMobileCta
         titleAr={service.name}

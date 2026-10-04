@@ -14,6 +14,8 @@ import { getSiteUrl } from "@/lib/seo";
 import { hasEnglishJournalContent } from "@/lib/journal-content";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import { hasEnglishServiceContent } from "@/lib/service-seo";
+import { hasEnglishDoctorContent } from "@/lib/seo-localization";
+import { serviceContentModifiedAt } from "@/lib/service-patient-guides";
 
 export const SITEMAP_PATHS = {
   index: "/sitemap.xml",
@@ -127,6 +129,15 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
   // Unknown content timestamps are omitted, not replaced with the crawl time.
   const unknownLastModified = null;
   const staticEntries: SitemapEntry[] = [
+    {
+      path: "/site-map",
+      title: "دليل صفحات ريجوفيرا",
+      description:
+        "الخدمات والأطباء والمقالات والصفحات العامة المنشورة في موقع ريجوفيرا.",
+      priority: 0.6,
+      changeFrequency: "weekly",
+      lastModified: null,
+    },
     {
       path: "/",
       title: runtimeSettings.brand.siteName,
@@ -251,6 +262,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
           ? ("weekly" as const)
           : ("monthly" as const),
       lastModified: doctor.updatedAt ?? null,
+      hasEnglishContent: hasEnglishDoctorContent(doctor),
       images: compactImages([
         {
           url: doctor.coverImageUrl || doctor.photoUrl,
@@ -267,7 +279,7 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
       changeFrequency: getCoreServiceDefinition(service)
         ? ("weekly" as const)
         : ("monthly" as const),
-      lastModified: service.updatedAt ?? null,
+      lastModified: serviceContentModifiedAt(service.updatedAt),
       hasEnglishContent: hasEnglishServiceContent(service),
       images: compactImages([
         {

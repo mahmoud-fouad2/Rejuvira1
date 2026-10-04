@@ -2,8 +2,16 @@ import Link from "next/link";
 
 import { serviceSearchQuestions } from "@/lib/service-search-content";
 
-export function ServiceSearchQuestions({ slug }: { slug: string }) {
-  const questions = serviceSearchQuestions(slug);
+export function ServiceSearchQuestions({
+  slug,
+  name,
+  nameEn,
+}: {
+  slug: string;
+  name: string;
+  nameEn?: string | null | undefined;
+}) {
+  const questions = serviceSearchQuestions(slug, name, nameEn);
   if (!questions.length) return null;
   return (
     <section

@@ -1,4 +1,10 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import {
+  localizedSeoValues,
+  seoLanguageFromUrl,
+  type SeoLanguage,
+} from "@/lib/seo-localization";
 
 import { getCanonicalOrigin } from "@/lib/canonical-host";
 import {
@@ -18,22 +24,6 @@ function getCanonicalPath(path: string): string {
   return `${getSiteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
 }
 
-function buildAlternates(path: string) {
-  const url = getCanonicalPath(path);
-  const enUrl = `${url}${url.includes("?") ? "&" : "?"}lang=en`;
-  const arUrl = url;
-  return {
-    canonical: arUrl,
-    languages: {
-      ar: arUrl,
-      "ar-SA": arUrl,
-      en: enUrl,
-      "en-US": enUrl,
-      "x-default": arUrl,
-    },
-  };
-}
-
 export type BuildMetadataInput = {
   page: SeoPageKey;
   path: string;
@@ -43,6 +33,8 @@ export type BuildMetadataInput = {
   overrideDescriptionAr?: string;
   overrideDescriptionEn?: string;
   overrideKeywords?: string;
+  language?: SeoLanguage;
+  hasEnglish?: boolean;
 };
 
 export async function buildPageMetadata(
@@ -57,24 +49,38 @@ export async function buildPageMetadata(
   const keywords =
     input.overrideKeywords ??
     [pageSeo.keywordsAr, pageSeo.keywordsEn].filter(Boolean).join(", ");
-  const title = `${titleAr} — ${titleEn}`;
-  const description = `${descAr} ${descEn}`.trim();
-  const canonicalUrl = getCanonicalPath(input.path);
+  const language =
+    input.language ?? seoLanguageFromUrl((await headers()).get("x-url"));
+  const localized = localizedSeoValues({
+    language,
+    titleAr,
+    titleEn,
+    descriptionAr: descAr,
+    descriptionEn: descEn,
+    url: getCanonicalPath(input.path),
+    ...(input.hasEnglish !== undefined ? { hasEnglish: input.hasEnglish } : {}),
+  });
+  const { title, description } = localized;
   const ogImage =
     input.ogImage ?? settings.media.ogImage ?? "/media/og/og-default.png";
 
   return {
     metadataBase: new URL(getSiteUrl()),
-    title,
+    title: { absolute: title },
     description,
     keywords,
-    alternates: buildAlternates(input.path),
+    alternates: {
+      canonical: localized.canonical,
+      languages: localized.languages,
+    },
     openGraph: {
       type: "website",
-      url: canonicalUrl,
+      url: localized.canonical,
       siteName: settings.brand.siteName,
-      locale: "ar_SA",
-      alternateLocale: "en_US",
+      locale: localized.locale,
+      ...(localized.alternateLocale
+        ? { alternateLocale: localized.alternateLocale }
+        : {}),
       title,
       description,
       images: [

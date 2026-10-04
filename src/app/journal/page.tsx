@@ -29,6 +29,7 @@ export async function generateMetadata({
   const metadata = await buildPageMetadata({
     page: "journal",
     path: journalPagePath(page),
+    hasEnglish: false,
   });
   const canonicalUrl = new URL(journalPagePath(page), getSiteUrl()).href;
   return {

@@ -2743,9 +2743,7 @@ export const getDoctors = cache(async () => {
       specialty: doctor.specialtyAr,
       specialtyEn: doctor.specialtyEn,
       summary: toDoctorSummary(doctor.publications, doctor.bioAr),
-      summaryEn: doctor.bioEn
-        ? toDoctorSummary(doctor.publications, doctor.bioEn)
-        : null,
+      summaryEn: doctor.bioEn ? toDoctorSummary([], doctor.bioEn) : null,
       bio: doctor.bioAr,
       bioEn: doctor.bioEn,
       photoUrl: toDoctorAsset(doctor.slug, doctor.photoUrl),

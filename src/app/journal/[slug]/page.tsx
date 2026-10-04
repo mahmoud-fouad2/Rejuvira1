@@ -116,12 +116,15 @@ export default async function JournalDetailPage({
   const articleLang = english ? "en" : "ar";
   const relatedServiceSlugSet = new Set(post.relatedServiceSlugs);
   const doctorsBySlug = new Map(doctors.map((doctor) => [doctor.slug, doctor]));
-  const relatedServices = services.filter((service) =>
-    relatedServiceSlugSet.has(service.slug),
+  const relatedServices = services.filter(
+    (service) =>
+      service.status === ContentStatus.PUBLISHED &&
+      relatedServiceSlugSet.has(service.slug),
   );
   const relatedDoctors = post.relatedDoctorSlugs
     .map((doctorSlug) => doctorsBySlug.get(doctorSlug))
-    .filter((doctor) => doctor !== undefined);
+    .filter((doctor) => doctor !== undefined)
+    .filter((doctor) => doctor.status === ContentStatus.PUBLISHED);
   const postUrl = `${getSiteUrl()}/journal/${post.slug}${english ? "?lang=en" : ""}`;
   const journalJsonLd = {
     "@context": "https://schema.org",
@@ -198,11 +201,19 @@ export default async function JournalDetailPage({
           </h1>
           <div className="text-ink-faint mt-5 flex flex-wrap gap-3 text-sm">
             <span>{post.readingTime}</span>
-            <span>
+            <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString(
                 english ? "en-US" : "ar-SA",
               )}
-            </span>
+            </time>
+            {post.updatedAt && (
+              <time dateTime={post.updatedAt}>
+                {english ? "Updated: " : "آخر تحديث: "}
+                {new Date(post.updatedAt).toLocaleDateString(
+                  english ? "en-US" : "ar-SA",
+                )}
+              </time>
+            )}
           </div>
           <p className="text-ink-soft mt-6 max-w-3xl text-base leading-8 md:text-lg">
             {articleExcerpt}

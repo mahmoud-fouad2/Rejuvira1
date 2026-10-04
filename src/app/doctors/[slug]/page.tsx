@@ -21,20 +21,22 @@ import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
+import {
+  hasEnglishDoctorContent,
+  localizedSeoValues,
+} from "@/lib/seo-localization";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const doctor = await getDoctorBySlug(slug);
 
-  if (!doctor) {
-    return {
-      title: "الطبيب غير موجود",
-    };
-  }
+  if (!doctor || doctor.status !== ContentStatus.PUBLISHED) notFound();
 
   const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
   const isLoai = doctor.slug === "loai-alsalmi";
@@ -50,11 +52,19 @@ export async function generateMetadata({
   const descriptionEn = isLoai
     ? "Medical profile of Dr. Loai Al-Salmi, consultant plastic and reconstructive surgeon at Rejuvera Riyadh, with specialist assessment for facelift, neck lift, lipedema, and plastic surgery."
     : (doctor.summaryEn ?? doctor.summary);
-  const title = `${titleAr} — ${titleEn}`;
-  const description = `${descriptionAr} ${descriptionEn}`;
+  const localized = localizedSeoValues({
+    language: (await searchParams).lang === "en" ? "en" : "ar",
+    titleAr,
+    titleEn,
+    descriptionAr,
+    descriptionEn,
+    url: canonicalUrl,
+    hasEnglish: hasEnglishDoctorContent(doctor),
+  });
+  const { title, description } = localized;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     keywords: [
       doctor.name,
@@ -71,10 +81,12 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      url: canonicalUrl,
+      url: localized.canonical,
       type: "website",
-      locale: "ar_SA",
-      alternateLocale: "en_US",
+      locale: localized.locale,
+      ...(localized.alternateLocale
+        ? { alternateLocale: localized.alternateLocale }
+        : {}),
       images: [doctor.coverImageUrl],
     },
     twitter: {
@@ -84,14 +96,8 @@ export async function generateMetadata({
       images: [doctor.coverImageUrl],
     },
     alternates: {
-      canonical: canonicalUrl,
-      languages: {
-        ar: canonicalUrl,
-        "ar-SA": canonicalUrl,
-        en: `${canonicalUrl}?lang=en`,
-        "en-US": `${canonicalUrl}?lang=en`,
-        "x-default": canonicalUrl,
-      },
+      canonical: localized.canonical,
+      languages: localized.languages,
     },
     robots: {
       index: true,
@@ -150,8 +156,10 @@ function StarGlyph() {
 
 export default async function DoctorDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }) {
   const { slug } = await params;
   const [doctor, services, devices, runtimeSettings, nonce] = await Promise.all(
@@ -164,15 +172,16 @@ export default async function DoctorDetailPage({
     ],
   );
 
-  if (!doctor) {
+  if (!doctor || doctor.status !== ContentStatus.PUBLISHED) {
     notFound();
   }
 
   const doctorServiceSlugSet = new Set(doctor.serviceSlugs);
   const relatedServices = services.filter(
     (service) =>
-      doctorServiceSlugSet.has(service.slug) ||
-      service.doctorSlugs.includes(doctor.slug),
+      service.status === ContentStatus.PUBLISHED &&
+      (doctorServiceSlugSet.has(service.slug) ||
+        service.doctorSlugs.includes(doctor.slug)),
   );
   const relatedDeviceSlugs = new Set(
     relatedServices.flatMap((service) => service.deviceSlugs),
@@ -190,14 +199,15 @@ export default async function DoctorDetailPage({
     ? `https://wa.me/${waDigits}?text=${encodeURIComponent(`أرغب في حجز استشارة مع ${doctor.name}`)}`
     : null;
   const telHref = `tel:${runtimeSettings.contact.phone.replace(/\D/g, "")}`;
-  const doctorUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
+  const english =
+    hasEnglishDoctorContent(doctor) && (await searchParams).lang === "en";
+  const doctorUrl = `${getSiteUrl()}/doctors/${doctor.slug}${english ? "?lang=en" : ""}`;
   const doctorJsonLd = {
     "@context": "https://schema.org",
     "@type": "Physician",
     "@id": `${doctorUrl}#physician`,
-    name: doctor.name,
-    alternateName: doctor.nameEn,
-    description: doctor.summary,
+    name: english ? doctor.nameEn : doctor.name,
+    description: english ? (doctor.summaryEn ?? doctor.bioEn) : doctor.summary,
     image: doctor.photoUrl,
     medicalSpecialty: doctor.specialty,
     url: doctorUrl,
@@ -211,7 +221,7 @@ export default async function DoctorDetailPage({
     knowsAbout: relatedServices.map(
       (service) => service.nameEn ?? service.name,
     ),
-    inLanguage: ["ar", "en"],
+    inLanguage: english ? "en" : "ar",
     worksFor: {
       "@id": `${getSiteUrl()}#organization`,
     },
@@ -382,7 +392,16 @@ export default async function DoctorDetailPage({
             </h2>
           </header>
           <div className="rv-doctor-block-body">
-            <p className="rv-doctor-bio-text">{doctor.bio}</p>
+            <p className="rv-doctor-bio-text">
+              <span className="lang-ar">{doctor.bio}</span>
+              <span
+                className="lang-en"
+                lang={doctor.bioEn ? "en" : "ar"}
+                dir={doctor.bioEn ? "ltr" : "rtl"}
+              >
+                {doctor.bioEn ?? doctor.bio}
+              </span>
+            </p>
           </div>
         </section>
 

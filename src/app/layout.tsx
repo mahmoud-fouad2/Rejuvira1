@@ -118,7 +118,6 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${runtimeSettings.brand.siteName}`,
     },
     description: runtimeSettings.brand.seoDescription,
-    authors: [{ name: "Mahmoud Fouad", url: "https://ma-fo.info" }],
     creator: "Mahmoud Fouad",
     publisher: runtimeSettings.brand.siteName,
     icons: {

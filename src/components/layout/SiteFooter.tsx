@@ -17,6 +17,11 @@ const quickLinks = [
   { href: "/devices", labelAr: "أجهزتنا", labelEn: "Devices" },
   { href: "/gallery", labelAr: "معرض الصور", labelEn: "Gallery" },
   { href: "/journal", labelAr: "المجلة الطبية", labelEn: "Journal" },
+  {
+    href: "/site-map",
+    labelAr: "دليل صفحات الموقع",
+    labelEn: "Site directory",
+  },
   { href: "/career", labelAr: "التوظيف", labelEn: "Careers" },
   { href: "/contact", labelAr: "تواصلي معنا", labelEn: "Contact" },
 ] as const;

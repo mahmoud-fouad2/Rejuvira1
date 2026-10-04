@@ -1,9 +1,9 @@
-export type ServiceSearchQuestion = {
-  questionAr: string;
-  answerAr: string;
-  questionEn: string;
-  answerEn: string;
-};
+import {
+  servicePatientGuide,
+  type PatientQuestion,
+} from "./service-patient-guides.ts";
+
+export type ServiceSearchQuestion = PatientQuestion;
 
 const chooseDoctor: ServiceSearchQuestion = {
   questionAr: "كيف أختار أفضل دكتور تجميل لحالتي؟",
@@ -52,7 +52,7 @@ const facelift = [
   recovery,
 ];
 
-export function serviceSearchQuestions(
+function existingSearchQuestions(
   slug: string,
 ): readonly ServiceSearchQuestion[] {
   if (["face-neck-lift", "facelift-surgery"].includes(slug)) return facelift;
@@ -124,4 +124,52 @@ export function serviceSearchQuestions(
       price,
     ];
   return [];
+}
+
+export function serviceSearchQuestions(
+  slug: string,
+  name?: string,
+  nameEn?: string | null,
+): readonly ServiceSearchQuestion[] {
+  const specific = servicePatientGuide(slug)?.questions ?? [];
+  const existing = existingSearchQuestions(slug).map((question) =>
+    name && question.questionAr === price.questionAr
+      ? {
+          ...question,
+          questionAr: `كم تكلفة ${name} في الرياض، وما البنود المشمولة؟`,
+          questionEn: `How much does ${nameEn || name} cost in Riyadh, and what is included?`,
+        }
+      : question,
+  );
+  const questions = existing.length
+    ? [...specific, ...existing]
+    : name
+      ? [
+          ...specific,
+          {
+            ...chooseDoctor,
+            questionAr: `كيف أختار الطبيب المناسب لخدمة ${name} في الرياض؟`,
+            questionEn: `How do I choose a doctor for ${nameEn || name} in Riyadh?`,
+          },
+          {
+            ...price,
+            questionAr: `كم تكلفة ${name} في الرياض، وما البنود المشمولة؟`,
+            questionEn: `How much does ${nameEn || name} cost in Riyadh, and what is included?`,
+          },
+          {
+            questionAr: "كيف أجهز للاستشارة، وما الذي أحتاج أوضحه للطبيب؟",
+            answerAr:
+              "جهز وصفًا لما تريد مناقشته، وقائمة الأدوية والحساسيات وأي تقارير أو إجراءات سابقة ذات صلة. اسأل المركز عن متطلبات الموعد، وناقش مع الطبيب الخطوات التالية قبل اتخاذ قرار العلاج.",
+            questionEn:
+              "How do I prepare for the consultation, and what should I tell the doctor?",
+            answerEn:
+              "Prepare your concerns, medication and allergy lists, and relevant reports or previous procedures. Ask the center about appointment requirements and discuss next steps with the doctor before deciding on treatment.",
+          },
+        ]
+      : specific;
+  return questions.filter(
+    (question, index) =>
+      questions.findIndex((item) => item.questionAr === question.questionAr) ===
+      index,
+  );
 }
