@@ -11,6 +11,7 @@ import {
 import { publicServiceSlug } from "./public-service-slug.ts";
 import { publicDeviceCertifications } from "./device-certifications.ts";
 import { resolveServiceSeo, hasEnglishServiceContent } from "./service-seo.ts";
+import { serviceSearchQuestions } from "./service-search-content.ts";
 
 test("legacy article markup becomes semantic blocks without losing its text", () => {
   assert.deepEqual(
@@ -133,4 +134,14 @@ test("distinct services no longer inherit identical core titles while custom SEO
     hasEnglishServiceContent({ ...service, descriptionEn: null }),
     false,
   );
+});
+
+test("search questions target the published facelift and eyelid page slugs", () => {
+  assert.equal(serviceSearchQuestions("face-neck-lift").length, 4);
+  assert.equal(serviceSearchQuestions("facelift-surgery").length, 4);
+  assert.equal(
+    serviceSearchQuestions("eyelid-lift-eye-rejuvenation").length,
+    3,
+  );
+  assert.equal(serviceSearchQuestions("unknown-service").length, 0);
 });

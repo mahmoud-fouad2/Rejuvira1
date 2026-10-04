@@ -49,6 +49,7 @@ export function BrandLogo({
         width={width}
         height={height}
         priority={priority}
+        {...(priority ? { fetchPriority: "high" as const } : {})}
         sizes={sizes}
         className="rv-brand-logo-img rv-brand-logo-light h-full w-full object-contain"
         {...rest}
@@ -59,6 +60,7 @@ export function BrandLogo({
         width={width}
         height={height}
         priority={priority}
+        {...(priority ? { fetchPriority: "high" as const } : {})}
         sizes={sizes}
         className="rv-brand-logo-img rv-brand-logo-dark h-full w-full object-contain"
         {...rest}

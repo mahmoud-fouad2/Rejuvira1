@@ -99,6 +99,7 @@ export function serviceSearchQuestions(
       "breast-lift",
       "breast-augmentation-reshaping",
       "upper-lower-eyelid-surgery",
+      "eyelid-lift-eye-rejuvenation",
     ].includes(slug)
   )
     return [chooseDoctor, price, recovery];
