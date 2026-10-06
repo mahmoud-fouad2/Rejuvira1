@@ -1,4 +1,6 @@
 /** Content is created from the published physician record and its published services. */
+import { buildSahamWhatsappBubble } from "./saham-whatsapp.mjs";
+
 export const SAHAM_LANDING_SLUG = "dr-saham-arfaj";
 export const SAHAM_DOCTOR_SLUG = "saham-arfaj";
 
@@ -245,7 +247,7 @@ ${services.length ? `<section class="s-section" id="saham-services"><div class="
 <section class="s-section s-section--soft" id="saham-questions"><div class="s-wrap"><p class="s-kicker">أسئلة قبل الحجز</p><h2 class="s-h2">إجابات تساعدك على اختيار استشارتك</h2><div class="s-faqs">${faqs.map(([question, answer]) => `<details class="s-faq"><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("")}</div><p class="s-sources">لتحضير أسئلتك، يمكنك مراجعة إرشادات الجمعية الأمريكية لجراحي التجميل: <a href="https://www.plasticsurgery.org/cosmetic-procedures/tummy-tuck/questions" target="_blank" rel="noopener noreferrer">أسئلة استشارة شد البطن</a> و<a href="https://www.plasticsurgery.org/cosmetic-procedures/neck-lift/questions" target="_blank" rel="noopener noreferrer">أسئلة استشارة شد الرقبة</a>. هذه معلومات عامة للتحضير؛ توصيات الإجراء تُحدد بعد التقييم الطبي.</p></div></section>
 <section class="s-section"><div class="s-wrap"><div class="s-bottom"><h2>ابدئي باستشارة مع ${name}</h2><p>سواء حددتِ الإجراء أو ما زلتِ تقارنين الخيارات، اطلبي موعدًا في مركز ريجوفيرا بالرياض لمناقشة ما يناسب حالتك. يؤكد الفريق رسوم الاستشارة والتفاصيل والموعد قبل الحجز.</p><div class="s-actions"><a class="s-btn s-btn--light" href="#saham-consultation">اطلبي موعدك الآن</a><a class="s-btn s-btn--light" href="${whatsapp}" target="_blank" rel="noopener noreferrer">استشارة الدكتورة سهام عبر واتساب</a></div></div></div></section>
 <footer class="s-footer"><div class="s-wrap"><span>مركز ريجوفيرا الطبي · الرياض، المملكة العربية السعودية</span><span><a href="/contact">الموقع وطرق التواصل</a> · <a href="/doctors/saham-arfaj">الملف الطبي</a> · <a href="/privacy">الخصوصية</a></span></div></footer>
-</section>`;
+</section>${buildSahamWhatsappBubble()}`;
 }
 
 export async function seedSahamLandingPage(prisma) {

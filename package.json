@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:seo": "node --experimental-strip-types --test src/lib/seo-repairs.test.ts",
+    "test:landing-content": "node --test scripts/landing-pages/content-enrichment.test.mjs scripts/landing-pages/dr-saham-arfaj.test.mjs",
     "test:seo-smoke": "node scripts/seo-smoke-test.mjs",
     "test:content-seo": "node --experimental-strip-types scripts/content-seo-verification.mjs",
     "test:lead-tracking": "node --experimental-strip-types --test src/lib/clinic-contact.test.ts src/lib/conversion-dedupe.test.ts src/lib/lead-analytics.test.ts src/lib/lead-receipt.test.ts src/lib/lead-success.test.ts src/lib/request-tracking.test.ts",

@@ -1,9 +1,10 @@
-/** Adds one requested CMS page, preserving all existing pages and doctor data. */
+/** Targeted, idempotent CMS releases; preserves administrator edits. */
 import { PrismaClient } from "@prisma/client";
 import {
   seedSahamLandingPage,
   SAHAM_LANDING_SLUG,
 } from "./landing-pages/dr-saham-arfaj.mjs";
+import { seedLandingContent } from "./landing-pages/content-enrichment.mjs";
 
 const renderBuild = Boolean(
   process.env.RENDER || process.env.RENDER_SERVICE_ID,
@@ -17,6 +18,9 @@ if (process.argv.includes("--if-render") && !renderBuild) {
   try {
     const result = await seedSahamLandingPage(prisma);
     console.log(`[doctor-landing] /p/${SAHAM_LANDING_SLUG}: ${result.reason}`);
+    for (const addition of await seedLandingContent(prisma)) {
+      console.log(`[landing-content] /p/${addition.slug}: ${addition.reason}`);
+    }
   } catch (error) {
     // Avoid logging database URLs or connection credentials in deployment output.
     console.error(
