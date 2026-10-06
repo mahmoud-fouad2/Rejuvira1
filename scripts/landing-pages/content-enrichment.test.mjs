@@ -20,7 +20,8 @@ function database(records, options = {}) {
         structuredClone(
           getState().pages.filter(
             (page) =>
-              where.slug.in.includes(page.slug) &&
+              (where.OR[0].slug.in.includes(page.slug) ||
+                where.OR[1].seoSlug.in.includes(page.seoSlug)) &&
               page.status === where.status &&
               page.noindex === where.noindex,
           ),
@@ -177,6 +178,43 @@ test("later administrator removals are respected, including after log cleanup", 
   assert.equal(
     (await rollbackLandingContent(db.prisma))[0].reason,
     "later-edit-preserved",
+  );
+});
+
+test("published SEO aliases receive their own intent content without changing internal identifiers", async () => {
+  const aliases = [
+    ["offers", "exclusive-offers"],
+    ["book", "rejuvera-booking"],
+    ["sm-links", "rejuvera-social-media"],
+    ["tk", "tiktok-customer"],
+  ];
+  const records = aliases.map(([slug, seoSlug]) => ({
+    ...original,
+    id: slug,
+    slug,
+    seoSlug,
+  }));
+  const db = database(records);
+  await seedLandingContent(db.prisma);
+  for (const page of db.state().pages) {
+    const before = records.find((record) => record.id === page.id);
+    assert.equal(page.slug, before.slug);
+    assert.equal(page.seoSlug, before.seoSlug);
+    assert.equal(
+      page.htmlContent.slice(0, before.htmlContent.length),
+      before.htmlContent,
+    );
+    assert.ok(page.htmlContent.includes(`id="landing-guide-${page.seoSlug}"`));
+    assert.equal(
+      (page.htmlContent.match(/data-landing-content-release=/g) || []).length,
+      1,
+    );
+  }
+  assert.equal(db.state().settings.length, 4);
+  assert.ok(
+    (await seedLandingContent(db.prisma)).every(
+      (result) => result.reason === "already-applied",
+    ),
   );
 });
 

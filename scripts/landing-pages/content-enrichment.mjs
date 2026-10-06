@@ -123,8 +123,18 @@ export async function seedLandingContent(prisma) {
   ];
   const [pages, services, doctors, history] = await Promise.all([
     prisma.customPage.findMany({
-      where: { slug: { in: slugs }, status: "PUBLISHED", noindex: false },
-      select: { id: true, slug: true, htmlContent: true, updatedAt: true },
+      where: {
+        OR: [{ slug: { in: slugs } }, { seoSlug: { in: slugs } }],
+        status: "PUBLISHED",
+        noindex: false,
+      },
+      select: {
+        id: true,
+        slug: true,
+        seoSlug: true,
+        htmlContent: true,
+        updatedAt: true,
+      },
     }),
     prisma.service.findMany({
       where: { status: "PUBLISHED" },
@@ -149,9 +159,9 @@ export async function seedLandingContent(prisma) {
       results.push({ slug: page.slug, reason: "already-applied" });
       continue;
     }
-    const profile = landingContentProfiles.find(
-      (item) => item.slug === page.slug,
-    );
+    const profile =
+      landingContentProfiles.find((item) => item.slug === page.seoSlug) ||
+      landingContentProfiles.find((item) => item.slug === page.slug);
     const hasAddition = profile
       ? page.htmlContent.includes(
           `data-landing-content-release="${LANDING_RELEASE}"`,
