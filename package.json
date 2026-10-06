@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/seed-doctor-landing-page.mjs --if-render",
     "build": "next build && node scripts/sync-standalone-assets.mjs",
     "postinstall": "node scripts/render-migrate-recover.mjs",
     "start": "node scripts/run-standalone-server.mjs",
@@ -24,6 +25,7 @@
     "seed:admin": "node scripts/seed-admin.mjs",
     "seed:core": "node scripts/seed-core-content.mjs",
     "seed:landing": "node scripts/seed-landing-pages.mjs",
+    "seed:doctor-landing": "node scripts/seed-doctor-landing-page.mjs",
     "seed:templates": "node scripts/seed-procedure-templates.mjs"
   },
   "dependencies": {
