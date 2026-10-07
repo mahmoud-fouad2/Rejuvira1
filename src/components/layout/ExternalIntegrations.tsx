@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import {
+  installAwarenessDismissHandler,
+  normalizeIntegrationHtml,
+} from "@/lib/integration-snippets";
 
 type ExternalIntegrationsProps = {
+  nonce: string;
   chatbaseEnabled: boolean;
   chatbaseWidgetId: string;
   customHeadCode: string;
@@ -44,7 +49,12 @@ function setupFaheemlyProxyInterceptor() {
   };
 }
 
-function appendSnippet(target: HTMLElement, html: string, marker: string) {
+function appendSnippet(
+  target: HTMLElement,
+  html: string,
+  marker: string,
+  nonce: string,
+) {
   setupFaheemlyProxyInterceptor();
   const existing = document.querySelectorAll(
     `[data-rejuvira-snippet="${marker}"]`,
@@ -52,11 +62,7 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
   existing.forEach((node) => node.remove());
   if (!html.trim()) return;
 
-  // Auto-fix non-www faheemly URLs to prevent 307 redirect CORS blocks
-  const normalizedHtml = html.replace(
-    /https?:\/\/faheemly\.com/g,
-    "https://www.faheemly.com",
-  );
+  const normalizedHtml = normalizeIntegrationHtml(html);
 
   const template = document.createElement("template");
   template.innerHTML = normalizedHtml.trim();
@@ -83,6 +89,9 @@ function appendSnippet(target: HTMLElement, html: string, marker: string) {
         /https?:\/\/faheemly\.com/g,
         "https://www.faheemly.com",
       );
+      // Admin snippets use the same request nonce as Next's own scripts.
+      // Override any stale nonce pasted into the saved integration code.
+      script.nonce = nonce;
 
       // Route Faheemly config calls to our same-origin /api/widget proxy
       if (
@@ -133,6 +142,7 @@ function removeChatbaseArtifacts(chatId: string) {
 }
 
 export function ExternalIntegrations({
+  nonce,
   chatbaseEnabled,
   chatbaseWidgetId,
   customHeadCode,
@@ -144,14 +154,18 @@ export function ExternalIntegrations({
   );
 
   useEffect(() => {
-    appendSnippet(document.head, customHeadCode, "head");
-    appendSnippet(document.body, customBodyCode, "body");
+    // The campaign creates its card asynchronously, so delegate its one
+    // known action instead of allowing inline event-handler execution.
+    const removeAwarenessDismissHandler = installAwarenessDismissHandler();
+    appendSnippet(document.head, customHeadCode, "head", nonce);
+    appendSnippet(document.body, customBodyCode, "body", nonce);
     return () => {
+      removeAwarenessDismissHandler();
       document
         .querySelectorAll("[data-rejuvira-snippet]")
         .forEach((node) => node.remove());
     };
-  }, [customHeadCode, customBodyCode]);
+  }, [customHeadCode, customBodyCode, nonce]);
 
   useEffect(() => {
     if (!chatbaseEnabled) {
@@ -177,6 +191,7 @@ export function ExternalIntegrations({
     if (existing) return;
 
     const script = document.createElement("script");
+    script.nonce = nonce;
     script.src = "https://www.chatbase.co/embed.min.js";
     script.id = chatId;
     script.setAttribute("domain", "www.chatbase.co");
@@ -186,7 +201,7 @@ export function ExternalIntegrations({
       script.remove();
       removeChatbaseArtifacts(chatId);
     };
-  }, [chatbaseEnabled, chatId]);
+  }, [chatbaseEnabled, chatId, nonce]);
 
   return null;
 }

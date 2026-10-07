@@ -41,14 +41,15 @@ export function buildCsp(frameAncestors: string, nonce: string) {
   const tiktokScriptOrigins =
     "https://analytics.tiktok.com https://*.tiktok.com";
   // Snap Pixel loader plus the account-specific runtime configuration it loads.
-  const snapchatScriptOrigins =
-    "https://sc-static.net https://tr.snapchat.com";
+  const snapchatScriptOrigins = "https://sc-static.net https://tr.snapchat.com";
   // Faheemly chat/booking widget loader (admin-configured integration).
-  const widgetScriptOrigins =
-    "https://www.faheemly.com https://*.faheemly.com";
+  const widgetScriptOrigins = "https://www.faheemly.com https://*.faheemly.com";
 
   return [
-    `default-src 'self' ${googleScriptOrigins} data: blob:`,
+    // These two already-integrated origins are also used by requests that
+    // fall back to default-src (as reported by Firefox's NetUtil). Keep this
+    // list exact: scripts/connections retain their own existing directives.
+    `default-src 'self' ${googleScriptOrigins} https://analytics.tiktok.com https://tr.snapchat.com data: blob:`,
     [
       `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'`,
       !isProd && "'unsafe-eval'",
@@ -62,6 +63,7 @@ export function buildCsp(frameAncestors: string, nonce: string) {
     ]
       .filter(Boolean)
       .join(" "),
+    "script-src-attr 'none'",
     [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       widgetScriptOrigins,

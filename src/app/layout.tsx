@@ -313,6 +313,7 @@ export default async function RootLayout({
           {children}
           {!isAdminOrAuth ? (
             <ExternalIntegrations
+              nonce={nonce}
               chatbaseEnabled={
                 CHATBASE_TEMPORARILY_DISABLED
                   ? false
