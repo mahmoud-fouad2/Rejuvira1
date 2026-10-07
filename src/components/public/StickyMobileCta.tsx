@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { CLINIC_PHONE_DISPLAY } from "@/lib/clinic-contact";
+import { CLINIC_WHATSAPP_DISPLAY } from "@/lib/clinic-contact";
 
 type StickyMobileCtaProps = {
   titleAr?: string;
@@ -16,7 +16,7 @@ type StickyMobileCtaProps = {
 export function StickyMobileCta({
   titleAr,
   titleEn,
-  whatsappNumber = CLINIC_PHONE_DISPLAY,
+  whatsappNumber = CLINIC_WHATSAPP_DISPLAY,
   bookingHref = "/contact",
   whatsappMessage = "مرحباً، أود الاستفسار عن استشارة وخدمات مركز ريجوفيرا.",
 }: StickyMobileCtaProps) {

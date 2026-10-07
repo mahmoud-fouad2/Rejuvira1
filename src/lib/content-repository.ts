@@ -6,7 +6,10 @@ import {
   ABOUT_PROFILE_DEFAULTS,
   ABOUT_SECTION_DEFAULTS,
 } from "@/lib/about-content";
-import { CLINIC_PHONE_DISPLAY } from "@/lib/clinic-contact";
+import {
+  CLINIC_PHONE_DISPLAY,
+  CLINIC_WHATSAPP_DISPLAY,
+} from "@/lib/clinic-contact";
 import {
   GENERAL_INQUIRY_SERVICE_AR,
   hasGeneralInquiryTag,
@@ -1902,7 +1905,7 @@ const seedSettings: SettingsGroup[] = [
         label: "البريد البديل",
         value: "info@rejuvera.sa",
       },
-      { key: "whatsapp", label: "واتساب", value: CLINIC_PHONE_DISPLAY },
+      { key: "whatsapp", label: "واتساب", value: CLINIC_WHATSAPP_DISPLAY },
       { key: "domain", label: "النطاق الرسمي", value: "rejuvera.sa" },
       {
         key: "addressAr",
@@ -3317,8 +3320,11 @@ export async function getSettingsGroups() {
 export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
   const groups = await getSettingsGroups();
   const normalizeLegacyValue = (fieldKey: string, value: string) => {
-    if (fieldKey === "phone" || fieldKey === "whatsapp") {
+    if (fieldKey === "phone") {
       return CLINIC_PHONE_DISPLAY;
+    }
+    if (fieldKey === "whatsapp") {
+      return CLINIC_WHATSAPP_DISPLAY;
     }
     if (fieldKey === "phoneSecondary") {
       return "";
@@ -3369,7 +3375,7 @@ export const getRuntimeSettings = cache(async (): Promise<RuntimeSettings> => {
         "emailSecondary",
         process.env.CONTACT_EMAIL_SECONDARY || "info@rejuvera.sa",
       ),
-      whatsapp: getValue("contact", "whatsapp", CLINIC_PHONE_DISPLAY),
+      whatsapp: getValue("contact", "whatsapp", CLINIC_WHATSAPP_DISPLAY),
       domain: getValue("contact", "domain", "rejuvera.sa"),
       mapsEmbedUrl: getValue(
         "contact",

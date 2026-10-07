@@ -1,7 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { normalizeClinicContactHtml } from "./clinic-contact.ts";
+import {
+  CLINIC_PHONE_DISPLAY,
+  CLINIC_PHONE_TEL,
+  CLINIC_WHATSAPP_DISPLAY,
+  CLINIC_WHATSAPP_URL,
+  LANDING_PAGE_PHONE_DISPLAY,
+  LANDING_PAGE_PHONE_TEL,
+  normalizeClinicContactHtml,
+} from "./clinic-contact.ts";
+
+test("site and landing pages share the approved call number without changing WhatsApp", () => {
+  assert.equal(CLINIC_PHONE_DISPLAY, "0553999514");
+  assert.equal(CLINIC_PHONE_TEL, "tel:0553999514");
+  assert.equal(LANDING_PAGE_PHONE_DISPLAY, CLINIC_PHONE_DISPLAY);
+  assert.equal(LANDING_PAGE_PHONE_TEL, CLINIC_PHONE_TEL);
+  assert.equal(CLINIC_WHATSAPP_DISPLAY, "0114999959");
+  assert.equal(CLINIC_WHATSAPP_URL, "https://wa.me/966114999959");
+});
 
 test("imported page contact CTAs use the approved clinic number", () => {
   const html = normalizeClinicContactHtml(
