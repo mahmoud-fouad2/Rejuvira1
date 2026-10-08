@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getCustomPageBySlug } from "@/lib/content-repository";
 import {
   LANDING_PAGE_PHONE_DISPLAY,
+  addLandingPageWhatsappReferralHtml,
   normalizeClinicContactHtml,
 } from "@/lib/clinic-contact";
 import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
@@ -125,11 +126,13 @@ export default async function CustomPage({
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
   const repairedHtml = repairCustomPageMediaUrls(page.htmlContent);
-  const safeHtml = normalizeClinicContactHtml(
-    hardenCustomPageLeadForms(
-      sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
-      undefined,
-      page.slug,
+  const safeHtml = addLandingPageWhatsappReferralHtml(
+    normalizeClinicContactHtml(
+      hardenCustomPageLeadForms(
+        sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
+        undefined,
+        page.slug,
+      ),
     ),
   );
   const seo = resolveCustomPageSeo(page, slug);
@@ -223,7 +226,10 @@ export default async function CustomPage({
         </aside>
       </main>
       {showFooter ? (
-        <SiteFooter phoneOverride={LANDING_PAGE_PHONE_DISPLAY} />
+        <SiteFooter
+          phoneOverride={LANDING_PAGE_PHONE_DISPLAY}
+          whatsappGoogleReferral
+        />
       ) : null}
     </>
   );
