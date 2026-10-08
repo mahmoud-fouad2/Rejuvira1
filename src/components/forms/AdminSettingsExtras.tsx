@@ -403,25 +403,26 @@ function ApiWebhookDocumentationCard({
             7. أحداث Google Tag Manager بعد نجاح الإرسال
           </h3>
           <p className="text-ink-soft mt-2 text-sm leading-7">
-            عند نجاح أي نموذج Lead داخل الموقع يتم تنفيذ
-            <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
-              dataLayer.push
-            </code>
-            تلقائيًا. استخدم الحدث الأساسي
+            بعد تأكيد حفظ الطلب من الخادم، يرسل الموقع تلقائيًا الحدث
             <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
               lead_submit
             </code>
-            لإنشاء Conversion في GTM / Google Ads. ويصدر أيضًا حدث النجاح
+            إلى GA4 عبر Google tag، ويرسل تحويل الفورم إلى Google Ads مباشرة.
+            ويصدر أيضًا حدث النجاح
             <code className="mx-1 rounded bg-canvas px-1.5 py-0.5" dir="ltr">
               form_success
             </code>
             مرة واحدة بعد تأكيد الحفظ من الخادم. لا تحتوي الأحداث العامة على
             بيانات المريض أو اسم الخدمة.
           </p>
+          <p className="text-ink-soft mt-2 text-sm leading-7">
+            لا تضف مصدرًا آخر لإرسال lead_submit أو تحويل الفورم في GTM؛ القياس
+            موجود بالفعل، وإضافة مصدر آخر قد تكرر النتيجة. المثال التالي يوضح
+            حدث النجاح الذي يرسله الموقع تلقائيًا، ولا يحتاج إلى لصقه مرة أخرى.
+          </p>
           <pre className="border-line bg-canvas text-ink mt-3 overflow-x-auto rounded-[1rem] border p-4 text-left text-xs leading-6" dir="ltr">{`window.dataLayer.push({
-  event: "lead_submit",
-  request_id: "non-pii-server-request-id",
-  form_name: "contact_form"
+  event: "form_success",
+  form_name: "booking"
 });`}</pre>
         </section>
 
