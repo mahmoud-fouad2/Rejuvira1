@@ -6,6 +6,18 @@ export const CLINIC_WHATSAPP_URL = `https://wa.me/${CLINIC_WHATSAPP_NUMBER}`;
 export const LANDING_PAGE_PHONE_DISPLAY = CLINIC_PHONE_DISPLAY;
 export const LANDING_PAGE_PHONE_TEL = CLINIC_PHONE_TEL;
 
+/** WhatsApp requires international digits, not a Saudi local trunk prefix. */
+export function clinicWhatsappHref(number: string, message?: string) {
+  const digits = number.replace(/\D/g, "").replace(/^00/, "");
+  if (!digits) return null;
+  const international = digits.startsWith("966")
+    ? digits
+    : digits.startsWith("0")
+      ? `966${digits.slice(1)}`
+      : `966${digits}`;
+  return `https://wa.me/${international}${message ? `?text=${encodeURIComponent(message)}` : ""}`;
+}
+
 const LEGACY_CALL_NUMBERS = [
   "0112723402",
   "920017403",

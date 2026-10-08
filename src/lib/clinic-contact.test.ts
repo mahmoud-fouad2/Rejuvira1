@@ -9,6 +9,7 @@ import {
   LANDING_PAGE_PHONE_DISPLAY,
   LANDING_PAGE_PHONE_TEL,
   normalizeClinicContactHtml,
+  clinicWhatsappHref,
 } from "./clinic-contact.ts";
 
 test("site and landing pages share the approved call number without changing WhatsApp", () => {
@@ -18,6 +19,16 @@ test("site and landing pages share the approved call number without changing Wha
   assert.equal(LANDING_PAGE_PHONE_TEL, CLINIC_PHONE_TEL);
   assert.equal(CLINIC_WHATSAPP_DISPLAY, "0114999959");
   assert.equal(CLINIC_WHATSAPP_URL, "https://wa.me/966114999959");
+});
+
+test("doctor WhatsApp CTAs normalize the configured number and preserve the message", () => {
+  const message = "أرغب في حجز استشارة";
+  const expected = `${CLINIC_WHATSAPP_URL}?text=${encodeURIComponent(message)}`;
+  for (const number of ["0114999959", "+966 11 499 9959", "00966114999959", "966114999959", "114999959"]) {
+    assert.equal(clinicWhatsappHref(number, message), expected);
+  }
+  assert.equal(clinicWhatsappHref(""), null);
+  assert.equal(clinicWhatsappHref(CLINIC_WHATSAPP_DISPLAY), CLINIC_WHATSAPP_URL);
 });
 
 test("imported page contact CTAs use the approved clinic number", () => {

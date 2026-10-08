@@ -5,6 +5,7 @@ import {
   SAHAM_LANDING_SLUG,
 } from "./landing-pages/dr-saham-arfaj.mjs";
 import { seedLandingContent } from "./landing-pages/content-enrichment.mjs";
+import { seedDoctorServiceLandings } from "./landing-pages/doctor-service-landings.mjs";
 
 const renderBuild = Boolean(
   process.env.RENDER || process.env.RENDER_SERVICE_ID,
@@ -18,6 +19,9 @@ if (process.argv.includes("--if-render") && !renderBuild) {
   try {
     const result = await seedSahamLandingPage(prisma);
     console.log(`[doctor-landing] /p/${SAHAM_LANDING_SLUG}: ${result.reason}`);
+    for (const addition of await seedDoctorServiceLandings(prisma)) {
+      console.log(`[doctor-landing] /p/${addition.slug}: ${addition.reason}`);
+    }
     for (const addition of await seedLandingContent(prisma)) {
       console.log(`[landing-content] /p/${addition.slug}: ${addition.reason}`);
     }

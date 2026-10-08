@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/layout/SiteHeader";
 import { BookingModal } from "@/components/layout/BookingModal";
 import { StickyMobileCta } from "@/components/public/StickyMobileCta";
 import { getCspNonce } from "@/lib/csp-nonce";
+import { clinicWhatsappHref } from "@/lib/clinic-contact";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 import {
   getDevices,
@@ -192,12 +193,10 @@ export default async function DoctorDetailPage({
       relatedDeviceSlugs.has(device.slug),
   );
 
-  const waDigits = (
-    runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone
-  ).replace(/\D/g, "");
-  const waHref = waDigits
-    ? `https://wa.me/${waDigits}?text=${encodeURIComponent(`أرغب في حجز استشارة مع ${doctor.name}`)}`
-    : null;
+  const waHref = clinicWhatsappHref(
+    runtimeSettings.contact.whatsapp || runtimeSettings.contact.phone,
+    `أرغب في حجز استشارة مع ${doctor.name}`,
+  );
   const telHref = `tel:${runtimeSettings.contact.phone.replace(/\D/g, "")}`;
   const english =
     hasEnglishDoctorContent(doctor) && (await searchParams).lang === "en";
