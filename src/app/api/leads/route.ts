@@ -1,5 +1,5 @@
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
@@ -32,6 +32,7 @@ import {
   SAUDI_MOBILE_ERROR_MESSAGE,
   SAUDI_MOBILE_REGEX,
 } from "@/lib/saudi-phone";
+import { getSnapRequestSignals, sendSnapSignUpCapi } from "@/lib/snap-capi";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -572,6 +573,17 @@ export async function POST(request: Request) {
       "custom_page_lead.created",
     );
 
+    // New saved leads only: no CAPI on errors, preview mode, or duplicates.
+    const snapDedupId = `rv_snap_${result.submission.id}`;
+    const snapPayload = {
+      dedupId: snapDedupId,
+      ip: clientIp !== "unknown" ? clientIp : undefined,
+      ...getSnapRequestSignals(request),
+    };
+    after(async () => {
+      await sendSnapSignUpCapi(snapPayload);
+    });
+
     revalidatePath("/admin/crm");
     if (jsonResponse) {
       return NextResponse.json(
@@ -584,6 +596,7 @@ export async function POST(request: Request) {
             result.mode === "database" ? result.submission.id : undefined,
           requestId: result.submission.id,
           saved: true,
+          snapDedupId,
         },
         { status: 201 },
       );

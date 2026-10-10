@@ -51,7 +51,7 @@ function normalizePhoneForHashing(phone: string): string {
  * @param attempt   Internal retry counter
  */
 export function fireSnapSignUp(
-  phone: string,
+  phone: string | undefined,
   email: string | undefined,
   dedupId: string,
   attempt = 0,
@@ -71,6 +71,12 @@ export function fireSnapSignUp(
   }
 
   const snaptr = window.snaptr;
+
+  // Native landing forms return a verified receipt, not patient form values.
+  if (!phone) {
+    snaptr("track", "SIGN_UP", { client_dedup_id: dedupId });
+    return;
+  }
 
   const phoneNorm = normalizePhoneForHashing(phone);
   const emailNorm = email?.trim().toLowerCase() ?? "";

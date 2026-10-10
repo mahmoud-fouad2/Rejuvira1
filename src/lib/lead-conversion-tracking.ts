@@ -230,7 +230,7 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   // Snap Pixel — SIGN_UP with hashed PII and deduplication ID.
   // The dedupId is generated server-side and returned in the API response;
   // it is mirrored to the server-side CAPI call so Snap deduplicates both.
-  if (payload.phone && payload.snapDedupId) {
+  if (payload.snapDedupId) {
     fireSnapSignUp(payload.phone, payload.email, payload.snapDedupId);
   }
 

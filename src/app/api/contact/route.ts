@@ -1,6 +1,5 @@
 import { revalidatePath } from "next/cache";
-import { randomUUID } from "crypto";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { recordAppLog } from "@/lib/app-log";
@@ -31,7 +30,7 @@ import {
   SAUDI_MOBILE_ERROR_MESSAGE,
   SAUDI_MOBILE_REGEX,
 } from "@/lib/saudi-phone";
-import { sendSnapSignUpCapi } from "@/lib/snap-capi";
+import { getSnapRequestSignals, sendSnapSignUpCapi } from "@/lib/snap-capi";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -396,20 +395,19 @@ export async function POST(request: Request) {
       payload: buildContactWebhookPayload("contact_submission.created", false),
     });
 
-    // Snap Conversions API (server-side).
-    // Use the client-supplied dedupId when present so the server CAPI event
-    // and the browser Pixel SIGN_UP event share the same dedup key.
-    // If the client did not supply one (e.g. non-JSON submission) we generate
-    // a fresh ID here; the browser will not have a matching Pixel event for it
-    // but the CAPI event is still sent with the best available data.
-    const snapDedupId = parsed.data.snapDedupId || randomUUID();
-    void sendSnapSignUpCapi({
+    // New, persisted leads only. Native redirects use the saved ID so the
+    // verified receipt can reproduce the same Pixel/CAPI deduplication key.
+    const snapDedupId =
+      wantsJson(request) && parsed.data.snapDedupId
+        ? parsed.data.snapDedupId
+        : `rv_snap_${result.submission.id}`;
+    const snapPayload = {
       dedupId: snapDedupId,
-      phone: parsed.data.phone,
-      email: parsed.data.email || undefined,
       ip: clientIp !== "unknown" ? clientIp : undefined,
-      userAgent: request.headers.get("user-agent") ?? undefined,
-      pageUrl: request.headers.get("referer") ?? undefined,
+      ...getSnapRequestSignals(request),
+    };
+    after(async () => {
+      await sendSnapSignUpCapi(snapPayload);
     });
 
     revalidatePath("/admin/crm");

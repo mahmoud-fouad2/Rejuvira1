@@ -64,6 +64,7 @@ export function LeadConversionTracker() {
 
       const tracked = trackLeadConversion({
         requestId: proof.requestId,
+        snapDedupId: `rv_snap_${proof.requestId}`,
         formType: "redirect_form",
         source: "Lead form redirect",
         path: url.pathname,

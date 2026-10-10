@@ -1,125 +1,124 @@
-﻿/**
- * src/lib/snap-capi.ts
- *
- * Server-side Snapchat Conversions API (CAPI) v2 helper.
- *
- * - Runs ONLY on the Node.js server (never bundled into the client).
- * - Uses the built-in `crypto` module for SHA-256 hashing (no extra deps).
- * - Mirrors the `client_dedup_id` from the browser Snap Pixel call so Snap
- *   de-duplicates both signals within the 48-hour dedup window.
- * - Silently no-ops when SNAP_PIXEL_ID or SNAP_CAPI_TOKEN are absent so the
- *   contact form continues to work without Snap credentials set up.
- *
- * Environment variables required (Render / .env):
- *   SNAP_PIXEL_ID       — Snap Pixel ID (e.g. abc123...)
- *   SNAP_CAPI_TOKEN     — Bearer token from Ads Manager → Conversions API Tokens
- *   SNAP_TEST_EVENT_CODE — Optional; only set during testing (omit in production)
- */
-
-import { createHash } from "crypto";
-
-const CAPI_ENDPOINT = "https://tr.snapchat.com/v2/conversion";
-
-/** SHA-256 hex of a normalised string value. */
-function sha256Hex(value: string): string {
-  return createHash("sha256").update(value.trim().toLowerCase()).digest("hex");
-}
-
-/** Normalise a Saudi/international phone number to E.164 digits for hashing. */
-function normalizePhoneForHashing(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("05") && digits.length === 10) {
-    return `966${digits.slice(1)}`;
-  }
-  return digits;
-}
+/** Server-only Snap CAPI v3. Credentials must never be NEXT_PUBLIC variables. */
+import { isIP } from "node:net";
 
 export type SnapSignUpPayload = {
-  /**
-   * The shared deduplication ID.  Must be the same UUID that was passed to
-   * snaptr("track", "SIGN_UP", { client_dedup_id }) in the browser.
-   */
   dedupId: string;
-  /** Raw phone number from the validated form (e.g. "0512345678"). */
-  phone: string;
-  /** Optional raw email address. */
-  email?: string | undefined;
-  /** Visitor IP (used for matching quality; never stored by Snap). */
   ip?: string | undefined;
-  /** Visitor user-agent (used for matching quality). */
   userAgent?: string | undefined;
-  /** Page URL where the form was submitted. */
-  pageUrl?: string | undefined;
+  clickId?: string | undefined;
+  cookieId?: string | undefined;
+  trackingDisabled?: boolean | undefined;
 };
 
-/**
- * Send a SIGN_UP event to the Snap Conversions API.
- *
- * Resolves to `true` on success, `false` on failure or when credentials
- * are missing (so the caller can log without crashing the request).
- */
+function cleanIdentifier(value: string | undefined) {
+  const clean = value?.trim();
+  return clean && /^[a-zA-Z0-9_.:-]{1,250}$/.test(clean) ? clean : undefined;
+}
+
+/** Read only Snap matching signals; never forward a medical page URL/query. */
+export function getSnapRequestSignals(request: Request) {
+  let clickId: string | undefined;
+  for (const candidate of [
+    request.headers.get("x-rejuvera-current-url"),
+    request.headers.get("referer"),
+    request.url,
+  ]) {
+    if (!candidate) continue;
+    try {
+      const url = new URL(candidate);
+      clickId = cleanIdentifier(url.searchParams.get("ScCid") ?? undefined);
+      if (clickId) break;
+    } catch {
+      /* Ignore malformed URLs without logging their contents. */
+    }
+  }
+  const scid = request.headers
+    .get("cookie")
+    ?.split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith("_scid="));
+  let cookieId: string | undefined;
+  try {
+    cookieId = cleanIdentifier(
+      scid ? decodeURIComponent(scid.slice(6)) : undefined,
+    );
+  } catch {
+    /* Ignore malformed cookie values. */
+  }
+  return {
+    clickId,
+    cookieId,
+    userAgent: request.headers.get("user-agent") ?? undefined,
+    trackingDisabled:
+      request.headers.get("sec-gpc") === "1" ||
+      request.headers.get("dnt") === "1",
+  };
+}
+
+export function buildSnapSignUpEvent(
+  payload: SnapSignUpPayload,
+  now = Date.now(),
+) {
+  const userData: Record<string, string> = {};
+  if (payload.ip && isIP(payload.ip)) userData.client_ip_address = payload.ip;
+  if (payload.userAgent?.trim())
+    userData.client_user_agent = payload.userAgent.trim().slice(0, 1000);
+  const clickId = cleanIdentifier(payload.clickId);
+  const cookieId = cleanIdentifier(payload.cookieId);
+  if (clickId) userData.sc_click_id = clickId;
+  if (cookieId) userData.sc_cookie1 = cookieId;
+
+  return {
+    event_name: "SIGN_UP",
+    action_source: "WEB",
+    event_time: Math.floor(now / 1000),
+    // CAPI v3 requires this at event level, NOT inside custom_data.
+    event_id: payload.dedupId,
+    event_source_url: "https://rejuvera.sa/",
+    user_data: userData,
+  };
+}
+
+/** Fail open: a tracking outage must never turn a saved lead into a form error. */
 export async function sendSnapSignUpCapi(
   payload: SnapSignUpPayload,
 ): Promise<boolean> {
   const pixelId = process.env.SNAP_PIXEL_ID?.trim();
   const token = process.env.SNAP_CAPI_TOKEN?.trim();
-
-  if (!pixelId || !token) {
-    // Credentials not configured — skip silently.
+  if (!pixelId || !token || payload.trackingDisabled || !payload.dedupId)
     return false;
-  }
-
-  const hashedPhone = sha256Hex(normalizePhoneForHashing(payload.phone));
-  const hashedDataFields: Record<string, string> = {
-    phone_number: hashedPhone,
-  };
-  if (payload.email?.trim()) {
-    hashedDataFields.email = sha256Hex(payload.email);
-  }
-
-  const userData: Record<string, string> = {};
-  if (payload.ip) userData.ip_address = payload.ip;
-  if (payload.userAgent) userData.user_agent = payload.userAgent;
-
-  const body: Record<string, unknown> = {
-    pixel_id: pixelId,
-    events: [
-      {
-        event_type: "SIGN_UP",
-        event_conversion_type: "WEB",
-        event_time: Math.floor(Date.now() / 1000),
-        client_dedup_id: payload.dedupId,
-        hashed_data_fields: hashedDataFields,
-        ...(Object.keys(userData).length > 0 ? { user_data: userData } : {}),
-        ...(payload.pageUrl ? { page_url: payload.pageUrl } : {}),
-      },
-    ],
-  };
-
-  // Only include test_event_code when explicitly set.
+  const event = buildSnapSignUpEvent(payload);
+  // Snap requires IP + user-agent (or hashed PII). Use technical matching only.
+  if (!event.user_data.client_ip_address || !event.user_data.client_user_agent)
+    return false;
   const testCode = process.env.SNAP_TEST_EVENT_CODE?.trim();
-  if (testCode) body.test_event_code = testCode;
-
+  const endpoint = new URL(
+    `https://tr.snapchat.com/v3/${encodeURIComponent(pixelId)}/events`,
+  );
+  endpoint.searchParams.set("access_token", token);
   try {
-    const res = await fetch(CAPI_ENDPOINT, {
+    const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-      // 5-second timeout — must not block the form response.
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        data: [
+          { ...event, ...(testCode ? { test_event_code: testCode } : {}) },
+        ],
+      }),
       signal: AbortSignal.timeout(5000),
     });
-
-    if (!res.ok) {
-      const text = await res.text().catch(() => "(unreadable)");
-      console.error(`[snap-capi] CAPI error ${res.status}: ${text}`);
+    const result = (await res.json().catch(() => null)) as {
+      status?: string;
+    } | null;
+    if (!res.ok || result?.status !== "VALID") {
+      // Never log the URL/token, response body, or visitor matching data.
+      console.warn(`[snap-capi] SIGN_UP rejected (HTTP ${res.status})`);
       return false;
     }
+    console.info("[snap-capi] SIGN_UP accepted");
     return true;
-  } catch (err) {
-    console.error("[snap-capi] CAPI request failed:", err);
+  } catch {
+    console.warn("[snap-capi] SIGN_UP delivery failed or timed out");
     return false;
   }
 }
