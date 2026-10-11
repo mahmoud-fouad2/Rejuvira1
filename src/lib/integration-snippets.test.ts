@@ -1,10 +1,34 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
-import { normalizeIntegrationHtml } from "./integration-snippets.ts";
+import {
+  normalizeIntegrationHtml,
+  isFaceliftDistraction,
+} from "./integration-snippets.ts";
 
 const legacyHandler =
   "\n            document.getElementById('rejuvera-breast-awareness').remove()\n          ";
+
+test("facelift suppression targets only known widgets, never tracking snippets", () => {
+  assert.equal(
+    isFaceliftDistraction("https://www.faheemly.com/api/widget/loader.js?v=v1"),
+    true,
+  );
+  assert.equal(
+    isFaceliftDistraction('card.id="rejuvera-breast-awareness"'),
+    true,
+  );
+  for (const tracker of ["gtag", "fbq", "snaptr", "oaiq", "ttq"]) {
+    assert.equal(
+      isFaceliftDistraction(
+        `${tracker}("event"); card.id="rejuvera-breast-awareness"`,
+      ),
+      false,
+    );
+    assert.equal(isFaceliftDistraction(`${tracker}("event")`), false);
+  }
+  assert.equal(isFaceliftDistraction("unrelated widget"), false);
+});
 
 test("the exact live CSP violation becomes a non-executable dismiss marker", () => {
   assert.equal(

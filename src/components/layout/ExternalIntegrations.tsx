@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { usePathname } from "next/navigation";
 import {
   installAwarenessDismissHandler,
   normalizeIntegrationHtml,
+  isFaceliftDistraction,
 } from "@/lib/integration-snippets";
 
 type ExternalIntegrationsProps = {
@@ -54,6 +56,7 @@ function appendSnippet(
   html: string,
   marker: string,
   nonce: string,
+  focusedFacelift = false,
 ) {
   setupFaheemlyProxyInterceptor();
   const existing = document.querySelectorAll(
@@ -68,6 +71,14 @@ function appendSnippet(
   template.innerHTML = normalizedHtml.trim();
   const nodes = Array.from(template.content.childNodes);
   nodes.forEach((node) => {
+    if (
+      focusedFacelift &&
+      node instanceof HTMLElement &&
+      isFaceliftDistraction(
+        `${node.getAttribute("src") ?? ""} ${node.textContent ?? ""}`,
+      )
+    )
+      return;
     let nextNode = node.cloneNode(true) as ChildNode;
     if (node.nodeName.toLowerCase() === "script") {
       const sourceScript = node as HTMLScriptElement;
@@ -148,6 +159,7 @@ export function ExternalIntegrations({
   customHeadCode,
   customBodyCode,
 }: ExternalIntegrationsProps) {
+  const focusedFacelift = usePathname() === "/p/facelift-riyadh";
   const chatId = useMemo(
     () => normalizeChatbaseId(chatbaseWidgetId),
     [chatbaseWidgetId],
@@ -157,18 +169,50 @@ export function ExternalIntegrations({
     // The campaign creates its card asynchronously, so delegate its one
     // known action instead of allowing inline event-handler execution.
     const removeAwarenessDismissHandler = installAwarenessDismissHandler();
-    appendSnippet(document.head, customHeadCode, "head", nonce);
-    appendSnippet(document.body, customBodyCode, "body", nonce);
+    appendSnippet(
+      document.head,
+      customHeadCode,
+      "head",
+      nonce,
+      focusedFacelift,
+    );
+    appendSnippet(
+      document.body,
+      customBodyCode,
+      "body",
+      nonce,
+      focusedFacelift,
+    );
+    if (focusedFacelift) {
+      // Covers widgets left over after a client-side navigation from another page.
+      const hideDistractions = () => {
+        document.getElementById("rejuvera-breast-awareness")?.remove();
+        const widget = document.getElementById("fahimo-widget-root");
+        if (widget) widget.hidden = true;
+      };
+      hideDistractions();
+      const observer = new MutationObserver(hideDistractions);
+      observer.observe(document.body, { childList: true });
+      return () => {
+        observer.disconnect();
+        const widget = document.getElementById("fahimo-widget-root");
+        if (widget) widget.hidden = false;
+        removeAwarenessDismissHandler();
+        document
+          .querySelectorAll("[data-rejuvira-snippet]")
+          .forEach((node) => node.remove());
+      };
+    }
     return () => {
       removeAwarenessDismissHandler();
       document
         .querySelectorAll("[data-rejuvira-snippet]")
         .forEach((node) => node.remove());
     };
-  }, [customHeadCode, customBodyCode, nonce]);
+  }, [customHeadCode, customBodyCode, nonce, focusedFacelift]);
 
   useEffect(() => {
-    if (!chatbaseEnabled) {
+    if (!chatbaseEnabled || focusedFacelift) {
       removeChatbaseArtifacts(chatId);
       return;
     }
@@ -201,7 +245,7 @@ export function ExternalIntegrations({
       script.remove();
       removeChatbaseArtifacts(chatId);
     };
-  }, [chatbaseEnabled, chatId, nonce]);
+  }, [chatbaseEnabled, chatId, nonce, focusedFacelift]);
 
   return null;
 }

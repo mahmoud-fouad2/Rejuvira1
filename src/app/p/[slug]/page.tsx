@@ -26,6 +26,8 @@ import {
 } from "@/lib/custom-page-quality";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import { getSiteUrl } from "@/lib/seo";
+import { improveFaceliftLanding } from "@/lib/facelift-landing";
+import "./facelift.css";
 
 export const dynamic = "force-dynamic";
 
@@ -125,7 +127,12 @@ export default async function CustomPage({
   const showHeader = readBuilderBoolean(page.htmlContent, "header");
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
-  const repairedHtml = repairCustomPageMediaUrls(page.htmlContent);
+  const repairedHtml = repairCustomPageMediaUrls(
+    improveFaceliftLanding(page.htmlContent, slug),
+  );
+  const isFocusedFacelift = repairedHtml.includes(
+    'data-facelift-optimized="1"',
+  );
   const safeHtml = addLandingPageWhatsappReferralHtml(
     normalizeClinicContactHtml(
       hardenCustomPageLeadForms(
@@ -199,31 +206,35 @@ export default async function CustomPage({
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
-        <aside
-          className="rv-custom-page__contact-cta"
-          aria-label="التواصل والحجز"
-        >
-          <div>
-            <p className="rv-custom-page__contact-kicker">
-              تحتاج مساعدة قبل الحجز؟
-            </p>
-            <h2>تواصل مع فريق ريجوفيرا</h2>
-            <p>اتصل بنا مباشرة أو أرسل طلبك ليؤكد الفريق التفاصيل المناسبة.</p>
-          </div>
-          <div className="rv-custom-page__contact-actions">
-            {phoneDigits ? (
-              <PhoneCallLink
-                href={`tel:${phoneDigits}`}
-                className="rv-custom-page__contact-call"
-              >
-                اتصال مباشر
-              </PhoneCallLink>
-            ) : null}
-            <a href="/contact" className="rv-custom-page__contact-book">
-              احجز استشارة
-            </a>
-          </div>
-        </aside>
+        {!isFocusedFacelift ? (
+          <aside
+            className="rv-custom-page__contact-cta"
+            aria-label="التواصل والحجز"
+          >
+            <div>
+              <p className="rv-custom-page__contact-kicker">
+                تحتاج مساعدة قبل الحجز؟
+              </p>
+              <h2>تواصل مع فريق ريجوفيرا</h2>
+              <p>
+                اتصل بنا مباشرة أو أرسل طلبك ليؤكد الفريق التفاصيل المناسبة.
+              </p>
+            </div>
+            <div className="rv-custom-page__contact-actions">
+              {phoneDigits ? (
+                <PhoneCallLink
+                  href={`tel:${phoneDigits}`}
+                  className="rv-custom-page__contact-call"
+                >
+                  اتصال مباشر
+                </PhoneCallLink>
+              ) : null}
+              <a href="/contact" className="rv-custom-page__contact-book">
+                احجز استشارة
+              </a>
+            </div>
+          </aside>
+        ) : null}
       </main>
       {showFooter ? (
         <SiteFooter

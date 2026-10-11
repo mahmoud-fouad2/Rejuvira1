@@ -12,6 +12,20 @@ export function normalizeIntegrationHtml(html: string): string {
     );
 }
 
+/** Only the facelift route opts out of the two known promotional widgets. */
+export function isFaceliftDistraction(content: string): boolean {
+  // Never discard a combined custom snippet containing measurement code.
+  if (
+    /\b(?:gtag|fbq|snaptr|oaiq|ttq)\b|googletagmanager|google-analytics/i.test(
+      content,
+    )
+  )
+    return false;
+  return /rejuvera-breast-awareness|https?:\/\/(?:www\.)?faheemly\.com\/api\/widget\/loader\.js/i.test(
+    content,
+  );
+}
+
 /** Handles the marker even when the saved campaign inserts its card later. */
 export function installAwarenessDismissHandler(): () => void {
   const dismiss = (event: MouseEvent) => {
