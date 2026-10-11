@@ -12,7 +12,25 @@ const article = source.match(
   /<article\b[^>]*class="rv-custom-page__content[^>]*>([\s\S]*?)<\/article>(?=\s*<aside\b|\s*<\/main>)/i,
 )?.[1];
 if (!article) throw new Error("Expected landing-page article not found");
-const enhanced = improveFaceliftLanding(article, "facelift-riyadh");
+// A previously deployed presentation is not the CMS source. Reconstruct a
+// preview-only input from its preserved form/gallery to exercise the NEW renderer.
+// Do not mutate the live page or submit this form.
+let previewSource = article;
+if (article.includes('data-facelift-optimized="1"')) {
+  const originalForm = article
+    .match(/<form\b[\s\S]*?<\/form>/i)?.[0]
+    ?.replace(
+      /<div class="rvx-field rvx-field-wide"><label for="facelift-timing">[\s\S]*?<\/div>/,
+      "",
+    );
+  const existingGallery = article.match(
+    /<section\b[^>]*id="facelift-gallery"[\s\S]*?<\/section>/i,
+  )?.[0];
+  if (!originalForm || !existingGallery)
+    throw new Error("Expected preserved form/gallery not found");
+  previewSource = `${originalForm}<section><h2>أمثلة توضيحية قبل وبعد</h2>${(existingGallery.match(/<img\b[^>]*>/gi) ?? []).join("")}</section>`;
+}
+const enhanced = improveFaceliftLanding(previewSource, "facelift-riyadh");
 if (!enhanced.includes('data-facelift-optimized="1"'))
   throw new Error("CMS layout did not match; preview refused");
 const html = sanitizeHtml(enhanced);

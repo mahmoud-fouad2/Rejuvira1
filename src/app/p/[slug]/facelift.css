@@ -11,6 +11,9 @@
 .fl-page * {
   box-sizing: border-box;
 }
+.fl-page :is(.fl-hero-grid, .fl-grid, .fl-cost, .rvx-form) > * {
+  min-width: 0;
+}
 .fl-page img {
   margin: 0;
 }
@@ -26,13 +29,23 @@
   gap: 16px;
   padding: 14px 0;
 }
-.fl-top img {
-  width: 150px;
-  height: 52px;
-  object-fit: contain;
-  background: var(--fl-purple);
-  border-radius: 12px;
-  padding: 6px 10px;
+.fl-top .fl-brand {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  width: 210px;
+  height: 104px;
+  overflow: hidden;
+  background: #fff;
+}
+.fl-top .fl-brand img {
+  position: absolute;
+  width: 138%;
+  max-width: none;
+  height: auto;
+  left: -19%;
+  top: 50%;
+  transform: translateY(-50%);
 }
 .fl-top span,
 .fl-top a {
@@ -183,7 +196,7 @@
   min-height: 46px;
   padding: 9px 11px;
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   background: #fcfafc;
   border: 1px solid #d8cdda;
   border-radius: 10px;
@@ -342,6 +355,28 @@
   border-radius: 18px;
   background: var(--fl-paper);
 }
+.fl-bottom-guide {
+  max-width: 850px;
+  padding-bottom: 32px;
+}
+.fl-search-content {
+  border-top: 1px solid #e5dce8;
+  padding-top: 28px;
+  font-size: 14px;
+  color: #65596b;
+  overflow-wrap: anywhere;
+}
+.fl-search-content h2 {
+  font-size: 23px;
+  color: var(--fl-ink);
+}
+.fl-search-content h3 {
+  margin-top: 20px;
+  color: var(--fl-ink);
+}
+.fl-search-content a {
+  text-underline-offset: 4px;
+}
 .fl-sticky {
   position: fixed;
   bottom: 0;
@@ -386,9 +421,9 @@
   .fl-top span {
     display: none;
   }
-  .fl-top img {
-    width: 120px;
-    height: 42px;
+  .fl-top .fl-brand {
+    width: 170px;
+    height: 84px;
   }
   .fl-hero {
     padding: 12px 0 28px;
@@ -486,6 +521,7 @@
     padding: 8px;
   }
   .fl-steps {
+    grid-template-columns: 1fr;
     gap: 10px;
   }
   .fl-steps strong {
@@ -502,9 +538,20 @@
   }
   .fl-sticky a {
     font-size: 13px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 @media (max-width: 380px) {
+  .fl-page h1 {
+    font-size: 27px;
+  }
+  .fl-top .fl-brand {
+    width: 150px;
+    height: 74px;
+  }
   .fl-gallery {
     grid-template-columns: 1fr;
   }
@@ -513,5 +560,10 @@
   }
   .fl-page {
     padding-bottom: 98px;
+  }
+}
+@media (max-width: 340px) {
+  .fl-page .rvx-form {
+    grid-template-columns: 1fr;
   }
 }

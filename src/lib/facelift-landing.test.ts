@@ -12,22 +12,12 @@ const form = `<form class="rvx-form" data-rejuvera-guard="1" action="/api/leads"
 const gallery = `<section><h2>أمثلة توضيحية قبل وبعد</h2>${[1, 2, 3, 4, 5, 6].map((n) => `<img src="/gallery/case-${n}.webp" alt="case ${n}">`).join("")}</section>`;
 const source = `<div id="rvx-page"><style>.rvx-hero{padding:90px}</style>${form}${gallery}<section id="landing-guide-facelift-riyadh">Repeated content</section></div>`;
 
-test("the original form is unchanged except for one optional timing field", () => {
+test("the original three-field form and hidden attribution are unchanged", () => {
   const result = improveFaceliftLanding(source, "facelift-riyadh");
   const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
   assert.equal(actual.length, 1);
-  assert.equal(
-    actual[0]!.replace(
-      /<div class="rvx-field rvx-field-wide"><label for="facelift-timing">[\s\S]*?<\/div>/,
-      "",
-    ),
-    form,
-  );
-  assert.match(actual[0]!, /name="message"/);
-  assert.doesNotMatch(
-    actual[0]!.match(/<select id="facelift-timing"[^>]*>/)![0],
-    /required/,
-  );
+  assert.equal(actual[0], form);
+  assert.doesNotMatch(actual[0]!, /facelift-timing|name="message"|اختر الوقت/);
   assert.doesNotMatch(
     result,
     /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(/,
@@ -87,10 +77,25 @@ test("an existing message field is never replaced or duplicated", () => {
   assert.equal((result.match(/name="message"/g) ?? []).length, 1);
   assert.doesNotMatch(result, /facelift-timing/);
 });
-test("sanitization preserves the form, optional question and plain contact links", () => {
+test("sanitization preserves the original form and plain contact links", () => {
   const clean = sanitizeHtml(improveFaceliftLanding(source, "facelift-riyadh"));
   assert.match(clean, /action="\/api\/leads" method="post"/);
   assert.match(clean, /pattern="\(\?:\\\+\?966\|0\)\?5\[0-9\]\{8\}"/);
-  assert.match(clean, /name="message"/);
+  assert.doesNotMatch(clean, /facelift-timing|name="message"/);
   assert.match(clean, /href="#consultation-form"/);
+});
+
+test("the supplied logo and visible natural search guide are scoped to this page", () => {
+  const clean = sanitizeHtml(improveFaceliftLanding(source, "facelift-riyadh"));
+  assert.match(clean, /src="\/media\/brand\/facelift-logo-02.png"/);
+  assert.match(clean, /id="facelift-search-guide"/);
+  assert.match(clean, /عملية شد الوجه في الرياض/);
+  assert.match(clean, /ديب بلين/);
+  assert.match(clean, /ميني فيس لفت/);
+  assert.match(clean, /href="\/services\/face-neck-lift"/);
+  assert.match(clean, /href="\/services\/neck-lift-surgery"/);
+  assert.ok(
+    clean.indexOf('id="facelift-search-guide"') >
+      clean.indexOf('id="facelift-questions"'),
+  );
 });
