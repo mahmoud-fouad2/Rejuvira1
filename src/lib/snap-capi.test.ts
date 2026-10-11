@@ -165,6 +165,8 @@ function routeHarness(
 ) {
   const afterTasks: Array<() => Promise<void>> = [];
   const capiCalls: unknown[] = [];
+  const metaCalls: unknown[] = [];
+  const openAiCalls: unknown[] = [];
   const webhookCalls: unknown[] = [];
   const modules: Record<string, unknown> = {
     "next/cache": { revalidatePath: () => {} },
@@ -227,6 +229,20 @@ function routeHarness(
         return false;
       },
     },
+    "@/lib/meta-capi": {
+      getMetaRequestSignals: () => ({ userAgent: "Test Browser" }),
+      sendMetaLeadCapi: async (value: unknown) => {
+        metaCalls.push(value);
+        return false;
+      },
+    },
+    "@/lib/openai-ads-capi": {
+      getOpenAiRequestSignals: () => ({ userAgent: "Test Browser" }),
+      sendOpenAiLeadCapi: async (value: unknown) => {
+        openAiCalls.push(value);
+        return false;
+      },
+    },
   };
   const source = readFileSync(
     new URL(`../app/api/${route}/route.ts`, import.meta.url),
@@ -249,7 +265,14 @@ function routeHarness(
     console,
     process,
   });
-  return { post: exports.POST!, afterTasks, capiCalls, webhookCalls };
+  return {
+    post: exports.POST!,
+    afterTasks,
+    capiCalls,
+    metaCalls,
+    openAiCalls,
+    webhookCalls,
+  };
 }
 
 for (const route of ["contact", "leads"] as const) {
@@ -280,6 +303,20 @@ for (const route of ["contact", "leads"] as const) {
         assert.equal(harness.webhookCalls.length, 1);
         await harness.afterTasks[0]!();
         assert.equal(harness.capiCalls.length, 1);
+        assert.equal(harness.metaCalls.length, 1);
+        assert.equal(harness.openAiCalls.length, 1);
+        assert.doesNotMatch(
+          JSON.stringify(harness.openAiCalls),
+          /0500000000|Test Request|service|email|phone/,
+        );
+        assert.equal(
+          (harness.metaCalls[0] as { requestId: string }).requestId,
+          "saved-1",
+        );
+        assert.doesNotMatch(
+          JSON.stringify(harness.metaCalls),
+          /0500000000|Test Request|service|email|phone/,
+        );
         assert.doesNotMatch(
           JSON.stringify(harness.capiCalls),
           /0500000000|Test Request|service|email|phone/,

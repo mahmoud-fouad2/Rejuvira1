@@ -13,6 +13,7 @@ import { LeadConversionTracker } from "@/components/layout/LeadConversionTracker
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
+import { OPENAI_ADS_ATTRIBUTION_SCRIPT } from "@/lib/openai-ads-attribution";
 import {
   buildLocalBusinessJsonLd,
   buildSiteCreatorJsonLd,
@@ -271,6 +272,14 @@ export default async function RootLayout({
             __html: `window.gtag_report_phone_conversion=function(){var send=function(attempt){if(typeof window.gtag==='function'){window.gtag('event','conversion',{'send_to':'AW-16511038360/VzZpCLHk4uocEJjnicE9'});return;}if(attempt<20){window.setTimeout(function(){send(attempt+1);},250);}};send(0);return true;};`,
           }}
         />
+        {!isAdminOrAuth && process.env.OPENAI_ADS_CAPI_ENABLED === "1" ? (
+          <Script
+            id="rejuvera-openai-ads-attribution"
+            strategy="afterInteractive"
+            nonce={nonce}
+            dangerouslySetInnerHTML={{ __html: OPENAI_ADS_ATTRIBUTION_SCRIPT }}
+          />
+        ) : null}
       </head>
       <body className="page-enter flex min-h-full min-w-0 flex-col">
         {googleTagConfig?.kind === "gtm" ? (

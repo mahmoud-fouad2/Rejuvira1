@@ -31,6 +31,11 @@ import {
   SAUDI_MOBILE_REGEX,
 } from "@/lib/saudi-phone";
 import { getSnapRequestSignals, sendSnapSignUpCapi } from "@/lib/snap-capi";
+import { getMetaRequestSignals, sendMetaLeadCapi } from "@/lib/meta-capi";
+import {
+  getOpenAiRequestSignals,
+  sendOpenAiLeadCapi,
+} from "@/lib/openai-ads-capi";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -406,8 +411,24 @@ export async function POST(request: Request) {
       ip: clientIp !== "unknown" ? clientIp : undefined,
       ...getSnapRequestSignals(request),
     };
+    const metaPayload = {
+      requestId: result.submission.id,
+      eventTime: Date.now(),
+      ip: clientIp !== "unknown" ? clientIp : undefined,
+      ...getMetaRequestSignals(request),
+    };
+    const openAiPayload = {
+      requestId: result.submission.id,
+      eventTime: Date.now(),
+      ip: clientIp !== "unknown" ? clientIp : undefined,
+      ...getOpenAiRequestSignals(request),
+    };
     after(async () => {
-      await sendSnapSignUpCapi(snapPayload);
+      await Promise.all([
+        sendSnapSignUpCapi(snapPayload),
+        sendMetaLeadCapi(metaPayload),
+        sendOpenAiLeadCapi(openAiPayload),
+      ]);
     });
 
     revalidatePath("/admin/crm");

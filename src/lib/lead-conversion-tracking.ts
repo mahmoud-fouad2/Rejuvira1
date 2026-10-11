@@ -54,14 +54,6 @@ export type LeadConversionPayload = {
   snapDedupId?: string | undefined;
 };
 
-function cleanEventParams(payload: Record<string, string | undefined>) {
-  return Object.fromEntries(
-    Object.entries(payload).filter(
-      ([, value]) => typeof value === "string" && value.trim().length > 0,
-    ),
-  );
-}
-
 function createMetaEventId() {
   const randomPart =
     typeof window.crypto?.randomUUID === "function"
@@ -70,25 +62,24 @@ function createMetaEventId() {
   return `rv_lead_${Date.now()}_${randomPart}`;
 }
 
-function dispatchMetaLead(
-  payload: Record<string, string | undefined>,
-  eventId: string,
-  attempt = 0,
-) {
+function dispatchMetaLead(eventId: string, attempt = 0) {
   if (typeof window.fbq === "function") {
-    window.fbq("track", "Lead", cleanEventParams(payload), {
-      eventID: eventId,
-    });
+    // Generic event only: never share doctor/service names or medical URLs.
+    window.fbq(
+      "track",
+      "Lead",
+      {},
+      {
+        eventID: eventId,
+      },
+    );
     return;
   }
 
   // Runtime integration snippets load after React mounts. Give the configured
   // Meta Pixel a short window to become available without delaying the form UI.
   if (attempt < 12) {
-    window.setTimeout(
-      () => dispatchMetaLead(payload, eventId, attempt + 1),
-      250,
-    );
+    window.setTimeout(() => dispatchMetaLead(eventId, attempt + 1), 250);
   }
 }
 
@@ -191,7 +182,6 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
   }
 
   const metaEventId = `rv_lead_${requestId}`;
-  const pageUrl = window.location.href;
 
   // gtag writes one lead_submit command to the existing dataLayer and forwards
   // it to GA4. Do not also push a second object with the same event name.
@@ -202,23 +192,7 @@ export function trackLeadConversion(payload: LeadConversionPayload = {}) {
     transactionId: requestId,
   });
 
-  dispatchMetaLead(
-    {
-      content_name:
-        payload.serviceName || payload.serviceSlug || "Rejuvera lead form",
-      content_category: payload.formType || "lead",
-      lead_source: payload.source,
-      service_slug: payload.serviceSlug,
-      service_name: payload.serviceName,
-      utm_source: payload.utmSource,
-      utm_medium: payload.utmMedium,
-      utm_campaign: payload.utmCampaign,
-      utm_content: payload.utmContent,
-      page_path: payload.path ?? window.location.pathname,
-      event_source_url: pageUrl,
-    },
-    metaEventId,
-  );
+  dispatchMetaLead(metaEventId);
 
   // TikTok Pixel — standard Lead event.
   // Fires exactly once per successful submission; dispatchTikTokLead() retries
