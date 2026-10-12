@@ -129,3 +129,57 @@ test("Google WhatsApp prefill does not modify unrelated or invalid URLs", () => 
     assert.equal(withGoogleWhatsappReferral(href), href);
   }
 });
+
+test("landing messages identify the public doctor/page, preserve custom copy and do not duplicate source", () => {
+  for (const pageTitle of [
+    "شد الوجه والرقبة بالرياض | د. لؤي السالمي",
+    "د. سهام العرفج — استشارة جراحة التجميل",
+    "د. كريمة جمجوم | النساء والولادة",
+    "ناتالي دوملوج | هيدرافيشيال وفراكشنال ليزر",
+    "نحت الجسم وشفط الدهون في الرياض | ريجوفيرا",
+  ]) {
+    const context = {
+      pageTitle,
+      pageUrl: "https://rejuvera.sa/p/sample-page?gclid=private-click#booking",
+    };
+    const original = `${CLINIC_WHATSAPP_URL}?text=${encodeURIComponent("مرحبًا، أريد تنسيق استشارة.")}&app_absent=0`;
+    const updated = withGoogleWhatsappReferral(original, context);
+    const url = new URL(updated);
+    const text = url.searchParams.get("text")!;
+    assert.ok(text.startsWith("مرحبًا، أريد تنسيق استشارة."));
+    assert.ok(text.includes(`جئت من صفحة: ${pageTitle}.`));
+    assert.ok(text.includes("رابط الصفحة: https://rejuvera.sa/p/sample-page"));
+    assert.ok(text.includes(LANDING_PAGE_GOOGLE_REFERRAL));
+    assert.doesNotMatch(text, /gclid|private-click|#booking/);
+    assert.equal(url.pathname, "/966114999959");
+    assert.equal(url.searchParams.get("app_absent"), "0");
+    assert.equal(withGoogleWhatsappReferral(updated, context), updated);
+  }
+});
+
+test("every CMS WhatsApp CTA gets the same page source without changing forms, phone or tracking", () => {
+  const context = {
+    pageTitle: 'د. لؤي "السالمي"',
+    pageUrl: "https://rejuvera.sa/p/facelift-riyadh",
+  };
+  const untouched =
+    '<form action="/api/leads"><input name="phone"></form><a href="tel:0553999514">اتصال</a>';
+  const input = `${untouched}<a href="${CLINIC_WHATSAPP_URL}" data-track="whatsapp">واتساب</a><a href='https://api.whatsapp.com/send?phone=966114999959&amp;text=hello' class='sticky'>واتساب</a>`;
+  const updated = addLandingPageWhatsappReferralHtml(input, context);
+  assert.ok(updated.startsWith(untouched));
+  assert.match(updated, /data-track="whatsapp">واتساب/);
+  const hrefs = [...updated.matchAll(/href=(['"])(https[^'"]*)\1/g)];
+  assert.equal(hrefs.length, 2);
+  for (const href of hrefs) {
+    const message = new URL(href[2]!.replace(/&amp;/g, "&")).searchParams.get(
+      "text",
+    )!;
+    assert.ok(message.includes(context.pageTitle));
+    assert.ok(message.includes(context.pageUrl));
+  }
+  assert.equal(addLandingPageWhatsappReferralHtml(updated, context), updated);
+  assert.equal(
+    withGoogleWhatsappReferral("tel:0553999514", context),
+    "tel:0553999514",
+  );
+});

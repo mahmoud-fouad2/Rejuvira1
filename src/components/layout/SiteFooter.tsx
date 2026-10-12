@@ -9,7 +9,10 @@ import { normalizeSocialUrl } from "@/components/layout/SocialIconCluster";
 import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
 import { getPublicSiteKey } from "@/lib/recaptcha";
-import { withGoogleWhatsappReferral } from "@/lib/clinic-contact";
+import {
+  withGoogleWhatsappReferral,
+  type LandingPageWhatsappContext,
+} from "@/lib/clinic-contact";
 
 const quickLinks = [
   { href: "/", labelAr: "الرئيسية", labelEn: "Home" },
@@ -361,9 +364,11 @@ function toSaudiWhatsappDigits(value: string) {
 export async function SiteFooter({
   phoneOverride,
   whatsappGoogleReferral = false,
+  whatsappContext,
 }: {
   phoneOverride?: string;
   whatsappGoogleReferral?: boolean;
+  whatsappContext?: LandingPageWhatsappContext;
 } = {}) {
   const [runtimeSettings, services] = await Promise.all([
     getRuntimeSettings(),
@@ -386,7 +391,7 @@ export async function SiteFooter({
   const rawWaHref = waDigits ? `https://wa.me/${waDigits}` : null;
   const waHref =
     rawWaHref && whatsappGoogleReferral
-      ? withGoogleWhatsappReferral(rawWaHref)
+      ? withGoogleWhatsappReferral(rawWaHref, whatsappContext)
       : rawWaHref;
 
   const visibility = runtimeSettings.socialVisibility;
@@ -494,6 +499,7 @@ export async function SiteFooter({
                       whatsappGoogleReferral && row.kind === "whatsapp"
                         ? withGoogleWhatsappReferral(
                             normalizeSocialUrl(row.url),
+                            whatsappContext,
                           )
                         : normalizeSocialUrl(row.url)
                     }

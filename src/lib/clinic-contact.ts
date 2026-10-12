@@ -9,8 +9,16 @@ export const LANDING_PAGE_WHATSAPP_MESSAGE =
   "مرحبًا، أرغب في تنسيق موعد استشارة في مركز ريجوفيرا.";
 export const LANDING_PAGE_GOOGLE_REFERRAL = "لقد عثرت عليكم من Google";
 
+export type LandingPageWhatsappContext = {
+  pageTitle: string;
+  pageUrl: string;
+};
+
 /** Add the requested landing-page prefill, not an analytics attribution signal. */
-export function withGoogleWhatsappReferral(href: string) {
+export function withGoogleWhatsappReferral(
+  href: string,
+  context?: LandingPageWhatsappContext,
+) {
   try {
     const url = new URL(href.replace(/&(?:amp|#38|#x26);/gi, "&"));
     if (!/^https?:$/.test(url.protocol)) return href;
@@ -21,14 +29,30 @@ export function withGoogleWhatsappReferral(href: string) {
       ) &&
         /^\/send\/?$/.test(url.pathname));
     if (!isPhoneLink) return href;
-    const message =
+    let message =
       url.searchParams.get("text")?.trim() || LANDING_PAGE_WHATSAPP_MESSAGE;
     if (!message.includes(LANDING_PAGE_GOOGLE_REFERRAL)) {
-      url.searchParams.set(
-        "text",
-        `${message} ${LANDING_PAGE_GOOGLE_REFERRAL}.`,
-      );
+      message = `${message} ${LANDING_PAGE_GOOGLE_REFERRAL}.`;
     }
+    // Public page identity only: no query/click IDs, form values or patient data.
+    if (context) {
+      const page = new URL(context.pageUrl);
+      const title = context.pageTitle
+        .replace(/[\u0000-\u001f\u007f]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 180);
+      if (
+        /^https?:$/.test(page.protocol) &&
+        /^\/p\/[^/?#]+\/?$/.test(page.pathname)
+      ) {
+        const source = `جئت من صفحة: ${title || page.pathname}.`;
+        const pageUrl = `${page.origin}${page.pathname}`;
+        if (!message.includes(source)) message += `\n${source}`;
+        if (!message.includes(pageUrl)) message += `\nرابط الصفحة: ${pageUrl}`;
+      }
+    }
+    url.searchParams.set("text", message);
     return url.toString();
   } catch {
     return href;
@@ -36,11 +60,14 @@ export function withGoogleWhatsappReferral(href: string) {
 }
 
 /** Applied only by /p/[slug], so existing CMS pages need no content overwrite. */
-export function addLandingPageWhatsappReferralHtml(html: string) {
+export function addLandingPageWhatsappReferralHtml(
+  html: string,
+  context?: LandingPageWhatsappContext,
+) {
   return html.replace(
     /(<a\b[^>]*?\s)href=(['"])([^'"]*)\2/gi,
     (match, before: string, quote: string, href: string) => {
-      const updated = withGoogleWhatsappReferral(href);
+      const updated = withGoogleWhatsappReferral(href, context);
       if (updated === href) return match;
       return `${before}href=${quote}${updated.replace(/&/g, "&amp;")}${quote}`;
     },

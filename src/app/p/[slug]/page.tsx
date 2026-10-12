@@ -133,6 +133,10 @@ export default async function CustomPage({
   const isFocusedFacelift = repairedHtml.includes(
     'data-facelift-optimized="1"',
   );
+  const seo = resolveCustomPageSeo(page, slug);
+  const canonicalSlug = page.seoSlug || page.slug;
+  const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
+  const whatsappContext = { pageTitle: seo.title, pageUrl: canonicalUrl };
   const safeHtml = addLandingPageWhatsappReferralHtml(
     normalizeClinicContactHtml(
       hardenCustomPageLeadForms(
@@ -141,10 +145,8 @@ export default async function CustomPage({
         page.slug,
       ),
     ),
+    whatsappContext,
   );
-  const seo = resolveCustomPageSeo(page, slug);
-  const canonicalSlug = page.seoSlug || page.slug;
-  const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
   const pageJsonLd = buildCustomPageJsonLd({
     page,
     routeSlug: slug,
@@ -240,6 +242,7 @@ export default async function CustomPage({
         <SiteFooter
           phoneOverride={LANDING_PAGE_PHONE_DISPLAY}
           whatsappGoogleReferral
+          whatsappContext={whatsappContext}
         />
       ) : null}
     </>
