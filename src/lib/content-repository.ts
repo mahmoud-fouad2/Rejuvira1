@@ -23,6 +23,10 @@ import { prisma } from "@/lib/prisma";
 import { normalizeClientIp } from "@/lib/rate-limit";
 import { publicationDateForSave } from "@/lib/journal-content";
 import { publicDeviceCertifications } from "@/lib/device-certifications";
+import {
+  publicContentCache,
+  invalidatePublicContentCache,
+} from "@/lib/public-content-cache";
 
 export type DoctorRecord = {
   id: string;
@@ -2727,10 +2731,12 @@ export const getDoctors = cache(async () => {
   }
 
   try {
-    const doctors = await prisma.doctor.findMany({
-      include: { services: { select: { slug: true } } },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    });
+    const doctors = await publicContentCache.read("doctors", () =>
+      prisma.doctor.findMany({
+        include: { services: { select: { slug: true } } },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      }),
+    );
 
     if (doctors.length === 0) {
       return sortFeaturedFirst([...seedDoctors]);
@@ -2805,10 +2811,12 @@ export const getServiceCategories = cache(
     }
 
     try {
-      const categories = await prisma.serviceCategory.findMany({
-        include: { _count: { select: { services: true } } },
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-      });
+      const categories = await publicContentCache.read("categories", () =>
+        prisma.serviceCategory.findMany({
+          include: { _count: { select: { services: true } } },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+        }),
+      );
 
       if (categories.length === 0) {
         return seedServiceCategories();
@@ -2837,15 +2845,17 @@ export const getServices = cache(async () => {
   }
 
   try {
-    const services = await withDatabaseRetry(() =>
-      prisma.service.findMany({
-        include: {
-          doctors: { select: { slug: true } },
-          devices: { select: { slug: true } },
-          category: true,
-        },
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-      }),
+    const services = await publicContentCache.read("services", () =>
+      withDatabaseRetry(() =>
+        prisma.service.findMany({
+          include: {
+            doctors: { select: { slug: true } },
+            devices: { select: { slug: true } },
+            category: true,
+          },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+        }),
+      ),
     );
 
     if (services.length === 0) {
@@ -2923,10 +2933,12 @@ export const getDevices = cache(async () => {
   }
 
   try {
-    const devices = await prisma.device.findMany({
-      include: { services: { select: { slug: true } } },
-      orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    });
+    const devices = await publicContentCache.read("devices", () =>
+      prisma.device.findMany({
+        include: { services: { select: { slug: true } } },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+      }),
+    );
 
     if (devices.length === 0) {
       return sortCoreDevicesFirst([...seedDevices]);
@@ -3264,9 +3276,11 @@ export async function getSettingsGroups() {
   }
 
   try {
-    const settings = await prisma.siteSetting.findMany({
-      orderBy: [{ groupName: "asc" }, { key: "asc" }],
-    });
+    const settings = await publicContentCache.read("settings", () =>
+      prisma.siteSetting.findMany({
+        orderBy: [{ groupName: "asc" }, { key: "asc" }],
+      }),
+    );
 
     if (settings.length === 0) {
       return cloneSettingsGroups(seedSettings);
@@ -4072,6 +4086,7 @@ export async function createDoctorDraft(input: CreateDoctorInput) {
     },
   });
 
+  invalidatePublicContentCache();
   return { mode: "database" as const, item: doctor };
 }
 
@@ -4147,6 +4162,7 @@ export async function updateDoctorProfile(input: UpdateDoctorInput) {
     },
   });
 
+  invalidatePublicContentCache();
   return { mode: "database" as const, item: doctor };
 }
 
@@ -4250,6 +4266,7 @@ export async function createServiceDraft(input: CreateServiceInput) {
     },
   });
 
+  invalidatePublicContentCache();
   return { mode: "database" as const, item: service };
 }
 
@@ -4291,6 +4308,7 @@ export async function createDeviceDraft(input: CreateDeviceInput) {
     },
   });
 
+  invalidatePublicContentCache();
   return { mode: "database" as const, item: device };
 }
 
@@ -4337,6 +4355,7 @@ export async function saveSettingsGroup(
     ),
   );
 
+  invalidatePublicContentCache();
   return { mode: "database" as const, key: groupKey, values };
 }
 
@@ -5343,6 +5362,7 @@ export async function createServiceCategory(input: CreateServiceCategoryInput) {
       sortOrder: input.sortOrder ?? 0,
     },
   });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5369,6 +5389,7 @@ export async function updateServiceCategory(input: UpdateServiceCategoryInput) {
     data: { categoryKey: item.nameAr },
   });
 
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5378,6 +5399,7 @@ export async function deleteServiceCategory(id: string) {
   }
 
   const item = await prisma.serviceCategory.delete({ where: { id } });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5532,6 +5554,7 @@ export async function updateService(input: UpdateServiceInput) {
       },
     }),
   );
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5568,6 +5591,7 @@ export async function updateServiceStatus(id: string, status: ContentStatus) {
           status,
         },
   });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5576,6 +5600,7 @@ export async function deleteService(id: string) {
     return { mode: "preview" as const, id };
   }
   const item = await prisma.service.delete({ where: { id } });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5618,6 +5643,7 @@ export async function updateDevice(input: UpdateDeviceInput) {
       },
     },
   });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5651,6 +5677,7 @@ export async function updateDeviceStatus(id: string, status: ContentStatus) {
           status,
         },
   });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5659,6 +5686,7 @@ export async function deleteDevice(id: string) {
     return { mode: "preview" as const, id };
   }
   const item = await prisma.device.delete({ where: { id } });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5705,6 +5733,7 @@ export async function updateDoctorStatus(id: string, status: ContentStatus) {
           status,
         },
   });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 
@@ -5713,6 +5742,7 @@ export async function deleteDoctor(id: string) {
     return { mode: "preview" as const, id };
   }
   const item = await prisma.doctor.deleteMany({ where: { id } });
+  invalidatePublicContentCache();
   return { mode: "database" as const, item };
 }
 

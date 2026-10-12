@@ -24,8 +24,8 @@ function isLocalDatabaseHost(hostname: string) {
 function isRenderRuntime() {
   return Boolean(
     process.env.RENDER ||
-      process.env.RENDER_SERVICE_ID ||
-      process.env.RENDER_EXTERNAL_HOSTNAME,
+    process.env.RENDER_SERVICE_ID ||
+    process.env.RENDER_EXTERNAL_HOSTNAME,
   );
 }
 
@@ -150,6 +150,5 @@ if (process.env.npm_lifecycle_event !== "build") {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+// Next's SSR/API bundles must share one pool in production as well as dev.
+globalForPrisma.prisma = prisma;

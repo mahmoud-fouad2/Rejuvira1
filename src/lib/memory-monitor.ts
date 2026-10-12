@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { getHeapStatistics } from "node:v8";
+import { publicContentCache } from "./public-content-cache";
 
 const MB = 1024 * 1024;
-const SAMPLE_INTERVAL_MS = 60_000;
-const INFO_EVERY_N_SAMPLES = 5;
+const SAMPLE_INTERVAL_MS = 20_000;
+const INFO_EVERY_N_SAMPLES = 6;
 const WARN_RSS_MB = Number(process.env.MEMORY_WARN_MB) || 400;
 
 function readNumber(paths: string[]) {
@@ -65,9 +66,6 @@ export function startMemoryMonitor() {
     samples += 1;
     const usage = process.memoryUsage();
     const rssMb = toMb(usage.rss);
-    const overWarn = rssMb >= WARN_RSS_MB;
-    if (!overWarn && samples % INFO_EVERY_N_SAMPLES !== 1) return;
-
     const container = readNumber([
       "/sys/fs/cgroup/memory.current",
       "/sys/fs/cgroup/memory/memory.usage_in_bytes",
@@ -76,6 +74,11 @@ export function startMemoryMonitor() {
       "/sys/fs/cgroup/memory.max",
       "/sys/fs/cgroup/memory/memory.limit_in_bytes",
     ]);
+    const overWarn =
+      rssMb >= WARN_RSS_MB ||
+      (container !== null && limit !== null && container >= limit * 0.8);
+    if (!overWarn && samples % INFO_EVERY_N_SAMPLES !== 1) return;
+    const catalog = publicContentCache.stats();
 
     const fields = [
       `rss=${rssMb}MB`,
@@ -84,9 +87,15 @@ export function startMemoryMonitor() {
       `external=${toMb(usage.external)}MB`,
       `arrayBuffers=${toMb(usage.arrayBuffers)}MB`,
       `up=${Math.round(process.uptime() / 60)}m`,
+      `catalogPending=${catalog.pending}`,
+      `catalogHits=${catalog.hits}`,
+      `catalogJoined=${catalog.joined}`,
+      `catalogMisses=${catalog.misses}`,
+      `catalogBytes=${catalog.bytes}`,
     ];
     if (container !== null) fields.push(`container=${toMb(container)}MB`);
-    if (limit !== null && limit < 2 ** 50) fields.push(`limit=${toMb(limit)}MB`);
+    if (limit !== null && limit < 2 ** 50)
+      fields.push(`limit=${toMb(limit)}MB`);
 
     (overWarn ? console.warn : console.info)(`[mem] ${fields.join(" ")}`);
   }, SAMPLE_INTERVAL_MS);
