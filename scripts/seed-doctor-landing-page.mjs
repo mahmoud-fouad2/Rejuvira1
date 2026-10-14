@@ -7,6 +7,7 @@ import {
 import { seedLandingContent } from "./landing-pages/content-enrichment.mjs";
 import { seedDoctorServiceLandings } from "./landing-pages/doctor-service-landings.mjs";
 import { retireAwarenessCampaign } from "./retire-awareness-campaign.mjs";
+import { deduplicateSnapIntegration } from "./deduplicate-snap-integration.mjs";
 
 const renderBuild = Boolean(
   process.env.RENDER || process.env.RENDER_SERVICE_ID,
@@ -22,6 +23,9 @@ if (process.argv.includes("--if-render") && !renderBuild) {
       console.log(
         `[integration-cleanup] ${retirement.key}: ${retirement.reason}`,
       );
+    }
+    for (const cleanup of await deduplicateSnapIntegration(prisma)) {
+      console.log(`[snap-integration] ${cleanup.key}: ${cleanup.reason}`);
     }
     const result = await seedSahamLandingPage(prisma);
     console.log(`[doctor-landing] /p/${SAHAM_LANDING_SLUG}: ${result.reason}`);

@@ -4,6 +4,7 @@ import { createRequire } from "node:module";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+import { REJUVERA_SNAP_PIXEL_ID } from "./snap-integration.ts";
 
 import {
   buildSnapSignUpEvent,
@@ -137,24 +138,26 @@ test("native browser SIGN_UP fires once with the same server event ID and no pat
   }).outputText;
   const calls: unknown[][] = [];
   const exports: {
-    fireSnapSignUp?: (phone: undefined, email: undefined, id: string) => void;
+    fireSnapSignUp?: (id: string) => void;
   } = {};
   vm.runInNewContext(js, {
     exports,
     window: { snaptr: (...args: unknown[]) => calls.push(args) },
+    require: () => ({ REJUVERA_SNAP_PIXEL_ID }),
   });
-  exports.fireSnapSignUp!(undefined, undefined, "rv_snap_saved-1");
+  exports.fireSnapSignUp!("rv_snap_saved-1");
   assert.equal(calls.length, 1);
   assert.equal(
     JSON.stringify(calls[0]),
     JSON.stringify([
       "track",
+      REJUVERA_SNAP_PIXEL_ID,
       "SIGN_UP",
       { client_dedup_id: "rv_snap_saved-1" },
     ]),
   );
   assert.equal(
-    (calls[0]![2] as { client_dedup_id: string }).client_dedup_id,
+    (calls[0]![3] as { client_dedup_id: string }).client_dedup_id,
     buildSnapSignUpEvent({ dedupId: "rv_snap_saved-1" }).event_id,
   );
 });

@@ -1,3 +1,5 @@
+import { stripDuplicateSnapBootstrap } from "./snap-integration.ts";
+
 /** Retire only the standalone October card, preserving adjacent integrations. */
 export function stripRetiredAwarenessCampaign(html: string): string {
   return html.replace(
@@ -20,10 +22,9 @@ export function stripRetiredAwarenessCampaign(html: string): string {
 
 /** No executable text is evaluated or compiled during normalization. */
 export function normalizeIntegrationHtml(html: string): string {
-  return stripRetiredAwarenessCampaign(html).replace(
-    /https?:\/\/faheemly\.com/g,
-    "https://www.faheemly.com",
-  );
+  return stripDuplicateSnapBootstrap(
+    stripRetiredAwarenessCampaign(html),
+  ).replace(/https?:\/\/faheemly\.com/g, "https://www.faheemly.com");
 }
 
 /** Only the facelift route opts out of the two known promotional widgets. */

@@ -9,7 +9,7 @@ import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
 import { PageLoader } from "@/components/layout/PageLoader";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
 import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
-import { stripRetiredAwarenessCampaign } from "@/lib/integration-snippets";
+import { normalizeIntegrationHtml } from "@/lib/integration-snippets";
 import { LeadConversionTracker } from "@/components/layout/LeadConversionTracker";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
@@ -339,10 +339,10 @@ export default async function RootLayout({
                   : runtimeSettings.integrations.chatbaseEnabled
               }
               chatbaseWidgetId={runtimeSettings.integrations.chatbaseWidgetId}
-              customHeadCode={stripRetiredAwarenessCampaign(
+              customHeadCode={normalizeIntegrationHtml(
                 runtimeSettings.integrations.customHeadCode,
               )}
-              customBodyCode={stripRetiredAwarenessCampaign(
+              customBodyCode={normalizeIntegrationHtml(
                 runtimeSettings.integrations.customBodyCode,
               )}
             />

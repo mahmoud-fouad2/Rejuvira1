@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { isSnapMeasurementBootstrap } from "@/lib/snap-integration";
 import {
   normalizeIntegrationHtml,
   isFaceliftDistraction,
@@ -16,6 +17,9 @@ type ExternalIntegrationsProps = {
 };
 
 const DEFAULT_CHATBASE_ID = "wjegZOeOaeYGtbw422le3";
+// Removing an injected element cannot undo its global SDK/listeners. Remember
+// executed measurement scripts across effect cleanup, Strict Mode and routing.
+const executedMeasurementScripts = new Set<string>();
 
 type ChatbaseFunction = ((...args: unknown[]) => unknown) & { q?: unknown[] };
 
@@ -59,7 +63,7 @@ function appendSnippet(
 ) {
   setupFaheemlyProxyInterceptor();
   const existing = document.querySelectorAll(
-    `[data-rejuvira-snippet="${marker}"]`,
+    `[data-rejuvira-snippet="${marker}"]:not([data-rejuvira-measurement])`,
   );
   existing.forEach((node) => node.remove());
   if (!html.trim()) return;
@@ -84,6 +88,11 @@ function appendSnippet(
       const scriptContent =
         `${sourceScript.src} ${sourceScript.text}`.toLowerCase();
       if (scriptContent.includes("chatbase")) return;
+      const measurementKey = isSnapMeasurementBootstrap(sourceScript.text)
+        ? `${sourceScript.src}\n${sourceScript.text}`
+        : null;
+      if (measurementKey && executedMeasurementScripts.has(measurementKey))
+        return;
       const script = document.createElement("script");
       Array.from(sourceScript.attributes).forEach((attr) => {
         const val =
@@ -112,6 +121,10 @@ function appendSnippet(
       }
 
       nextNode = script;
+      if (measurementKey) {
+        script.setAttribute("data-rejuvira-measurement", "true");
+        executedMeasurementScripts.add(measurementKey);
+      }
     }
     if (nextNode instanceof HTMLElement) {
       nextNode.dataset.rejuviraSnippet = marker;
@@ -196,13 +209,17 @@ export function ExternalIntegrations({
         const widget = document.getElementById("fahimo-widget-root");
         if (widget) widget.hidden = false;
         document
-          .querySelectorAll("[data-rejuvira-snippet]")
+          .querySelectorAll(
+            "[data-rejuvira-snippet]:not([data-rejuvira-measurement])",
+          )
           .forEach((node) => node.remove());
       };
     }
     return () => {
       document
-        .querySelectorAll("[data-rejuvira-snippet]")
+        .querySelectorAll(
+          "[data-rejuvira-snippet]:not([data-rejuvira-measurement])",
+        )
         .forEach((node) => node.remove());
     };
   }, [customHeadCode, customBodyCode, nonce, focusedFacelift]);

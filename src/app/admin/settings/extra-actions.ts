@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { saveSettingsGroup } from "@/lib/content-repository";
-import { stripRetiredAwarenessCampaign } from "@/lib/integration-snippets";
+import { normalizeIntegrationHtml } from "@/lib/integration-snippets";
 import {
   normalizeGoogleTagConfig,
   normalizeGoogleTagValue,
@@ -118,12 +118,8 @@ export async function saveIntegrationsAction(
     chatbaseWidgetId: parsed.data.chatbaseWidgetId ?? "",
     googleTagEnabled: googleTagEnabled ? "true" : "false",
     googleTagUrl: normalizeGoogleTagValue(googleTagRaw),
-    customHeadCode: stripRetiredAwarenessCampaign(
-      parsed.data.customHeadCode ?? "",
-    ),
-    customBodyCode: stripRetiredAwarenessCampaign(
-      parsed.data.customBodyCode ?? "",
-    ),
+    customHeadCode: normalizeIntegrationHtml(parsed.data.customHeadCode ?? ""),
+    customBodyCode: normalizeIntegrationHtml(parsed.data.customBodyCode ?? ""),
     formWebhookEnabled:
       parsed.data.formWebhookEnabled === "on" ? "true" : "false",
     formWebhookUrl: parsed.data.formWebhookUrl ?? "",
