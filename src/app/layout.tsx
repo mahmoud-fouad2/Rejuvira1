@@ -187,6 +187,7 @@ export default async function RootLayout({
     pathname.startsWith("/login") ||
     pathname.startsWith("/forbidden") ||
     pathname.startsWith("/api");
+  const isFocusedFacelift = pathname === "/p/facelift-riyadh";
   const showMaintenance =
     Boolean(runtimeSettings.ops.maintenanceMode) && !isAdminOrAuth;
   const googleTagConfig =
@@ -281,7 +282,14 @@ export default async function RootLayout({
           />
         ) : null}
       </head>
-      <body className="page-enter flex min-h-full min-w-0 flex-col">
+      <body
+        className={[
+          isFocusedFacelift ? "" : "page-enter",
+          "flex min-h-full min-w-0 flex-col",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
         {googleTagConfig?.kind === "gtm" ? (
           <noscript>
             <iframe
@@ -306,8 +314,9 @@ export default async function RootLayout({
                 : {})}
             />
           ) : null}
-          <CustomCursor />
-          <PageLoader />
+          {/* Decorative animation must not compete with the booking form. */}
+          {!isFocusedFacelift ? <CustomCursor /> : null}
+          {!isFocusedFacelift ? <PageLoader /> : null}
           {!isAdminOrAuth ? <PageViewTracker /> : null}
           {!isAdminOrAuth ? (
             <Script

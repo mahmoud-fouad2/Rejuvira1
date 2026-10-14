@@ -97,6 +97,7 @@ const ALLOWED_ATTR = new Set([
   "width",
   "height",
   "loading",
+  "fetchpriority",
   "decoding",
   "controls",
   "muted",
@@ -210,8 +211,12 @@ export function sanitizeHtml(input: string): string {
         return "";
       }
       if (tag === "link") {
-        const rel = attrsRaw.match(/\brel\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/i);
-        const href = attrsRaw.match(/\bhref\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/i);
+        const rel = attrsRaw.match(
+          /\brel\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/i,
+        );
+        const href = attrsRaw.match(
+          /\bhref\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'>]+))/i,
+        );
         const relValue = (rel?.[2] ?? rel?.[3] ?? rel?.[4] ?? "").toLowerCase();
         const hrefValue = href?.[2] ?? href?.[3] ?? href?.[4] ?? "";
         if (!relValue.split(/\s+/).includes("stylesheet")) return "";

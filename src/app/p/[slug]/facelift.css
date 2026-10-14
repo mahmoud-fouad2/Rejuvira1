@@ -5,7 +5,8 @@
   color: var(--fl-ink);
   background: #fff;
   padding-bottom: 94px;
-  font-family: var(--font-rejuvira-sans), Arial, sans-serif;
+  font-family:
+    var(--font-facelift-sans, var(--font-rejuvira-sans)), Arial, sans-serif;
   line-height: 1.7;
 }
 .fl-page * {

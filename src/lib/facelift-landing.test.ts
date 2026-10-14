@@ -99,3 +99,14 @@ test("the supplied logo and visible natural search guide are scoped to this page
       clean.indexOf('id="facelift-questions"'),
   );
 });
+
+test("the above-fold doctor image is not lazy-loaded and form bytes are preserved", () => {
+  const result = improveFaceliftLanding(source, "facelift-riyadh");
+  const clean = sanitizeHtml(result);
+  assert.match(
+    result,
+    /<img[^>]*src="\/media\/doctors\/loai-alsalmi\.webp"[^>]*loading="eager"[^>]*fetchpriority="high"/,
+  );
+  assert.equal(result.match(/<form\b[\s\S]*?<\/form>/)?.[0], form);
+  assert.match(clean, /loading="eager"[^>]*fetchpriority="high"/);
+});

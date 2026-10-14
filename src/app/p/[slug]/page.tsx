@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { ContentStatus } from "@prisma/client";
+import localFont from "next/font/local";
 
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -30,6 +31,27 @@ import { improveFaceliftLanding } from "@/lib/facelift-landing";
 import "./facelift.css";
 
 export const dynamic = "force-dynamic";
+
+// Preload only the two weights used above the fold, with the same local font.
+// No analytics or form scripts are deferred by this performance improvement.
+const landingFont = localFont({
+  src: [
+    {
+      path: "../../../../public/assets/fonts/IBMPlexSansArabic-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../../../public/assets/fonts/IBMPlexSansArabic-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-facelift-sans",
+  display: "swap",
+  preload: true,
+  fallback: ["Arial", "sans-serif"],
+});
 
 function readBuilderBoolean(html: string, attr: "header" | "footer") {
   const match = html.match(new RegExp(`data-${attr}="(true|false)"`));
@@ -202,7 +224,7 @@ export default async function CustomPage({
           <h1 className="rv-custom-page__semantic-title">{semanticTitle}</h1>
         ) : null}
         <article
-          className={`rv-custom-page__content ${
+          className={`rv-custom-page__content ${isFocusedFacelift ? landingFont.variable : ""} ${
             isUploadedHtml ? "rv-custom-page__content--uploaded" : ""
           }`}
           dir="auto"
