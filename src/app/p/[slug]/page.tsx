@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { ContentStatus } from "@prisma/client";
 import localFont from "next/font/local";
+import { preload } from "react-dom";
 
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { LandingSearchContent } from "@/components/content/LandingSearchContent";
@@ -158,6 +159,14 @@ export default async function CustomPage({
   const isFocusedFacelift = repairedHtml.includes(
     'data-facelift-optimized="1"',
   );
+  // PageSpeed identifies this visible logo as the facelift LCP image.
+  // Discover it in the document head, without delaying form/tracking scripts.
+  if (isFocusedFacelift) {
+    preload("/media/brand/facelift-logo-02.png", {
+      as: "image",
+      fetchPriority: "high",
+    });
+  }
   const seo = resolveCustomPageSeo(page, slug);
   const canonicalSlug = page.seoSlug || page.slug;
   const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;

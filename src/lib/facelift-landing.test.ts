@@ -110,3 +110,16 @@ test("the above-fold doctor image is not lazy-loaded and form bytes are preserve
   assert.equal(result.match(/<form\b[\s\S]*?<\/form>/)?.[0], form);
   assert.match(clean, /loading="eager"[^>]*fetchpriority="high"/);
 });
+
+test("the measured LCP logo retains eager/high priority through sanitization", () => {
+  const result = improveFaceliftLanding(source, "facelift-riyadh");
+  const clean = sanitizeHtml(result);
+  const logo = clean.match(
+    /<img[^>]*src="\/media\/brand\/facelift-logo-02\.png"[^>]*>/,
+  )?.[0];
+  assert.ok(logo);
+  assert.match(logo, /loading="eager"/);
+  assert.match(logo, /fetchpriority="high"/);
+  assert.match(logo, /width="562" height="563"/);
+  assert.equal(result.match(/<form\b[\s\S]*?<\/form>/)?.[0], form);
+});
