@@ -14,6 +14,7 @@
     "test:seo": "node --experimental-strip-types --test src/lib/seo-repairs.test.ts",
     "test:csp": "node --experimental-strip-types --test src/lib/csp.test.ts src/lib/integration-snippets.test.ts",
     "test:landing-content": "node --test scripts/landing-pages/content-enrichment.test.mjs scripts/landing-pages/dr-saham-arfaj.test.mjs scripts/landing-pages/doctor-service-landings.test.mjs",
+    "test:landing-search": "node --experimental-strip-types --test src/lib/landing-search-content.test.ts scripts/retire-awareness-campaign.test.mjs",
     "test:facelift": "node --experimental-strip-types --test src/lib/facelift-landing.test.ts src/lib/integration-snippets.test.ts",
     "test:memory": "node --experimental-strip-types --test src/lib/public-content-cache.test.ts scripts/standalone-runtime.test.mjs",
     "seed:doctor-services": "node scripts/seed-doctor-service-landings.mjs",

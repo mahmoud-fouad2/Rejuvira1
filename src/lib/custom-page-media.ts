@@ -1,4 +1,11 @@
 const ADMIN_MEDIA_PROXY_PATH = "/api/admin/media-proxy";
+
+/** Builder state is used by the admin editor, never by the public page. */
+export function stripCustomPageEditorState(html: string): string {
+  return html.replace(/<[a-z][^>]*>/gi, (tag) =>
+    tag.replace(/\sdata-blocks=(?:"[^"]*"|'[^']*')/gi, ""),
+  );
+}
 const ADMIN_MEDIA_PROXY_URL =
   /(?:https?:\/\/[^"'<>\s]+)?\/api\/admin\/media-proxy\?[^"'<>\s]+/gi;
 
@@ -132,6 +139,22 @@ export function optimizeCustomPageImages(html: string): string {
     const isSelfClosing = /\/\s*>$/.test(match);
     let nextAttrs = isSelfClosing ? attrs.replace(/\/\s*$/, "") : attrs;
 
+    const source = nextAttrs.match(
+      /(?:^|\s)src\s*=\s*(?:"([^"]*)"|'([^']*)')/i,
+    );
+    if (source && !/(?:^|\s)(?:width|height)\s*=/i.test(nextAttrs)) {
+      try {
+        const url = new URL(
+          (source[1] ?? source[2] ?? "").replace(/&amp;/gi, "&"),
+          "https://rejuvera.sa",
+        );
+        const size = landingImageDimensions[url.href];
+        if (size) nextAttrs += ` width="${size[0]}" height="${size[1]}"`;
+      } catch {
+        // Unknown or malformed CMS sources retain the original layout.
+      }
+    }
+
     if (!/\balt\s*=/i.test(nextAttrs)) {
       nextAttrs += ' alt=""';
     }
@@ -154,3 +177,4 @@ export function optimizeCustomPageImages(html: string): string {
     return `<img${nextAttrs}${isSelfClosing ? " /" : ""}>`;
   });
 }
+import { landingImageDimensions } from "./landing-image-dimensions.ts";

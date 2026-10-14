@@ -5,6 +5,7 @@ import { ContentStatus } from "@prisma/client";
 import localFont from "next/font/local";
 
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
+import { LandingSearchContent } from "@/components/content/LandingSearchContent";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { getCustomPageBySlug } from "@/lib/content-repository";
@@ -19,6 +20,7 @@ import {
   optimizeCustomPageImages,
   repairCustomPageMediaUrls,
   unwrapAdminMediaProxyUrl,
+  stripCustomPageEditorState,
 } from "@/lib/custom-page-media";
 import {
   buildCustomPageJsonLd,
@@ -29,6 +31,7 @@ import { sanitizeHtml } from "@/lib/sanitize-html";
 import { getSiteUrl } from "@/lib/seo";
 import { improveFaceliftLanding } from "@/lib/facelift-landing";
 import "./facelift.css";
+import "./search-content.css";
 
 export const dynamic = "force-dynamic";
 
@@ -150,7 +153,7 @@ export default async function CustomPage({
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
   const repairedHtml = repairCustomPageMediaUrls(
-    improveFaceliftLanding(page.htmlContent, slug),
+    stripCustomPageEditorState(improveFaceliftLanding(page.htmlContent, slug)),
   );
   const isFocusedFacelift = repairedHtml.includes(
     'data-facelift-optimized="1"',
@@ -230,6 +233,7 @@ export default async function CustomPage({
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
+        <LandingSearchContent slug={page.slug} seoSlug={page.seoSlug ?? null} />
         {!isFocusedFacelift ? (
           <aside
             className="rv-custom-page__contact-cta"

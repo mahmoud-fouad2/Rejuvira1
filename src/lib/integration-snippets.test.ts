@@ -1,15 +1,63 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import test from "node:test";
 import {
   normalizeIntegrationHtml,
+  stripRetiredAwarenessCampaign,
   isFaceliftDistraction,
 } from "./integration-snippets.ts";
 
-const legacyHandler =
-  "\n            document.getElementById('rejuvera-breast-awareness').remove()\n          ";
+const campaign = `<script>
+(function () {
+  function addRejuveraBreastCancerCard() {
+    if (document.getElementById("rejuvera-breast-awareness")) return;
+    const card = document.createElement("div");
+    card.id = "rejuvera-breast-awareness";
+    card.innerHTML = '<button>إغلاق</button><p>أكتوبر • شهر التوعية</p>';
+    document.body.appendChild(card);
+  }
+  if(document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", addRejuveraBreastCancerCard);
+  } else { addRejuveraBreastCancerCard(); }
+})();
+</script>`;
 
-test("facelift suppression targets only known widgets, never tracking snippets", () => {
+test("retired card is removed without removing adjacent GTM, chat or other content", () => {
+  const before =
+    '<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-example"></iframe></noscript>';
+  const after =
+    '<script src="https://www.faheemly.com/api/widget/loader.js"></script><p>محتوى آخر</p>';
+  assert.equal(
+    stripRetiredAwarenessCampaign(before + campaign + after),
+    before + after,
+  );
+  assert.equal(stripRetiredAwarenessCampaign(campaign + campaign), "");
+  assert.equal(stripRetiredAwarenessCampaign(before + after), before + after);
+});
+
+test("combined or unfamiliar code is preserved rather than deleting measurement", () => {
+  for (const tracker of ["gtag", "fbq", "snaptr", "oaiq", "ttq", "dataLayer"]) {
+    const combined = campaign.replace("})();", `${tracker}('event');})();`);
+    assert.equal(stripRetiredAwarenessCampaign(combined), combined);
+  }
+  const unknown = '<script>otherCampaign("rejuvera-breast-awareness")</script>';
+  assert.equal(stripRetiredAwarenessCampaign(unknown), unknown);
+  const article =
+    '<article id="breast-cancer-awareness"><h1>التوعية بسرطان الثدي</h1></article>';
+  assert.equal(stripRetiredAwarenessCampaign(article), article);
+});
+
+test("normalization retires the card and preserves the Faheemly redirect repair", () => {
+  const loader =
+    '<script src="https://faheemly.com/api/widget/loader.js"></script>';
+  assert.equal(
+    normalizeIntegrationHtml(campaign + loader),
+    loader.replace("https://faheemly", "https://www.faheemly"),
+  );
+  const inline = '<button onclick="alert(1)">other</button>';
+  assert.equal(normalizeIntegrationHtml(inline), inline);
+});
+
+test("facelift suppression still targets only known widgets, never tracking snippets", () => {
   assert.equal(
     isFaceliftDistraction("https://www.faheemly.com/api/widget/loader.js?v=v1"),
     true,
@@ -25,49 +73,6 @@ test("facelift suppression targets only known widgets, never tracking snippets",
       ),
       false,
     );
-    assert.equal(isFaceliftDistraction(`${tracker}("event")`), false);
   }
   assert.equal(isFaceliftDistraction("unrelated widget"), false);
-});
-
-test("the exact live CSP violation becomes a non-executable dismiss marker", () => {
-  assert.equal(
-    createHash("sha256").update(legacyHandler).digest("base64"),
-    "eJWK6Ny+D47qCqiCaL1RQlxkEE6sACQYPtD4jlwIs4k=",
-  );
-  const html = `<script>card.innerHTML = \`<button class="rjv-bc-close" aria-label="إغلاق" onclick="${legacyHandler}">×</button>\`;</script>`;
-  assert.equal(
-    normalizeIntegrationHtml(html),
-    '<script>card.innerHTML = `<button class="rjv-bc-close" aria-label="إغلاق" data-rejuvera-awareness-dismiss="">×</button>`;</script>',
-  );
-});
-
-test("the known action accepts whitespace and an optional trailing semicolon", () => {
-  assert.equal(
-    normalizeIntegrationHtml(
-      "<button onclick=\"document.getElementById('rejuvera-breast-awareness').remove();\">×</button>",
-    ),
-    '<button data-rejuvera-awareness-dismiss="">×</button>',
-  );
-});
-
-test("other inline actions are neither authorized nor compiled", () => {
-  const html = [
-    '<button onclick="alert(1)">other</button>',
-    "<button onclick=\"document.getElementById('other').remove()\">other</button>",
-    "<button onclick=\"document.getElementById('rejuvera-breast-awareness').remove(); alert(1)\">changed</button>",
-  ].join("");
-  assert.equal(normalizeIntegrationHtml(html), html);
-});
-
-test("existing tracking code and campaign copy are preserved", () => {
-  const html =
-    '<script>ttq.page(); snaptr("track", "PAGE_VIEW");</script><div>الفحص المبكر يصنع الفرق</div>';
-  assert.equal(normalizeIntegrationHtml(html), html);
-  assert.equal(
-    normalizeIntegrationHtml(
-      '<script src="https://faheemly.com/api/widget/loader.js"></script>',
-    ),
-    '<script src="https://www.faheemly.com/api/widget/loader.js"></script>',
-  );
 });

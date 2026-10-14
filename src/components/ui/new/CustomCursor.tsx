@@ -14,24 +14,36 @@ export function CustomCursor() {
     const cursor = cursorRef.current;
     const ring = ringRef.current;
     if (!cursor || !ring) return;
+    // The decorations are hidden on touch/mobile: don't animate hidden nodes.
+    if (
+      !window.matchMedia(
+        "(min-width: 1024px) and (hover: hover) and (pointer: fine)",
+      ).matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
 
     let mx = 0,
       my = 0;
     let ringX = 0,
       ringY = 0;
-    let raf: number;
+    let raf: number | null = null;
 
     const onMove = (e: PointerEvent) => {
       mx = e.clientX;
       my = e.clientY;
       cursor.style.transform = `translate(${mx}px, ${my}px)`;
+      if (raf === null) raf = requestAnimationFrame(animate);
     };
 
     const animate = () => {
       ringX += (mx - ringX) * 0.12;
       ringY += (my - ringY) * 0.12;
       ring.style.transform = `translate(${ringX}px, ${ringY}px)`;
-      raf = requestAnimationFrame(animate);
+      raf =
+        Math.abs(mx - ringX) + Math.abs(my - ringY) > 0.2
+          ? requestAnimationFrame(animate)
+          : null;
     };
 
     const onHoverableEnter = () => {
@@ -48,16 +60,20 @@ export function CustomCursor() {
     };
 
     window.addEventListener("pointermove", onMove);
-    raf = requestAnimationFrame(animate);
 
-    document.querySelectorAll("a, button, [data-hoverable]").forEach((el) => {
+    const hoverables = document.querySelectorAll("a, button, [data-hoverable]");
+    hoverables.forEach((el) => {
       (el as HTMLElement).addEventListener("pointerenter", onHoverableEnter);
       (el as HTMLElement).addEventListener("pointerleave", onHoverableLeave);
     });
 
     return () => {
       window.removeEventListener("pointermove", onMove);
-      cancelAnimationFrame(raf);
+      if (raf !== null) cancelAnimationFrame(raf);
+      hoverables.forEach((el) => {
+        el.removeEventListener("pointerenter", onHoverableEnter);
+        el.removeEventListener("pointerleave", onHoverableLeave);
+      });
     };
   }, []);
 

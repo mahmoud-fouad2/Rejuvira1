@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import {
-  installAwarenessDismissHandler,
   normalizeIntegrationHtml,
   isFaceliftDistraction,
 } from "@/lib/integration-snippets";
@@ -166,9 +165,8 @@ export function ExternalIntegrations({
   );
 
   useEffect(() => {
-    // The campaign creates its card asynchronously, so delegate its one
-    // known action instead of allowing inline event-handler execution.
-    const removeAwarenessDismissHandler = installAwarenessDismissHandler();
+    // Remove a card left by an older document during client-side navigation.
+    document.getElementById("rejuvera-breast-awareness")?.remove();
     appendSnippet(
       document.head,
       customHeadCode,
@@ -197,14 +195,12 @@ export function ExternalIntegrations({
         observer.disconnect();
         const widget = document.getElementById("fahimo-widget-root");
         if (widget) widget.hidden = false;
-        removeAwarenessDismissHandler();
         document
           .querySelectorAll("[data-rejuvira-snippet]")
           .forEach((node) => node.remove());
       };
     }
     return () => {
-      removeAwarenessDismissHandler();
       document
         .querySelectorAll("[data-rejuvira-snippet]")
         .forEach((node) => node.remove());

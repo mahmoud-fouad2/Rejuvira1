@@ -6,6 +6,7 @@ import {
 } from "./landing-pages/dr-saham-arfaj.mjs";
 import { seedLandingContent } from "./landing-pages/content-enrichment.mjs";
 import { seedDoctorServiceLandings } from "./landing-pages/doctor-service-landings.mjs";
+import { retireAwarenessCampaign } from "./retire-awareness-campaign.mjs";
 
 const renderBuild = Boolean(
   process.env.RENDER || process.env.RENDER_SERVICE_ID,
@@ -17,6 +18,11 @@ if (process.argv.includes("--if-render") && !renderBuild) {
 } else {
   const prisma = new PrismaClient();
   try {
+    for (const retirement of await retireAwarenessCampaign(prisma)) {
+      console.log(
+        `[integration-cleanup] ${retirement.key}: ${retirement.reason}`,
+      );
+    }
     const result = await seedSahamLandingPage(prisma);
     console.log(`[doctor-landing] /p/${SAHAM_LANDING_SLUG}: ${result.reason}`);
     for (const addition of await seedDoctorServiceLandings(prisma)) {

@@ -9,6 +9,7 @@ import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
 import { PageLoader } from "@/components/layout/PageLoader";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
 import { ExternalIntegrations } from "@/components/layout/ExternalIntegrations";
+import { stripRetiredAwarenessCampaign } from "@/lib/integration-snippets";
 import { LeadConversionTracker } from "@/components/layout/LeadConversionTracker";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
@@ -187,7 +188,7 @@ export default async function RootLayout({
     pathname.startsWith("/login") ||
     pathname.startsWith("/forbidden") ||
     pathname.startsWith("/api");
-  const isFocusedFacelift = pathname === "/p/facelift-riyadh";
+  const isLandingPage = pathname.startsWith("/p/");
   const showMaintenance =
     Boolean(runtimeSettings.ops.maintenanceMode) && !isAdminOrAuth;
   const googleTagConfig =
@@ -284,7 +285,7 @@ export default async function RootLayout({
       </head>
       <body
         className={[
-          isFocusedFacelift ? "" : "page-enter",
+          isLandingPage ? "" : "page-enter",
           "flex min-h-full min-w-0 flex-col",
         ]
           .filter(Boolean)
@@ -315,8 +316,8 @@ export default async function RootLayout({
             />
           ) : null}
           {/* Decorative animation must not compete with the booking form. */}
-          {!isFocusedFacelift ? <CustomCursor /> : null}
-          {!isFocusedFacelift ? <PageLoader /> : null}
+          {!isLandingPage ? <CustomCursor /> : null}
+          {!isLandingPage ? <PageLoader /> : null}
           {!isAdminOrAuth ? <PageViewTracker /> : null}
           {!isAdminOrAuth ? (
             <Script
@@ -338,8 +339,12 @@ export default async function RootLayout({
                   : runtimeSettings.integrations.chatbaseEnabled
               }
               chatbaseWidgetId={runtimeSettings.integrations.chatbaseWidgetId}
-              customHeadCode={runtimeSettings.integrations.customHeadCode}
-              customBodyCode={runtimeSettings.integrations.customBodyCode}
+              customHeadCode={stripRetiredAwarenessCampaign(
+                runtimeSettings.integrations.customHeadCode,
+              )}
+              customBodyCode={stripRetiredAwarenessCampaign(
+                runtimeSettings.integrations.customBodyCode,
+              )}
             />
           ) : null}
           <Script
