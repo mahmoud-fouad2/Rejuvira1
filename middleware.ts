@@ -8,6 +8,7 @@ import {
 } from "@/lib/canonical-host";
 import { buildCsp } from "@/lib/csp";
 import { publicServiceSlug } from "@/lib/public-service-slug";
+import { snapClickCookieForRequest } from "@/lib/snap-click-attribution";
 
 /**
  * Edge middleware:
@@ -177,6 +178,13 @@ export default auth((request) => {
       "public, max-age=0, s-maxage=60, must-revalidate",
     );
     response.headers.set("X-Robots-Tag", "all");
+  }
+
+  const snapClickCookie = snapClickCookieForRequest(request);
+  if (snapClickCookie) {
+    response.headers.append("Set-Cookie", snapClickCookie);
+    // A response carrying a visitor-specific cookie must never enter a shared cache.
+    response.headers.set("Cache-Control", "private, no-store");
   }
 
   return response;

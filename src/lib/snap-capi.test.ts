@@ -69,6 +69,32 @@ test("malformed identifiers and cookies are ignored and visitor opt-outs respect
   assert.deepEqual(event.user_data, {});
 });
 
+test("a booking after navigation retains the session ad click, with a current click taking precedence", () => {
+  const click = "7b3a7917-a82a-47e8-9728-e1b3b045abb2";
+  const headers = {
+    cookie: `rv_snap_click=${click}; _scid=technical-cookie`,
+    referer: "https://rejuvera.sa/contact",
+  };
+  assert.equal(
+    getSnapRequestSignals(
+      new Request("https://rejuvera.sa/api/contact", { headers }),
+    ).clickId,
+    click,
+  );
+  assert.equal(
+    getSnapRequestSignals(
+      new Request("https://rejuvera.sa/api/contact", {
+        headers: {
+          ...headers,
+          "x-rejuvera-current-url":
+            "https://rejuvera.sa/contact?ScCid=new-click",
+        },
+      }),
+    ).clickId,
+    "new-click",
+  );
+});
+
 test("delivery uses v3, checks Snap JSON status, fails open, and never logs secrets", async (t) => {
   t.mock.method(console, "warn", () => {});
   t.mock.method(console, "info", () => {});
@@ -127,6 +153,82 @@ test("delivery uses v3, checks Snap JSON status, fails open, and never logs secr
 });
 
 const require = createRequire(import.meta.url);
+
+test("transient delivery failures retry the identical event once; permanent failures and long Retry-After do not retry", async (t) => {
+  t.mock.method(console, "warn", () => {});
+  t.mock.method(console, "info", () => {});
+  t.mock.method(globalThis, "setTimeout", (callback: () => void) => {
+    callback();
+    return 0 as unknown as ReturnType<typeof setTimeout>;
+  });
+  const before = {
+    pixel: process.env.SNAP_PIXEL_ID,
+    token: process.env.SNAP_CAPI_TOKEN,
+  };
+  process.env.SNAP_PIXEL_ID = "pixel-test";
+  process.env.SNAP_CAPI_TOKEN = "secret-test-token";
+  const calls: string[] = [];
+  let sequence: Array<number | "network"> = [];
+  let retryAfter: string | undefined;
+  t.mock.method(globalThis, "fetch", async (_url: URL, init: RequestInit) => {
+    calls.push(String(init.body));
+    const status = sequence.shift() ?? 200;
+    if (status === "network") throw new Error("Temporary network failure");
+    return Response.json(
+      { status: status === 200 ? "VALID" : "INVALID" },
+      {
+        status,
+        headers: retryAfter ? { "retry-after": retryAfter } : {},
+      },
+    );
+  });
+  const payload = {
+    dedupId: "one-booking",
+    ip: "192.0.2.1",
+    userAgent: "Test Browser",
+  };
+  try {
+    for (const failure of [408, 429, 500, 502, 503, 504, "network"] as const) {
+      calls.length = 0;
+      sequence = [failure, 200];
+      assert.equal(await sendSnapSignUpCapi(payload), true);
+      assert.equal(calls.length, 2);
+      assert.equal(
+        calls[0],
+        calls[1],
+        "retry must preserve ID, timestamp, matching signals and test mode",
+      );
+    }
+    for (const failure of [400, 401, 403, 404]) {
+      calls.length = 0;
+      sequence = [failure, 200];
+      assert.equal(await sendSnapSignUpCapi(payload), false);
+      assert.equal(calls.length, 1);
+    }
+    calls.length = 0;
+    sequence = [503, 503, 200];
+    assert.equal(await sendSnapSignUpCapi(payload), false);
+    assert.equal(
+      calls.length,
+      2,
+      "a persistent outage cannot cause an unbounded retry loop",
+    );
+    calls.length = 0;
+    sequence = [429, 200];
+    retryAfter = "60";
+    assert.equal(await sendSnapSignUpCapi(payload), false);
+    assert.equal(
+      calls.length,
+      1,
+      "never retry earlier than Snap's requested cooldown",
+    );
+  } finally {
+    if (before.pixel === undefined) delete process.env.SNAP_PIXEL_ID;
+    else process.env.SNAP_PIXEL_ID = before.pixel;
+    if (before.token === undefined) delete process.env.SNAP_CAPI_TOKEN;
+    else process.env.SNAP_CAPI_TOKEN = before.token;
+  }
+});
 
 test("native browser SIGN_UP fires once with the same server event ID and no patient fields", () => {
   const source = readFileSync(
@@ -356,6 +458,8 @@ for (const route of ["contact", "leads"] as const) {
         headers: {
           referer: "https://rejuvera.sa/p/test-page",
           "user-agent": "Test Browser",
+          cookie:
+            "rv_snap_click=7b3a7917-a82a-47e8-9728-e1b3b045abb2; _scid=technical-cookie",
         },
       }),
     );
@@ -365,5 +469,42 @@ for (const route of ["contact", "leads"] as const) {
       /lead=success&lead_receipt=signed-receipt/,
     );
     assert.equal(harness.afterTasks.length, 1);
+    await harness.afterTasks[0]!();
+    assert.equal(
+      (harness.capiCalls[0] as { clickId: string }).clickId,
+      "7b3a7917-a82a-47e8-9728-e1b3b045abb2",
+    );
+    assert.equal(
+      (harness.capiCalls[0] as { cookieId: string }).cookieId,
+      "technical-cookie",
+    );
   });
 }
+
+test("contact JSON response and CAPI share the browser's booking ID, even after navigation", async () => {
+  const h = routeHarness("contact", "database");
+  const form = new FormData();
+  form.set("fullName", "Local Test");
+  form.set("phone", "0500000000");
+  form.set("snapDedupId", "booking-uuid-1");
+  const response = await h.post(
+    new Request("https://rejuvera.sa/api/contact", {
+      method: "POST",
+      body: form,
+      headers: {
+        accept: "application/json",
+        "user-agent": "Test Browser",
+        "x-rejuvera-current-url": "https://rejuvera.sa/contact",
+        cookie: "rv_snap_click=7b3a7917-a82a-47e8-9728-e1b3b045abb2",
+      },
+    }),
+  );
+  const json = await response.json();
+  assert.equal(json.saved, true);
+  assert.equal(json.snapDedupId, "booking-uuid-1");
+  assert.equal(h.capiCalls.length, 0);
+  await h.afterTasks[0]!();
+  const payload = h.capiCalls[0] as { dedupId: string; clickId: string };
+  assert.equal(payload.dedupId, json.snapDedupId);
+  assert.equal(payload.clickId, "7b3a7917-a82a-47e8-9728-e1b3b045abb2");
+});

@@ -1,5 +1,6 @@
 /** Server-only Snap CAPI v3. Credentials must never be NEXT_PUBLIC variables. */
 import { isIP } from "node:net";
+import { getStoredSnapClickId } from "./snap-click-attribution.ts";
 
 export type SnapSignUpPayload = {
   dedupId: string;
@@ -46,7 +47,7 @@ export function getSnapRequestSignals(request: Request) {
     /* Ignore malformed cookie values. */
   }
   return {
-    clickId,
+    clickId: clickId ?? getStoredSnapClickId(request.headers),
     cookieId,
     userAgent: request.headers.get("user-agent") ?? undefined,
     trackingDisabled:
@@ -96,29 +97,53 @@ export async function sendSnapSignUpCapi(
     `https://tr.snapchat.com/v3/${encodeURIComponent(pixelId)}/events`,
   );
   endpoint.searchParams.set("access_token", token);
-  try {
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data: [
-          { ...event, ...(testCode ? { test_event_code: testCode } : {}) },
-        ],
-      }),
-      signal: AbortSignal.timeout(5000),
-    });
-    const result = (await res.json().catch(() => null)) as {
-      status?: string;
-    } | null;
-    if (!res.ok || result?.status !== "VALID") {
-      // Never log the URL/token, response body, or visitor matching data.
-      console.warn(`[snap-capi] SIGN_UP rejected (HTTP ${res.status})`);
-      return false;
+  // Freeze the event ID, time and body before retrying: an ambiguous timeout
+  // may already have reached Snap, so retry the same event rather than a new one.
+  const body = JSON.stringify({
+    data: [{ ...event, ...(testCode ? { test_event_code: testCode } : {}) }],
+  });
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    let retryDelay = 500;
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        signal: AbortSignal.timeout(5000),
+      });
+      const result = (await res.json().catch(() => null)) as {
+        status?: string;
+      } | null;
+      if (res.ok && result?.status === "VALID") {
+        console.info("[snap-capi] SIGN_UP accepted");
+        return true;
+      }
+      const retryAfter = res.headers.get("retry-after");
+      if (retryAfter) {
+        const seconds = Number(retryAfter);
+        retryDelay = Number.isFinite(seconds)
+          ? Math.max(0, seconds * 1000)
+          : Math.max(0, Date.parse(retryAfter) - Date.now());
+      }
+      const transient = [408, 429, 500, 502, 503, 504].includes(res.status);
+      if (
+        !transient ||
+        attempt === 1 ||
+        !Number.isFinite(retryDelay) ||
+        retryDelay > 2000
+      ) {
+        // Never log the URL/token, response body, or visitor matching data.
+        console.warn(`[snap-capi] SIGN_UP rejected (HTTP ${res.status})`);
+        return false;
+      }
+    } catch {
+      if (attempt === 1) {
+        console.warn("[snap-capi] SIGN_UP delivery failed or timed out");
+        return false;
+      }
     }
-    console.info("[snap-capi] SIGN_UP accepted");
-    return true;
-  } catch {
-    console.warn("[snap-capi] SIGN_UP delivery failed or timed out");
-    return false;
+    // Runs only in the existing after-response task; never delays booking success.
+    await new Promise((resolve) => setTimeout(resolve, retryDelay));
   }
+  return false;
 }
