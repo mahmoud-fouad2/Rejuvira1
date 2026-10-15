@@ -36,3 +36,7 @@
 - https://developers.snap.com/marketing-api/Conversions-API/Deduplication
 - https://developers.snap.com/marketing-api/Conversions-API/Parameters
 - https://developers.snap.com/marketing-api/Conversions-API/OfflineEvents
+
+## إصلاح التنقل الداخلي - 15 أكتوبر 2026
+
+الفحص الحي أثبت أن الانتقال من الرئيسية إلى /doctors عبر Next.js لا يرسل PAGE_VIEW إلى سناب (صفر طلبات، وصفر إعادة تحميل document). أضيف إرسال مخصص لتغير pathname بعد الفتح الأول؛ يبقى GTM مالك المشاهدة الأولى. يُلغى الانتظار عند مغادرة المسار، ولا ترسل المسارات الخاصة أو زائر اختار GPC/DNT. لا تُضاف أحداث SIGN_UP أو بيانات نموذج إلى حدث التنقل. أضيف احتواء لأخطاء SDK حتى لا يفشل الحجز أو التنقل بسبب سناب. اجتاز الإصدار 114 اختبارًا وبناء الإنتاج والتحقق من الأنواع وlint للملفات المعدلة.

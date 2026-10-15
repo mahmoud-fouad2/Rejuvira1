@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { fireSnapRoutePageView } from "@/lib/snap-pixel";
 
 export function PageViewTracker() {
   const pathname = usePathname();
+  const previousSnapPath = useRef(pathname);
+
+  useEffect(() => {
+    // The initial PAGE_VIEW is already emitted by the configured GTM tag.
+    // React effect replays must not emit another one.
+    if (!pathname || previousSnapPath.current === pathname) return;
+    previousSnapPath.current = pathname;
+    return fireSnapRoutePageView(pathname);
+  }, [pathname]);
 
   useEffect(() => {
     const path = `${pathname ?? "/"}${window.location.search}`;
