@@ -58,16 +58,28 @@ function createMetaEventId() {
   return `rv_lead_${Date.now()}_${randomPart}`;
 }
 
+function safelyDispatchTrackingEvent(dispatch: () => void) {
+  try {
+    dispatch();
+  } catch {
+    // An optional advertising SDK must never interrupt a saved booking or
+    // prevent the other platforms from receiving their independent signals.
+    // Do not retry a throwing SDK: it may already have queued its event.
+  }
+}
+
 function dispatchMetaLead(eventId: string, attempt = 0) {
   if (typeof window.fbq === "function") {
     // Generic event only: never share doctor/service names or medical URLs.
-    window.fbq(
-      "track",
-      "Lead",
-      {},
-      {
-        eventID: eventId,
-      },
+    safelyDispatchTrackingEvent(() =>
+      window.fbq?.(
+        "track",
+        "Lead",
+        {},
+        {
+          eventID: eventId,
+        },
+      ),
     );
     return;
   }
@@ -89,7 +101,7 @@ function dispatchMetaLead(eventId: string, attempt = 0) {
  */
 function dispatchTikTokLead(attempt = 0) {
   if (typeof window.ttq === "function") {
-    window.ttq("track", "Lead");
+    safelyDispatchTrackingEvent(() => window.ttq?.("track", "Lead"));
     return;
   }
   if (attempt < 12) {
@@ -106,13 +118,17 @@ function dispatchGoogleAdsConversion(
   attempt = 0,
 ) {
   if (typeof window.gtag === "function") {
-    window.gtag("event", "conversion", {
-      send_to: GOOGLE_ADS_CONVERSIONS[conversion],
-      value: 1,
-      currency: "SAR",
-      ...(params.transactionId ? { transaction_id: params.transactionId } : {}),
-      ...(params.pageLocation ? { page_location: params.pageLocation } : {}),
-    });
+    safelyDispatchTrackingEvent(() =>
+      window.gtag?.("event", "conversion", {
+        send_to: GOOGLE_ADS_CONVERSIONS[conversion],
+        value: 1,
+        currency: "SAR",
+        ...(params.transactionId
+          ? { transaction_id: params.transactionId }
+          : {}),
+        ...(params.pageLocation ? { page_location: params.pageLocation } : {}),
+      }),
+    );
     return;
   }
 
@@ -134,10 +150,12 @@ function dispatchGoogleAnalyticsLead(
   const event = buildLeadDataLayerEvent(requestId, formType);
 
   if (typeof window.gtag === "function") {
-    window.gtag("event", event.event, {
-      request_id: event.request_id,
-      form_name: event.form_name,
-    });
+    safelyDispatchTrackingEvent(() =>
+      window.gtag?.("event", event.event, {
+        request_id: event.request_id,
+        form_name: event.form_name,
+      }),
+    );
     return;
   }
 
