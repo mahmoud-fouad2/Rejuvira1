@@ -9,6 +9,7 @@ import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { LandingSearchContent } from "@/components/content/LandingSearchContent";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { RouteStyles } from "@/components/layout/RouteStyles";
 import { getCustomPageBySlug } from "@/lib/content-repository";
 import {
   LANDING_PAGE_PHONE_DISPLAY,
@@ -202,6 +203,10 @@ export default async function CustomPage({
 
   return (
     <>
+      {slug === "facelift-riyadh" &&
+      (!isFocusedFacelift || showHeader || showFooter) ? (
+        <RouteStyles forceFullStyles />
+      ) : null}
       <script
         type="application/ld+json"
         nonce={nonce}
@@ -217,7 +222,7 @@ export default async function CustomPage({
       >
         {verifiedLeadState ? (
           <div
-            className={`mx-auto mt-6 max-w-4xl rounded-2xl border px-5 py-3 text-center text-sm font-semibold ${
+            className={`rv-custom-page__lead-notice rv-custom-page__lead-notice--${verifiedLeadState} mx-auto mt-6 max-w-4xl rounded-2xl border px-5 py-3 text-center text-sm font-semibold ${
               verifiedLeadState === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                 : verifiedLeadState === "duplicate"

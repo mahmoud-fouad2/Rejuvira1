@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import Script from "next/script";
 import localFont from "next/font/local";
-import "./globals.css";
 
 import { LanguageProvider } from "@/components/providers/LanguageProvider";
+import { RouteStyles } from "@/components/layout/RouteStyles";
 import { MaintenanceOverlay } from "@/components/layout/MaintenanceOverlay";
 import { PageLoader } from "@/components/layout/PageLoader";
 import { PageViewTracker } from "@/components/layout/PageViewTracker";
@@ -216,6 +216,7 @@ export default async function RootLayout({
       className={`${rejuviraSans.variable} ${rejuviraDisplay.variable} h-full antialiased`}
     >
       <head>
+        <RouteStyles forceFullStyles={showMaintenance} />
         {/* IBM Plex Arabic is loaded locally through next/font. */}
 
         {/* Initial UI state: language + theme before hydration */}

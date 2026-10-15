@@ -9,7 +9,7 @@ if (!response.ok) throw new Error(`Source page returned ${response.status}`);
 const source = await response.text();
 // The CMS content has nested article cards; match the OUTER article boundary.
 const article = source.match(
-  /<article\b[^>]*class="rv-custom-page__content[^>]*>([\s\S]*?)<\/article>(?=\s*<aside\b|\s*<\/main>)/i,
+  /<article\b[^>]*class="rv-custom-page__content[^>]*>([\s\S]*?)<\/article>(?=\s*<(?:aside|section)\b|\s*<\/main>)/i,
 )?.[1];
 if (!article) throw new Error("Expected landing-page article not found");
 // A previously deployed presentation is not the CMS source. Reconstruct a
@@ -38,6 +38,7 @@ const globals = await readFile(
   new URL("../src/app/globals.css", import.meta.url),
   "utf8",
 );
+const focusedStylesOnly = process.env.PREVIEW_CSS_MODE === "focused";
 const font = await readFile(
   new URL(
     "../public/assets/fonts/IBMPlexSansArabic-Regular.woff2",
@@ -85,8 +86,16 @@ const server = createServer(async (req, res) => {
     new URL("../src/app/p/[slug]/facelift.css", import.meta.url),
     "utf8",
   );
+  const previewQuery = new URL(req.url ?? "/", "http://127.0.0.1:3012")
+    .searchParams;
+  const includeFullStyles = !focusedStylesOnly || previewQuery.has("full");
+  // Visual fixtures only; these do not create or claim any backend lead receipt.
+  const receipt = previewQuery.get("receipt");
+  const notice = ["success", "duplicate", "error"].includes(receipt)
+    ? `<div class="rv-custom-page__lead-notice rv-custom-page__lead-notice--${receipt}">معاينة رسالة ${receipt} فقط — لا يوجد طلب مرسل</div>`
+    : "";
   res.end(
-    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — شد الوجه</title><style>${globals}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="rv-custom-page rv-custom-page--uploaded"><article class="rv-custom-page__content rv-custom-page__content--uploaded">${html}</article></main></body></html>`,
+    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — شد الوجه</title><style>${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="rv-custom-page rv-custom-page--uploaded">${notice}<article class="rv-custom-page__content rv-custom-page__content--uploaded">${html}</article></main></body></html>`,
   );
 });
 server.listen(3012, "127.0.0.1", () =>
