@@ -1,12 +1,7 @@
 "use client";
 
 import type { ComponentPropsWithoutRef } from "react";
-
-declare global {
-  interface Window {
-    gtag_report_phone_conversion?: (url?: string) => boolean;
-  }
-}
+import { trackContactLinkConversion } from "@/lib/lead-conversion-tracking";
 
 type PhoneCallLinkProps = Omit<
   ComponentPropsWithoutRef<"a">,
@@ -17,9 +12,7 @@ type PhoneCallLinkProps = Omit<
 
 export function PhoneCallLink({ href, ...props }: PhoneCallLinkProps) {
   const handleClick = () => {
-    const reportConversion = window.gtag_report_phone_conversion;
-    if (typeof reportConversion !== "function") return;
-    reportConversion(href);
+    trackContactLinkConversion("phone");
   };
 
   return (

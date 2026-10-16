@@ -237,7 +237,7 @@ export function buildSahamLandingPage(doctor) {
       <button class="s-submit" type="submit">إرسال طلب استشارة مع الدكتورة سهام</button>
       <p class="s-privacy">إرسال الطلب لا يثبت الموعد تلقائيًا؛ يؤكده الفريق بعد التواصل. بإرسال الطلب، أنت توافقين على استخدام بياناتك للتواصل وفق <a href="/privacy">سياسة الخصوصية</a>.</p>
     </form>
-    <div class="s-form-contact"><a href="tel:0553999514">اتصال مباشر <span dir="ltr">0553999514</span></a><a href="${whatsapp}" target="_blank" rel="noopener noreferrer">استفسري عبر واتساب</a></div>
+    <div class="s-form-contact"><a href="tel:0114999959">اتصال مباشر <span dir="ltr">0114999959</span></a><a href="${whatsapp}" target="_blank" rel="noopener noreferrer">استفسري عبر واتساب</a></div>
   </aside>
   <div class="s-profile"><img src="${photo}" width="120" height="150" alt="${name}، ${title}" loading="eager" decoding="async"><div><h2>تعرّفي على ${name}</h2><p>${title}. تبدأ الاستشارة من فهم احتياجك ومناقشة القرار الجراحي والخطوات والمتابعة المتوقعة.</p><a href="/doctors/saham-arfaj">اطلعي على الملف الطبي للدكتورة ←</a></div></div>
 </div></header>

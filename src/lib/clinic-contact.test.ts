@@ -11,14 +11,13 @@ import {
   normalizeClinicContactHtml,
   clinicWhatsappHref,
   LANDING_PAGE_WHATSAPP_MESSAGE,
-  LANDING_PAGE_GOOGLE_REFERRAL,
   withGoogleWhatsappReferral,
   addLandingPageWhatsappReferralHtml,
 } from "./clinic-contact.ts";
 
-test("site and landing pages share the approved call number without changing WhatsApp", () => {
-  assert.equal(CLINIC_PHONE_DISPLAY, "0553999514");
-  assert.equal(CLINIC_PHONE_TEL, "tel:0553999514");
+test("site and landing pages share the official number for calls and WhatsApp", () => {
+  assert.equal(CLINIC_PHONE_DISPLAY, "0114999959");
+  assert.equal(CLINIC_PHONE_TEL, "tel:0114999959");
   assert.equal(LANDING_PAGE_PHONE_DISPLAY, CLINIC_PHONE_DISPLAY);
   assert.equal(LANDING_PAGE_PHONE_TEL, CLINIC_PHONE_TEL);
   assert.equal(CLINIC_WHATSAPP_DISPLAY, "0114999959");
@@ -46,12 +45,12 @@ test("doctor WhatsApp CTAs normalize the configured number and preserve the mess
 
 test("imported page contact CTAs use the approved clinic number", () => {
   const html = normalizeClinicContactHtml(
-    '<a href="tel:0114999959">011 499 9959</a><a href="https://wa.me/966920017403?text=hello">WhatsApp</a>',
+    '<a href="tel:0553999514">055 399 9514</a><a href="tel:0112723402">011 272 3402</a><a href="tel:920017403">920 017 403</a><a href="https://wa.me/966920017403?text=hello">WhatsApp</a>',
   );
-  assert.match(html, /href="tel:0553999514"/);
-  assert.match(html, />0553999514</);
+  assert.equal((html.match(/href="tel:0114999959"/g) ?? []).length, 3);
+  assert.equal((html.match(/>0114999959</g) ?? []).length, 3);
   assert.match(html, /href="https:\/\/wa\.me\/966114999959\?text=hello"/);
-  assert.doesNotMatch(html, /tel:0114999959|966920017403/);
+  assert.doesNotMatch(html, /0553999514|0112723402|920017403/);
 });
 
 test("landing-page call normalization does not change WhatsApp labels", () => {
@@ -62,14 +61,14 @@ test("landing-page call normalization does not change WhatsApp labels", () => {
   assert.match(html, />0114999959<\/a>/);
 });
 
-test("landing WhatsApp prefill appends Google once and keeps the existing phone and text", () => {
+test("landing WhatsApp prefill preserves the message without claiming a traffic source", () => {
   const href = `${CLINIC_WHATSAPP_URL}?text=${encodeURIComponent(LANDING_PAGE_WHATSAPP_MESSAGE)}&app_absent=0`;
   const updated = withGoogleWhatsappReferral(href);
   const url = new URL(updated);
   assert.equal(url.pathname, "/966114999959");
   assert.equal(
     url.searchParams.get("text"),
-    `${LANDING_PAGE_WHATSAPP_MESSAGE} ${LANDING_PAGE_GOOGLE_REFERRAL}.`,
+    LANDING_PAGE_WHATSAPP_MESSAGE,
   );
   assert.equal(url.searchParams.get("app_absent"), "0");
   assert.equal(withGoogleWhatsappReferral(updated), updated);
@@ -83,7 +82,7 @@ test("landing WhatsApp links keep custom messages and support escaped API query 
     assert.equal(url.searchParams.get("phone"), "966114999959");
     assert.equal(
       url.searchParams.get("text"),
-      `${message} ${LANDING_PAGE_GOOGLE_REFERRAL}.`,
+      message,
     );
     assert.equal(url.searchParams.get("type"), "phone_number");
   }
@@ -91,7 +90,34 @@ test("landing WhatsApp links keep custom messages and support escaped API query 
     new URL(withGoogleWhatsappReferral(CLINIC_WHATSAPP_URL)).searchParams.get(
       "text",
     ),
-    `${LANDING_PAGE_WHATSAPP_MESSAGE} ${LANDING_PAGE_GOOGLE_REFERRAL}.`,
+    LANDING_PAGE_WHATSAPP_MESSAGE,
+  );
+});
+
+test("previously generated Google claims are removed without losing page context or custom text", () => {
+  const context = {
+    pageTitle: "صفحة الاستشارة",
+    pageUrl: "https://rejuvera.sa/p/sample-page?utm_source=facebook#booking",
+  };
+  const message = "مرحبًا، أريد تنسيق استشارة.";
+  const legacyMessage = `${message} لقد عثرت عليكم من Google.\nجئت من صفحة: ${context.pageTitle}.\nرابط الصفحة: https://rejuvera.sa/p/sample-page`;
+  const original = `${CLINIC_WHATSAPP_URL}?text=${encodeURIComponent(legacyMessage)}&app_absent=0`;
+  const updated = withGoogleWhatsappReferral(original, context);
+  const url = new URL(updated);
+  const text = url.searchParams.get("text")!;
+  assert.ok(text.startsWith(message));
+  assert.doesNotMatch(text, /Google|utm_source|facebook|#booking/);
+  assert.equal(text.split(`جئت من صفحة: ${context.pageTitle}.`).length, 2);
+  assert.equal(text.split("https://rejuvera.sa/p/sample-page").length, 2);
+  assert.equal(url.searchParams.get("app_absent"), "0");
+  assert.equal(withGoogleWhatsappReferral(updated, context), updated);
+  assert.equal(
+    new URL(
+      withGoogleWhatsappReferral(
+        `${CLINIC_WHATSAPP_URL}?text=${encodeURIComponent("لقد عثرت عليكم من Google.")}`,
+      ),
+    ).searchParams.get("text"),
+    LANDING_PAGE_WHATSAPP_MESSAGE,
   );
 });
 
@@ -109,9 +135,7 @@ test("landing HTML updates every WhatsApp anchor without touching form, call, la
   assert.equal(hrefs.length, 2);
   assert.ok(
     hrefs.every((href) =>
-      new URL(href).searchParams
-        .get("text")
-        ?.includes(LANDING_PAGE_GOOGLE_REFERRAL),
+      !new URL(href).searchParams.get("text")?.includes("Google"),
     ),
   );
   assert.equal(addLandingPageWhatsappReferralHtml(updated), updated);
@@ -149,7 +173,7 @@ test("landing messages identify the public doctor/page, preserve custom copy and
     assert.ok(text.startsWith("مرحبًا، أريد تنسيق استشارة."));
     assert.ok(text.includes(`جئت من صفحة: ${pageTitle}.`));
     assert.ok(text.includes("رابط الصفحة: https://rejuvera.sa/p/sample-page"));
-    assert.ok(text.includes(LANDING_PAGE_GOOGLE_REFERRAL));
+    assert.doesNotMatch(text, /Google/);
     assert.doesNotMatch(text, /gclid|private-click|#booking/);
     assert.equal(url.pathname, "/966114999959");
     assert.equal(url.searchParams.get("app_absent"), "0");

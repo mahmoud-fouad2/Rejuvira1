@@ -15,6 +15,7 @@ import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
 import { OPENAI_ADS_ATTRIBUTION_SCRIPT } from "@/lib/openai-ads-attribution";
+import { REQUEST_ATTRIBUTION_SCRIPT } from "@/lib/request-attribution";
 import {
   buildLocalBusinessJsonLd,
   buildSiteCreatorJsonLd,
@@ -267,14 +268,6 @@ export default async function RootLayout({
             }}
           />
         ) : null}
-        <Script
-          id="rejuvera-google-phone-conversion"
-          strategy="afterInteractive"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `window.gtag_report_phone_conversion=function(){var send=function(attempt){if(typeof window.gtag==='function'){window.gtag('event','conversion',{'send_to':'AW-16511038360/VzZpCLHk4uocEJjnicE9'});return;}if(attempt<20){window.setTimeout(function(){send(attempt+1);},250);}};send(0);return true;};`,
-          }}
-        />
         {!isAdminOrAuth && process.env.OPENAI_ADS_CAPI_ENABLED === "1" ? (
           <Script
             id="rejuvera-openai-ads-attribution"
@@ -326,7 +319,7 @@ export default async function RootLayout({
               strategy="afterInteractive"
               nonce={nonce}
               dangerouslySetInnerHTML={{
-                __html: `(function(){try{var keys=["utm_source","utm_medium","utm_campaign","utm_content","utm_term","gclid","gbraid","wbraid"];var aliases={utm_source:"utmSource",utm_medium:"utmMedium",utm_campaign:"utmCampaign",utm_content:"utmContent",utm_term:"utmTerm"};var params=new URLSearchParams(window.location.search);var stored={};try{stored=JSON.parse(localStorage.getItem("rejuvera_utm")||"{}")||{};}catch(e){stored={};}var hasCurrent=keys.some(function(k){return !!(params.get(k)||"").trim();});if(hasCurrent){var next={__capturedAt:Date.now(),__landingPage:window.location.href,__referrer:document.referrer||""};keys.forEach(function(k){var v=(params.get(k)||"").trim();if(v)next[k]=v.slice(0,250);});stored=next;localStorage.setItem("rejuvera_utm",JSON.stringify(stored));}else if(stored.__capturedAt&&Date.now()-Number(stored.__capturedAt)>7776000000){stored={};localStorage.removeItem("rejuvera_utm");}function fill(){keys.forEach(function(k){var v=stored[k]||"";var selector='input[name="'+k+'"]'+(aliases[k]?',input[name="'+aliases[k]+'"]':'');document.querySelectorAll(selector).forEach(function(input){if(!input.value)input.value=v;});});document.querySelectorAll('input[name="pageUrl"],input[name="landingPageUrl"]').forEach(function(input){if(!input.value)input.value=stored.__landingPage||window.location.href;});document.querySelectorAll('input[name="referrerUrl"]').forEach(function(input){if(!input.value)input.value=stored.__referrer||document.referrer||"";});}fill();new MutationObserver(fill).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}})();`,
+                __html: REQUEST_ATTRIBUTION_SCRIPT,
               }}
             />
           ) : null}

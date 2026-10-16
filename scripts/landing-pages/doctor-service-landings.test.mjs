@@ -26,7 +26,7 @@ test("forms reuse the existing lead pipeline without new tracking or medical int
     const html = buildDoctorServiceLanding(profile);
     assert.match(html, /method="post" action="\/api\/leads"/);
     assert.match(html, /name="serviceSlug" value="general-inquiry"/);
-    assert.match(html, /href="tel:0553999514"/);
+    assert.match(html, /href="tel:0114999959"/);
     assert.match(html, /https:\/\/wa.me\/966114999959/);
     assert.equal((html.match(/<h1>/g) || []).length, 1);
     assert.doesNotMatch(html, /<script|dataLayer|gtag\(|snaptr\(|textarea|type="email"/);

@@ -616,7 +616,7 @@ function buildLandingPage(page) {
         <p class="rv-ad-intro">${escapeHtml(page.intro)}</p>
         <div class="rv-ad-actions">
           <a class="rv-ad-btn rv-ad-btn--primary" href="#lead-form">احجزي تقييمك الآن</a>
-          <a class="rv-ad-btn rv-ad-btn--ghost" href="tel:0553999514">اتصال مباشر</a>
+          <a class="rv-ad-btn rv-ad-btn--ghost" href="tel:0114999959">اتصال مباشر</a>
         </div>
         <div class="rv-ad-proof" aria-label="مميزات ريجوفيرا">
           <span>تقييم طبي واضح</span>

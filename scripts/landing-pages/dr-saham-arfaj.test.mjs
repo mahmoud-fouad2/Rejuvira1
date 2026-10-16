@@ -108,6 +108,9 @@ test("service links, form choices and specific questions follow published physic
   assert.equal((html.match(/<h1\b/g) || []).length, 1);
   assert.equal((html.match(/<form\b/g) || []).length, 1);
   assert.match(html, /action="\/api\/leads"/);
+  assert.match(html, /href="tel:0114999959"/);
+  assert.match(html, /<span dir="ltr">0114999959<\/span>/);
+  assert.doesNotMatch(html, /0553999514/);
   assert.match(html, /<option value="tummy-tuck">/);
   assert.match(html, /href="\/services\/tummy-tuck"/);
   assert.match(html, /href="\/privacy"/);

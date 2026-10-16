@@ -54,6 +54,10 @@ function readTrackingFromSearchParams(params: URLSearchParams | null) {
   return tracking;
 }
 
+function hasTracking(tracking: RequestTrackingFields) {
+  return trackingParams.some(([fieldName]) => Boolean(tracking[fieldName]));
+}
+
 export function getRequestTracking(request: Request) {
   const baseUrl = request.url;
   const candidates = [
@@ -61,46 +65,32 @@ export function getRequestTracking(request: Request) {
     request.headers.get("referer"),
     request.headers.get("x-rejuvera-current-url"),
   ];
-  const merged: Required<RequestTrackingFields> = {
-    utmSource: "",
-    utmMedium: "",
-    utmCampaign: "",
-    utmContent: "",
-    utmTerm: "",
-    gclid: "",
-    gbraid: "",
-    wbraid: "",
-  };
-
   for (const candidate of candidates) {
     const tracking = readTrackingFromSearchParams(
       getSearchParams(candidate, baseUrl),
     );
-    for (const [fieldName] of trackingParams) {
-      if (!merged[fieldName] && tracking[fieldName]) {
-        merged[fieldName] = tracking[fieldName];
-      }
-    }
+    // Each URL represents one context; do not assemble a cohort across URLs.
+    if (hasTracking(tracking)) return tracking;
   }
 
-  return merged;
+  return readTrackingFromSearchParams(null);
 }
 
 export function mergeRequestTracking<T extends RequestTrackingFields>(
   payload: T,
   request: Request,
 ) {
-  const tracking = getRequestTracking(request);
+  const submitted = readTrackingFromSearchParams(null);
+  for (const [fieldName] of trackingParams) {
+    submitted[fieldName] = cleanTrackingValue(payload[fieldName]);
+  }
+  // Even a partial submitted context owns its whole cohort. Filling its gaps
+  // from the current URL could attach a different campaign's click ID.
+  const tracking = hasTracking(submitted)
+    ? submitted
+    : getRequestTracking(request);
   return {
     ...payload,
-    utmSource: cleanTrackingValue(payload.utmSource) || tracking.utmSource,
-    utmMedium: cleanTrackingValue(payload.utmMedium) || tracking.utmMedium,
-    utmCampaign:
-      cleanTrackingValue(payload.utmCampaign) || tracking.utmCampaign,
-    utmContent: cleanTrackingValue(payload.utmContent) || tracking.utmContent,
-    utmTerm: cleanTrackingValue(payload.utmTerm) || tracking.utmTerm,
-    gclid: cleanTrackingValue(payload.gclid) || tracking.gclid,
-    gbraid: cleanTrackingValue(payload.gbraid) || tracking.gbraid,
-    wbraid: cleanTrackingValue(payload.wbraid) || tracking.wbraid,
+    ...tracking,
   };
 }

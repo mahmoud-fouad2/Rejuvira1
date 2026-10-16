@@ -5,7 +5,7 @@ import { sanitizeHtml } from "./sanitize-html.ts";
 import {
   CLINIC_PHONE_TEL,
   CLINIC_WHATSAPP_NUMBER,
-  LANDING_PAGE_GOOGLE_REFERRAL,
+  LANDING_PAGE_WHATSAPP_MESSAGE,
 } from "./clinic-contact.ts";
 
 const form = `<form class="rvx-form" data-rejuvera-guard="1" action="/api/leads" method="post"><input name="fullName" required minlength="3"><input name="phone" type="tel" required pattern="(?:\\+?966|0)?5[0-9]{8}"><select name="serviceSlug" required><option value="face-neck-lift">شد الوجه والرقبة</option></select><input name="source" type="hidden" value="Landing page - Face Lift"><input name="landingPageSlug" type="hidden" value="face-lift-riyadh"><input name="rv_hp_field" type="text"><input name="rv_rendered_at" type="hidden" value="1791700000000"><input name="gclid" type="hidden" value="sample_click"><button type="submit">إرسال طلب الاستشارة مع د. لؤي</button><p>إرسال الطلب لا يثبت الموعد تلقائيًا</p></form>`;
@@ -33,7 +33,7 @@ test("existing medical gallery assets are reused, not fabricated or attributed t
   assert.equal((result.match(/<section\b/g) ?? []).length, 6);
   assert.equal((result.match(/<h1>/g) ?? []).length, 1);
 });
-test("all contact links use central configured numbers and the required Google prefill", () => {
+test("all contact links use central numbers and a neutral booking message", () => {
   const result = improveFaceliftLanding(source, "facelift-riyadh");
   assert.equal((result.match(/href="tel:/g) ?? []).length, 3);
   assert.equal(
@@ -47,9 +47,7 @@ test("all contact links use central configured numbers and the required Google p
   for (const link of links) {
     const url = new URL(link[1]!.replace(/&amp;/g, "&"));
     assert.equal(url.pathname, `/${CLINIC_WHATSAPP_NUMBER}`);
-    assert.ok(
-      url.searchParams.get("text")!.includes(LANDING_PAGE_GOOGLE_REFERRAL),
-    );
+    assert.equal(url.searchParams.get("text"), LANDING_PAGE_WHATSAPP_MESSAGE);
   }
 });
 test("only the known facelift page is enhanced; unknown CMS layouts fail safely", () => {

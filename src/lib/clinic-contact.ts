@@ -1,4 +1,4 @@
-export const CLINIC_PHONE_DISPLAY = "0553999514";
+export const CLINIC_PHONE_DISPLAY = "0114999959";
 export const CLINIC_PHONE_TEL = `tel:${CLINIC_PHONE_DISPLAY}`;
 export const CLINIC_WHATSAPP_DISPLAY = "0114999959";
 export const CLINIC_WHATSAPP_NUMBER = `966${CLINIC_WHATSAPP_DISPLAY.slice(1)}`;
@@ -7,14 +7,13 @@ export const LANDING_PAGE_PHONE_DISPLAY = CLINIC_PHONE_DISPLAY;
 export const LANDING_PAGE_PHONE_TEL = CLINIC_PHONE_TEL;
 export const LANDING_PAGE_WHATSAPP_MESSAGE =
   "مرحبًا، أرغب في تنسيق موعد استشارة في مركز ريجوفيرا.";
-export const LANDING_PAGE_GOOGLE_REFERRAL = "لقد عثرت عليكم من Google";
 
 export type LandingPageWhatsappContext = {
   pageTitle: string;
   pageUrl: string;
 };
 
-/** Add the requested landing-page prefill, not an analytics attribution signal. */
+/** Legacy helper name: add page context without claiming a traffic source. */
 export function withGoogleWhatsappReferral(
   href: string,
   context?: LandingPageWhatsappContext,
@@ -29,11 +28,16 @@ export function withGoogleWhatsappReferral(
       ) &&
         /^\/send\/?$/.test(url.pathname));
     if (!isPhoneLink) return href;
+    // Remove only the exact source claim previously appended by this helper.
+    // The public landing-page URL alone cannot establish how a visitor arrived.
     let message =
-      url.searchParams.get("text")?.trim() || LANDING_PAGE_WHATSAPP_MESSAGE;
-    if (!message.includes(LANDING_PAGE_GOOGLE_REFERRAL)) {
-      message = `${message} ${LANDING_PAGE_GOOGLE_REFERRAL}.`;
-    }
+      url.searchParams
+        .get("text")
+        ?.replace(
+          /(?:^|[ \t]+)لقد عثرت عليكم من Google\.?(?=\r?\n|$)/g,
+          "",
+        )
+        .trim() || LANDING_PAGE_WHATSAPP_MESSAGE;
     // Public page identity only: no query/click IDs, form values or patient data.
     if (context) {
       const page = new URL(context.pageUrl);
@@ -87,9 +91,9 @@ export function clinicWhatsappHref(number: string, message?: string) {
 }
 
 const LEGACY_CALL_NUMBERS = [
+  "0553999514",
   "0112723402",
   "920017403",
-  CLINIC_WHATSAPP_DISPLAY,
 ] as const;
 
 function formattedPhonePattern(value: string) {
@@ -135,7 +139,7 @@ export function normalizeClinicContactHtml(html: string) {
       },
     )
     .replace(
-      /(<a\b[^>]*href=(['"])tel:0553999514\2[^>]*>)([\s\S]*?)(<\/a>)/gi,
+      /(<a\b[^>]*href=(['"])tel:[^'"\s>]+\2[^>]*>)([\s\S]*?)(<\/a>)/gi,
       (_match, open: string, _quote: string, label: string, close: string) =>
         `${open}${normalizeCallLabel(label)}${close}`,
     );
