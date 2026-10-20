@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { isSnapMeasurementBootstrap } from "@/lib/snap-integration";
 import {
   normalizeIntegrationHtml,
+  normalizeIntegrationSnippets,
   isFaceliftDistraction,
 } from "@/lib/integration-snippets";
 
@@ -180,16 +181,20 @@ export function ExternalIntegrations({
   useEffect(() => {
     // Remove a card left by an older document during client-side navigation.
     document.getElementById("rejuvera-breast-awareness")?.remove();
+    const snippets = normalizeIntegrationSnippets(
+      customHeadCode,
+      customBodyCode,
+    );
     appendSnippet(
       document.head,
-      customHeadCode,
+      snippets.customHeadCode,
       "head",
       nonce,
       focusedFacelift,
     );
     appendSnippet(
       document.body,
-      customBodyCode,
+      snippets.customBodyCode,
       "body",
       nonce,
       focusedFacelift,

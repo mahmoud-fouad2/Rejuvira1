@@ -1,4 +1,7 @@
-import { stripDuplicateSnapBootstrap } from "./snap-integration.ts";
+import {
+  stripDuplicateSnapBootstrap,
+  stripDuplicateSnapBootstraps,
+} from "./snap-integration.ts";
 
 /** Retire only the standalone October card, preserving adjacent integrations. */
 export function stripRetiredAwarenessCampaign(html: string): string {
@@ -25,6 +28,16 @@ export function normalizeIntegrationHtml(html: string): string {
   return stripDuplicateSnapBootstrap(
     stripRetiredAwarenessCampaign(html),
   ).replace(/https?:\/\/faheemly\.com/g, "https://www.faheemly.com");
+}
+
+/** Head and body share the same verified Snap/GTM bootstrap owner. */
+export function normalizeIntegrationSnippets(head: string, body: string) {
+  const [customHeadCode, customBodyCode] = stripDuplicateSnapBootstraps(
+    [head, body].map(stripRetiredAwarenessCampaign),
+  ).map((html) =>
+    html.replace(/https?:\/\/faheemly\.com/g, "https://www.faheemly.com"),
+  );
+  return { customHeadCode: customHeadCode!, customBodyCode: customBodyCode! };
 }
 
 /** Only the facelift route opts out of the two known promotional widgets. */

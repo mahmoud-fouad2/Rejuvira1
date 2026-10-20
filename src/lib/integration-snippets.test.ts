@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   normalizeIntegrationHtml,
+  normalizeIntegrationSnippets,
   stripRetiredAwarenessCampaign,
   isFaceliftDistraction,
 } from "./integration-snippets.ts";
+import { REDUNDANT_SNAP_BOOTSTRAP } from "./snap-integration.ts";
 
 const campaign = `<script>
 (function () {
@@ -75,4 +77,29 @@ test("facelift suppression still targets only known widgets, never tracking snip
     );
   }
   assert.equal(isFaceliftDistraction("unrelated widget"), false);
+});
+
+test("paired normalization removes only the known Snap duplicate across head/body", () => {
+  const gtm = `<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-WRR5GX93');</script>`;
+  const snap = `<script>${REDUNDANT_SNAP_BOOTSTRAP}</script>`;
+  const meta = '<script>fbq("track", "PageView");</script>';
+  const widget =
+    '<script src="https://faheemly.com/api/widget/loader.js"></script>';
+  const result = normalizeIntegrationSnippets(
+    snap + meta,
+    gtm + campaign + widget,
+  );
+  assert.equal(result.customHeadCode, meta);
+  assert.equal(
+    result.customBodyCode,
+    gtm + widget.replace("https://faheemly", "https://www.faheemly"),
+  );
+  assert.deepEqual(
+    normalizeIntegrationSnippets(result.customHeadCode, result.customBodyCode),
+    result,
+  );
+  assert.deepEqual(normalizeIntegrationSnippets("", ""), {
+    customHeadCode: "",
+    customBodyCode: "",
+  });
 });

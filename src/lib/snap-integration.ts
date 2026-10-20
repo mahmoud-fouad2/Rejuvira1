@@ -28,17 +28,30 @@ export function isSnapMeasurementBootstrap(code: string): boolean {
 
 /** GTM-WRR5GX93 owns PAGE_VIEW; remove its verified duplicate only alongside it. */
 export function stripDuplicateSnapBootstrap(html: string): string {
-  const scripts = [
-    ...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi),
-  ];
-  const hasVerifiedContainer = scripts.some(
-    ([, code]) =>
-      isSnapMeasurementBootstrap(code!) && code!.includes("GTM-WRR5GX93"),
+  return stripDuplicateSnapBootstraps([html])[0]!;
+}
+
+/** Inspect head and body together before executing either snippet. */
+export function stripDuplicateSnapBootstraps(
+  snippets: readonly string[],
+): string[] {
+  const hasVerifiedContainer = snippets.some((html) =>
+    [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)].some(
+      ([, code]) =>
+        isSnapMeasurementBootstrap(code!) && code!.includes("GTM-WRR5GX93"),
+    ),
   );
-  if (!hasVerifiedContainer) return html;
   const known = compact(REDUNDANT_SNAP_BOOTSTRAP);
-  return html.replace(
-    /<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi,
-    (element, code: string) => (compact(code) === known ? "" : element),
+  let keptManualFallback = false;
+  return snippets.map((html) =>
+    html.replace(
+      /<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi,
+      (element, code: string) => {
+        if (compact(code) !== known) return element;
+        if (hasVerifiedContainer || keptManualFallback) return "";
+        keptManualFallback = true;
+        return element;
+      },
+    ),
   );
 }
