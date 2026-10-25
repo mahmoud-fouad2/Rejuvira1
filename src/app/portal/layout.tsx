@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Route } from "next";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { BrandLogo } from "@/components/layout/BrandLogo";
@@ -11,6 +12,13 @@ import { getPatientSession } from "@/lib/portal/patient-auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const NAV_ITEMS: { href: string; label: string; labelEn: string }[] = [
   { href: "/portal", label: "الرئيسية", labelEn: "Home" },

@@ -7,7 +7,6 @@ export const LEAD_DUPLICATE_MESSAGE =
 export const LEAD_SPAM_GUARD_MESSAGE =
   "تعذر إرسال الطلب الآن. الرجاء المحاولة مرة أخرى. / Could not submit your request. Please try again.";
 
-const MIN_SUBMIT_DELAY_MS = 2500;
 const MAX_CLOCK_SKEW_MS = 60 * 1000;
 
 function readString(source: FormData | Record<string, unknown>, key: string) {
@@ -41,10 +40,6 @@ export function evaluateLeadIntakeGuard(
   const elapsed = now - renderedAt;
   if (elapsed < -MAX_CLOCK_SKEW_MS) {
     return { ok: false as const, reason: "future_timestamp" as const };
-  }
-
-  if (elapsed >= 0 && elapsed < MIN_SUBMIT_DELAY_MS) {
-    return { ok: false as const, reason: "too_fast" as const };
   }
 
   return { ok: true as const };

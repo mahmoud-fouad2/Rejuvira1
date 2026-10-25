@@ -111,7 +111,25 @@ export default auth((request) => {
   const isLoginRoute = nextUrl.pathname.startsWith("/login");
   const isForbiddenRoute = nextUrl.pathname.startsWith("/forbidden");
   const isApiAdminRoute = nextUrl.pathname.startsWith("/api/admin");
+  const isPortalRoute = nextUrl.pathname.startsWith("/portal");
+  const isPatientLoginRoute = nextUrl.pathname.startsWith("/patient-login");
+  const isApiPortalRoute = nextUrl.pathname.startsWith("/api/portal");
+  const isAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+  const isLeadReceiptRoute = nextUrl.pathname.startsWith("/api/lead-receipt");
+  const isWebhookRoute = nextUrl.pathname.startsWith("/api/webhooks");
   const hasAuthenticatedUser = Boolean(session?.user?.id);
+
+  const isSensitiveSurface =
+    isAdminRoute ||
+    isApiAdminRoute ||
+    isLoginRoute ||
+    isForbiddenRoute ||
+    isPortalRoute ||
+    isPatientLoginRoute ||
+    isApiPortalRoute ||
+    isAuthRoute ||
+    isLeadReceiptRoute ||
+    isWebhookRoute;
 
   // Fresh nonce per request for the CSP script-src. Set on the request
   // headers (not just the response) so Next's own renderer picks it up and
@@ -120,7 +138,11 @@ export default auth((request) => {
   // the 'unsafe-inline' fallback.
   const nonce = btoa(crypto.randomUUID());
   const cspValue = buildCsp(
-    isAdminRoute || isLoginRoute || isForbiddenRoute
+    isAdminRoute ||
+      isLoginRoute ||
+      isForbiddenRoute ||
+      isPortalRoute ||
+      isPatientLoginRoute
       ? "frame-ancestors 'none'"
       : "frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googleusercontent.com",
     nonce,
@@ -162,12 +184,13 @@ export default auth((request) => {
   response.headers.set("Content-Security-Policy", cspValue);
 
   // Sensitive surfaces should never be cached by browsers/CDNs.
-  if (isAdminRoute || isApiAdminRoute || isLoginRoute) {
+  if (isSensitiveSurface) {
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, max-age=0",
+      "private, no-store, no-cache, must-revalidate, max-age=0",
     );
     response.headers.set("Pragma", "no-cache");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
   } else {
     // Public pages: allow short CDN caching and stay crawlable for Googlebot.
     // Overrides the `Cache-Control: private` that NextAuth injects whenever

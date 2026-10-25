@@ -4663,6 +4663,20 @@ export async function createContactLead(
       },
     });
 
+  const service = input.serviceSlug
+    ? await prisma.service.findFirst({
+        where: {
+          OR: [
+            { slug: input.serviceSlug },
+            { nameAr: input.serviceSlug },
+            { nameEn: input.serviceSlug },
+          ],
+        },
+        select: { id: true },
+      })
+    : null;
+  const targetServiceId = service?.id ?? null;
+
   if (shortDuplicateWindowMinutes > 0) {
     const duplicateSince = new Date(
       Date.now() - shortDuplicateWindowMinutes * 60 * 1000,
@@ -4671,6 +4685,10 @@ export async function createContactLead(
       where: {
         phone: input.phone,
         createdAt: { gte: duplicateSince },
+        serviceId: targetServiceId,
+        ...(targetServiceId === null && input.landingPageUrl
+          ? { landingPageUrl: input.landingPageUrl }
+          : {}),
       },
       orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
     });
@@ -4691,6 +4709,10 @@ export async function createContactLead(
       where: {
         phone: input.phone,
         createdAt: { gte: duplicateSince },
+        serviceId: targetServiceId,
+        ...(targetServiceId === null && input.landingPageUrl
+          ? { landingPageUrl: input.landingPageUrl }
+          : {}),
         OR: [
           { source },
           ...(input.webhookId ? [{ webhookId: input.webhookId }] : []),
@@ -4706,19 +4728,6 @@ export async function createContactLead(
       };
     }
   }
-
-  const service = input.serviceSlug
-    ? await prisma.service.findFirst({
-        where: {
-          OR: [
-            { slug: input.serviceSlug },
-            { nameAr: input.serviceSlug },
-            { nameEn: input.serviceSlug },
-          ],
-        },
-        select: { id: true },
-      })
-    : null;
   const submission = await prisma.contactSubmission.create({
     data: {
       fullName: input.fullName,

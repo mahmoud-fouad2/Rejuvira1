@@ -20,6 +20,7 @@ import {
 } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
+import { auth } from "@/auth";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import {
@@ -38,6 +39,11 @@ export async function generateMetadata({
   const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) notFound();
+
+  if (doctor.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (!session?.user) notFound();
+  }
 
   const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
   const isLoai = doctor.slug === "loai-alsalmi";
@@ -175,6 +181,13 @@ export default async function DoctorDetailPage({
 
   if (!doctor) {
     notFound();
+  }
+
+  if (doctor.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (!session?.user) {
+      notFound();
+    }
   }
 
   const doctorServiceSlugSet = new Set(doctor.serviceSlugs);

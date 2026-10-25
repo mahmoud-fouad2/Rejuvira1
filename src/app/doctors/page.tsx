@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
+import { ContentStatus } from "@/lib/prisma-enums";
 import { getCspNonce } from "@/lib/csp-nonce";
 import { getDoctors, getMediaSelections } from "@/lib/content-repository";
 import { buildCollectionPageJsonLd, buildPageMetadata } from "@/lib/seo";
@@ -13,11 +14,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function DoctorsPage() {
-  const [doctors, mediaSelections, nonce] = await Promise.all([
+  const [allDoctors, mediaSelections, nonce] = await Promise.all([
     getDoctors(),
     getMediaSelections(),
     getCspNonce(),
   ]);
+  const doctors = allDoctors.filter(
+    (doctor) => doctor.status === ContentStatus.PUBLISHED,
+  );
   const featuredDoctorsCount = doctors.filter(
     (doctor) => doctor.featured,
   ).length;

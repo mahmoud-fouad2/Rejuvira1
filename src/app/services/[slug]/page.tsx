@@ -19,6 +19,7 @@ import {
 } from "@/lib/content-repository";
 import { getCoreServiceSeo } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
+import { auth } from "@/auth";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import { hasEnglishServiceContent, resolveServiceSeo } from "@/lib/service-seo";
@@ -40,6 +41,11 @@ export async function generateMetadata({
   const service = await getServiceBySlug(slug);
 
   if (!service) notFound();
+
+  if (service.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (!session?.user) notFound();
+  }
 
   const arUrl = new URL(`/services/${service.slug}`, getSiteUrl()).href;
   const coreSeo = getCoreServiceSeo(service);
@@ -124,6 +130,13 @@ export default async function ServiceDetailPage({
 
   if (!service) {
     notFound();
+  }
+
+  if (service.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (!session?.user) {
+      notFound();
+    }
   }
 
   const doctorSlugSet = new Set(service.doctorSlugs);
