@@ -171,9 +171,15 @@ const nextConfig: NextConfig = {
         headers: [{ key: "X-Robots-Tag", value: "all" }],
       },
       {
-        source:
-          "/((?!admin|api/admin|api/auth|api/portal|forbidden|login|patient-login|portal)(?:.*))",
+        source: "/((?!admin|api/|forbidden|login|patient-login|portal)(?:.*))",
         headers: [{ key: "X-Robots-Tag", value: "all" }],
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
       },
       // robots.txt + sitemap files: short cache, plus permissive indexing.
       // These file routes are excluded from middleware.ts's matcher (by

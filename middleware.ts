@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
+import type { Session } from "next-auth";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute, getAdminHomePath } from "@/lib/admin-permissions";
@@ -44,8 +46,8 @@ function getRequestOrigin(request: Request, fallbackUrl: URL) {
   return `${proto}://${host}`;
 }
 
-export default auth((request) => {
-  const { nextUrl, auth: session } = request;
+function handleRequest(request: NextRequest, session: Session | null) {
+  const { nextUrl } = request;
   const requestHost =
     firstHeaderValue(request.headers.get("x-forwarded-host")) ||
     firstHeaderValue(request.headers.get("host"));
@@ -118,6 +120,12 @@ export default auth((request) => {
   const isLeadReceiptRoute = nextUrl.pathname.startsWith("/api/lead-receipt");
   const isWebhookRoute = nextUrl.pathname.startsWith("/api/webhooks");
   const hasAuthenticatedUser = Boolean(session?.user?.id);
+  // Auth.js may clear/rotate a cookie even when a session is invalid. Patient
+  // sessions are independent of Auth.js and must also bypass shared caches.
+  const hasPrivateCookie =
+    /(?:^|;\s*)(?:(?:__Secure-)?(?:authjs|next-auth)\.session-token(?:\.\d+)?|rejuvera_patient_session)=/.test(
+      request.headers.get("cookie") || "",
+    );
 
   const isSensitiveSurface =
     isAdminRoute ||
@@ -129,7 +137,8 @@ export default auth((request) => {
     isApiPortalRoute ||
     isAuthRoute ||
     isLeadReceiptRoute ||
-    isWebhookRoute;
+    isWebhookRoute ||
+    nextUrl.pathname.startsWith("/api/");
 
   // Fresh nonce per request for the CSP script-src. Set on the request
   // headers (not just the response) so Next's own renderer picks it up and
@@ -150,16 +159,25 @@ export default auth((request) => {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", cspValue);
 
+  const privateRedirect = (url: URL) => {
+    const response = NextResponse.redirect(url);
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    response.headers.set("Vary", "Cookie");
+    response.headers.set("Content-Security-Policy", cspValue);
+    return response;
+  };
+
   if (isAdminRoute && !hasAuthenticatedUser) {
     const url = buildCanonicalUrl("/login");
     url.searchParams.set("redirect", nextUrl.pathname + nextUrl.search);
-    return NextResponse.redirect(url);
+    return privateRedirect(url);
   }
 
   if (nextUrl.pathname === "/admin" && hasAuthenticatedUser) {
     const adminHomePath = getAdminHomePath(session?.user?.role);
     if (adminHomePath !== "/admin") {
-      return NextResponse.redirect(buildCanonicalUrl(adminHomePath));
+      return privateRedirect(buildCanonicalUrl(adminHomePath));
     }
   }
 
@@ -167,11 +185,11 @@ export default auth((request) => {
     isAdminRoute &&
     !canAccessAdminRoute(nextUrl.pathname, session?.user?.role)
   ) {
-    return NextResponse.redirect(buildCanonicalUrl("/forbidden"));
+    return privateRedirect(buildCanonicalUrl("/forbidden"));
   }
 
   if (isLoginRoute && hasAuthenticatedUser) {
-    return NextResponse.redirect(
+    return privateRedirect(
       buildCanonicalUrl(getAdminHomePath(session?.user?.role)),
     );
   }
@@ -185,7 +203,7 @@ export default auth((request) => {
 
   // Sensitive surfaces and authenticated user requests (including draft previews)
   // should never enter a shared CDN cache.
-  if (isSensitiveSurface || hasAuthenticatedUser) {
+  if (isSensitiveSurface || hasAuthenticatedUser || hasPrivateCookie) {
     response.headers.set(
       "Cache-Control",
       "private, no-store, no-cache, must-revalidate, max-age=0",
@@ -196,7 +214,12 @@ export default auth((request) => {
     const existingVary = response.headers.get("Vary");
     if (!existingVary) {
       response.headers.set("Vary", "Cookie");
-    } else if (!existingVary.split(",").map((v) => v.trim().toLowerCase()).includes("cookie")) {
+    } else if (
+      !existingVary
+        .split(",")
+        .map((v) => v.trim().toLowerCase())
+        .includes("cookie")
+    ) {
       response.headers.set("Vary", `${existingVary}, Cookie`);
     }
   } else {
@@ -221,7 +244,29 @@ export default auth((request) => {
   }
 
   return response;
+}
+
+const authenticatedMiddleware = auth((request, event: NextFetchEvent) => {
+  void event;
+  return handleRequest(request, request.auth);
 });
+
+export default function middleware(
+  request: NextRequest,
+  event: NextFetchEvent,
+) {
+  // Auth.js bootstraps CSRF/callback cookies even for anonymous requests. Its
+  // wrapper appends them *after* handleRequest returns, so do not invoke it for
+  // anonymous pages that can enter a shared cache. Auth endpoints handle their
+  // own bootstrap; existing staff sessions still receive normal rotation.
+  const hasStaffSession =
+    /(?:^|;\s*)(?:__Secure-)?(?:authjs|next-auth)\.session-token(?:\.\d+)?=/.test(
+      request.headers.get("cookie") || "",
+    );
+  return hasStaffSession
+    ? authenticatedMiddleware(request, event)
+    : handleRequest(request, null);
+}
 
 export const config = {
   matcher: [

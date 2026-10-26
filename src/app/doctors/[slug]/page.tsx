@@ -43,7 +43,10 @@ export async function generateMetadata({
 
   if (doctor.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!canAccessAdminRoute("/admin/doctors", session?.user?.role)) {
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/doctors", session.user.role)
+    ) {
       notFound();
     }
   }
@@ -188,7 +191,10 @@ export default async function DoctorDetailPage({
 
   if (doctor.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!canAccessAdminRoute("/admin/doctors", session?.user?.role)) {
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/doctors", session.user.role)
+    ) {
       notFound();
     }
   }
@@ -362,7 +368,9 @@ export default async function DoctorDetailPage({
             </p>
             <div className="rv-doctor-hero-cta">
               <BookingModal
-                services={services}
+                services={services.filter(
+                  (item) => item.status === ContentStatus.PUBLISHED,
+                )}
                 recaptchaSiteKey={getPublicSiteKey()}
                 buttonClassName="rv-doctor-cta-primary"
                 labelAr="احجزي استشارة"
@@ -566,7 +574,9 @@ export default async function DoctorDetailPage({
           </div>
           <div className="rv-doctor-close-cta">
             <BookingModal
-              services={services}
+              services={services.filter(
+                (item) => item.status === ContentStatus.PUBLISHED,
+              )}
               recaptchaSiteKey={getPublicSiteKey()}
               buttonClassName="rv-doctor-cta-primary"
               labelAr="احجزي الاستشارة"

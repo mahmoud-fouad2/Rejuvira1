@@ -45,7 +45,10 @@ export async function generateMetadata({
 
   if (service.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!canAccessAdminRoute("/admin/services", session?.user?.role)) {
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/services", session.user.role)
+    ) {
       notFound();
     }
   }
@@ -137,7 +140,10 @@ export default async function ServiceDetailPage({
 
   if (service.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!canAccessAdminRoute("/admin/services", session?.user?.role)) {
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/services", session.user.role)
+    ) {
       notFound();
     }
   }
@@ -438,7 +444,9 @@ export default async function ServiceDetailPage({
           <>
             <ServicePatientGuide
               service={service}
-              services={services}
+              services={services.filter(
+                (item) => item.status === ContentStatus.PUBLISHED,
+              )}
               posts={posts}
             />
             <ServiceSearchQuestions

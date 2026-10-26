@@ -6,7 +6,7 @@ import ts from "typescript";
 
 import { canAccessAdminRoute } from "./admin-permissions.ts";
 import { buildCsp } from "./csp.ts";
-import { ContentStatus, UserRole } from "./prisma-enums.ts";
+import { UserRole } from "./prisma-enums.ts";
 import { createContactLead } from "./content-repository.ts";
 import { prisma } from "./prisma.ts";
 import { GENERAL_INQUIRY_SERVICE_AR } from "./general-inquiry.ts";
@@ -35,7 +35,11 @@ function createMiddlewareRunner(
     "next/server": {
       NextResponse: {
         next: () => new Response(null, { headers: initialHeaders }),
-        redirect: (url: URL, status = 307) => Response.redirect(url, status),
+        redirect: (url: URL, status = 307) =>
+          new Response(null, {
+            status,
+            headers: { Location: url.href },
+          }),
       },
     },
     "@/auth": {
@@ -82,7 +86,12 @@ function createMiddlewareRunner(
   );
 
   return (url: string, headers: HeadersInit = {}) => {
-    const request = new Request(url, { headers }) as Request & { nextUrl: URL; auth?: any };
+    if (session)
+      headers = { ...headers, Cookie: "authjs.session-token=mock-session" };
+    const request = new Request(url, { headers }) as Request & {
+      nextUrl: URL;
+      auth?: any;
+    };
     request.nextUrl = new URL(url);
     return exports.default(request);
   };
@@ -93,9 +102,12 @@ test("[Unit] Middleware Draft Preview vs Public CDN Cache", () => {
   const editorRunner = createMiddlewareRunner({
     user: { id: "usr_editor_1", role: "EDITOR" },
   });
-  const draftPreviewResponse = editorRunner("https://rejuvera.sa/services/draft-procedure");
+  const draftPreviewResponse = editorRunner(
+    "https://rejuvera.sa/services/draft-procedure",
+  );
 
-  const draftCacheControl = draftPreviewResponse.headers.get("cache-control") || "";
+  const draftCacheControl =
+    draftPreviewResponse.headers.get("cache-control") || "";
   assert.ok(
     draftCacheControl.includes("private, no-store"),
     "Draft preview for authenticated editor MUST be private, no-store",
@@ -230,11 +242,13 @@ test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Tou
   const originalUpdate = prisma.contactSubmission.update;
   const originalCreate = prisma.contactSubmission.create;
   const originalServiceFindFirst = prisma.service.findFirst;
+  const originalTransaction = prisma.$transaction;
 
   let capturedUpdateData: any = null;
   let capturedQueryWhere: any = null;
 
   try {
+    (prisma as any).$transaction = async (callback: any) => callback(prisma);
     // 1. Existing lead with long message and initial notes
     const longOriginalMessage = "أ".repeat(5800);
     const existingSubmission = {
@@ -289,14 +303,21 @@ test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Tou
 
     // CRITICAL: First-Touch Attribution fields MUST NOT be overwritten
     assert.equal(capturedUpdateData.source, "Google Ads");
-    assert.equal(capturedUpdateData.utmSource, "google");
-    assert.equal(capturedUpdateData.utmCampaign, "facelift-campaign-original");
-    assert.equal(capturedUpdateData.gclid, "gclid_click_111", "Original First-Touch gclid must be preserved");
-    assert.equal(capturedUpdateData.landingPageUrl, "https://rejuvera.sa/services/facelift");
+    assert.equal(result.submission.utmSource, "google");
+    assert.equal(result.submission.utmCampaign, "facelift-campaign-original");
+    assert.equal(
+      result.submission.gclid,
+      "gclid_click_111",
+      "Original First-Touch gclid must be preserved",
+    );
+    assert.equal(
+      result.submission.landingPageUrl,
+      "https://rejuvera.sa/services/facelift",
+    );
 
     // TASK 3: Verify that a new Click ID for the same campaign is identified and logged as a new touch event
     assert.ok(
-      capturedUpdateData.internalNotes.includes("click=gclid_click_222"),
+      capturedUpdateData.internalNotes.includes('"gclid":"gclid_click_222"'),
       "New click ID must be identified and logged in internalNotes",
     );
     assert.ok(
@@ -324,7 +345,8 @@ test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Tou
       internalNotes: capturedUpdateData.internalNotes,
       message: capturedUpdateData.message,
     };
-    (prisma.contactSubmission as any).findFirst = async () => duplicateWithLoggedTouch;
+    (prisma.contactSubmission as any).findFirst = async () =>
+      duplicateWithLoggedTouch;
     let retryUpdateData: any = null;
     (prisma.contactSubmission as any).update = async (args: any) => {
       retryUpdateData = args.data;
@@ -345,7 +367,8 @@ test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Tou
     });
 
     // Count occurrences of the click signature in notes
-    const matches = (retryUpdateData.internalNotes.match(/click=gclid_click_222/g) || []);
+    const matches =
+      retryUpdateData.internalNotes.match(/"gclid":"gclid_click_222"/g) || [];
     assert.equal(
       matches.length,
       1,
@@ -358,7 +381,8 @@ test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Tou
       ...existingSubmission,
       internalNotes: largeHistoricalNotes,
     };
-    (prisma.contactSubmission as any).findFirst = async () => submissionWithLargeNotes;
+    (prisma.contactSubmission as any).findFirst = async () =>
+      submissionWithLargeNotes;
     let largeNoteUpdateData: any = null;
     (prisma.contactSubmission as any).update = async (args: any) => {
       largeNoteUpdateData = args.data;
@@ -391,6 +415,7 @@ test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Tou
     prisma.contactSubmission.update = originalUpdate;
     prisma.contactSubmission.create = originalCreate;
     prisma.service.findFirst = originalServiceFindFirst;
+    prisma.$transaction = originalTransaction;
   }
 });
 
@@ -401,11 +426,13 @@ test("[Mocked Integration] createContactLead: Scoping and isolation for unseeded
   const originalFindFirst = prisma.contactSubmission.findFirst;
   const originalCreate = prisma.contactSubmission.create;
   const originalServiceFindFirst = prisma.service.findFirst;
+  const originalTransaction = prisma.$transaction;
 
   let capturedQueryWhere: any = null;
   let capturedCreateData: any = null;
 
   try {
+    (prisma as any).$transaction = async (callback: any) => callback(prisma);
     (prisma.service as any).findFirst = async () => null; // Unseeded service
     (prisma.contactSubmission as any).findFirst = async (args: any) => {
       capturedQueryWhere = args.where;
@@ -461,28 +488,7 @@ test("[Mocked Integration] createContactLead: Scoping and isolation for unseeded
     prisma.contactSubmission.findFirst = originalFindFirst;
     prisma.contactSubmission.create = originalCreate;
     prisma.service.findFirst = originalServiceFindFirst;
-  }
-});
-
-test("[Behavioral Contract] ContentStatus: Only PUBLISHED content is publicly accessible", () => {
-  const allStatuses = [
-    ContentStatus.PUBLISHED,
-    ContentStatus.DRAFT,
-    ContentStatus.REVIEW,
-    ContentStatus.APPROVED,
-    ContentStatus.ARCHIVED,
-  ];
-
-  function evaluatePublicVisibility(status: (typeof allStatuses)[number]) {
-    return status === ContentStatus.PUBLISHED;
-  }
-
-  for (const status of allStatuses) {
-    if (status === ContentStatus.PUBLISHED) {
-      assert.equal(evaluatePublicVisibility(status), true);
-    } else {
-      assert.equal(evaluatePublicVisibility(status), false);
-    }
+    prisma.$transaction = originalTransaction;
   }
 });
 
