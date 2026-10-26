@@ -1,270 +1,130 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-test("Task 1: Portal & Auth routes receive private no-store and noindex", async () => {
-  // Simulate the route matching logic from middleware.ts
-  const sensitivePathnames = [
-    "/portal",
-    "/portal/documents",
-    "/portal/messages",
-    "/portal/account",
-    "/patient-login",
-    "/patient-login/activate",
-    "/patient-login/recover",
-    "/api/portal/procedures/123/pdf",
-    "/api/auth/session",
-    "/api/auth/csrf",
-    "/api/lead-receipt",
-    "/api/webhooks/xyz",
-    "/admin",
-    "/admin/crm",
-    "/api/admin/patients",
+import { canAccessAdminRoute } from "./admin-permissions.ts";
+import { buildCsp } from "./csp.ts";
+import { ContentStatus, UserRole } from "./prisma-enums.ts";
+
+/**
+ * REJUVERA PHASE 1 VERIFICATION SUITE
+ *
+ * Test Classification:
+ * - [Unit]: Direct execution of production functions without network or database dependencies.
+ * - [Behavioral Contract]: Verification of state guards and boundary contracts against real enums.
+ * - [Scope Notice]: Live Edge HTTP headers and live PostgreSQL multi-transaction concurrency
+ *   require a live staging environment with database connections, and are categorized
+ *   accordingly as NOT TESTED locally to prevent unverified production claims.
+ */
+
+test("[Unit] canAccessAdminRoute: Only authorized content roles may preview services and doctors", () => {
+  // Test real canAccessAdminRoute function from src/lib/admin-permissions.ts
+  const authorizedRoles = [
+    UserRole.SUPER_ADMIN,
+    UserRole.ADMIN,
+    UserRole.EDITOR,
   ];
 
-  const publicPathnames = [
-    "/",
-    "/about",
-    "/services",
-    "/services/face-neck-lift",
-    "/doctors",
-    "/doctors/dr-saham-arfaj",
-    "/journal",
-    "/journal/facelift-guide",
-    "/contact",
+  const unauthorizedRoles = [
+    UserRole.VIEWER, // Call center - leads only
+    UserRole.MEDICAL_DIRECTOR,
+    UserRole.DOCTOR,
+    UserRole.NURSE,
+    UserRole.COORDINATOR,
+    UserRole.RECEPTIONIST,
+    UserRole.AUDITOR,
   ];
 
-  function evaluateRouteSecurity(pathname: string) {
-    const isAdminRoute = pathname.startsWith("/admin");
-    const isLoginRoute = pathname.startsWith("/login");
-    const isForbiddenRoute = pathname.startsWith("/forbidden");
-    const isApiAdminRoute = pathname.startsWith("/api/admin");
-    const isPortalRoute = pathname.startsWith("/portal");
-    const isPatientLoginRoute = pathname.startsWith("/patient-login");
-    const isApiPortalRoute = pathname.startsWith("/api/portal");
-    const isAuthRoute = pathname.startsWith("/api/auth");
-    const isLeadReceiptRoute = pathname.startsWith("/api/lead-receipt");
-    const isWebhookRoute = pathname.startsWith("/api/webhooks");
-
-    const isSensitiveSurface =
-      isAdminRoute ||
-      isApiAdminRoute ||
-      isLoginRoute ||
-      isForbiddenRoute ||
-      isPortalRoute ||
-      isPatientLoginRoute ||
-      isApiPortalRoute ||
-      isAuthRoute ||
-      isLeadReceiptRoute ||
-      isWebhookRoute;
-
-    if (isSensitiveSurface) {
-      return {
-        cacheControl: "private, no-store, no-cache, must-revalidate, max-age=0",
-        pragma: "no-cache",
-        robotsTag: "noindex, nofollow",
-        frameAncestors:
-          isAdminRoute ||
-          isLoginRoute ||
-          isForbiddenRoute ||
-          isPortalRoute ||
-          isPatientLoginRoute
-            ? "frame-ancestors 'none'"
-            : "frame-ancestors 'self'",
-      };
-    }
-
-    return {
-      cacheControl: "public, max-age=0, s-maxage=60, must-revalidate",
-      pragma: undefined,
-      robotsTag: "all",
-      frameAncestors: "frame-ancestors 'self'",
-    };
-  }
-
-  for (const path of sensitivePathnames) {
-    const headers = evaluateRouteSecurity(path);
-    assert.ok(
-      headers.cacheControl.includes("private") && headers.cacheControl.includes("no-store"),
-      `Path ${path} must have private no-store cache control`,
-    );
+  // 1. Services Management Route (/admin/services)
+  for (const role of authorizedRoles) {
     assert.equal(
-      headers.robotsTag,
-      "noindex, nofollow",
-      `Path ${path} must have noindex, nofollow robots tag`,
-    );
-    assert.equal(
-      headers.pragma,
-      "no-cache",
-      `Path ${path} must have pragma no-cache`,
+      canAccessAdminRoute("/admin/services", role as any),
+      true,
+      `Role ${role} MUST be authorized to manage/preview services`,
     );
   }
 
-  for (const path of publicPathnames) {
-    const headers = evaluateRouteSecurity(path);
+  for (const role of unauthorizedRoles) {
     assert.equal(
-      headers.cacheControl,
-      "public, max-age=0, s-maxage=60, must-revalidate",
-      `Public path ${path} must remain publicly cacheable with s-maxage=60`,
-    );
-    assert.equal(
-      headers.robotsTag,
-      "all",
-      `Public path ${path} must remain indexable with X-Robots-Tag: all`,
+      canAccessAdminRoute("/admin/services", role as any),
+      false,
+      `Role ${role} MUST NOT be authorized to manage/preview services`,
     );
   }
-});
 
-test("Task 2: Content status guards prevent draft exposure on public routes", () => {
-  const ContentStatus = {
-    DRAFT: "DRAFT",
-    PUBLISHED: "PUBLISHED",
-    ARCHIVED: "ARCHIVED",
-  } as const;
-
-  type ContentStatusType = (typeof ContentStatus)[keyof typeof ContentStatus];
-
-  function simulateAccessGuard(
-    item: { status: ContentStatusType } | null,
-    session: { user?: { id: string } } | null,
-  ) {
-    if (!item) return { status: 404, action: "notFound" };
-    if (item.status !== ContentStatus.PUBLISHED) {
-      if (!session?.user) {
-        return { status: 404, action: "notFound" };
-      }
-      return { status: 200, action: "previewDraft" };
-    }
-    return { status: 200, action: "renderPublished" };
-  }
-
-  // 1. Unauthenticated visitor requesting a published service/doctor
-  const pubResult = simulateAccessGuard({ status: ContentStatus.PUBLISHED }, null);
-  assert.equal(pubResult.status, 200);
-  assert.equal(pubResult.action, "renderPublished");
-
-  // 2. Unauthenticated visitor requesting a DRAFT service/doctor
-  const draftResultAnon = simulateAccessGuard({ status: ContentStatus.DRAFT }, null);
-  assert.equal(draftResultAnon.status, 404);
-  assert.equal(draftResultAnon.action, "notFound");
-
-  // 3. Authenticated admin requesting a DRAFT service/doctor
-  const draftResultAdmin = simulateAccessGuard(
-    { status: ContentStatus.DRAFT },
-    { user: { id: "admin_123" } },
+  assert.equal(
+    canAccessAdminRoute("/admin/services", undefined),
+    false,
+    "Unauthenticated/anonymous user MUST NOT access services",
   );
-  assert.equal(draftResultAdmin.status, 200);
-  assert.equal(draftResultAdmin.action, "previewDraft");
 
-  // 4. Unknown slug
-  const missingResult = simulateAccessGuard(null, null);
-  assert.equal(missingResult.status, 404);
-  assert.equal(missingResult.action, "notFound");
-});
-
-test("Task 3: Lead deduplication separates rapid resubmissions from distinct service inquiries", () => {
-  // Mock submissions database
-  const submissions: Array<{
-    id: string;
-    phone: string;
-    serviceId: string | null;
-    landingPageUrl: string | null;
-    source: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }> = [];
-
-  function simulateCreateContactLead(input: {
-    phone: string;
-    serviceId: string | null;
-    landingPageUrl?: string;
-    source: string;
-  }) {
-    const targetServiceId = input.serviceId ?? null;
-    const shortDuplicateWindowMinutes = 30;
-    const duplicateSince = new Date(Date.now() - shortDuplicateWindowMinutes * 60 * 1000);
-
-    const duplicate = submissions.find((sub) => {
-      if (sub.phone !== input.phone) return false;
-      if (sub.createdAt < duplicateSince) return false;
-      if (sub.serviceId !== targetServiceId) return false;
-      if (targetServiceId === null && input.landingPageUrl && sub.landingPageUrl !== input.landingPageUrl) {
-        return false;
-      }
-      return true;
-    });
-
-    if (duplicate) {
-      duplicate.updatedAt = new Date();
-      return { mode: "duplicate" as const, submission: duplicate };
-    }
-
-    const newSub = {
-      id: `sub_${submissions.length + 1}`,
-      phone: input.phone,
-      serviceId: targetServiceId,
-      landingPageUrl: input.landingPageUrl ?? null,
-      source: input.source,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    submissions.push(newSub);
-    return { mode: "database" as const, submission: newSub };
+  // 2. Doctors Management Route (/admin/doctors)
+  for (const role of authorizedRoles) {
+    assert.equal(
+      canAccessAdminRoute("/admin/doctors", role as any),
+      true,
+      `Role ${role} MUST be authorized to manage/preview doctors`,
+    );
   }
 
-  // 1. Initial inquiry for Facelift
-  const res1 = simulateCreateContactLead({
-    phone: "0501234567",
-    serviceId: "srv_facelift",
-    source: "Website form",
-  });
-  assert.equal(res1.mode, "database");
-  assert.equal(res1.submission.id, "sub_1");
+  for (const role of unauthorizedRoles) {
+    assert.equal(
+      canAccessAdminRoute("/admin/doctors", role as any),
+      false,
+      `Role ${role} MUST NOT be authorized to manage/preview doctors`,
+    );
+  }
 
-  // 2. User double-clicks or resubmits the same Facelift inquiry 10 seconds later
-  const res2 = simulateCreateContactLead({
-    phone: "0501234567",
-    serviceId: "srv_facelift",
-    source: "Website form",
-  });
-  assert.equal(res2.mode, "duplicate");
-  assert.equal(res2.submission.id, "sub_1"); // Refreshed existing submission, no new CAPI/lead created
+  assert.equal(
+    canAccessAdminRoute("/admin/doctors", undefined),
+    false,
+    "Unauthenticated/anonymous user MUST NOT access doctors",
+  );
+});
 
-  // 3. User makes a legitimate subsequent inquiry for Rhinoplasty with the same phone
-  const res3 = simulateCreateContactLead({
-    phone: "0501234567",
-    serviceId: "srv_rhinoplasty",
-    source: "Website form",
-  });
-  assert.equal(res3.mode, "database");
-  assert.equal(res3.submission.id, "sub_2"); // NEW distinct lead created, webhook and CAPI eligible!
+test("[Behavioral Contract] ContentStatus: Only PUBLISHED content is publicly accessible", () => {
+  // Real production enum from src/lib/prisma-enums.ts
+  const allStatuses = [
+    ContentStatus.PUBLISHED,
+    ContentStatus.DRAFT,
+    ContentStatus.REVIEW,
+    ContentStatus.APPROVED,
+    ContentStatus.ARCHIVED,
+  ];
 
-  // 4. User makes an inquiry on Landing Page A
-  const res4 = simulateCreateContactLead({
-    phone: "0501234567",
-    serviceId: null,
-    landingPageUrl: "/p/landing-a",
-    source: "Landing page",
-  });
-  assert.equal(res4.mode, "database");
-  assert.equal(res4.submission.id, "sub_3");
+  function evaluatePublicVisibility(status: (typeof allStatuses)[number]) {
+    return status === ContentStatus.PUBLISHED;
+  }
 
-  // 5. User resubmits on Landing Page A -> duplicate
-  const res5 = simulateCreateContactLead({
-    phone: "0501234567",
-    serviceId: null,
-    landingPageUrl: "/p/landing-a",
-    source: "Landing page",
-  });
-  assert.equal(res5.mode, "duplicate");
-  assert.equal(res5.submission.id, "sub_3");
+  for (const status of allStatuses) {
+    if (status === ContentStatus.PUBLISHED) {
+      assert.equal(evaluatePublicVisibility(status), true);
+    } else {
+      assert.equal(evaluatePublicVisibility(status), false);
+    }
+  }
+});
 
-  // 6. User submits on Landing Page B -> NEW distinct lead
-  const res6 = simulateCreateContactLead({
-    phone: "0501234567",
-    serviceId: null,
-    landingPageUrl: "/p/landing-b",
-    source: "Landing page",
-  });
-  assert.equal(res6.mode, "database");
-  assert.equal(res6.submission.id, "sub_4");
+test("[Unit] buildCsp: Sensitive routes receive strict frame-ancestors none", () => {
+  const nonce = "test-nonce-12345";
+
+  // Strict CSP for sensitive surfaces (admin, portal, login)
+  const sensitiveCsp = buildCsp("frame-ancestors 'none'", nonce);
+  assert.ok(
+    sensitiveCsp.includes("frame-ancestors 'none'"),
+    "Sensitive CSP must strictly enforce frame-ancestors 'none'",
+  );
+  assert.ok(
+    sensitiveCsp.includes(`'nonce-${nonce}'`),
+    "CSP must bind the request nonce",
+  );
+
+  // Public CSP allowing required Google framing
+  const publicCsp = buildCsp(
+    "frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googleusercontent.com",
+    nonce,
+  );
+  assert.ok(
+    publicCsp.includes("https://tagassistant.google.com"),
+    "Public CSP must permit tag assistant while maintaining self boundaries",
+  );
 });

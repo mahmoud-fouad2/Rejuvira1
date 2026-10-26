@@ -4634,35 +4634,6 @@ export async function createContactLead(
     Number(process.env.LEAD_SHORT_DEDUP_WINDOW_MINUTES ?? 30),
   );
   const source = input.source?.trim() || "Website form";
-  const refreshDuplicate = async (id: string) =>
-    prisma.contactSubmission.update({
-      where: { id },
-      data: {
-        updatedAt: new Date(),
-        fullName: input.fullName,
-        preferredLanguage: input.preferredLanguage ?? "ar",
-        source,
-        ...(input.email ? { email: input.email } : {}),
-        ...(input.message ? { message: input.message } : {}),
-        ...(input.utmSource ? { utmSource: input.utmSource } : {}),
-        ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
-        ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
-        ...(input.utmContent ? { utmContent: input.utmContent } : {}),
-        ...(input.utmTerm ? { utmTerm: input.utmTerm } : {}),
-        ...(input.gclid ? { gclid: input.gclid } : {}),
-        ...(input.gbraid ? { gbraid: input.gbraid } : {}),
-        ...(input.wbraid ? { wbraid: input.wbraid } : {}),
-        ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
-        ...(input.landingPageUrl
-          ? { landingPageUrl: input.landingPageUrl }
-          : {}),
-        ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
-        ...(input.country ? { country: input.country } : {}),
-        ...(input.userAgent ? { userAgent: input.userAgent } : {}),
-        ...(input.notes ? { internalNotes: input.notes } : {}),
-      },
-    });
-
   const service = input.serviceSlug
     ? await prisma.service.findFirst({
         where: {
@@ -4676,6 +4647,92 @@ export async function createContactLead(
       })
     : null;
   const targetServiceId = service?.id ?? null;
+  const unknownServiceTag =
+    !targetServiceId && input.serviceSlug?.trim()
+      ? `service:${input.serviceSlug.trim()}`
+      : null;
+
+  const refreshDuplicate = async (duplicateRecord: {
+    id: string;
+    fullName: string;
+    preferredLanguage: string;
+    source: string | null;
+    message: string | null;
+    internalNotes: string | null;
+    utmSource: string | null;
+    utmMedium: string | null;
+    utmCampaign: string | null;
+    utmContent: string | null;
+    utmTerm: string | null;
+    gclid: string | null;
+    gbraid: string | null;
+    wbraid: string | null;
+    landingPageUrl: string | null;
+    referrerUrl: string | null;
+  }) => {
+    // Preserve First-Touch Attribution: Never overwrite original campaign attribution
+    const utmSource = duplicateRecord.utmSource || input.utmSource;
+    const utmMedium = duplicateRecord.utmMedium || input.utmMedium;
+    const utmCampaign = duplicateRecord.utmCampaign || input.utmCampaign;
+    const utmContent = duplicateRecord.utmContent || input.utmContent;
+    const utmTerm = duplicateRecord.utmTerm || input.utmTerm;
+    const gclid = duplicateRecord.gclid || input.gclid;
+    const gbraid = duplicateRecord.gbraid || input.gbraid;
+    const wbraid = duplicateRecord.wbraid || input.wbraid;
+    const landingPageUrl = duplicateRecord.landingPageUrl || input.landingPageUrl;
+    const referrerUrl = duplicateRecord.referrerUrl || input.referrerUrl;
+
+    // Record multi-touch campaign journey in internalNotes without clobbering first touch
+    const isNewTouch =
+      (input.utmSource && input.utmSource !== duplicateRecord.utmSource) ||
+      (input.utmCampaign && input.utmCampaign !== duplicateRecord.utmCampaign) ||
+      (input.gclid && input.gclid !== duplicateRecord.gclid);
+
+    const recurringNotes: string[] = [];
+    if (isNewTouch) {
+      recurringNotes.push(
+        `[Returning Touch ${new Date().toISOString()}]: source=${input.utmSource || "direct"}, campaign=${input.utmCampaign || "none"}${input.gclid ? `, gclid=${input.gclid}` : ""}`,
+      );
+    }
+    if (input.notes && input.notes !== duplicateRecord.internalNotes) {
+      recurringNotes.push(input.notes);
+    }
+
+    const mergedNotes = [duplicateRecord.internalNotes, ...recurringNotes]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const mergedMessage =
+      duplicateRecord.message && input.message && input.message !== duplicateRecord.message
+        ? `${duplicateRecord.message}\n---\n[رسالة متابعة]: ${input.message}`
+        : (input.message || duplicateRecord.message);
+
+    return prisma.contactSubmission.update({
+      where: { id: duplicateRecord.id },
+      data: {
+        updatedAt: new Date(),
+        fullName: input.fullName,
+        preferredLanguage: input.preferredLanguage ?? duplicateRecord.preferredLanguage ?? "ar",
+        source: duplicateRecord.source || source,
+        ...(input.email ? { email: input.email } : {}),
+        ...(mergedMessage ? { message: mergedMessage } : {}),
+        ...(utmSource ? { utmSource } : {}),
+        ...(utmMedium ? { utmMedium } : {}),
+        ...(utmCampaign ? { utmCampaign } : {}),
+        ...(utmContent ? { utmContent } : {}),
+        ...(utmTerm ? { utmTerm } : {}),
+        ...(gclid ? { gclid } : {}),
+        ...(gbraid ? { gbraid } : {}),
+        ...(wbraid ? { wbraid } : {}),
+        ...(landingPageUrl ? { landingPageUrl } : {}),
+        ...(referrerUrl ? { referrerUrl } : {}),
+        ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+        ...(input.country ? { country: input.country } : {}),
+        ...(input.userAgent ? { userAgent: input.userAgent } : {}),
+        ...(mergedNotes ? { internalNotes: mergedNotes } : {}),
+      },
+    });
+  };
 
   if (shortDuplicateWindowMinutes > 0) {
     const duplicateSince = new Date(
@@ -4686,7 +4743,8 @@ export async function createContactLead(
         phone: input.phone,
         createdAt: { gte: duplicateSince },
         serviceId: targetServiceId,
-        ...(targetServiceId === null && input.landingPageUrl
+        ...(unknownServiceTag ? { tags: { has: unknownServiceTag } } : {}),
+        ...(targetServiceId === null && !unknownServiceTag && input.landingPageUrl
           ? { landingPageUrl: input.landingPageUrl }
           : {}),
       },
@@ -4696,7 +4754,7 @@ export async function createContactLead(
     if (duplicate) {
       return {
         mode: "duplicate" as const,
-        submission: await refreshDuplicate(duplicate.id),
+        submission: await refreshDuplicate(duplicate),
       };
     }
   }
@@ -4710,7 +4768,8 @@ export async function createContactLead(
         phone: input.phone,
         createdAt: { gte: duplicateSince },
         serviceId: targetServiceId,
-        ...(targetServiceId === null && input.landingPageUrl
+        ...(unknownServiceTag ? { tags: { has: unknownServiceTag } } : {}),
+        ...(targetServiceId === null && !unknownServiceTag && input.landingPageUrl
           ? { landingPageUrl: input.landingPageUrl }
           : {}),
         OR: [
@@ -4724,10 +4783,16 @@ export async function createContactLead(
     if (duplicate) {
       return {
         mode: "duplicate" as const,
-        submission: await refreshDuplicate(duplicate.id),
+        submission: await refreshDuplicate(duplicate),
       };
     }
   }
+
+  const effectiveTags = [
+    ...(input.tags ?? []),
+    ...(unknownServiceTag ? [unknownServiceTag] : []),
+  ];
+
   const submission = await prisma.contactSubmission.create({
     data: {
       fullName: input.fullName,
@@ -4749,7 +4814,7 @@ export async function createContactLead(
       ...(input.landingPageUrl ? { landingPageUrl: input.landingPageUrl } : {}),
       ...(input.userAgent ? { userAgent: input.userAgent } : {}),
       ...(input.notes ? { internalNotes: input.notes } : {}),
-      ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
+      ...(effectiveTags.length ? { tags: effectiveTags } : {}),
       ...(input.webhookId ? { webhookId: input.webhookId } : {}),
       ...(input.email
         ? {

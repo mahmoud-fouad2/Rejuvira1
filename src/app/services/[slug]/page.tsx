@@ -20,6 +20,7 @@ import {
 import { getCoreServiceSeo } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
 import { auth } from "@/auth";
+import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import { hasEnglishServiceContent, resolveServiceSeo } from "@/lib/service-seo";
@@ -44,7 +45,9 @@ export async function generateMetadata({
 
   if (service.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!session?.user) notFound();
+    if (!canAccessAdminRoute("/admin/services", session?.user?.role)) {
+      notFound();
+    }
   }
 
   const arUrl = new URL(`/services/${service.slug}`, getSiteUrl()).href;
@@ -134,7 +137,7 @@ export default async function ServiceDetailPage({
 
   if (service.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!session?.user) {
+    if (!canAccessAdminRoute("/admin/services", session?.user?.role)) {
       notFound();
     }
   }

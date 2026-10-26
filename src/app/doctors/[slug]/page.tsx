@@ -21,6 +21,7 @@ import {
 import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
 import { auth } from "@/auth";
+import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import {
@@ -42,7 +43,9 @@ export async function generateMetadata({
 
   if (doctor.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!session?.user) notFound();
+    if (!canAccessAdminRoute("/admin/doctors", session?.user?.role)) {
+      notFound();
+    }
   }
 
   const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
@@ -185,7 +188,7 @@ export default async function DoctorDetailPage({
 
   if (doctor.status !== ContentStatus.PUBLISHED) {
     const session = await auth();
-    if (!session?.user) {
+    if (!canAccessAdminRoute("/admin/doctors", session?.user?.role)) {
       notFound();
     }
   }

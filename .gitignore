@@ -46,6 +46,7 @@ build_log.txt
 
 # tooling / local IDE (large vendor trees — never commit)
 .codex-tools/
+.codex-artifacts/
 
 # typescript
 *.tsbuildinfo
