@@ -23,14 +23,17 @@ import { GENERAL_INQUIRY_SERVICE_AR } from "./general-inquiry.ts";
  */
 
 // Helper to run production middleware in isolation with custom auth session
-function createMiddlewareRunner(session: { user?: { id: string; role: string } } | null) {
+function createMiddlewareRunner(
+  session: { user?: { id: string; role: string } } | null,
+  initialHeaders: Record<string, string> = {},
+) {
   const exports = {} as {
     default: (request: Request & { nextUrl: URL; auth?: any }) => Response;
   };
   const modules: Record<string, unknown> = {
     "next/server": {
       NextResponse: {
-        next: () => new Response(),
+        next: () => new Response(null, { headers: initialHeaders }),
         redirect: (url: URL, status = 307) => Response.redirect(url, status),
       },
     },
@@ -139,6 +142,15 @@ test("[Unit] Middleware Draft Preview vs Public CDN Cache", () => {
     publicResponse.headers.get("vary"),
     "Cookie",
     "Public page MUST Vary: Cookie to protect against cache poisoning between anonymous and logged-in states",
+  );
+
+  // 3. Verify existing Vary headers (e.g. Next.js RSC, Accept-Encoding) are preserved
+  const rscRunner = createMiddlewareRunner(null, { Vary: "RSC, Next-Router-State-Tree" });
+  const rscResponse = rscRunner("https://rejuvera.sa/services/facelift");
+  assert.equal(
+    rscResponse.headers.get("vary"),
+    "RSC, Next-Router-State-Tree, Cookie",
+    "Existing Vary headers must NOT be clobbered when Cookie is appended",
   );
 });
 

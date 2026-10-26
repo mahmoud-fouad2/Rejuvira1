@@ -205,7 +205,13 @@ export default auth((request) => {
   }
 
   // Instruct shared caches (CDNs/proxies) to separate cache entries by authentication cookies
-  response.headers.set("Vary", "Cookie");
+  // without clobbering existing Vary headers (e.g. Next.js RSC, Accept-Encoding)
+  const existingVary = response.headers.get("Vary");
+  if (!existingVary) {
+    response.headers.set("Vary", "Cookie");
+  } else if (!existingVary.split(",").map((v) => v.trim().toLowerCase()).includes("cookie")) {
+    response.headers.set("Vary", `${existingVary}, Cookie`);
+  }
 
   const snapClickCookie = snapClickCookieForRequest(request);
   if (snapClickCookie) {
