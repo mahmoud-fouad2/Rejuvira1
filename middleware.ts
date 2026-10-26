@@ -192,25 +192,25 @@ export default auth((request) => {
     );
     response.headers.set("Pragma", "no-cache");
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    // Ensure authenticated and sensitive responses are not reused across sessions
+    const existingVary = response.headers.get("Vary");
+    if (!existingVary) {
+      response.headers.set("Vary", "Cookie");
+    } else if (!existingVary.split(",").map((v) => v.trim().toLowerCase()).includes("cookie")) {
+      response.headers.set("Vary", `${existingVary}, Cookie`);
+    }
   } else {
     // Public pages: allow short CDN caching and stay crawlable for Googlebot.
     // Overrides the `Cache-Control: private` that NextAuth injects whenever
     // it issues a CSRF cookie — that header made GSC flag the page as
     // un-indexable even though the meta robots tag said "index, follow".
+    // NOTE: We deliberately do NOT set Vary: Cookie on public responses to prevent
+    // CDN cache fragmentation from third-party tracking cookies (_ga, _fbp, etc.).
     response.headers.set(
       "Cache-Control",
       "public, max-age=0, s-maxage=60, must-revalidate",
     );
     response.headers.set("X-Robots-Tag", "all");
-  }
-
-  // Instruct shared caches (CDNs/proxies) to separate cache entries by authentication cookies
-  // without clobbering existing Vary headers (e.g. Next.js RSC, Accept-Encoding)
-  const existingVary = response.headers.get("Vary");
-  if (!existingVary) {
-    response.headers.set("Vary", "Cookie");
-  } else if (!existingVary.split(",").map((v) => v.trim().toLowerCase()).includes("cookie")) {
-    response.headers.set("Vary", `${existingVary}, Cookie`);
   }
 
   const snapClickCookie = snapClickCookieForRequest(request);

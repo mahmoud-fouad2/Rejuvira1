@@ -17,6 +17,7 @@ import { GENERAL_INQUIRY_SERVICE_AR } from "./general-inquiry.ts";
  * Test Classification:
  * - [Unit]: Direct execution of production functions without network or database dependencies.
  * - [Behavioral Contract]: Verification of state guards and boundary contracts against real enums.
+ * - [Mocked Integration]: Execution of production repository functions with mocked database boundaries.
  * - [Scope Notice]: Live Edge HTTP headers and live PostgreSQL multi-transaction concurrency
  *   require a live staging environment with database connections, and are categorized
  *   accordingly as NOT TESTED locally to prevent unverified production claims.
@@ -117,10 +118,10 @@ test("[Unit] Middleware Draft Preview vs Public CDN Cache", () => {
   assert.equal(
     draftPreviewResponse.headers.get("vary"),
     "Cookie",
-    "Response must Vary: Cookie to prevent shared CDN mixing anonymous and authenticated cache keys",
+    "Authenticated response must Vary: Cookie",
   );
 
-  // 2. Anonymous visitor on a public route
+  // 2. Anonymous visitor on a public route: MUST NOT have Vary: Cookie (prevents CDN cache fragmentation from tracking cookies)
   const anonRunner = createMiddlewareRunner(null);
   const publicResponse = anonRunner("https://rejuvera.sa/services/facelift");
 
@@ -140,17 +141,20 @@ test("[Unit] Middleware Draft Preview vs Public CDN Cache", () => {
   );
   assert.equal(
     publicResponse.headers.get("vary"),
-    "Cookie",
-    "Public page MUST Vary: Cookie to protect against cache poisoning between anonymous and logged-in states",
+    null,
+    "Public page MUST NOT set Vary: Cookie to avoid cache fragmentation from third-party tracking cookies",
   );
 
-  // 3. Verify existing Vary headers (e.g. Next.js RSC, Accept-Encoding) are preserved
-  const rscRunner = createMiddlewareRunner(null, { Vary: "RSC, Next-Router-State-Tree" });
-  const rscResponse = rscRunner("https://rejuvera.sa/services/facelift");
+  // 3. Verify existing Vary headers (e.g. Next.js RSC) are preserved on authenticated routes
+  const rscRunner = createMiddlewareRunner(
+    { user: { id: "usr_editor_1", role: "EDITOR" } },
+    { Vary: "RSC, Next-Router-State-Tree" },
+  );
+  const rscResponse = rscRunner("https://rejuvera.sa/services/draft-procedure");
   assert.equal(
     rscResponse.headers.get("vary"),
     "RSC, Next-Router-State-Tree, Cookie",
-    "Existing Vary headers must NOT be clobbered when Cookie is appended",
+    "Existing Vary headers must NOT be clobbered when Cookie is appended on authenticated routes",
   );
 });
 
@@ -218,7 +222,7 @@ test("[Unit] canAccessAdminRoute: Only authorized content roles may preview serv
   );
 });
 
-test("[Unit] createContactLead: First-Touch Attribution preservation and Returning Touch sanitization", async () => {
+test("[Mocked Integration] createContactLead: First-Touch Attribution, Multi-Touch Click IDs, and Non-destructive Storage", async () => {
   const prevDbUrl = process.env.DATABASE_URL;
   process.env.DATABASE_URL = "postgresql://mock:mock@localhost:5432/mock";
 
@@ -231,20 +235,22 @@ test("[Unit] createContactLead: First-Touch Attribution preservation and Returni
   let capturedQueryWhere: any = null;
 
   try {
+    // 1. Existing lead with long message and initial notes
+    const longOriginalMessage = "أ".repeat(5800);
     const existingSubmission = {
       id: "sub_first_touch_1",
       fullName: "سارة أحمد",
       phone: "0501234567",
       preferredLanguage: "ar",
       source: "Google Ads",
-      message: "الرسالة الأولى لحجز موعد",
-      internalNotes: "ملاحظة سابقة من الفريق الطبي",
+      message: longOriginalMessage,
+      internalNotes: "ملاحظة أولى من الفريق الطبي للمتابعة",
       utmSource: "google",
       utmMedium: "cpc",
       utmCampaign: "facelift-campaign-original",
       utmContent: "banner_v1",
       utmTerm: "شد الوجه بالرياض",
-      gclid: "gclid_original_12345",
+      gclid: "gclid_click_111",
       gbraid: null,
       wbraid: null,
       landingPageUrl: "https://rejuvera.sa/services/facelift",
@@ -261,86 +267,58 @@ test("[Unit] createContactLead: First-Touch Attribution preservation and Returni
       return { ...existingSubmission, ...args.data };
     };
 
-    // Submitting a secondary touch from a Snapchat campaign with new UTMs and follow-up message
+    // Submitting a secondary touch with a NEW click ID from the SAME campaign + a 1,000-char message
+    const followUpMessage = "ب".repeat(1000);
     const result = await createContactLead({
       fullName: "سارة أحمد",
       phone: "0501234567",
       serviceSlug: "facelift",
-      source: "Snapchat Ads",
-      message: "أرغب بتأكيد الموعد الصباحي",
-      utmSource: "snapchat",
-      utmMedium: "story",
-      utmCampaign: "summer-promo-touch2",
-      gclid: "snap_click_id_999",
+      source: "Google Ads",
+      message: followUpMessage,
+      utmSource: "google",
+      utmMedium: "cpc",
+      utmCampaign: "facelift-campaign-original",
+      gclid: "gclid_click_222", // NEW Click ID for same campaign!
       landingPageUrl: "https://rejuvera.sa/p/summer-facelift",
-      referrerUrl: "https://snapchat.com",
-      notes: "المريضة تفضل الصباح",
+      referrerUrl: "https://google.com",
+      notes: "المريضة تفضل موعد صباح الأحد",
     });
 
     assert.equal(result.mode, "duplicate");
     assert.equal(capturedQueryWhere.phone, "0501234567");
 
     // CRITICAL: First-Touch Attribution fields MUST NOT be overwritten
-    assert.equal(
-      capturedUpdateData.source,
-      "Google Ads",
-      "First-touch source must NOT be overwritten",
-    );
-    assert.equal(
-      capturedUpdateData.utmSource,
-      "google",
-      "Original utmSource must be preserved",
-    );
-    assert.equal(
-      capturedUpdateData.utmCampaign,
-      "facelift-campaign-original",
-      "Original utmCampaign must be preserved",
-    );
-    assert.equal(
-      capturedUpdateData.gclid,
-      "gclid_original_12345",
-      "Original gclid must be preserved",
-    );
-    assert.equal(
-      capturedUpdateData.landingPageUrl,
-      "https://rejuvera.sa/services/facelift",
-      "Original landingPageUrl must be preserved",
-    );
-    assert.equal(
-      capturedUpdateData.referrerUrl,
-      "https://google.com",
-      "Original referrerUrl must be preserved",
-    );
+    assert.equal(capturedUpdateData.source, "Google Ads");
+    assert.equal(capturedUpdateData.utmSource, "google");
+    assert.equal(capturedUpdateData.utmCampaign, "facelift-campaign-original");
+    assert.equal(capturedUpdateData.gclid, "gclid_click_111", "Original First-Touch gclid must be preserved");
+    assert.equal(capturedUpdateData.landingPageUrl, "https://rejuvera.sa/services/facelift");
 
-    // Verify Returning Touch audit trail in internalNotes
+    // TASK 3: Verify that a new Click ID for the same campaign is identified and logged as a new touch event
     assert.ok(
-      capturedUpdateData.internalNotes.includes("[Returning Touch"),
-      "Returning touch must be recorded in internalNotes",
+      capturedUpdateData.internalNotes.includes("click=gclid_click_222"),
+      "New click ID must be identified and logged in internalNotes",
     );
     assert.ok(
-      capturedUpdateData.internalNotes.includes("source=snapchat"),
-      "Returning touch source must be logged in notes",
-    );
-    assert.ok(
-      capturedUpdateData.internalNotes.includes("campaign=summer-promo-touch2"),
-      "Returning touch campaign must be logged in notes",
-    );
-    assert.ok(
-      capturedUpdateData.internalNotes.includes("المريضة تفضل الصباح"),
+      capturedUpdateData.internalNotes.includes("المريضة تفضل موعد صباح الأحد"),
       "Follow-up notes must be preserved",
     );
 
-    // Verify messages: original message preserved, new message appended
+    // BLOCKER 1: Verify ZERO silent message loss (5,800 chars + 1,000 chars preserved in full)
     assert.ok(
-      capturedUpdateData.message.includes("الرسالة الأولى لحجز موعد"),
-      "Original message must be preserved",
+      capturedUpdateData.message.startsWith(longOriginalMessage),
+      "Original 5,800-character message must be preserved in full without truncation",
     );
     assert.ok(
-      capturedUpdateData.message.includes("[رسالة متابعة]: أرغب بتأكيد الموعد الصباحي"),
-      "Follow-up message must be appended with indicator",
+      capturedUpdateData.message.includes(followUpMessage),
+      "New 1,000-character follow-up message must be preserved in full without loss",
+    );
+    assert.ok(
+      capturedUpdateData.message.length >= 6800,
+      `Merged message length must be >= 6800 chars, got ${capturedUpdateData.message.length}`,
     );
 
-    // 2. Test rapid retry idempotency: repeating the exact same submission should NOT double-append the touch log
+    // 2. TASK 3 Retry verification: repeating the exact same submission with gclid_click_222 must be idempotent
     const duplicateWithLoggedTouch = {
       ...existingSubmission,
       internalNotes: capturedUpdateData.internalNotes,
@@ -357,20 +335,55 @@ test("[Unit] createContactLead: First-Touch Attribution preservation and Returni
       fullName: "سارة أحمد",
       phone: "0501234567",
       serviceSlug: "facelift",
-      source: "Snapchat Ads",
-      message: "أرغب بتأكيد الموعد الصباحي",
-      utmSource: "snapchat",
-      utmMedium: "story",
-      utmCampaign: "summer-promo-touch2",
-      notes: "المريضة تفضل الصباح",
+      source: "Google Ads",
+      message: followUpMessage,
+      utmSource: "google",
+      utmMedium: "cpc",
+      utmCampaign: "facelift-campaign-original",
+      gclid: "gclid_click_222", // Identical Click ID resubmitted (network retry)
+      notes: "المريضة تفضل موعد صباح الأحد",
     });
 
-    // Count occurrences of the returning touch signature in notes
-    const matches = (retryUpdateData.internalNotes.match(/source=snapchat, campaign=summer-promo-touch2/g) || []);
+    // Count occurrences of the click signature in notes
+    const matches = (retryUpdateData.internalNotes.match(/click=gclid_click_222/g) || []);
     assert.equal(
       matches.length,
       1,
-      "Returning touch signature MUST NOT be duplicated on rapid retries",
+      "Retry of the identical click event MUST NOT duplicate the touch log",
+    );
+
+    // BLOCKER 2: Verify non-destructive notes handling when total notes length is very large
+    const largeHistoricalNotes = "ج".repeat(9000);
+    const submissionWithLargeNotes = {
+      ...existingSubmission,
+      internalNotes: largeHistoricalNotes,
+    };
+    (prisma.contactSubmission as any).findFirst = async () => submissionWithLargeNotes;
+    let largeNoteUpdateData: any = null;
+    (prisma.contactSubmission as any).update = async (args: any) => {
+      largeNoteUpdateData = args.data;
+      return { ...submissionWithLargeNotes, ...args.data };
+    };
+
+    await createContactLead({
+      fullName: "سارة أحمد",
+      phone: "0501234567",
+      serviceSlug: "facelift",
+      notes: "ملاحظة جديدة إضافية للمريض",
+    });
+
+    assert.ok(
+      largeNoteUpdateData.internalNotes.startsWith(largeHistoricalNotes),
+      "Existing historical notes over 8000 chars must NOT be truncated",
+    );
+    assert.ok(
+      largeNoteUpdateData.internalNotes.includes("ملاحظة جديدة إضافية للمريض"),
+      "New note must be preserved without data loss",
+    );
+    assert.equal(
+      largeNoteUpdateData.internalNotes.includes("ملاحظات سابقة مقطوعة"),
+      false,
+      "Must not contain destructive truncation marker",
     );
   } finally {
     process.env.DATABASE_URL = prevDbUrl;
@@ -381,7 +394,7 @@ test("[Unit] createContactLead: First-Touch Attribution preservation and Returni
   }
 });
 
-test("[Unit] createContactLead: Scoping and isolation for unseeded and general services", async () => {
+test("[Mocked Integration] createContactLead: Scoping and isolation for unseeded and general services", async () => {
   const prevDbUrl = process.env.DATABASE_URL;
   process.env.DATABASE_URL = "postgresql://mock:mock@localhost:5432/mock";
 

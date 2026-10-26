@@ -4688,27 +4688,35 @@ export async function createContactLead(
     const referrerUrl = duplicateRecord.referrerUrl || input.referrerUrl;
 
     // Helper to sanitize untrusted user inputs for CRM notes
-    const sanitizeNoteValue = (val: string | null | undefined, maxLen = 100) =>
+    const sanitizeNoteValue = (val: string | null | undefined, maxLen = 120) =>
       val ? val.replace(/[\r\n\x00-\x1f\x7f]/g, " ").trim().slice(0, maxLen) : "";
 
-    // Record multi-touch campaign journey in internalNotes without clobbering first touch
+    // Multi-touch tracking: identify unique ad click / conversion visits
     const cleanUtmSource = sanitizeNoteValue(input.utmSource, 80);
     const cleanUtmCampaign = sanitizeNoteValue(input.utmCampaign, 100);
+    const cleanUtmMedium = sanitizeNoteValue(input.utmMedium, 80);
     const cleanGclid = sanitizeNoteValue(input.gclid, 120);
+    const cleanGbraid = sanitizeNoteValue(input.gbraid, 120);
+    const cleanWbraid = sanitizeNoteValue(input.wbraid, 120);
+    const clickId = cleanGclid || cleanGbraid || cleanWbraid;
 
     const isNewTouch = Boolean(
       (cleanUtmSource && cleanUtmSource !== (duplicateRecord.utmSource || "")) ||
       (cleanUtmCampaign && cleanUtmCampaign !== (duplicateRecord.utmCampaign || "")) ||
-      (cleanGclid && cleanGclid !== (duplicateRecord.gclid || "")),
+      (clickId && clickId !== (duplicateRecord.gclid || duplicateRecord.gbraid || duplicateRecord.wbraid || "")) ||
+      (input.landingPageUrl && input.landingPageUrl !== (duplicateRecord.landingPageUrl || "")),
     );
 
     const recurringNotes: string[] = [];
-    const touchSignature = `source=${cleanUtmSource || "direct"}, campaign=${cleanUtmCampaign || "none"}`;
+    const touchSignature = clickId
+      ? `click=${clickId} (source=${cleanUtmSource || "direct"}, campaign=${cleanUtmCampaign || "none"})`
+      : `source=${cleanUtmSource || "direct"}, campaign=${cleanUtmCampaign || "none"}, medium=${cleanUtmMedium || "none"}`;
+
     const alreadyLoggedTouch = duplicateRecord.internalNotes?.includes(touchSignature);
 
     if (isNewTouch && !alreadyLoggedTouch) {
       recurringNotes.push(
-        `[Returning Touch ${new Date().toISOString()}]: ${touchSignature}${cleanGclid ? `, gclid=${cleanGclid}` : ""}`,
+        `[Returning Touch ${new Date().toISOString()}]: ${touchSignature}${clickId ? "" : (input.landingPageUrl ? `, landing=${input.landingPageUrl}` : "")}`,
       );
     }
 
@@ -4717,21 +4725,16 @@ export async function createContactLead(
       cleanInputNotes &&
       (!duplicateRecord.internalNotes || !duplicateRecord.internalNotes.includes(cleanInputNotes))
     ) {
-      // Sanitize length of customer/staff input note
-      recurringNotes.push(cleanInputNotes.slice(0, 1000));
+      recurringNotes.push(cleanInputNotes);
     }
 
-    let mergedNotes = [duplicateRecord.internalNotes, ...recurringNotes]
+    // BLOCKER 2: Preserve all notes and audit trails without destructive truncation
+    const mergedNotes = [duplicateRecord.internalNotes, ...recurringNotes]
       .filter(Boolean)
       .join("\n\n");
 
-    // Enforce upper bound of 8,000 characters on internalNotes to prevent database bloat
-    const MAX_NOTES_LENGTH = 8000;
-    if (mergedNotes.length > MAX_NOTES_LENGTH) {
-      mergedNotes = `...[ملاحظات سابقة مقطوعة]\n\n${mergedNotes.slice(mergedNotes.length - (MAX_NOTES_LENGTH - 50))}`;
-    }
-
-    const cleanInputMessage = input.message?.trim().slice(0, 3000);
+    // BLOCKER 1: Preserve original and follow-up messages completely without silent loss
+    const cleanInputMessage = input.message?.trim();
     let mergedMessage = duplicateRecord.message || cleanInputMessage || null;
     if (
       duplicateRecord.message &&
@@ -4739,9 +4742,6 @@ export async function createContactLead(
       !duplicateRecord.message.includes(cleanInputMessage)
     ) {
       mergedMessage = `${duplicateRecord.message}\n---\n[رسالة متابعة]: ${cleanInputMessage}`;
-      if (mergedMessage.length > 6000) {
-        mergedMessage = mergedMessage.slice(0, 6000);
-      }
     }
 
     return prisma.contactSubmission.update({
