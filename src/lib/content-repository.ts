@@ -2885,7 +2885,9 @@ export const getServices = cache(async () => {
         service.coverImageUrl,
         serviceImageForSlug(service.slug),
       ),
-      benefits: [service.excerptAr, service.descriptionAr.slice(0, 120)],
+      // The schema has no authored benefits: do not manufacture/truncate them
+      // from an excerpt and repeat the body as though they were distinct facts.
+      benefits: [],
       doctorSlugs: service.doctors.map((doctor) => doctor.slug),
       deviceSlugs: service.devices.map((device) => device.slug),
       status: service.status,

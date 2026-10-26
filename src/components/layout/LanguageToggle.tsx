@@ -3,7 +3,8 @@
 import { useLanguage } from "@/components/providers/LanguageProvider";
 
 export function LanguageToggle() {
-  const { lang, switchLanguage } = useLanguage();
+  const { lang, hasEnglish, switchLanguage } = useLanguage();
+  if (!hasEnglish) return null;
   const isAr = lang === "ar";
 
   return (

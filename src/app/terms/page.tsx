@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -33,27 +34,16 @@ const sections = [
 ] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getRuntimeSettings();
-  const url = `https://${settings.contact.domain || "rejuvera.sa"}/terms`;
-  return {
-    title: "الشروط والأحكام | Terms & Conditions",
-    description:
-      "الشروط والأحكام الخاصة باستخدام موقع مركز ريجوفيرا وحجز الخدمات، بما في ذلك الإخلاء الطبي وحقوق الملكية الفكرية والنظام الحاكم.",
-    alternates: { canonical: url },
-    openGraph: {
-      title: "الشروط والأحكام — Rejuvera Center",
-      description:
-        "الإطار التعاقدي لاستخدام الموقع وحجز الخدمات داخل مركز ريجوفيرا.",
-      url,
-      type: "article",
-      locale: "ar_SA",
-    },
-    twitter: {
-      card: "summary",
-      title: "الشروط والأحكام — Rejuvera Center",
-      description: "الإطار التعاقدي لاستخدام الموقع والخدمات.",
-    },
-  };
+  return buildPageMetadata({
+    page: "about",
+    path: "/terms",
+    overrideTitleAr: "الشروط والأحكام",
+    overrideTitleEn: "Terms and Conditions",
+    overrideDescriptionAr:
+      "شروط استخدام موقع ريجوفيرا وحجز الخدمات والإخلاء الطبي وحقوق الملكية الفكرية.",
+    overrideDescriptionEn:
+      "Terms for using the Rejuvera website and booking services, including medical disclaimers and intellectual property.",
+  });
 }
 
 export default async function TermsPage() {
