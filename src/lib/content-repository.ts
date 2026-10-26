@@ -1,5 +1,6 @@
 ﻿import { ContentStatus, SubmissionStatus, UserRole } from "@prisma/client";
 import { cache } from "react";
+import { createHash } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 
 import {
@@ -13,6 +14,7 @@ import {
 import {
   GENERAL_INQUIRY_SERVICE_AR,
   hasGeneralInquiryTag,
+  isGeneralInquiryService,
 } from "@/lib/general-inquiry";
 import {
   coreServiceSeedData,
@@ -4625,25 +4627,231 @@ export async function createContactLead(
     return { mode: "preview" as const, input };
   }
 
-  const duplicateWindowMinutes = Math.max(
-    0,
-    Number(process.env.LEAD_DEDUP_WINDOW_MINUTES ?? 12 * 60),
-  );
-  const shortDuplicateWindowMinutes = Math.max(
-    0,
-    Number(process.env.LEAD_SHORT_DEDUP_WINDOW_MINUTES ?? 30),
-  );
-  const source = input.source?.trim() || "Website form";
-  const refreshDuplicate = async (id: string) =>
-    prisma.contactSubmission.update({
-      where: { id },
+  // Keep duplicate lookup and read/merge/write in one serializable transaction.
+  // Retry a conflicting transaction before callers dispatch any external events.
+  const saveLead = async (tx: Prisma.TransactionClient) => {
+    const duplicateWindowMinutes = Math.max(
+      0,
+      Number(process.env.LEAD_DEDUP_WINDOW_MINUTES ?? 12 * 60),
+    );
+    const shortDuplicateWindowMinutes = Math.max(
+      0,
+      Number(process.env.LEAD_SHORT_DEDUP_WINDOW_MINUTES ?? 30),
+    );
+    const source = input.source?.trim() || "Website form";
+    const service = input.serviceSlug
+      ? await tx.service.findFirst({
+          where: {
+            OR: [
+              { slug: input.serviceSlug },
+              { nameAr: input.serviceSlug },
+              { nameEn: input.serviceSlug },
+            ],
+          },
+          select: { id: true },
+        })
+      : null;
+    const targetServiceId = service?.id ?? null;
+    const isGeneral =
+      !input.serviceSlug?.trim() || isGeneralInquiryService(input.serviceSlug);
+    const unknownServiceTag =
+      !targetServiceId && input.serviceSlug?.trim() && !isGeneral
+        ? `service:${input.serviceSlug.trim()}`
+        : null;
+    const generalTag = isGeneral ? GENERAL_INQUIRY_SERVICE_AR : null;
+    const serviceDiscriminatorTag = unknownServiceTag || generalTag;
+
+    const refreshDuplicate = async (duplicateRecord: {
+      id: string;
+      fullName: string;
+      preferredLanguage: string;
+      source: string | null;
+      message: string | null;
+      internalNotes: string | null;
+      utmSource: string | null;
+      utmMedium: string | null;
+      utmCampaign: string | null;
+      utmContent: string | null;
+      utmTerm: string | null;
+      gclid: string | null;
+      gbraid: string | null;
+      wbraid: string | null;
+      landingPageUrl: string | null;
+      referrerUrl: string | null;
+    }) => {
+      // Preserve the entire first-touch cohort, including missing fields. Filling
+      // its gaps with a later campaign would manufacture mixed attribution.
+      const touchFields = [
+        "utmSource",
+        "utmMedium",
+        "utmCampaign",
+        "utmContent",
+        "utmTerm",
+        "gclid",
+        "gbraid",
+        "wbraid",
+        "landingPageUrl",
+        "referrerUrl",
+      ] as const;
+      const isNewTouch = touchFields.some((key) =>
+        Boolean(input[key] && input[key] !== duplicateRecord[key]),
+      );
+      // JSON escapes control characters and retains complete, typed click IDs.
+      // A bounded/truncated display string must never be used as event identity.
+      const touchSignature = JSON.stringify(
+        Object.fromEntries(touchFields.map((key) => [key, input[key] || null])),
+      );
+      const clickFields = ["gclid", "gbraid", "wbraid"] as const;
+      const touchIdentity = clickFields.some((key) => input[key])
+        ? JSON.stringify(
+            Object.fromEntries(
+              clickFields.map((key) => [key, input[key] || null]),
+            ),
+          )
+        : touchSignature;
+      const touchId = createHash("sha256").update(touchIdentity).digest("hex");
+      const recurringNotes: string[] = [];
+      const alreadyLoggedTouch = duplicateRecord.internalNotes
+        ?.split("\n")
+        .some(
+          (line) =>
+            line.startsWith("[Returning Touch ") &&
+            line.includes(` id=${touchId}]: `),
+        );
+
+      if (isNewTouch && !alreadyLoggedTouch) {
+        recurringNotes.push(
+          `[Returning Touch ${new Date().toISOString()} id=${touchId}]: ${touchSignature}`,
+        );
+      }
+
+      const cleanInputNotes = input.notes?.trim();
+      if (
+        cleanInputNotes &&
+        (!duplicateRecord.internalNotes ||
+          !(
+            duplicateRecord.internalNotes === cleanInputNotes ||
+            duplicateRecord.internalNotes.startsWith(
+              `${cleanInputNotes}\n\n`,
+            ) ||
+            duplicateRecord.internalNotes.endsWith(`\n\n${cleanInputNotes}`) ||
+            duplicateRecord.internalNotes.includes(`\n\n${cleanInputNotes}\n\n`)
+          ))
+      ) {
+        recurringNotes.push(cleanInputNotes);
+      }
+
+      // BLOCKER 2: Preserve all notes and audit trails without destructive truncation
+      const mergedNotes = [duplicateRecord.internalNotes, ...recurringNotes]
+        .filter(Boolean)
+        .join("\n\n");
+
+      // BLOCKER 1: Preserve original and follow-up messages completely without silent loss
+      const cleanInputMessage = input.message?.trim();
+      let mergedMessage = duplicateRecord.message || cleanInputMessage || null;
+      if (
+        duplicateRecord.message &&
+        cleanInputMessage &&
+        !duplicateRecord.message
+          .split("\n---\n[رسالة متابعة]: ")
+          .includes(cleanInputMessage)
+      ) {
+        mergedMessage = `${duplicateRecord.message}\n---\n[رسالة متابعة]: ${cleanInputMessage}`;
+      }
+
+      return tx.contactSubmission.update({
+        where: { id: duplicateRecord.id },
+        data: {
+          updatedAt: new Date(),
+          fullName: input.fullName,
+          preferredLanguage:
+            input.preferredLanguage ??
+            duplicateRecord.preferredLanguage ??
+            "ar",
+          source: duplicateRecord.source || source,
+          ...(input.email ? { email: input.email } : {}),
+          ...(mergedMessage ? { message: mergedMessage } : {}),
+          ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+          ...(input.country ? { country: input.country } : {}),
+          ...(input.userAgent ? { userAgent: input.userAgent } : {}),
+          ...(mergedNotes ? { internalNotes: mergedNotes } : {}),
+        },
+      });
+    };
+
+    if (shortDuplicateWindowMinutes > 0) {
+      const duplicateSince = new Date(
+        Date.now() - shortDuplicateWindowMinutes * 60 * 1000,
+      );
+      const duplicate = await tx.contactSubmission.findFirst({
+        where: {
+          phone: input.phone,
+          createdAt: { gte: duplicateSince },
+          serviceId: targetServiceId,
+          ...(serviceDiscriminatorTag
+            ? { tags: { has: serviceDiscriminatorTag } }
+            : {}),
+          ...(targetServiceId === null && isGeneral && input.landingPageUrl
+            ? { landingPageUrl: input.landingPageUrl }
+            : {}),
+        },
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+      });
+
+      if (duplicate) {
+        return {
+          mode: "duplicate" as const,
+          submission: await refreshDuplicate(duplicate),
+        };
+      }
+    }
+
+    if (duplicateWindowMinutes > 0) {
+      const duplicateSince = new Date(
+        Date.now() - duplicateWindowMinutes * 60 * 1000,
+      );
+      const duplicate = await tx.contactSubmission.findFirst({
+        where: {
+          phone: input.phone,
+          createdAt: { gte: duplicateSince },
+          serviceId: targetServiceId,
+          ...(serviceDiscriminatorTag
+            ? { tags: { has: serviceDiscriminatorTag } }
+            : {}),
+          ...(targetServiceId === null && isGeneral && input.landingPageUrl
+            ? { landingPageUrl: input.landingPageUrl }
+            : {}),
+          OR: [
+            { source },
+            ...(input.webhookId ? [{ webhookId: input.webhookId }] : []),
+          ],
+        },
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+      });
+
+      if (duplicate) {
+        return {
+          mode: "duplicate" as const,
+          submission: await refreshDuplicate(duplicate),
+        };
+      }
+    }
+
+    const effectiveTags = [
+      ...(input.tags ?? []),
+      ...(serviceDiscriminatorTag &&
+      !(input.tags ?? []).includes(serviceDiscriminatorTag)
+        ? [serviceDiscriminatorTag]
+        : []),
+    ];
+
+    const submission = await tx.contactSubmission.create({
       data: {
-        updatedAt: new Date(),
         fullName: input.fullName,
+        phone: input.phone,
         preferredLanguage: input.preferredLanguage ?? "ar",
         source,
-        ...(input.email ? { email: input.email } : {}),
-        ...(input.message ? { message: input.message } : {}),
+        status: input.status ?? SubmissionStatus.NEW,
         ...(input.utmSource ? { utmSource: input.utmSource } : {}),
         ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
         ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
@@ -4652,115 +4860,47 @@ export async function createContactLead(
         ...(input.gclid ? { gclid: input.gclid } : {}),
         ...(input.gbraid ? { gbraid: input.gbraid } : {}),
         ...(input.wbraid ? { wbraid: input.wbraid } : {}),
+        ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
+        ...(input.country ? { country: input.country } : {}),
         ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
         ...(input.landingPageUrl
           ? { landingPageUrl: input.landingPageUrl }
           : {}),
-        ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
-        ...(input.country ? { country: input.country } : {}),
         ...(input.userAgent ? { userAgent: input.userAgent } : {}),
         ...(input.notes ? { internalNotes: input.notes } : {}),
+        ...(effectiveTags.length ? { tags: effectiveTags } : {}),
+        ...(input.webhookId ? { webhookId: input.webhookId } : {}),
+        ...(input.email
+          ? {
+              email: input.email,
+            }
+          : {}),
+        ...(input.message
+          ? {
+              message: input.message,
+            }
+          : {}),
+        ...(service?.id
+          ? {
+              serviceId: service.id,
+            }
+          : {}),
       },
     });
 
-  if (shortDuplicateWindowMinutes > 0) {
-    const duplicateSince = new Date(
-      Date.now() - shortDuplicateWindowMinutes * 60 * 1000,
-    );
-    const duplicate = await prisma.contactSubmission.findFirst({
-      where: {
-        phone: input.phone,
-        createdAt: { gte: duplicateSince },
-      },
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-    });
+    return { mode: "database" as const, submission };
+  };
 
-    if (duplicate) {
-      return {
-        mode: "duplicate" as const,
-        submission: await refreshDuplicate(duplicate.id),
-      };
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await prisma.$transaction(saveLead, {
+        isolationLevel: "Serializable",
+      });
+    } catch (error) {
+      if (attempt >= 3 || (error as { code?: string })?.code !== "P2034")
+        throw error;
     }
   }
-
-  if (duplicateWindowMinutes > 0) {
-    const duplicateSince = new Date(
-      Date.now() - duplicateWindowMinutes * 60 * 1000,
-    );
-    const duplicate = await prisma.contactSubmission.findFirst({
-      where: {
-        phone: input.phone,
-        createdAt: { gte: duplicateSince },
-        OR: [
-          { source },
-          ...(input.webhookId ? [{ webhookId: input.webhookId }] : []),
-        ],
-      },
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-    });
-
-    if (duplicate) {
-      return {
-        mode: "duplicate" as const,
-        submission: await refreshDuplicate(duplicate.id),
-      };
-    }
-  }
-
-  const service = input.serviceSlug
-    ? await prisma.service.findFirst({
-        where: {
-          OR: [
-            { slug: input.serviceSlug },
-            { nameAr: input.serviceSlug },
-            { nameEn: input.serviceSlug },
-          ],
-        },
-        select: { id: true },
-      })
-    : null;
-  const submission = await prisma.contactSubmission.create({
-    data: {
-      fullName: input.fullName,
-      phone: input.phone,
-      preferredLanguage: input.preferredLanguage ?? "ar",
-      source,
-      status: input.status ?? SubmissionStatus.NEW,
-      ...(input.utmSource ? { utmSource: input.utmSource } : {}),
-      ...(input.utmMedium ? { utmMedium: input.utmMedium } : {}),
-      ...(input.utmCampaign ? { utmCampaign: input.utmCampaign } : {}),
-      ...(input.utmContent ? { utmContent: input.utmContent } : {}),
-      ...(input.utmTerm ? { utmTerm: input.utmTerm } : {}),
-      ...(input.gclid ? { gclid: input.gclid } : {}),
-      ...(input.gbraid ? { gbraid: input.gbraid } : {}),
-      ...(input.wbraid ? { wbraid: input.wbraid } : {}),
-      ...(input.ipAddress ? { ipAddress: input.ipAddress } : {}),
-      ...(input.country ? { country: input.country } : {}),
-      ...(input.referrerUrl ? { referrerUrl: input.referrerUrl } : {}),
-      ...(input.landingPageUrl ? { landingPageUrl: input.landingPageUrl } : {}),
-      ...(input.userAgent ? { userAgent: input.userAgent } : {}),
-      ...(input.notes ? { internalNotes: input.notes } : {}),
-      ...(input.tags && input.tags.length ? { tags: [...input.tags] } : {}),
-      ...(input.webhookId ? { webhookId: input.webhookId } : {}),
-      ...(input.email
-        ? {
-            email: input.email,
-          }
-        : {}),
-      ...(input.message
-        ? {
-            message: input.message,
-          }
-        : {}),
-      ...(service?.id
-        ? {
-            serviceId: service.id,
-          }
-        : {}),
-    },
-  });
-
-  return { mode: "database" as const, submission };
 }
 
 export async function updateErrorLogResolution(

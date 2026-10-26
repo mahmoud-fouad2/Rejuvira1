@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
+import type { Session } from "next-auth";
 
 import { auth } from "@/auth";
 import { canAccessAdminRoute, getAdminHomePath } from "@/lib/admin-permissions";
@@ -44,8 +46,8 @@ function getRequestOrigin(request: Request, fallbackUrl: URL) {
   return `${proto}://${host}`;
 }
 
-export default auth((request) => {
-  const { nextUrl, auth: session } = request;
+function handleRequest(request: NextRequest, session: Session | null) {
+  const { nextUrl } = request;
   const requestHost =
     firstHeaderValue(request.headers.get("x-forwarded-host")) ||
     firstHeaderValue(request.headers.get("host"));
@@ -111,7 +113,32 @@ export default auth((request) => {
   const isLoginRoute = nextUrl.pathname.startsWith("/login");
   const isForbiddenRoute = nextUrl.pathname.startsWith("/forbidden");
   const isApiAdminRoute = nextUrl.pathname.startsWith("/api/admin");
+  const isPortalRoute = nextUrl.pathname.startsWith("/portal");
+  const isPatientLoginRoute = nextUrl.pathname.startsWith("/patient-login");
+  const isApiPortalRoute = nextUrl.pathname.startsWith("/api/portal");
+  const isAuthRoute = nextUrl.pathname.startsWith("/api/auth");
+  const isLeadReceiptRoute = nextUrl.pathname.startsWith("/api/lead-receipt");
+  const isWebhookRoute = nextUrl.pathname.startsWith("/api/webhooks");
   const hasAuthenticatedUser = Boolean(session?.user?.id);
+  // Auth.js may clear/rotate a cookie even when a session is invalid. Patient
+  // sessions are independent of Auth.js and must also bypass shared caches.
+  const hasPrivateCookie =
+    /(?:^|;\s*)(?:(?:__Secure-)?(?:authjs|next-auth)\.session-token(?:\.\d+)?|rejuvera_patient_session)=/.test(
+      request.headers.get("cookie") || "",
+    );
+
+  const isSensitiveSurface =
+    isAdminRoute ||
+    isApiAdminRoute ||
+    isLoginRoute ||
+    isForbiddenRoute ||
+    isPortalRoute ||
+    isPatientLoginRoute ||
+    isApiPortalRoute ||
+    isAuthRoute ||
+    isLeadReceiptRoute ||
+    isWebhookRoute ||
+    nextUrl.pathname.startsWith("/api/");
 
   // Fresh nonce per request for the CSP script-src. Set on the request
   // headers (not just the response) so Next's own renderer picks it up and
@@ -120,7 +147,11 @@ export default auth((request) => {
   // the 'unsafe-inline' fallback.
   const nonce = btoa(crypto.randomUUID());
   const cspValue = buildCsp(
-    isAdminRoute || isLoginRoute || isForbiddenRoute
+    isAdminRoute ||
+      isLoginRoute ||
+      isForbiddenRoute ||
+      isPortalRoute ||
+      isPatientLoginRoute
       ? "frame-ancestors 'none'"
       : "frame-ancestors 'self' https://tagassistant.google.com https://*.google.com https://*.googleusercontent.com",
     nonce,
@@ -128,16 +159,25 @@ export default auth((request) => {
   requestHeaders.set("x-nonce", nonce);
   requestHeaders.set("Content-Security-Policy", cspValue);
 
+  const privateRedirect = (url: URL) => {
+    const response = NextResponse.redirect(url);
+    response.headers.set("Cache-Control", "private, no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    response.headers.set("Vary", "Cookie");
+    response.headers.set("Content-Security-Policy", cspValue);
+    return response;
+  };
+
   if (isAdminRoute && !hasAuthenticatedUser) {
     const url = buildCanonicalUrl("/login");
     url.searchParams.set("redirect", nextUrl.pathname + nextUrl.search);
-    return NextResponse.redirect(url);
+    return privateRedirect(url);
   }
 
   if (nextUrl.pathname === "/admin" && hasAuthenticatedUser) {
     const adminHomePath = getAdminHomePath(session?.user?.role);
     if (adminHomePath !== "/admin") {
-      return NextResponse.redirect(buildCanonicalUrl(adminHomePath));
+      return privateRedirect(buildCanonicalUrl(adminHomePath));
     }
   }
 
@@ -145,11 +185,11 @@ export default auth((request) => {
     isAdminRoute &&
     !canAccessAdminRoute(nextUrl.pathname, session?.user?.role)
   ) {
-    return NextResponse.redirect(buildCanonicalUrl("/forbidden"));
+    return privateRedirect(buildCanonicalUrl("/forbidden"));
   }
 
   if (isLoginRoute && hasAuthenticatedUser) {
-    return NextResponse.redirect(
+    return privateRedirect(
       buildCanonicalUrl(getAdminHomePath(session?.user?.role)),
     );
   }
@@ -161,18 +201,34 @@ export default auth((request) => {
   response.headers.set("x-request-id", requestId);
   response.headers.set("Content-Security-Policy", cspValue);
 
-  // Sensitive surfaces should never be cached by browsers/CDNs.
-  if (isAdminRoute || isApiAdminRoute || isLoginRoute) {
+  // Sensitive surfaces and authenticated user requests (including draft previews)
+  // should never enter a shared CDN cache.
+  if (isSensitiveSurface || hasAuthenticatedUser || hasPrivateCookie) {
     response.headers.set(
       "Cache-Control",
-      "no-store, no-cache, must-revalidate, max-age=0",
+      "private, no-store, no-cache, must-revalidate, max-age=0",
     );
     response.headers.set("Pragma", "no-cache");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    // Ensure authenticated and sensitive responses are not reused across sessions
+    const existingVary = response.headers.get("Vary");
+    if (!existingVary) {
+      response.headers.set("Vary", "Cookie");
+    } else if (
+      !existingVary
+        .split(",")
+        .map((v) => v.trim().toLowerCase())
+        .includes("cookie")
+    ) {
+      response.headers.set("Vary", `${existingVary}, Cookie`);
+    }
   } else {
     // Public pages: allow short CDN caching and stay crawlable for Googlebot.
     // Overrides the `Cache-Control: private` that NextAuth injects whenever
     // it issues a CSRF cookie — that header made GSC flag the page as
     // un-indexable even though the meta robots tag said "index, follow".
+    // NOTE: We deliberately do NOT set Vary: Cookie on public responses to prevent
+    // CDN cache fragmentation from third-party tracking cookies (_ga, _fbp, etc.).
     response.headers.set(
       "Cache-Control",
       "public, max-age=0, s-maxage=60, must-revalidate",
@@ -188,7 +244,29 @@ export default auth((request) => {
   }
 
   return response;
+}
+
+const authenticatedMiddleware = auth((request, event: NextFetchEvent) => {
+  void event;
+  return handleRequest(request, request.auth);
 });
+
+export default function middleware(
+  request: NextRequest,
+  event: NextFetchEvent,
+) {
+  // Auth.js bootstraps CSRF/callback cookies even for anonymous requests. Its
+  // wrapper appends them *after* handleRequest returns, so do not invoke it for
+  // anonymous pages that can enter a shared cache. Auth endpoints handle their
+  // own bootstrap; existing staff sessions still receive normal rotation.
+  const hasStaffSession =
+    /(?:^|;\s*)(?:__Secure-)?(?:authjs|next-auth)\.session-token(?:\.\d+)?=/.test(
+      request.headers.get("cookie") || "",
+    );
+  return hasStaffSession
+    ? authenticatedMiddleware(request, event)
+    : handleRequest(request, null);
+}
 
 export const config = {
   matcher: [

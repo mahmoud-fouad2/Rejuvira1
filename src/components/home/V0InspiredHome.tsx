@@ -207,9 +207,8 @@ export function V0InspiredHome({
   const publishedDevices = devices.filter(
     (device) => device.status === ContentStatus.PUBLISHED,
   );
-  const serviceSource =
-    publishedServices.length > 0 ? publishedServices : services;
-  const doctorSource = publishedDoctors.length > 0 ? publishedDoctors : doctors;
+  const serviceSource = publishedServices;
+  const doctorSource = publishedDoctors;
   const deviceSource = publishedDevices;
   const featuredServices = serviceSource.slice(0, 6);
   const featuredDoctors = doctorSource;

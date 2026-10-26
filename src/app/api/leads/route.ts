@@ -417,7 +417,7 @@ export async function POST(request: Request) {
       source: parsed.data.source || "Landing page form",
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(selectedService?.slug ? { serviceSlug: selectedService.slug } : {}),
+      serviceSlug: selectedService?.slug || serviceReference || undefined,
       ...(isGeneralInquiry ? { tags: [GENERAL_INQUIRY_SERVICE_AR] } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),

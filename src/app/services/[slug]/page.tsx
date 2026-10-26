@@ -19,6 +19,8 @@ import {
 } from "@/lib/content-repository";
 import { getCoreServiceSeo } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
+import { auth } from "@/auth";
+import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import { hasEnglishServiceContent, resolveServiceSeo } from "@/lib/service-seo";
@@ -40,6 +42,16 @@ export async function generateMetadata({
   const service = await getServiceBySlug(slug);
 
   if (!service) notFound();
+
+  if (service.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/services", session.user.role)
+    ) {
+      notFound();
+    }
+  }
 
   const arUrl = new URL(`/services/${service.slug}`, getSiteUrl()).href;
   const coreSeo = getCoreServiceSeo(service);
@@ -124,6 +136,16 @@ export default async function ServiceDetailPage({
 
   if (!service) {
     notFound();
+  }
+
+  if (service.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/services", session.user.role)
+    ) {
+      notFound();
+    }
   }
 
   const doctorSlugSet = new Set(service.doctorSlugs);
@@ -422,7 +444,9 @@ export default async function ServiceDetailPage({
           <>
             <ServicePatientGuide
               service={service}
-              services={services}
+              services={services.filter(
+                (item) => item.status === ContentStatus.PUBLISHED,
+              )}
               posts={posts}
             />
             <ServiceSearchQuestions

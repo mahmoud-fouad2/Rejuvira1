@@ -289,7 +289,8 @@ export async function POST(request: Request) {
       source: parsed.data.source || "Website contact form",
       ...(parsed.data.email ? { email: parsed.data.email } : {}),
       ...(parsed.data.message ? { message: parsed.data.message } : {}),
-      ...(selectedService?.slug ? { serviceSlug: selectedService.slug } : {}),
+      serviceSlug:
+        selectedService?.slug || parsed.data.serviceSlug || undefined,
       ...(leadTags.length ? { tags: leadTags } : {}),
       ...(parsed.data.utmSource ? { utmSource: parsed.data.utmSource } : {}),
       ...(parsed.data.utmMedium ? { utmMedium: parsed.data.utmMedium } : {}),

@@ -128,6 +128,41 @@ const nextConfig: NextConfig = {
         source: "/forbidden",
         headers: adminFrameProtectionHeaders,
       },
+      {
+        source: "/portal/:path*",
+        headers: [
+          ...adminFrameProtectionHeaders,
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate, max-age=0",
+          },
+          { key: "Pragma", value: "no-cache" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        source: "/patient-login/:path*",
+        headers: [
+          ...adminFrameProtectionHeaders,
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate, max-age=0",
+          },
+          { key: "Pragma", value: "no-cache" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        source: "/api/portal/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate, max-age=0",
+          },
+          { key: "Pragma", value: "no-cache" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
       // Explicit allow-indexing signal for every public page.
       // This is a defensive double-down on the homepage <meta name="robots">
       // and catches cases where Cloudflare/Render might strip the meta tag.
@@ -136,8 +171,15 @@ const nextConfig: NextConfig = {
         headers: [{ key: "X-Robots-Tag", value: "all" }],
       },
       {
-        source: "/((?!admin|api/admin|api/auth|forbidden|login)(?:.*))",
+        source: "/((?!admin|api/|forbidden|login|patient-login|portal)(?:.*))",
         headers: [{ key: "X-Robots-Tag", value: "all" }],
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-store" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
       },
       // robots.txt + sitemap files: short cache, plus permissive indexing.
       // These file routes are excluded from middleware.ts's matcher (by

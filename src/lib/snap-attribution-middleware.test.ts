@@ -13,7 +13,12 @@ function middleware() {
     "next/server": {
       NextResponse: {
         next: () => new Response(),
-        redirect: (url: URL, status = 307) => Response.redirect(url, status),
+        // NextResponse.redirect has mutable headers; Response.redirect does not.
+        redirect: (url: URL, status = 307) =>
+          new Response(null, {
+            status,
+            headers: { Location: url.href },
+          }),
       },
     },
     "@/auth": { auth: (callback: unknown) => callback },
@@ -86,6 +91,8 @@ test("attribution does not bypass admin authentication or weaken opt-out respons
   assert.equal(admin.status, 307);
   assert.match(admin.headers.get("location")!, /\/login/);
   assert.equal(admin.headers.get("set-cookie"), null);
+  assert.equal(admin.headers.get("cache-control"), "private, no-store");
+  assert.equal(admin.headers.get("x-robots-tag"), "noindex, nofollow");
   const optedOut = run("https://rejuvera.sa/contact", {
     dnt: "1",
     cookie: "rv_snap_click=7b3a7917-a82a-47e8-9728-e1b3b045abb2",

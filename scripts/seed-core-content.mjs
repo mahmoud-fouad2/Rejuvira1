@@ -668,14 +668,8 @@ async function upsertCategories() {
   for (const [index, category] of categories.entries()) {
     await prisma.serviceCategory.upsert({
       where: { slug: category.slug },
-      update: {
-        nameAr: category.nameAr,
-        nameEn: category.nameEn,
-        descriptionAr: category.descriptionAr,
-        descriptionEn: category.descriptionEn,
-        status: ContentStatus.PUBLISHED,
-        sortOrder: index + 1,
-      },
+      // Deployment seeds initialize missing records; the CMS owns existing content.
+      update: {},
       create: {
         slug: category.slug,
         nameAr: category.nameAr,
@@ -691,34 +685,9 @@ async function upsertCategories() {
 
 async function upsertDoctors() {
   for (const [index, doctor] of doctors.entries()) {
-    const existing = await prisma.doctor.findUnique({
-      where: { slug: doctor.slug },
-      select: { id: true, photoUrl: true, coverImageUrl: true },
-    });
-
     await prisma.doctor.upsert({
       where: { slug: doctor.slug },
-      update: {
-        nameAr: doctor.nameAr,
-        nameEn: doctor.nameEn,
-        titleAr: doctor.titleAr,
-        titleEn: doctor.titleEn,
-        specialtyAr: doctor.specialtyAr,
-        specialtyEn: doctor.specialtyEn,
-        bioAr: doctor.bioAr,
-        bioEn: doctor.bioEn,
-        languages: doctor.languages,
-        yearsExperience: doctor.yearsExperience,
-        status: ContentStatus.PUBLISHED,
-        isFeatured: doctor.isFeatured,
-        sortOrder: index + 1,
-        publications: [doctor.bioAr.slice(0, 160)],
-        achievements: [],
-        education: [doctor.titleAr],
-        photoUrl: existing?.photoUrl || doctor.photoUrl,
-        coverImageUrl:
-          existing?.coverImageUrl || existing?.photoUrl || doctor.photoUrl,
-      },
+      update: {},
       create: {
         slug: doctor.slug,
         nameAr: doctor.nameAr,
@@ -750,10 +719,6 @@ async function upsertServices() {
       where: { slug: service.categorySlug },
       select: { id: true, nameAr: true },
     });
-    const existing = await prisma.service.findUnique({
-      where: { slug: service.slug },
-      select: { id: true, coverImageUrl: true },
-    });
     const doctorsToConnect = await prisma.doctor.findMany({
       where: { slug: { in: service.doctors } },
       select: { slug: true },
@@ -771,7 +736,7 @@ async function upsertServices() {
       status: ContentStatus.PUBLISHED,
       isFeatured: index < 12,
       sortOrder: index + 1,
-      coverImageUrl: existing?.coverImageUrl || service.image,
+      coverImageUrl: service.image,
       seoTitleAr: `${service.nameAr} في الرياض | Rejuvera Medical Center`,
       seoTitleEn: `${service.nameEn} in Riyadh | Rejuvera Medical Center`,
       seoDescriptionAr: service.excerptAr,
@@ -780,12 +745,7 @@ async function upsertServices() {
 
     await prisma.service.upsert({
       where: { slug: service.slug },
-      update: {
-        ...common,
-        doctors: {
-          connect: doctorsToConnect.map((doctor) => ({ slug: doctor.slug })),
-        },
-      },
+      update: {},
       create: {
         slug: service.slug,
         ...common,
@@ -816,7 +776,7 @@ async function updateBrandDefaults() {
   for (const setting of brandSettings) {
     await prisma.siteSetting.upsert({
       where: { key: `${setting.groupKey}.${setting.itemKey}` },
-      update: { value: setting.value, groupName: setting.groupKey },
+      update: {},
       create: {
         key: `${setting.groupKey}.${setting.itemKey}`,
         groupName: setting.groupKey,
@@ -875,7 +835,7 @@ async function updateContactDefaults() {
   for (const setting of contactSettings) {
     await prisma.siteSetting.upsert({
       where: { key: `${setting.groupKey}.${setting.itemKey}` },
-      update: { value: setting.value, groupName: setting.groupKey },
+      update: {},
       create: {
         key: `${setting.groupKey}.${setting.itemKey}`,
         groupName: setting.groupKey,
@@ -924,7 +884,9 @@ async function main() {
 
 main()
   .catch((error) => {
-    console.error("[seed-core-content] Failed:", error);
+    console.error(
+      `[seed-core-content] Failed (${error.code || error.name || "unknown"}).`,
+    );
     process.exitCode = 1;
   })
   .finally(async () => {

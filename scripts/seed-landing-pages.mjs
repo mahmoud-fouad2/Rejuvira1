@@ -689,6 +689,11 @@ async function main() {
   let upserted = 0;
   let skipped = 0;
   const force = process.env.LANDING_SEED_FORCE === "1";
+  if (force && (process.env.RENDER || process.env.RENDER_SERVICE_ID)) {
+    throw new Error(
+      "LANDING_SEED_FORCE is not permitted during Render deployment.",
+    );
+  }
 
   for (const page of pages) {
     const existing = await prisma.customPage.findUnique({
@@ -721,21 +726,24 @@ async function main() {
         status: "PUBLISHED",
         leadWebhookEnabled: false,
       },
-      update: {
-        titleAr: page.title,
-        titleEn: page.titleEn,
-        htmlContent: buildLandingPage(page),
-        seoTitle: `${page.title} | Rejuvera Medical Center`,
-        seoDescription: page.intro,
-        metaTitle: `${page.title} | Rejuvera Center`,
-        metaDescription: page.intro,
-        keywords: keywordPhrases(page),
-        ogTitle: page.headline,
-        ogDescription: page.intro,
-        ogImage: page.image,
-        noindex: false,
-        status: "PUBLISHED",
-      },
+      // Even if a page is created between the lookup and upsert, preserve it.
+      update: force
+        ? {
+            titleAr: page.title,
+            titleEn: page.titleEn,
+            htmlContent: buildLandingPage(page),
+            seoTitle: `${page.title} | Rejuvera Medical Center`,
+            seoDescription: page.intro,
+            metaTitle: `${page.title} | Rejuvera Center`,
+            metaDescription: page.intro,
+            keywords: keywordPhrases(page),
+            ogTitle: page.headline,
+            ogDescription: page.intro,
+            ogImage: page.image,
+            noindex: false,
+            status: "PUBLISHED",
+          }
+        : {},
     });
 
     console.log(`Ready: /p/${page.slug}`);

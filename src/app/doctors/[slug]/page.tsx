@@ -20,6 +20,8 @@ import {
 } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
 import { ContentStatus } from "@/lib/prisma-enums";
+import { auth } from "@/auth";
+import { canAccessAdminRoute } from "@/lib/admin-permissions";
 import { getSiteUrl } from "@/lib/seo";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import {
@@ -38,6 +40,16 @@ export async function generateMetadata({
   const doctor = await getDoctorBySlug(slug);
 
   if (!doctor) notFound();
+
+  if (doctor.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/doctors", session.user.role)
+    ) {
+      notFound();
+    }
+  }
 
   const canonicalUrl = `${getSiteUrl()}/doctors/${doctor.slug}`;
   const isLoai = doctor.slug === "loai-alsalmi";
@@ -175,6 +187,16 @@ export default async function DoctorDetailPage({
 
   if (!doctor) {
     notFound();
+  }
+
+  if (doctor.status !== ContentStatus.PUBLISHED) {
+    const session = await auth();
+    if (
+      !session?.user?.id ||
+      !canAccessAdminRoute("/admin/doctors", session.user.role)
+    ) {
+      notFound();
+    }
   }
 
   const doctorServiceSlugSet = new Set(doctor.serviceSlugs);
@@ -346,7 +368,9 @@ export default async function DoctorDetailPage({
             </p>
             <div className="rv-doctor-hero-cta">
               <BookingModal
-                services={services}
+                services={services.filter(
+                  (item) => item.status === ContentStatus.PUBLISHED,
+                )}
                 recaptchaSiteKey={getPublicSiteKey()}
                 buttonClassName="rv-doctor-cta-primary"
                 labelAr="احجزي استشارة"
@@ -550,7 +574,9 @@ export default async function DoctorDetailPage({
           </div>
           <div className="rv-doctor-close-cta">
             <BookingModal
-              services={services}
+              services={services.filter(
+                (item) => item.status === ContentStatus.PUBLISHED,
+              )}
               recaptchaSiteKey={getPublicSiteKey()}
               buttonClassName="rv-doctor-cta-primary"
               labelAr="احجزي الاستشارة"

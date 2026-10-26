@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ContentStatus } from "@/lib/prisma-enums";
 import Link from "next/link";
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import type { Route } from "next";
@@ -666,7 +667,9 @@ export async function SiteFooter({
 
         <div className="rv-v0-footer-mobile-book">
           <BookingModal
-            services={services}
+            services={services.filter(
+              (service) => service.status === ContentStatus.PUBLISHED,
+            )}
             recaptchaSiteKey={getPublicSiteKey()}
             compactLabel
             buttonClassName="rv-v0-footer-mobile-book-btn"

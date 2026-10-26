@@ -15,6 +15,7 @@ import {
   getServices,
 } from "@/lib/content-repository";
 import { coreSearchKeywords } from "@/lib/core-search";
+import { ContentStatus } from "@/lib/prisma-enums";
 import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -54,13 +55,22 @@ export default async function HomePage() {
       <SiteHeader />
       <V0InspiredHome
         settings={settings}
-        services={services}
-        doctors={doctors}
+        services={services.filter(
+          (service) => service.status === ContentStatus.PUBLISHED,
+        )}
+        doctors={doctors.filter(
+          (doctor) => doctor.status === ContentStatus.PUBLISHED,
+        )}
         devices={devices}
         galleryItems={galleryItems}
         journalPosts={rotatePosts(journalPosts)}
       />
-      <HomeContactSection settings={settings} services={services} />
+      <HomeContactSection
+        settings={settings}
+        services={services.filter(
+          (service) => service.status === ContentStatus.PUBLISHED,
+        )}
+      />
       <SiteFooter />
     </div>
   );

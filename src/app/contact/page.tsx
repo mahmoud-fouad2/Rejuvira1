@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ContentStatus } from "@/lib/prisma-enums";
 import Image from "next/image";
 
 import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
@@ -353,7 +354,9 @@ export default async function ContactPage() {
             </p>
             <div className="mt-7">
               <ContactForm
-                services={services}
+                services={services.filter(
+                  (service) => service.status === ContentStatus.PUBLISHED,
+                )}
                 recaptchaSiteKey={getPublicSiteKey()}
               />
             </div>

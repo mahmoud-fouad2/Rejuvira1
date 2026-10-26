@@ -170,10 +170,8 @@ export async function SiteHeader({
             </Link>
             <SiteMegaMenu
               triggerLabel="استكشاف المركز"
-              services={
-                publishedServices.length > 0 ? publishedServices : services
-              }
-              doctors={publishedDoctors.length > 0 ? publishedDoctors : doctors}
+              services={publishedServices}
+              doctors={publishedDoctors}
               devices={publishedDevices}
             />
             {(
@@ -191,9 +189,7 @@ export async function SiteHeader({
 
           <div className="rv-nav-actions">
             <BookingModal
-              services={
-                publishedServices.length > 0 ? publishedServices : services
-              }
+              services={publishedServices}
               recaptchaSiteKey={getPublicSiteKey()}
             />
             <ThemeToggle />
@@ -202,9 +198,7 @@ export async function SiteHeader({
 
           <div className="rv-mobile-inline-actions">
             <BookingModal
-              services={
-                publishedServices.length > 0 ? publishedServices : services
-              }
+              services={publishedServices}
               recaptchaSiteKey={getPublicSiteKey()}
               compactLabel
             />
