@@ -6,10 +6,12 @@ export function ServiceSearchQuestions({
   slug,
   name,
   nameEn,
+  english = false,
 }: {
   slug: string;
   name: string;
   nameEn?: string | null | undefined;
+  english?: boolean;
 }) {
   const questions = serviceSearchQuestions(slug, name, nameEn);
   if (!questions.length) return null;
@@ -22,21 +24,29 @@ export function ServiceSearchQuestions({
         id="service-consultation-questions"
         className="text-ink-strong font-serif text-3xl"
       >
-        <span className="lang-ar">أسئلة تساعدك قبل اختيار الإجراء</span>
-        <span className="lang-en">
-          Questions to discuss before choosing a procedure
-        </span>
+        {!english && (
+          <span className="lang-ar">أسئلة تساعدك قبل اختيار الإجراء</span>
+        )}
+        {english && (
+          <span className="lang-en">
+            Questions to discuss before choosing a procedure
+          </span>
+        )}
       </h2>
       <div className="mt-7 grid gap-7">
         {questions.map((question) => (
           <div key={question.questionAr}>
             <h3 className="text-ink-strong text-xl font-semibold">
-              <span className="lang-ar">{question.questionAr}</span>
-              <span className="lang-en">{question.questionEn}</span>
+              {!english && (
+                <span className="lang-ar">{question.questionAr}</span>
+              )}
+              {english && (
+                <span className="lang-en">{question.questionEn}</span>
+              )}
             </h3>
             <p className="text-ink-soft mt-3 text-base leading-8">
-              <span className="lang-ar">{question.answerAr}</span>
-              <span className="lang-en">{question.answerEn}</span>
+              {!english && <span className="lang-ar">{question.answerAr}</span>}
+              {english && <span className="lang-en">{question.answerEn}</span>}
             </p>
           </div>
         ))}
@@ -46,12 +56,20 @@ export function ServiceSearchQuestions({
           href="/journal/choose-plastic-surgeon-riyadh"
           className="text-purple-mid underline"
         >
-          <span className="lang-ar">كيف تختار جرّاح التجميل؟</span>
-          <span className="lang-en">How to choose a plastic surgeon</span>
+          {!english && (
+            <span className="lang-ar">كيف تختار جرّاح التجميل؟</span>
+          )}
+          {english && (
+            <span className="lang-en">How to choose a plastic surgeon</span>
+          )}
         </Link>
         <Link href="/contact" className="text-purple-mid underline">
-          <span className="lang-ar">تواصل لتنسيق استشارة</span>
-          <span className="lang-en">Contact us to arrange a consultation</span>
+          {!english && <span className="lang-ar">تواصل لتنسيق استشارة</span>}
+          {english && (
+            <span className="lang-en">
+              Contact us to arrange a consultation
+            </span>
+          )}
         </Link>
       </div>
     </section>

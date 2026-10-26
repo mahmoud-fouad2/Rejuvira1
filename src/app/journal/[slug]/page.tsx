@@ -11,9 +11,11 @@ import {
   getDoctors,
   getJournalPostBySlug,
   getServices,
+  getRuntimeSettings,
 } from "@/lib/content-repository";
 import { getSiteUrl } from "@/lib/seo";
 import { hasEnglishJournalContent } from "@/lib/journal-content";
+import { journalAuthors } from "@/lib/journal-attribution";
 
 export async function generateMetadata({
   params,
@@ -102,10 +104,11 @@ export default async function JournalDetailPage({
     notFound();
   }
 
-  const [services, doctors, nonce] = await Promise.all([
+  const [services, doctors, nonce, settings] = await Promise.all([
     getServices(),
     getDoctors(),
     getCspNonce(),
+    getRuntimeSettings(),
   ]);
 
   const english =
@@ -138,6 +141,7 @@ export default async function JournalDetailPage({
     url: postUrl,
     inLanguage: articleLang,
     mainEntityOfPage: postUrl,
+    author: journalAuthors(settings.brand.siteName, getSiteUrl()),
     publisher: {
       "@id": `${getSiteUrl()}#organization`,
     },
@@ -187,7 +191,11 @@ export default async function JournalDetailPage({
         }}
       />
       <SiteHeader />
-      <main className="section-shell pt-8 pb-20">
+      <main
+        data-content-language={articleLang}
+        data-has-english={hasEnglishJournalContent(post)}
+        className="section-shell pt-8 pb-20"
+      >
         <section
           lang={articleLang}
           dir={english ? "ltr" : "rtl"}
@@ -200,6 +208,11 @@ export default async function JournalDetailPage({
             {articleTitle}
           </h1>
           <div className="text-ink-faint mt-5 flex flex-wrap gap-3 text-sm">
+            <span>
+              {english ? "By " : "إعداد: "}Mahmoud Fouad{" "}
+              {english ? "and " : "و"}
+              {settings.brand.siteName}
+            </span>
             <span>{post.readingTime}</span>
             <time dateTime={post.publishedAt}>
               {new Date(post.publishedAt).toLocaleDateString(

@@ -5,125 +5,83 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from "react";
-
-/* ── Context ────────────────────────────────────────────── */
-type Lang = "ar" | "en";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { Route } from "next";
+import {
+  languageNavigationUrl,
+  type SeoLanguage,
+} from "@/lib/seo-localization";
 
 type LanguageCtx = {
-  lang: Lang;
+  lang: SeoLanguage;
+  hasEnglish: boolean;
   switchLanguage: () => void;
 };
-
 const LanguageContext = createContext<LanguageCtx>({
   lang: "ar",
+  hasEnglish: true,
   switchLanguage: () => {},
 });
-
 export function useLanguage() {
   return useContext(LanguageContext);
 }
 
-/* ── Helpers ─────────────────────────────────────────────── */
-const STORAGE_KEY = "rejuvira-lang";
-const TRANSITION_DURATION = 380;
-const SWITCH_DELAY = 420;
-
-function applyLang(lang: Lang) {
-  const html = document.documentElement;
-  html.dataset.lang = lang;
-  html.lang = lang === "ar" ? "ar" : "en";
-  html.dir = lang === "ar" ? "rtl" : "ltr";
-  try {
-    document.cookie = `rejuvira-lang=${lang}; Path=/; Max-Age=31536000; SameSite=Lax`;
-  } catch {
-    /* ignore */
-  }
-}
-
-function readStoredLang(): Lang {
-  if (typeof window === "undefined") return "ar";
-  const queryLang = new URLSearchParams(window.location.search).get("lang");
-  if (queryLang === "en" || queryLang === "ar") return queryLang;
-
-  const documentLang = document.documentElement.dataset.lang;
-  if (documentLang === "en" || documentLang === "ar") return documentLang;
-
-  try {
-    const m = document.cookie.match(/(?:^|;\s*)rejuvira-lang=(en|ar)\b/);
-    if (m?.[1] === "en" || m?.[1] === "ar") return m[1];
-  } catch {
-    /* ignore */
-  }
-  const local = localStorage.getItem(STORAGE_KEY) as Lang | null;
-  if (local === "en" || local === "ar") return local;
-  return "ar";
-}
-
-/* ── Provider ────────────────────────────────────────────── */
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>("ar");
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const switching = useRef(false);
+export function LanguageProvider({
+  children,
+  initialLang = "ar",
+  initialHasEnglish = true,
+}: {
+  children: React.ReactNode;
+  initialLang?: SeoLanguage;
+  initialHasEnglish?: boolean;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [lang, setLang] = useState<SeoLanguage>(initialLang);
+  const [hasEnglish, setHasEnglish] = useState(initialHasEnglish);
 
   useEffect(() => {
-    const initial = readStoredLang();
-    setLang(initial);
-    applyLang(initial);
-    try {
-      localStorage.setItem(STORAGE_KEY, initial);
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const switchLanguage = useCallback(async () => {
-    if (switching.current) return;
-    switching.current = true;
-
-    const overlay = overlayRef.current;
-    const newLang: Lang = lang === "ar" ? "en" : "ar";
-    const html = document.documentElement;
-    const motion =
-      typeof window.matchMedia === "function" &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (overlay && motion) {
-      overlay.classList.add("lang-transitioning");
-      html.classList.add("rv-language-switching");
-    } else if (motion) {
-      html.classList.add("rv-lang-html-shift");
-      window.setTimeout(() => html.classList.remove("rv-lang-html-shift"), 420);
-    }
-
-    await new Promise<void>((r) => setTimeout(r, motion ? SWITCH_DELAY : 0));
-
-    setLang(newLang);
-    applyLang(newLang);
-    try {
-      localStorage.setItem(STORAGE_KEY, newLang);
-    } catch {
-      /* ignore */
-    }
-
-    await new Promise<void>((r) => setTimeout(r, motion ? 80 : 0));
-
-    if (overlay && motion) {
-      overlay.classList.remove("lang-transitioning");
-      html.classList.remove("rv-language-switching");
-    }
-
-    await new Promise<void>((r) =>
-      setTimeout(r, motion ? TRANSITION_DURATION + 40 : 40),
+    // Server-rendered medical/custom pages declare their actual content language.
+    // This also updates correctly on client navigation and browser Back/Forward.
+    const content = document.querySelector<HTMLElement>(
+      "main[data-content-language]",
     );
-    switching.current = false;
-  }, [lang]);
+    const available = content
+      ? content.dataset.hasEnglish === "true"
+      : !pathname.startsWith("/p/") && pathname !== "/journal";
+    const selected =
+      available && searchParams.get("lang") === "en" ? "en" : "ar";
+    setLang(selected);
+    setHasEnglish(available);
+    const html = document.documentElement;
+    html.dataset.lang = selected;
+    html.lang = selected;
+    html.dir = selected === "ar" ? "rtl" : "ltr";
+    // Preferences are retained for compatibility, but never override a URL.
+    try {
+      localStorage.setItem("rejuvira-lang", selected);
+      document.cookie = `rejuvira-lang=${selected}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    } catch {
+      /* Storage restrictions must not prevent navigation. */
+    }
+  }, [pathname, searchParams]);
+
+  const switchLanguage = useCallback(() => {
+    if (!hasEnglish && lang === "ar") return;
+    router.push(
+      languageNavigationUrl(
+        window.location.href,
+        lang === "ar" ? "en" : "ar",
+      ) as Route,
+      { scroll: false },
+    );
+  }, [hasEnglish, lang, router]);
 
   return (
-    <LanguageContext.Provider value={{ lang, switchLanguage }}>
-      <div id="lang-transition-overlay" ref={overlayRef} aria-hidden="true" />
+    <LanguageContext.Provider value={{ lang, hasEnglish, switchLanguage }}>
       {children}
     </LanguageContext.Provider>
   );

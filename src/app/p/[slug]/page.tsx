@@ -32,6 +32,7 @@ import {
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import { getSiteUrl } from "@/lib/seo";
 import { improveFaceliftLanding } from "@/lib/facelift-landing";
+import { publicEditorialCopy } from "@/lib/public-editorial-copy";
 import "./facelift.css";
 import "./search-content.css";
 
@@ -110,7 +111,6 @@ export async function generateMetadata({
       url: canonicalUrl,
       type: "website",
       locale: "ar_SA",
-      alternateLocale: "en_US",
       ...(ogImage ? { images: [{ url: ogImage }] } : {}),
     },
     twitter: {
@@ -155,7 +155,11 @@ export default async function CustomPage({
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
   const repairedHtml = repairCustomPageMediaUrls(
-    stripCustomPageEditorState(improveFaceliftLanding(page.htmlContent, slug)),
+    publicEditorialCopy(
+      stripCustomPageEditorState(
+        improveFaceliftLanding(page.htmlContent, slug),
+      ),
+    ),
   );
   const isFocusedFacelift = repairedHtml.includes(
     'data-facelift-optimized="1"',
@@ -216,6 +220,10 @@ export default async function CustomPage({
         <SiteHeader phoneOverride={LANDING_PAGE_PHONE_DISPLAY} />
       ) : null}
       <main
+        data-content-language="ar"
+        data-has-english="false"
+        lang="ar"
+        dir="rtl"
         className={`rv-custom-page rv-custom-page--${pageLayout} ${
           isUploadedHtml ? "rv-custom-page--uploaded" : ""
         }`}

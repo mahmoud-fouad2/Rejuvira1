@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { cookies, headers } from "next/headers";
+import { headers } from "next/headers";
 import Script from "next/script";
 import localFont from "next/font/local";
 
@@ -13,6 +13,7 @@ import { normalizeIntegrationSnippets } from "@/lib/integration-snippets";
 import { LeadConversionTracker } from "@/components/layout/LeadConversionTracker";
 import { CustomCursor } from "@/components/ui/new/CustomCursor";
 import { getRuntimeSettings } from "@/lib/content-repository";
+import { pageLanguage } from "@/lib/page-language";
 import { normalizeGoogleTagConfig } from "@/lib/google-tag";
 import { OPENAI_ADS_ATTRIBUTION_SCRIPT } from "@/lib/openai-ads-attribution";
 import { REQUEST_ATTRIBUTION_SCRIPT } from "@/lib/request-attribution";
@@ -37,19 +38,6 @@ export const viewport: Viewport = {
   themeColor: "#4a2476",
   colorScheme: "light dark",
 };
-
-function detectInitialLang(url: string | null, cookieLang: string | undefined) {
-  if (url) {
-    try {
-      const search = new URL(url, "http://x").searchParams.get("lang");
-      if (search === "en" || search === "ar") return search;
-    } catch {
-      /* ignore */
-    }
-  }
-  if (cookieLang === "en" || cookieLang === "ar") return cookieLang;
-  return "ar";
-}
 
 /* ── Local IBM Plex Sans Arabic (body) ──────────────────── */
 const rejuviraSans = localFont({
@@ -121,7 +109,6 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${runtimeSettings.brand.siteName}`,
     },
     description: runtimeSettings.brand.seoDescription,
-    creator: "Mahmoud Fouad",
     publisher: runtimeSettings.brand.siteName,
     icons: {
       icon: [
@@ -161,12 +148,6 @@ export async function generateMetadata(): Promise<Metadata> {
       index: true,
       follow: true,
     },
-    other: {
-      "rejuvera:developer": "Mahmoud Fouad",
-      "rejuvera:developer-url": "https://ma-fo.info",
-      "rejuvera:developer-linkedin":
-        "https://www.linkedin.com/in/mahmoud-fouad",
-    },
   };
 }
 
@@ -177,13 +158,14 @@ export default async function RootLayout({
 }) {
   const runtimeSettings = await getRuntimeSettings();
   const headerStore = await headers();
-  const cookieStore = await cookies();
   const nonce = headerStore.get("x-nonce") ?? "";
   const pathname =
     headerStore.get("x-pathname") ?? headerStore.get("x-invoke-path") ?? "/";
   const url = headerStore.get("x-url");
-  const cookieLang = cookieStore.get("rejuvira-lang")?.value;
-  const initialLang = detectInitialLang(url, cookieLang);
+  const { language: initialLang, hasEnglish } = await pageLanguage(
+    pathname,
+    url,
+  );
   const isAdminOrAuth =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/login") ||
@@ -230,7 +212,7 @@ export default async function RootLayout({
           strategy="beforeInteractive"
           nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var d=document.documentElement;var defaultTheme=${JSON.stringify(initialTheme)};var serverLang=${JSON.stringify(initialLang)};var queryLang=new URLSearchParams(location.search).get("lang");var c=document.cookie.match(/(?:^|;\\s*)rejuvira-lang=(en|ar)\\b/);var cookieLang=c?c[1]:null;var l=localStorage.getItem("rejuvira-lang");if(l!=="en"&&l!=="ar")l=null;var effective=(queryLang==="en"||queryLang==="ar")?queryLang:((cookieLang==="en"||cookieLang==="ar")?cookieLang:((l==="en"||l==="ar")?l:serverLang||"ar"));d.setAttribute("data-lang",effective);d.lang=effective;d.dir=effective==="ar"?"rtl":"ltr";var t=localStorage.getItem("rejuvira-theme");if(t!=="dark"&&t!=="light"){t=defaultTheme==="dark"?"dark":"light";}d.setAttribute("data-theme",t);}catch(e){}})();`,
+            __html: `(function(){try{var d=document.documentElement;var defaultTheme=${JSON.stringify(initialTheme)};var effective=${JSON.stringify(initialLang)};d.setAttribute("data-lang",effective);d.lang=effective;d.dir=effective==="ar"?"rtl":"ltr";var t=localStorage.getItem("rejuvira-theme");if(t!=="dark"&&t!=="light"){t=defaultTheme==="dark"?"dark":"light";}d.setAttribute("data-theme",t);}catch(e){}})();`,
           }}
         />
         <script
@@ -300,7 +282,10 @@ export default async function RootLayout({
             />
           </noscript>
         ) : null}
-        <LanguageProvider>
+        <LanguageProvider
+          initialLang={initialLang}
+          initialHasEnglish={hasEnglish}
+        >
           <LeadConversionTracker />
           {showMaintenance ? (
             <MaintenanceOverlay

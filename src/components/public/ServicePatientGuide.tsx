@@ -12,10 +12,12 @@ export function ServicePatientGuide({
   service,
   services,
   posts,
+  english = false,
 }: {
   service: ServiceRecord;
   services: readonly ServiceRecord[];
   posts: readonly JournalPostRecord[];
+  english?: boolean;
 }) {
   const guide = servicePatientGuide(service.slug);
   const relatedServices = services.filter(
@@ -44,24 +46,30 @@ export function ServicePatientGuide({
         id="service-patient-guide"
         className="text-ink-strong font-serif text-3xl"
       >
-        <span className="lang-ar">
-          {guide?.titleAr ?? "قراءات تساعدك قبل الاستشارة"}
-        </span>
-        <span className="lang-en">
-          {guide?.titleEn ?? "Further reading before your consultation"}
-        </span>
+        {!english && (
+          <span className="lang-ar">
+            {guide?.titleAr ?? "قراءات تساعدك قبل الاستشارة"}
+          </span>
+        )}
+        {english && (
+          <span className="lang-en">
+            {guide?.titleEn ?? "Further reading before your consultation"}
+          </span>
+        )}
       </h2>
       {guide && (
         <p className="text-ink-soft mt-5 text-base leading-8">
-          <span className="lang-ar">{guide.summaryAr}</span>
-          <span className="lang-en">{guide.summaryEn}</span>
+          {!english && <span className="lang-ar">{guide.summaryAr}</span>}
+          {english && <span className="lang-en">{guide.summaryEn}</span>}
         </p>
       )}
       {relatedServices.length > 0 && (
         <div className="mt-7">
           <h3 className="text-ink-strong text-xl font-semibold">
-            <span className="lang-ar">خدمات مرتبطة للمقارنة</span>
-            <span className="lang-en">Related services to explore</span>
+            {!english && <span className="lang-ar">خدمات مرتبطة للمقارنة</span>}
+            {english && (
+              <span className="lang-en">Related services to explore</span>
+            )}
           </h3>
           <ul className="mt-4 grid gap-3">
             {relatedServices.map((item) => (
@@ -70,8 +78,10 @@ export function ServicePatientGuide({
                   href={`/services/${item.slug}` as Route}
                   className="text-purple-mid underline"
                 >
-                  <span className="lang-ar">{item.name}</span>
-                  <span className="lang-en">{item.nameEn ?? item.name}</span>
+                  {!english && <span className="lang-ar">{item.name}</span>}
+                  {english && (
+                    <span className="lang-en">{item.nameEn ?? item.name}</span>
+                  )}
                 </Link>
               </li>
             ))}
@@ -81,8 +91,10 @@ export function ServicePatientGuide({
       {relatedPosts.length > 0 && (
         <div className="mt-7">
           <h3 className="text-ink-strong text-xl font-semibold">
-            <span className="lang-ar">اقرأ قبل الموعد</span>
-            <span className="lang-en">Read before your appointment</span>
+            {!english && <span className="lang-ar">اقرأ قبل الموعد</span>}
+            {english && (
+              <span className="lang-en">Read before your appointment</span>
+            )}
           </h3>
           <ul className="mt-4 grid gap-3">
             {relatedPosts.map((post) => (
@@ -103,31 +115,41 @@ export function ServicePatientGuide({
       {guide && (
         <div className="border-line mt-7 border-t pt-6">
           <h3 className="text-ink-strong font-semibold">
-            <span className="lang-ar">مراجع للتعريف بالإجراء وحدوده</span>
-            <span className="lang-en">
-              References on the procedure and its limitations
-            </span>
+            {!english && (
+              <span className="lang-ar">مراجع للتعريف بالإجراء وحدوده</span>
+            )}
+            {english && (
+              <span className="lang-en">
+                References on the procedure and its limitations
+              </span>
+            )}
           </h3>
           <ul className="mt-3 grid gap-3 text-sm">
             {guide.sources.map((source) => (
               <li key={source.url}>
                 <a href={source.url} className="text-purple-mid underline">
-                  <span className="lang-ar">{source.titleAr}</span>
-                  <span className="lang-en">{source.titleEn}</span>
+                  {!english && (
+                    <span className="lang-ar">{source.titleAr}</span>
+                  )}
+                  {english && <span className="lang-en">{source.titleEn}</span>}
                 </a>
               </li>
             ))}
           </ul>
           <p className="text-ink-soft mt-4 text-sm leading-7">
-            <span className="lang-ar">
-              هذه معلومات تثقيفية عامة. تحديد ملاءمة الإجراء وخطته ومخاطره
-              لحالتك يتم في الاستشارة الطبية.
-            </span>
-            <span className="lang-en">
-              This is general educational information. Suitability, the
-              treatment plan and risks for your case are assessed during a
-              medical consultation.
-            </span>
+            {!english && (
+              <span className="lang-ar">
+                هذه معلومات تثقيفية عامة. تحديد ملاءمة الإجراء وخطته ومخاطره
+                لحالتك يتم في الاستشارة الطبية.
+              </span>
+            )}
+            {english && (
+              <span className="lang-en">
+                This is general educational information. Suitability, the
+                treatment plan and risks for your case are assessed during a
+                medical consultation.
+              </span>
+            )}
           </p>
         </div>
       )}

@@ -1,5 +1,13 @@
 export type SeoLanguage = "ar" | "en";
 
+/** Preserve campaign/query context and anchors when choosing a language URL. */
+export function languageNavigationUrl(href: string, language: SeoLanguage) {
+  const url = new URL(href, "https://rejuvera.sa");
+  if (language === "en") url.searchParams.set("lang", "en");
+  else url.searchParams.delete("lang");
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
 // Search metadata follows the URL, not a visitor's cookies or stored UI choice.
 export function seoLanguageFromUrl(url: string | null): SeoLanguage {
   if (!url) return "ar";

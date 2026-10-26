@@ -740,26 +740,6 @@ export async function SiteFooter({
               © {new Date().getFullYear()} {runtimeSettings.brand.siteName} ·{" "}
               {runtimeSettings.contact.domain}
             </p>
-            <span aria-hidden className="opacity-40">
-              ·
-            </span>
-            <a
-              href="https://ma-fo.info"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 opacity-80 transition-opacity hover:text-[color:var(--rv-ink)] hover:opacity-100"
-              title="Developed by Mahmoud Fouad"
-            >
-              <span className="font-mono text-[11px] font-medium">By</span>
-              <Image
-                src="https://ma-fo.info/logo2.png"
-                alt="Mahmoud Fouad"
-                width={18}
-                height={18}
-                className="h-3.5 w-auto object-contain"
-                unoptimized
-              />
-            </a>
           </div>
           <p className="flex flex-wrap items-center gap-3">
             <Link href="/privacy" className="hover:text-[color:var(--rv-ink)]">

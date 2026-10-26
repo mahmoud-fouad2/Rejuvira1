@@ -12,6 +12,7 @@ import { StickyMobileCta } from "@/components/public/StickyMobileCta";
 import { getCspNonce } from "@/lib/csp-nonce";
 import { clinicWhatsappHref } from "@/lib/clinic-contact";
 import { getPublicSiteKey } from "@/lib/recaptcha";
+import { doctorProfileSections } from "@/lib/doctor-profile-content";
 import {
   getDevices,
   getDoctorBySlug,
@@ -272,23 +273,7 @@ export default async function DoctorDetailPage({
     ],
   };
 
-  const sections: Array<{
-    id: string;
-    label: string;
-    items: readonly string[];
-  }> = [
-    { id: "education", label: "التعليم والتأهيل", items: doctor.education },
-    {
-      id: "achievements",
-      label: "الإنجازات والمحطات",
-      items: doctor.achievements,
-    },
-    {
-      id: "publications",
-      label: "الاقتباسات والمنشورات",
-      items: doctor.publications,
-    },
-  ];
+  const sections = doctorProfileSections(doctor, english);
 
   return (
     <div className="min-h-screen">
@@ -309,7 +294,13 @@ export default async function DoctorDetailPage({
         }}
       />
       <SiteHeader />
-      <main className="rv-doctor-profile mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-12 px-6 pt-14 pb-32 lg:gap-16 lg:px-10">
+      <main
+        lang={english ? "en" : "ar"}
+        dir={english ? "ltr" : "rtl"}
+        data-content-language={english ? "en" : "ar"}
+        data-has-english={hasEnglishDoctorContent(doctor)}
+        className="rv-doctor-profile mx-auto flex w-full max-w-[var(--max-width)] flex-col gap-12 px-6 pt-14 pb-32 lg:gap-16 lg:px-10"
+      >
         {/* ── HERO BAND ──────────────────────────────────── */}
         <section className="rv-doctor-hero">
           <div className="rv-doctor-hero-photo">
@@ -324,35 +315,45 @@ export default async function DoctorDetailPage({
             {doctor.featured && doctor.slug === "loai-alsalmi" ? (
               <span className="rv-doctor-hero-badge">
                 <StarGlyph />
-                <span className="lang-ar">طبيب مميز</span>
-                <span className="lang-en">Featured</span>
+                {!english && <span className="lang-ar">طبيب مميز</span>}
+                {english && <span className="lang-en">Featured</span>}
               </span>
             ) : null}
           </div>
           <div className="rv-doctor-hero-body">
             <p className="rv-doctor-hero-eyebrow">
-              <span className="lang-ar">الملف الطبي</span>
-              <span className="lang-en">Medical Profile</span>
+              {!english && <span className="lang-ar">الملف الطبي</span>}
+              {english && <span className="lang-en">Medical Profile</span>}
             </p>
             <h1 className="rv-doctor-hero-name">
-              <span className="lang-ar">{doctor.name}</span>
-              <span className="lang-en">{doctor.nameEn ?? doctor.name}</span>
+              {!english && <span className="lang-ar">{doctor.name}</span>}
+              {english && (
+                <span className="lang-en">{doctor.nameEn ?? doctor.name}</span>
+              )}
             </h1>
             <p className="rv-doctor-hero-title">
-              <span className="lang-ar">{doctor.title}</span>
-              <span className="lang-en">{doctor.titleEn ?? doctor.title}</span>
+              {!english && <span className="lang-ar">{doctor.title}</span>}
+              {english && (
+                <span className="lang-en">
+                  {doctor.titleEn ?? doctor.title}
+                </span>
+              )}
             </p>
             <div className="rv-doctor-hero-meta">
               <span className="rv-doctor-hero-pill is-specialty">
-                <span className="lang-ar">{doctor.specialty}</span>
-                <span className="lang-en">
-                  {doctor.specialtyEn ?? doctor.specialty}
-                </span>
+                {!english && (
+                  <span className="lang-ar">{doctor.specialty}</span>
+                )}
+                {english && (
+                  <span className="lang-en">
+                    {doctor.specialtyEn ?? doctor.specialty}
+                  </span>
+                )}
               </span>
               <span className="rv-doctor-hero-pill is-exp">
                 {doctor.yearsExperience}+{" "}
-                <span className="lang-ar">سنة خبرة</span>
-                <span className="lang-en">years experience</span>
+                {!english && <span className="lang-ar">سنة خبرة</span>}
+                {english && <span className="lang-en">years experience</span>}
               </span>
               {doctor.languages.length > 0 ? (
                 <span className="rv-doctor-hero-pill is-langs">
@@ -361,10 +362,12 @@ export default async function DoctorDetailPage({
               ) : null}
             </div>
             <p className="rv-doctor-hero-summary">
-              <span className="lang-ar">{doctor.summary}</span>
-              <span className="lang-en">
-                {doctor.summaryEn ?? doctor.summary}
-              </span>
+              {!english && <span className="lang-ar">{doctor.summary}</span>}
+              {english && (
+                <span className="lang-en">
+                  {doctor.summaryEn ?? doctor.summary}
+                </span>
+              )}
             </p>
             <div className="rv-doctor-hero-cta">
               <BookingModal
@@ -385,8 +388,8 @@ export default async function DoctorDetailPage({
                   className="rv-doctor-cta-whatsapp"
                 >
                   <WhatsAppGlyph />
-                  <span className="lang-ar">واتساب مباشر</span>
-                  <span className="lang-en">WhatsApp now</span>
+                  {!english && <span className="lang-ar">واتساب مباشر</span>}
+                  {english && <span className="lang-en">WhatsApp now</span>}
                 </a>
               ) : null}
               <PhoneCallLink href={telHref} className="rv-doctor-cta-call">
@@ -401,29 +404,35 @@ export default async function DoctorDetailPage({
         <section className="rv-doctor-block" aria-labelledby="rv-doctor-bio">
           <header className="rv-doctor-block-head">
             <p className="rv-doctor-block-eyebrow">
-              <span className="lang-ar">نبذة عن الطبيب</span>
-              <span className="lang-en">About</span>
+              {!english && <span className="lang-ar">نبذة عن الطبيب</span>}
+              {english && <span className="lang-en">About</span>}
             </p>
             <h2 id="rv-doctor-bio">
-              <span className="lang-ar">
-                منهج عملي يبدأ من تشخيص واضح وخطة مناسبة.
-              </span>
-              <span className="lang-en">
-                A clinical approach rooted in a clear diagnosis and a fitting
-                plan.
-              </span>
+              {!english && (
+                <span className="lang-ar">
+                  منهج عملي يبدأ من تشخيص واضح وخطة مناسبة.
+                </span>
+              )}
+              {english && (
+                <span className="lang-en">
+                  A clinical approach rooted in a clear diagnosis and a fitting
+                  plan.
+                </span>
+              )}
             </h2>
           </header>
           <div className="rv-doctor-block-body">
             <p className="rv-doctor-bio-text">
-              <span className="lang-ar">{doctor.bio}</span>
-              <span
-                className="lang-en"
-                lang={doctor.bioEn ? "en" : "ar"}
-                dir={doctor.bioEn ? "ltr" : "rtl"}
-              >
-                {doctor.bioEn ?? doctor.bio}
-              </span>
+              {!english && <span className="lang-ar">{doctor.bio}</span>}
+              {english && (
+                <span
+                  className="lang-en"
+                  lang={doctor.bioEn ? "en" : "ar"}
+                  dir={doctor.bioEn ? "ltr" : "rtl"}
+                >
+                  {doctor.bioEn ?? doctor.bio}
+                </span>
+              )}
             </p>
           </div>
         </section>
@@ -460,16 +469,20 @@ export default async function DoctorDetailPage({
           >
             <header className="rv-doctor-block-head">
               <p className="rv-doctor-block-eyebrow">
-                <span className="lang-ar">الخدمات المرتبطة</span>
-                <span className="lang-en">Related services</span>
+                {!english && <span className="lang-ar">الخدمات المرتبطة</span>}
+                {english && <span className="lang-en">Related services</span>}
               </p>
               <h2 id="rv-doctor-services">
-                <span className="lang-ar">
-                  خدمات يقدمها هذا الطبيب ضمن الخطة العلاجية.
-                </span>
-                <span className="lang-en">
-                  Services this physician supports within the treatment plan.
-                </span>
+                {!english && (
+                  <span className="lang-ar">
+                    خدمات يقدمها هذا الطبيب ضمن الخطة العلاجية.
+                  </span>
+                )}
+                {english && (
+                  <span className="lang-en">
+                    Services this physician supports within the treatment plan.
+                  </span>
+                )}
               </h2>
             </header>
             <div className="rv-doctor-cards-grid">
@@ -494,8 +507,12 @@ export default async function DoctorDetailPage({
                     <strong>{service.name}</strong>
                     <p>{service.excerpt}</p>
                     <span className="rv-doctor-relcard-cta">
-                      <span className="lang-ar">تفاصيل الخدمة</span>
-                      <span className="lang-en">Service details</span>
+                      {!english && (
+                        <span className="lang-ar">تفاصيل الخدمة</span>
+                      )}
+                      {english && (
+                        <span className="lang-en">Service details</span>
+                      )}
                       <span aria-hidden> ←</span>
                     </span>
                   </div>
@@ -513,16 +530,21 @@ export default async function DoctorDetailPage({
           >
             <header className="rv-doctor-block-head">
               <p className="rv-doctor-block-eyebrow">
-                <span className="lang-ar">أجهزة مستخدمة</span>
-                <span className="lang-en">Devices used</span>
+                {!english && <span className="lang-ar">أجهزة مستخدمة</span>}
+                {english && <span className="lang-en">Devices used</span>}
               </p>
               <h2 id="rv-doctor-devices">
-                <span className="lang-ar">
-                  التقنيات المرتبطة بمسار العلاج لدى هذا الطبيب.
-                </span>
-                <span className="lang-en">
-                  Technologies used along this physician&apos;s treatment plans.
-                </span>
+                {!english && (
+                  <span className="lang-ar">
+                    التقنيات المرتبطة بمسار العلاج لدى هذا الطبيب.
+                  </span>
+                )}
+                {english && (
+                  <span className="lang-en">
+                    Technologies used along this physician&apos;s treatment
+                    plans.
+                  </span>
+                )}
               </h2>
             </header>
             <div className="rv-doctor-cards-grid">
@@ -556,20 +578,28 @@ export default async function DoctorDetailPage({
         <section className="rv-doctor-close">
           <div>
             <h2>
-              <span className="lang-ar">
-                احجزي وقتًا مناسبًا مع {doctor.name}
-              </span>
-              <span className="lang-en">Book a time with {doctor.name}</span>
+              {!english && (
+                <span className="lang-ar">
+                  احجزي وقتًا مناسبًا مع {doctor.name}
+                </span>
+              )}
+              {english && (
+                <span className="lang-en">Book a time with {doctor.name}</span>
+              )}
             </h2>
             <p>
-              <span className="lang-ar">
-                سيستقبل فريق المركز طلبك بسرّية مهنية ثم يحدد معك أقرب موعد عملي
-                وفق الأولويات الطبية لحالتك.
-              </span>
-              <span className="lang-en">
-                Our team reviews your request and helps schedule a suitable
-                consultation based on your needs.
-              </span>
+              {!english && (
+                <span className="lang-ar">
+                  سيستقبل فريق المركز طلبك بسرّية مهنية ثم يحدد معك أقرب موعد
+                  عملي وفق الأولويات الطبية لحالتك.
+                </span>
+              )}
+              {english && (
+                <span className="lang-en">
+                  Our team reviews your request and helps schedule a suitable
+                  consultation based on your needs.
+                </span>
+              )}
             </p>
           </div>
           <div className="rv-doctor-close-cta">
@@ -591,8 +621,8 @@ export default async function DoctorDetailPage({
                 className="rv-doctor-cta-whatsapp"
               >
                 <WhatsAppGlyph />
-                <span className="lang-ar">واتساب</span>
-                <span className="lang-en">WhatsApp</span>
+                {!english && <span className="lang-ar">واتساب</span>}
+                {english && <span className="lang-en">WhatsApp</span>}
               </a>
             ) : null}
           </div>

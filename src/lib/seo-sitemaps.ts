@@ -316,6 +316,8 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
         priority: 0.55,
         changeFrequency: "monthly" as const,
         lastModified: page.updatedAt,
+        // Custom HTML has one content body; titleEn alone is not a translation.
+        hasEnglishContent: false,
         images: compactImages([
           page.ogImage
             ? {
@@ -331,7 +333,12 @@ export async function getSitemapEntries(): Promise<SitemapEntry[]> {
   const entries = new Map<string, SitemapEntry>();
   for (const entry of [...staticEntries, ...dynamicEntries]) {
     if (!isCleanSitemapPath(entry.path)) continue;
-    entries.set(absoluteUrl(entry.path), entry);
+    entries.set(absoluteUrl(entry.path), {
+      ...entry,
+      // Only the explicitly bilingual static templates have English variants.
+      hasEnglishContent:
+        entry.hasEnglishContent ?? staticEntries.includes(entry),
+    });
   }
 
   return Array.from(entries.values()).sort((left, right) => {
@@ -362,23 +369,27 @@ export function renderPagesSitemapXml(entries: readonly SitemapEntry[]) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${entries
-  .map((entry) => {
+  .flatMap((entry) => {
     const url = absoluteUrl(entry.path);
-    return `  <url>
-    <loc>${escapeXml(url)}</loc>
+    const urls =
+      entry.hasEnglishContent === true ? [url, withEnglishVariant(url)] : [url];
+    return urls.map(
+      (variant) => `  <url>
+    <loc>${escapeXml(variant)}</loc>
     ${entry.lastModified ? `<lastmod>${escapeXml(entry.lastModified)}</lastmod>` : ""}
     <changefreq>${entry.changeFrequency}</changefreq>
     <priority>${entry.priority.toFixed(2)}</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="${escapeXml(url)}" />
     <xhtml:link rel="alternate" hreflang="ar-SA" href="${escapeXml(url)}" />
     ${
-      entry.hasEnglishContent === false
-        ? ""
-        : `<xhtml:link rel="alternate" hreflang="en" href="${escapeXml(withEnglishVariant(url))}" />
+      entry.hasEnglishContent === true
+        ? `<xhtml:link rel="alternate" hreflang="en" href="${escapeXml(withEnglishVariant(url))}" />
     <xhtml:link rel="alternate" hreflang="en-US" href="${escapeXml(withEnglishVariant(url))}" />`
+        : ""
     }
     <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(url)}" />
-  </url>`;
+  </url>`,
+    );
   })
   .join("\n")}
 </urlset>

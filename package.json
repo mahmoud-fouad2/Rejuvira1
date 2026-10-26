@@ -13,7 +13,7 @@
     "test:smoke": "node scripts/smoke-test.mjs",
     "test:phase1": "node --experimental-strip-types --loader ./scripts/test-ts-resolver.mjs --test src/lib/lead-intake-guard.test.ts src/lib/phase1-remediation.test.ts",
     "test:release-safety": "node --experimental-strip-types --loader ./scripts/test-ts-resolver.mjs --test src/lib/release-safety.test.ts",
-    "test:seo": "node --experimental-strip-types --test src/lib/seo-repairs.test.ts",
+    "test:seo": "node --experimental-strip-types --test src/lib/seo-repairs.test.ts src/lib/seo-quality.test.ts",
     "test:csp": "node --experimental-strip-types --test src/lib/csp.test.ts src/lib/integration-snippets.test.ts",
     "test:landing-content": "node --test scripts/landing-pages/content-enrichment.test.mjs scripts/landing-pages/dr-saham-arfaj.test.mjs scripts/landing-pages/doctor-service-landings.test.mjs",
     "test:landing-search": "node --experimental-strip-types --test src/lib/landing-search-content.test.ts scripts/retire-awareness-campaign.test.mjs",

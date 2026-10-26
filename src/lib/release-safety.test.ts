@@ -13,6 +13,7 @@ import { prisma } from "./prisma.ts";
 import { canAccessAdminRoute } from "./admin-permissions.ts";
 import { ContentStatus, UserRole } from "./prisma-enums.ts";
 import * as nodeCrypto from "node:crypto";
+import { doctorProfileSections } from "./doctor-profile-content.ts";
 
 function productionModule(
   relativePath: string,
@@ -325,6 +326,7 @@ for (const kind of ["services", "doctors"]) {
       },
       "@/lib/clinic-contact": { clinicWhatsappHref: () => "" },
       "@/lib/recaptcha": { getPublicSiteKey: () => "" },
+      "@/lib/doctor-profile-content": { doctorProfileSections },
       "next/image": {},
       "next/link": {},
       "react/jsx-runtime": {

@@ -1,6 +1,6 @@
 import { ContentStatus } from "@/lib/prisma-enums";
 import Link from "next/link";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 
 import { SiteMegaMenu } from "@/components/navigation/SiteMegaMenu";
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
@@ -59,17 +59,21 @@ export async function SiteHeader({
 }: {
   phoneOverride?: string;
 } = {}) {
-  const [runtimeSettings, services, doctors, devices, cookieStore] =
+  const [runtimeSettings, services, doctors, devices, headerStore] =
     await Promise.all([
       getRuntimeSettings(),
       getServices(),
       getDoctors(),
       getDevices(),
-      cookies(),
+      headers(),
     ]);
 
-  const cookieLang = cookieStore.get("rejuvira-lang")?.value;
-  const navLabel = cookieLang === "en" ? "Main navigation" : "التنقل الرئيسي";
+  const navLabel =
+    new URL(headerStore.get("x-url") || "https://rejuvera.sa").searchParams.get(
+      "lang",
+    ) === "en"
+      ? "Main navigation"
+      : "التنقل الرئيسي";
 
   const publishedServices = services.filter(
     (service) => service.status === ContentStatus.PUBLISHED,

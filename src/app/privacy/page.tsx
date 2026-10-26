@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -69,27 +70,16 @@ const sections = [
 ] as const;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getRuntimeSettings();
-  const url = `https://${settings.contact.domain || "rejuvera.sa"}/privacy`;
-  return {
-    title: "سياسة الخصوصية | Privacy Policy",
-    description:
-      "سياسة الخصوصية لمركز ريجوفيرا تشرح كيف نجمع البيانات ونعالجها ونحميها، وحقوقك بموجب نظام حماية البيانات الشخصية في المملكة العربية السعودية.",
-    alternates: { canonical: url },
-    openGraph: {
-      title: "سياسة الخصوصية — Rejuvera Center",
-      description:
-        "كيف يجمع مركز ريجوفيرا البيانات، ولماذا، ولكم من الوقت، والإطار النظامي الذي يحكم ذلك.",
-      url,
-      type: "article",
-      locale: "ar_SA",
-    },
-    twitter: {
-      card: "summary",
-      title: "سياسة الخصوصية — Rejuvera Center",
-      description: "بيانات الزائر، الكوكيز، ومزودو الخدمة المعتمدون.",
-    },
-  };
+  return buildPageMetadata({
+    page: "about",
+    path: "/privacy",
+    overrideTitleAr: "سياسة الخصوصية",
+    overrideTitleEn: "Privacy Policy",
+    overrideDescriptionAr:
+      "سياسة الخصوصية لمركز ريجوفيرا تشرح جمع البيانات ومعالجتها وحمايتها وحقوق الزائر.",
+    overrideDescriptionEn:
+      "Rejuvera privacy policy explains how visitor data is collected, used and protected, and describes your privacy rights.",
+  });
 }
 
 export default async function PrivacyPage() {

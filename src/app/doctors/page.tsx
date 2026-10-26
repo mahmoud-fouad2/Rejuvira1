@@ -59,12 +59,12 @@ export default async function DoctorsPage() {
             </h1>
             <p className="text-ink-soft mt-5 max-w-3xl text-lg leading-8">
               <span className="lang-ar">
-                يوضح هذا القسم تخصص كل طبيب، سنوات الخبرة، والخدمات المرتبطة به
-                دون عناصر مشتتة لا تخدم قرار الاختيار.
+                تعرّف على تخصصات أطبائنا وخبراتهم والخدمات التي يقدمونها، وتواصل
+                مع الفريق لتنسيق الاستشارة المناسبة لاحتياجك.
               </span>
               <span className="lang-en">
-                Review each doctor's specialty, experience, and related services
-                without distracting content.
+                Explore our doctors' specialties, experience and services, and
+                contact the team to arrange a consultation for your needs.
               </span>
             </p>
 
@@ -115,23 +115,24 @@ export default async function DoctorsPage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/18 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 z-10 p-8 text-white">
                 <p className="eyebrow text-white/80">
-                  <span className="lang-ar">غلاف القسم</span>
-                  <span className="lang-en">Section cover</span>
+                  <span className="lang-ar">رعاية تبدأ بالاستشارة</span>
+                  <span className="lang-en">
+                    Care starts with a consultation
+                  </span>
                 </p>
                 <h2 className="mt-3 font-serif text-4xl leading-[1.15] tracking-[-0.02em]">
-                  <span className="lang-ar">كل الأطباء بنفس الحضور البصري</span>
-                  <span className="lang-en">
-                    Every doctor gets the same visual weight
-                  </span>
+                  <span className="lang-ar">تعرّف على الفريق الطبي</span>
+                  <span className="lang-en">Meet the medical team</span>
                 </h2>
                 <p className="mt-4 max-w-xl text-sm leading-7 text-white/85">
                   <span className="lang-ar">
-                    الصورة هنا تمثل القسم كاملًا، بينما تظهر علامة المميز كتاج
-                    صغير داخل بطاقة الطبيب فقط.
+                    اطّلع على الملف الطبي لكل طبيب لمعرفة تخصصه وخبرته، وناقش
+                    الخيارات والتوقعات المناسبة لحالتك خلال الاستشارة.
                   </span>
                   <span className="lang-en">
-                    This image represents the full section; featured doctors are
-                    marked only with a small badge.
+                    Read each doctor's profile to learn about their specialty
+                    and experience, then discuss suitable options and
+                    expectations during your consultation.
                   </span>
                 </p>
               </div>
