@@ -183,8 +183,9 @@ export default auth((request) => {
   response.headers.set("x-request-id", requestId);
   response.headers.set("Content-Security-Policy", cspValue);
 
-  // Sensitive surfaces should never be cached by browsers/CDNs.
-  if (isSensitiveSurface) {
+  // Sensitive surfaces and authenticated user requests (including draft previews)
+  // should never enter a shared CDN cache.
+  if (isSensitiveSurface || hasAuthenticatedUser) {
     response.headers.set(
       "Cache-Control",
       "private, no-store, no-cache, must-revalidate, max-age=0",
@@ -202,6 +203,9 @@ export default auth((request) => {
     );
     response.headers.set("X-Robots-Tag", "all");
   }
+
+  // Instruct shared caches (CDNs/proxies) to separate cache entries by authentication cookies
+  response.headers.set("Vary", "Cookie");
 
   const snapClickCookie = snapClickCookieForRequest(request);
   if (snapClickCookie) {

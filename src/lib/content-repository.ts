@@ -13,6 +13,7 @@ import {
 import {
   GENERAL_INQUIRY_SERVICE_AR,
   hasGeneralInquiryTag,
+  isGeneralInquiryService,
 } from "@/lib/general-inquiry";
 import {
   coreServiceSeedData,
@@ -4647,10 +4648,14 @@ export async function createContactLead(
       })
     : null;
   const targetServiceId = service?.id ?? null;
+  const isGeneral =
+    !input.serviceSlug?.trim() || isGeneralInquiryService(input.serviceSlug);
   const unknownServiceTag =
-    !targetServiceId && input.serviceSlug?.trim()
+    !targetServiceId && input.serviceSlug?.trim() && !isGeneral
       ? `service:${input.serviceSlug.trim()}`
       : null;
+  const generalTag = isGeneral ? GENERAL_INQUIRY_SERVICE_AR : null;
+  const serviceDiscriminatorTag = unknownServiceTag || generalTag;
 
   const refreshDuplicate = async (duplicateRecord: {
     id: string;
@@ -4682,30 +4687,62 @@ export async function createContactLead(
     const landingPageUrl = duplicateRecord.landingPageUrl || input.landingPageUrl;
     const referrerUrl = duplicateRecord.referrerUrl || input.referrerUrl;
 
+    // Helper to sanitize untrusted user inputs for CRM notes
+    const sanitizeNoteValue = (val: string | null | undefined, maxLen = 100) =>
+      val ? val.replace(/[\r\n\x00-\x1f\x7f]/g, " ").trim().slice(0, maxLen) : "";
+
     // Record multi-touch campaign journey in internalNotes without clobbering first touch
-    const isNewTouch =
-      (input.utmSource && input.utmSource !== duplicateRecord.utmSource) ||
-      (input.utmCampaign && input.utmCampaign !== duplicateRecord.utmCampaign) ||
-      (input.gclid && input.gclid !== duplicateRecord.gclid);
+    const cleanUtmSource = sanitizeNoteValue(input.utmSource, 80);
+    const cleanUtmCampaign = sanitizeNoteValue(input.utmCampaign, 100);
+    const cleanGclid = sanitizeNoteValue(input.gclid, 120);
+
+    const isNewTouch = Boolean(
+      (cleanUtmSource && cleanUtmSource !== (duplicateRecord.utmSource || "")) ||
+      (cleanUtmCampaign && cleanUtmCampaign !== (duplicateRecord.utmCampaign || "")) ||
+      (cleanGclid && cleanGclid !== (duplicateRecord.gclid || "")),
+    );
 
     const recurringNotes: string[] = [];
-    if (isNewTouch) {
+    const touchSignature = `source=${cleanUtmSource || "direct"}, campaign=${cleanUtmCampaign || "none"}`;
+    const alreadyLoggedTouch = duplicateRecord.internalNotes?.includes(touchSignature);
+
+    if (isNewTouch && !alreadyLoggedTouch) {
       recurringNotes.push(
-        `[Returning Touch ${new Date().toISOString()}]: source=${input.utmSource || "direct"}, campaign=${input.utmCampaign || "none"}${input.gclid ? `, gclid=${input.gclid}` : ""}`,
+        `[Returning Touch ${new Date().toISOString()}]: ${touchSignature}${cleanGclid ? `, gclid=${cleanGclid}` : ""}`,
       );
     }
-    if (input.notes && input.notes !== duplicateRecord.internalNotes) {
-      recurringNotes.push(input.notes);
+
+    const cleanInputNotes = input.notes?.trim();
+    if (
+      cleanInputNotes &&
+      (!duplicateRecord.internalNotes || !duplicateRecord.internalNotes.includes(cleanInputNotes))
+    ) {
+      // Sanitize length of customer/staff input note
+      recurringNotes.push(cleanInputNotes.slice(0, 1000));
     }
 
-    const mergedNotes = [duplicateRecord.internalNotes, ...recurringNotes]
+    let mergedNotes = [duplicateRecord.internalNotes, ...recurringNotes]
       .filter(Boolean)
       .join("\n\n");
 
-    const mergedMessage =
-      duplicateRecord.message && input.message && input.message !== duplicateRecord.message
-        ? `${duplicateRecord.message}\n---\n[رسالة متابعة]: ${input.message}`
-        : (input.message || duplicateRecord.message);
+    // Enforce upper bound of 8,000 characters on internalNotes to prevent database bloat
+    const MAX_NOTES_LENGTH = 8000;
+    if (mergedNotes.length > MAX_NOTES_LENGTH) {
+      mergedNotes = `...[ملاحظات سابقة مقطوعة]\n\n${mergedNotes.slice(mergedNotes.length - (MAX_NOTES_LENGTH - 50))}`;
+    }
+
+    const cleanInputMessage = input.message?.trim().slice(0, 3000);
+    let mergedMessage = duplicateRecord.message || cleanInputMessage || null;
+    if (
+      duplicateRecord.message &&
+      cleanInputMessage &&
+      !duplicateRecord.message.includes(cleanInputMessage)
+    ) {
+      mergedMessage = `${duplicateRecord.message}\n---\n[رسالة متابعة]: ${cleanInputMessage}`;
+      if (mergedMessage.length > 6000) {
+        mergedMessage = mergedMessage.slice(0, 6000);
+      }
+    }
 
     return prisma.contactSubmission.update({
       where: { id: duplicateRecord.id },
@@ -4743,8 +4780,8 @@ export async function createContactLead(
         phone: input.phone,
         createdAt: { gte: duplicateSince },
         serviceId: targetServiceId,
-        ...(unknownServiceTag ? { tags: { has: unknownServiceTag } } : {}),
-        ...(targetServiceId === null && !unknownServiceTag && input.landingPageUrl
+        ...(serviceDiscriminatorTag ? { tags: { has: serviceDiscriminatorTag } } : {}),
+        ...(targetServiceId === null && isGeneral && input.landingPageUrl
           ? { landingPageUrl: input.landingPageUrl }
           : {}),
       },
@@ -4768,8 +4805,8 @@ export async function createContactLead(
         phone: input.phone,
         createdAt: { gte: duplicateSince },
         serviceId: targetServiceId,
-        ...(unknownServiceTag ? { tags: { has: unknownServiceTag } } : {}),
-        ...(targetServiceId === null && !unknownServiceTag && input.landingPageUrl
+        ...(serviceDiscriminatorTag ? { tags: { has: serviceDiscriminatorTag } } : {}),
+        ...(targetServiceId === null && isGeneral && input.landingPageUrl
           ? { landingPageUrl: input.landingPageUrl }
           : {}),
         OR: [
@@ -4790,7 +4827,9 @@ export async function createContactLead(
 
   const effectiveTags = [
     ...(input.tags ?? []),
-    ...(unknownServiceTag ? [unknownServiceTag] : []),
+    ...(serviceDiscriminatorTag && !(input.tags ?? []).includes(serviceDiscriminatorTag)
+      ? [serviceDiscriminatorTag]
+      : []),
   ];
 
   const submission = await prisma.contactSubmission.create({
