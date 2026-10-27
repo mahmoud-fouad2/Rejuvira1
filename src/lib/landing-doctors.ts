@@ -57,6 +57,15 @@ export const MAHER_ALAHDAB = {
   focus: "تجميل وتنسيق الأنف",
 };
 
+export const NATALI_DOMLOJ = {
+  name: "د. ناتالي دوملوج",
+  title: "استشارية الجلدية والتجميل",
+  photo: "/media/doctors/natali-domloj.webp",
+  profile: "/doctors/natali-domloj",
+  page: "/p/dr-natali-domloj",
+  focus: "نضارة البشرة والهيدرافيشيال والفراكشنال ليزر",
+};
+
 export const NAJWA_BATARFI = {
   name: "د. نجوى باطرفي",
   title: "استشارية التجميل النسائي",

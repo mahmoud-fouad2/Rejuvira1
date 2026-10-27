@@ -5,9 +5,10 @@ import { improveBodyContouringLanding } from "../src/lib/body-contouring-landing
 import { improveBookingLanding } from "../src/lib/booking-landing.ts";
 import { improveBreastSurgeryLanding } from "../src/lib/breast-surgery-landing.ts";
 import { improveFaceliftLanding } from "../src/lib/facelift-landing.ts";
+import { improveTiktokLanding } from "../src/lib/tiktok-landing.ts";
 import { sanitizeHtml } from "../src/lib/sanitize-html.ts";
 
-// PREVIEW_PAGE=facelift (default) | body | booking | breast; PREVIEW_PORT overrides the port.
+// PREVIEW_PAGE=facelift (default) | body | booking | breast | tiktok; PREVIEW_PORT overrides the port.
 const uploaded =
   "rv-custom-page rv-custom-page--canvas rv-custom-page--uploaded";
 const targets = {
@@ -35,6 +36,15 @@ const targets = {
     marker: 'data-focused-landing="booking"',
     gallery: null,
     title: "الحجز",
+    main: "rv-custom-page rv-custom-page--theme",
+    article: "rv-custom-page__content",
+  },
+  tiktok: {
+    slug: "tiktok-customer",
+    improve: improveTiktokLanding,
+    marker: 'data-focused-landing="tiktok"',
+    gallery: null,
+    title: "تيك توك",
     main: "rv-custom-page rv-custom-page--theme",
     article: "rv-custom-page__content",
   },

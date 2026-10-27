@@ -26,7 +26,7 @@ export const BOOKING_MARKER = 'data-focused-landing="booking"';
 // `book` is a CMS alias of `rejuvera-booking`; both routes show the same page.
 const BOOKING_SLUGS = new Set(["book", "rejuvera-booking"]);
 
-const services = [
+export const bookingServices = [
   {
     title: "شد الوجه والرقبة (الفيس لفت)",
     text: "ترهل الخدين وخط الفك والرقبة، مع د. لؤي السالمي.",
@@ -145,7 +145,7 @@ export function improveBookingLanding(html: string, slug: string): string {
   )}</div></section>`;
 
   const servicesSection = `<section class="fl-section" id="booking-services"><div class="fl-wrap"><p class="fl-eyebrow">اختر ما يشغلك</p><h2>ما الذي تفكر في تحسينه؟</h2><p class="fl-intro-text">لكل خدمة صفحة تشرح تفاصيلها، أو أرسل طلبك الآن وسنوجّهك إلى الاستشاري المناسب.</p>${serviceLinks(
-    services,
+    bookingServices,
   )}<div class="fl-actions fl-actions--center">${book("احجز استشارتك الآن")}</div></div></section>`;
 
   const teamSection = `<section class="fl-section fl-soft" id="booking-team"><div class="fl-wrap"><p class="fl-eyebrow">فريقك الطبي</p><h2>استشاريون تختار منهم، أو نوجّهك للأنسب</h2><p class="fl-intro-text">إرسال النموذج لا يثبت موعدًا مع طبيب محدد؛ يتواصل معك الفريق لتنسيق الموعد وتوجيه حالتك حسب الخدمة والتوفر.</p>${teamTiles(

@@ -61,7 +61,7 @@ test("the dispatcher sends the booking slugs to this renderer only", () => {
   const result = improveFocusedLanding(source, "rejuvera-booking");
   assert.match(result, /data-focused-landing="booking"/);
   assert.doesNotMatch(result, /data-facelift-optimized/);
-  assert.equal(improveFocusedLanding(source, "tiktok-customer"), source);
+  assert.equal(improveFocusedLanding(source, "dr-maher-alahdab"), source);
 });
 
 test("structure: one H1, five sections, contact links use central constants", () => {
