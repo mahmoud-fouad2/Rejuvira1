@@ -2,6 +2,7 @@ import { improveBodyContouringLanding } from "./body-contouring-landing.ts";
 import { improveBookingLanding } from "./booking-landing.ts";
 import { improveBreastSurgeryLanding } from "./breast-surgery-landing.ts";
 import { improveFaceliftLanding } from "./facelift-landing.ts";
+import { improveNeckLiftLanding } from "./neck-lift-landing.ts";
 import { improveTiktokLanding } from "./tiktok-landing.ts";
 
 const FACELIFT_MARKER = 'data-facelift-optimized="1"';
@@ -14,6 +15,7 @@ export function improveFocusedLanding(html: string, slug: string): string {
     improveBodyContouringLanding,
     improveBookingLanding,
     improveBreastSurgeryLanding,
+    improveNeckLiftLanding,
     improveTiktokLanding,
   ].reduce((current, improve) => improve(current, slug), html);
 }

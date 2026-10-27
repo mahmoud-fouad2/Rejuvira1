@@ -5,10 +5,11 @@ import { improveBodyContouringLanding } from "../src/lib/body-contouring-landing
 import { improveBookingLanding } from "../src/lib/booking-landing.ts";
 import { improveBreastSurgeryLanding } from "../src/lib/breast-surgery-landing.ts";
 import { improveFaceliftLanding } from "../src/lib/facelift-landing.ts";
+import { improveNeckLiftLanding } from "../src/lib/neck-lift-landing.ts";
 import { improveTiktokLanding } from "../src/lib/tiktok-landing.ts";
 import { sanitizeHtml } from "../src/lib/sanitize-html.ts";
 
-// PREVIEW_PAGE=facelift (default) | body | booking | breast | tiktok; PREVIEW_PORT overrides the port.
+// PREVIEW_PAGE=facelift (default) | body | booking | breast | neck | tiktok; PREVIEW_PORT overrides the port.
 const uploaded =
   "rv-custom-page rv-custom-page--canvas rv-custom-page--uploaded";
 const targets = {
@@ -34,6 +35,14 @@ const targets = {
     marker: 'data-focused-landing="booking"',
     gallery: null,
     title: "الحجز",
+    main: "rv-custom-page rv-custom-page--theme",
+  },
+  neck: {
+    slug: "lp-face-neck-lift",
+    improve: improveNeckLiftLanding,
+    marker: 'data-focused-landing="neck-lift"',
+    gallery: null,
+    title: "شد الرقبة",
     main: "rv-custom-page rv-custom-page--theme",
   },
   tiktok: {
