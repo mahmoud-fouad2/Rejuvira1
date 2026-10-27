@@ -26,6 +26,21 @@ export function extractLeadForm(html: string): string | null {
   return forms[0]!;
 }
 
+/** The page's single CMS lead form from any form family, verbatim; null otherwise. */
+export function extractAnyLeadForm(html: string): string | null {
+  const forms = html.match(/<form\b[\s\S]*?<\/form>/gi) ?? [];
+  const form = forms[0];
+  if (
+    forms.length !== 1 ||
+    !form ||
+    !/\bname=["']fullName["']/.test(form) ||
+    !/\bname=["']phone["']/.test(form) ||
+    !/\baction=["']\/api\/leads["']/.test(form)
+  )
+    return null;
+  return form;
+}
+
 /** Reuse only the page's existing before/after assets, never manufacture cases. */
 export function extractGalleryImages(html: string): string[] {
   const gallery = html
@@ -60,6 +75,27 @@ export const checkList = (items: readonly string[]) =>
 /** Compact doctor identity above the fold; same photo file as the profile section. */
 export const heroDoctor = () =>
   `<div class="fl-doctor"><img src="${LOAI_ALSALMI.photo}" alt="${LOAI_ALSALMI.name}" width="96" height="96" loading="eager" decoding="async" fetchpriority="high"><div><strong>${LOAI_ALSALMI.name}</strong><p>${LOAI_ALSALMI.title}</p><span>${LOAI_ALSALMI.experience} · ${LOAI_ALSALMI.languages}</span></div></div>`;
+
+export type HeroPerson = {
+  name: string;
+  title: string;
+  photo: string;
+  experience: string;
+};
+
+/** Compact identity cards for the surgeons who may see the patient. */
+export const heroDoctors = (people: readonly HeroPerson[]) =>
+  `<div class="fl-doctors">${people
+    .map(
+      (person, index) =>
+        `<div class="fl-doctor"><img src="${person.photo}" alt="${person.name}" width="96" height="96" loading="eager" decoding="async"${index === 0 ? ' fetchpriority="high"' : ""}><div><strong>${person.name}</strong><p>${person.title}</p><span>${person.experience}</span></div></div>`,
+    )
+    .join("")}</div>`;
+
+export type Colleague = HeroPerson & { summary: string; profile: string };
+
+export const colleagueCard = (person: Colleague) =>
+  `<div class="fl-team-card"><img src="${person.photo}" alt="${person.name}" width="800" height="800" loading="lazy" decoding="async"><div><strong>${person.name}</strong><span>${person.title} · ${person.experience}</span><p>${person.summary}</p><a class="fl-text-link" href="${person.profile}">اقرأ المزيد عن ${person.name} ←</a></div></div>`;
 
 export const formCard = (
   eyebrow: string,
@@ -116,12 +152,44 @@ export function beforeAfterGallery(options: {
   cta: string;
 }) {
   const { images } = options;
+  const pair = (before: string, after: string, caption: string) =>
+    `<figure><div class="fl-pair"><div>${before}<span>قبل</span></div><div>${after}<span>بعد</span></div></div><figcaption>${caption}</figcaption></figure>`;
+  // Two pairs when the CMS gallery has four images, one pair for two or three.
   const pairs =
-    images.length === 4
-      ? `<div class="fl-grid fl-gallery"><figure><div class="fl-pair"><div>${images[0]}<span>قبل</span></div><div>${images[1]}<span>بعد</span></div></div><figcaption>${options.captions[0]}</figcaption></figure><figure><div class="fl-pair"><div>${images[2]}<span>قبل</span></div><div>${images[3]}<span>بعد</span></div></div><figcaption>${options.captions[1]}</figcaption></figure></div>`
-      : `<p>${options.fallback}</p>`;
+    images.length >= 4
+      ? `<div class="fl-grid fl-gallery">${pair(images[0]!, images[1]!, options.captions[0])}${pair(images[2]!, images[3]!, options.captions[1])}</div>`
+      : images.length >= 2
+        ? `<div class="fl-grid fl-gallery fl-gallery--single">${pair(images[0]!, images[1]!, options.captions[0])}</div>`
+        : `<p>${options.fallback}</p>`;
   return `<section class="fl-section fl-soft" id="${options.id}"><div class="fl-wrap"><p class="fl-eyebrow">${options.eyebrow}</p><h2>${options.heading}</h2><p>${options.note}</p>${pairs}<div class="fl-actions fl-actions--center">${options.cta}</div></div></section>`;
 }
+
+export type ServiceLink = { title: string; text: string; href: string };
+
+/** Cards that lead to a dedicated page; keeps visitors one click from their topic. */
+export const serviceLinks = (items: readonly ServiceLink[]) =>
+  `<div class="fl-grid fl-options">${items
+    .map(
+      (item) =>
+        `<a class="fl-card fl-card--link" href="${item.href}"><h3>${item.title}</h3><p>${item.text}</p><span class="fl-more">اعرف أكثر ←</span></a>`,
+    )
+    .join("")}</div>`;
+
+export type TeamMember = {
+  name: string;
+  title: string;
+  photo: string;
+  blurb: string;
+  href: string;
+};
+
+export const teamTiles = (members: readonly TeamMember[]) =>
+  `<div class="fl-team-grid">${members
+    .map(
+      (member) =>
+        `<a class="fl-team-tile" href="${member.href}"><img src="${member.photo}" alt="${member.name}" width="800" height="800" loading="lazy" decoding="async"><strong>${member.name}</strong><span>${member.title}</span><p>${member.blurb}</p></a>`,
+    )
+    .join("")}</div>`;
 
 export const journey = (id: string, heading: string, steps: readonly Pair[]) =>
   `<section class="fl-section fl-soft" id="${id}"><div class="fl-wrap"><h2>${heading}</h2><ol class="fl-grid fl-steps fl-steps--${steps.length}">${steps

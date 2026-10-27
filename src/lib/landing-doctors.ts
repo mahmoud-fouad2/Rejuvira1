@@ -46,6 +46,26 @@ export const LOAI_ALSALMI = {
   credentials: loaiCredentials,
 };
 
+// Colleagues shown on the booking page: names, titles and focus exactly as the
+// clinic publishes them on their own landing pages; no further claims added.
+export const MAHER_ALAHDAB = {
+  name: "د. ماهر الأحدب",
+  title: "استشاري جراحة التجميل والترميم",
+  photo: "/media/doctors/maher-alahdab.webp",
+  profile: "/doctors/maher-alahdab",
+  page: "/p/dr-maher-alahdab",
+  focus: "تجميل وتنسيق الأنف",
+};
+
+export const NAJWA_BATARFI = {
+  name: "د. نجوى باطرفي",
+  title: "استشارية التجميل النسائي",
+  photo: "/media/doctors/najwa-batarfi.webp",
+  profile: "/doctors/najwa-batarfi",
+  page: "/p/najwa-batarfi",
+  focus: "رعاية متخصصة في التجميل النسائي بتقييم واضح ومباشر",
+};
+
 export const SAHAM_ARFAJ = {
   name: "د. سهام العرفج",
   title: "استشارية جراحة التجميل والترميم",

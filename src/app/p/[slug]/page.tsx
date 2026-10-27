@@ -218,7 +218,7 @@ export default async function CustomPage({
         nonce={nonce}
         dangerouslySetInnerHTML={{ __html: JSON.stringify(pageJsonLd) }}
       />
-      {showHeader ? (
+      {showHeader && !isFocusedLanding ? (
         <SiteHeader phoneOverride={LANDING_PAGE_PHONE_DISPLAY} />
       ) : null}
       <main
@@ -288,7 +288,7 @@ export default async function CustomPage({
           </aside>
         ) : null}
       </main>
-      {showFooter ? (
+      {showFooter && !isFocusedLanding ? (
         <SiteFooter
           phoneOverride={LANDING_PAGE_PHONE_DISPLAY}
           whatsappGoogleReferral

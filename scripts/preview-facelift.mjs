@@ -2,26 +2,54 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { improveBodyContouringLanding } from "../src/lib/body-contouring-landing.ts";
+import { improveBookingLanding } from "../src/lib/booking-landing.ts";
+import { improveBreastSurgeryLanding } from "../src/lib/breast-surgery-landing.ts";
 import { improveFaceliftLanding } from "../src/lib/facelift-landing.ts";
 import { sanitizeHtml } from "../src/lib/sanitize-html.ts";
 
-// PREVIEW_PAGE=body previews the body-contouring landing; PREVIEW_PORT overrides the port.
+// PREVIEW_PAGE=facelift (default) | body | booking | breast; PREVIEW_PORT overrides the port.
+const uploaded =
+  "rv-custom-page rv-custom-page--canvas rv-custom-page--uploaded";
+const targets = {
+  facelift: {
+    slug: "facelift-riyadh",
+    improve: improveFaceliftLanding,
+    marker: 'data-facelift-optimized="1"',
+    gallery: "facelift-gallery",
+    title: "شد الوجه",
+    main: uploaded,
+    article: "rv-custom-page__content rv-custom-page__content--uploaded",
+  },
+  body: {
+    slug: "body-contouring-riyadh",
+    improve: improveBodyContouringLanding,
+    marker: 'data-focused-landing="body-contouring"',
+    gallery: "body-gallery",
+    title: "نحت الجسم",
+    main: uploaded,
+    article: "rv-custom-page__content rv-custom-page__content--uploaded",
+  },
+  booking: {
+    slug: "book",
+    improve: improveBookingLanding,
+    marker: 'data-focused-landing="booking"',
+    gallery: null,
+    title: "الحجز",
+    main: "rv-custom-page rv-custom-page--theme",
+    article: "rv-custom-page__content",
+  },
+  breast: {
+    slug: "breast-surgery-riyadh",
+    improve: improveBreastSurgeryLanding,
+    marker: 'data-focused-landing="breast-surgery"',
+    gallery: "breast-gallery",
+    title: "جراحات الصدر",
+    main: uploaded,
+    article: "rv-custom-page__content rv-custom-page__content--uploaded",
+  },
+};
 const target =
-  process.env.PREVIEW_PAGE === "body"
-    ? {
-        slug: "body-contouring-riyadh",
-        improve: improveBodyContouringLanding,
-        marker: 'data-focused-landing="body-contouring"',
-        gallery: "body-gallery",
-        title: "نحت الجسم",
-      }
-    : {
-        slug: "facelift-riyadh",
-        improve: improveFaceliftLanding,
-        marker: 'data-facelift-optimized="1"',
-        gallery: "facelift-gallery",
-        title: "شد الوجه",
-      };
+  targets[process.env.PREVIEW_PAGE ?? "facelift"] ?? targets.facelift;
 const port = Number(process.env.PREVIEW_PORT) || 3012;
 
 const response = await fetch(`https://rejuvera.sa/p/${target.slug}`);
@@ -43,13 +71,15 @@ if (article.includes(target.marker)) {
       /<div class="rvx-field rvx-field-wide"><label for="facelift-timing">[\s\S]*?<\/div>/,
       "",
     );
-  const existingGallery = article.match(
-    new RegExp(
-      `<section\\b[^>]*id="${target.gallery}"[\\s\\S]*?<\\/section>`,
-      "i",
-    ),
-  )?.[0];
-  if (!originalForm || !existingGallery)
+  const existingGallery = target.gallery
+    ? article.match(
+        new RegExp(
+          `<section\\b[^>]*id="${target.gallery}"[\\s\\S]*?<\\/section>`,
+          "i",
+        ),
+      )?.[0]
+    : "";
+  if (!originalForm || existingGallery === undefined)
     throw new Error("Expected preserved form/gallery not found");
   previewSource = `${originalForm}<section><h2>أمثلة توضيحية قبل وبعد</h2>${(existingGallery.match(/<img\b[^>]*>/gi) ?? []).join("")}</section>`;
 }
@@ -118,7 +148,7 @@ const server = createServer(async (req, res) => {
     ? `<div class="rv-custom-page__lead-notice rv-custom-page__lead-notice--${receipt}">معاينة رسالة ${receipt} فقط — لا يوجد طلب مرسل</div>`
     : "";
   res.end(
-    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — ${target.title}</title><style>${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="rv-custom-page rv-custom-page--canvas rv-custom-page--uploaded">${notice}<article class="rv-custom-page__content rv-custom-page__content--uploaded">${html}</article></main></body></html>`,
+    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — ${target.title}</title><style>${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="${target.main}">${notice}<article class="${target.article}">${html}</article></main></body></html>`,
   );
 });
 server.listen(port, "127.0.0.1", () =>
