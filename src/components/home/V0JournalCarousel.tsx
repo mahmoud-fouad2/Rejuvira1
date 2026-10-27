@@ -5,11 +5,11 @@ import Link from "next/link";
 import type { Route } from "next";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import type { JournalPostRecord } from "@/lib/content-repository";
+import type { JournalCardContent } from "@/lib/public-client-content";
 import { useSnapCarousel } from "@/lib/use-snap-carousel";
 
 type Props = {
-  posts: readonly JournalPostRecord[];
+  posts: readonly JournalCardContent[];
   fallbackImage: string;
 };
 

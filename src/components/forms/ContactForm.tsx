@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import type { ServiceRecord } from "@/lib/content-repository";
+import type { BookingServiceOption } from "@/lib/public-client-content";
 import {
   GENERAL_INQUIRY_SERVICE_AR,
   GENERAL_INQUIRY_SERVICE_EN,
@@ -161,7 +161,7 @@ export function ContactForm({
   submitLabelAr = "طلب استشارة",
   submitLabelEn = "Request a consultation",
 }: {
-  services: readonly ServiceRecord[];
+  services: readonly BookingServiceOption[];
   formClassName?: string;
   recaptchaSiteKey?: string | undefined;
   source?: string;
@@ -303,7 +303,7 @@ export function ContactForm({
 
   const uniqueServices = useMemo(() => {
     const seen = new Set<string>();
-    const result: ServiceRecord[] = [];
+    const result: BookingServiceOption[] = [];
     for (const s of services) {
       const key = (s.name || "").trim().toLowerCase();
       if (!key || seen.has(key) || seen.has(s.slug)) continue;

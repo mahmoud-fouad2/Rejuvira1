@@ -16,6 +16,13 @@ import type {
 
 import { V0GalleryBeforeAfterCard } from "@/components/home/V0GalleryBeforeAfterCard";
 import { V0ServicesStrip } from "@/components/home/V0ServicesStrip";
+import {
+  serviceCardContent,
+  doctorCardContent,
+  doctorQuoteContent,
+  journalCardContent,
+  quoteHeadingContent,
+} from "@/lib/public-client-content";
 import type { TestimonialItem } from "@/components/home/TestimonialsSplitCarousel";
 
 const V0DoctorQuotesSlider = dynamic(() =>
@@ -520,7 +527,7 @@ export function V0InspiredHome({
         </p>
       </section>
 
-      <V0DoctorsCarousel doctors={featuredDoctors} />
+      <V0DoctorsCarousel doctors={doctorCardContent(featuredDoctors)} />
 
       <section className="rv-v0-section">
         <SectionTitle
@@ -663,8 +670,8 @@ export function V0InspiredHome({
 
       {doctorQuotes.length > 0 ? (
         <V0DoctorQuotesSlider
-          homepage={settings.homepage}
-          doctors={doctorQuotes}
+          homepage={quoteHeadingContent(settings.homepage)}
+          doctors={doctorQuoteContent(doctorQuotes)}
         />
       ) : null}
 
@@ -697,16 +704,16 @@ export function V0InspiredHome({
             }
           />
           <V0JournalCarousel
-            posts={featuredJournal}
+            posts={journalCardContent(featuredJournal)}
             fallbackImage={settings.media.journalHero}
           />
         </section>
       ) : null}
 
       <V0ServicesStrip
-        services={
-          featuredServices.length > 0 ? featuredServices : serviceSource
-        }
+        services={serviceCardContent(
+          featuredServices.length > 0 ? featuredServices : serviceSource,
+        )}
         eyebrow={
           <>
             <span className="lang-ar">{hp.stripEyebrow}</span>

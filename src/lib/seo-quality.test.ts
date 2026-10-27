@@ -17,6 +17,7 @@ import { publicServiceSlug } from "./public-service-slug.ts";
 import { doctorProfileSections } from "./doctor-profile-content.ts";
 import { journalAuthors } from "./journal-attribution.ts";
 import { publicEditorialCopy } from "./public-editorial-copy.ts";
+import { bookingServiceOptions } from "./public-client-content.ts";
 
 function load(
   relativePath: string,
@@ -352,6 +353,7 @@ for (const kind of ["services", "doctors"]) {
       "@/lib/service-seo": { hasEnglishServiceContent, resolveServiceSeo },
       "@/lib/seo-localization": { hasEnglishDoctorContent, localizedSeoValues },
       "@/lib/doctor-profile-content": { doctorProfileSections },
+      "@/lib/public-client-content": { bookingServiceOptions },
       "@/lib/service-patient-guides": {
         servicePatientGuide: () => undefined,
         serviceContentModifiedAt: () => "2026-10-26",

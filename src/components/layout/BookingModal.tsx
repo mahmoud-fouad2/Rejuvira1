@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 
 import { ContactForm } from "@/components/forms/ContactForm";
-import type { ServiceRecord } from "@/lib/content-repository";
+import type { BookingServiceOption } from "@/lib/public-client-content";
 
 function CalendarIcon() {
   return (
@@ -34,7 +34,7 @@ export function BookingModal({
   labelEn,
   source = "Header booking modal",
 }: {
-  services: readonly ServiceRecord[];
+  services: readonly BookingServiceOption[];
   recaptchaSiteKey?: string | undefined;
   compactLabel?: boolean;
   buttonClassName?: string;

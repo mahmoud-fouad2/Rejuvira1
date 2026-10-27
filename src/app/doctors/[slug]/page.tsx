@@ -13,6 +13,7 @@ import { getCspNonce } from "@/lib/csp-nonce";
 import { clinicWhatsappHref } from "@/lib/clinic-contact";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 import { doctorProfileSections } from "@/lib/doctor-profile-content";
+import { bookingServiceOptions } from "@/lib/public-client-content";
 import {
   getDevices,
   getDoctorBySlug,
@@ -371,8 +372,10 @@ export default async function DoctorDetailPage({
             </p>
             <div className="rv-doctor-hero-cta">
               <BookingModal
-                services={services.filter(
-                  (item) => item.status === ContentStatus.PUBLISHED,
+                services={bookingServiceOptions(
+                  services.filter(
+                    (item) => item.status === ContentStatus.PUBLISHED,
+                  ),
                 )}
                 recaptchaSiteKey={getPublicSiteKey()}
                 buttonClassName="rv-doctor-cta-primary"
@@ -604,8 +607,10 @@ export default async function DoctorDetailPage({
           </div>
           <div className="rv-doctor-close-cta">
             <BookingModal
-              services={services.filter(
-                (item) => item.status === ContentStatus.PUBLISHED,
+              services={bookingServiceOptions(
+                services.filter(
+                  (item) => item.status === ContentStatus.PUBLISHED,
+                ),
               )}
               recaptchaSiteKey={getPublicSiteKey()}
               buttonClassName="rv-doctor-cta-primary"

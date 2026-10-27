@@ -5,12 +5,12 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { ReactNode } from "react";
 
-import type { DoctorRecord } from "@/lib/content-repository";
+import type { DoctorCardContent } from "@/lib/public-client-content";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useSnapCarousel } from "@/lib/use-snap-carousel";
 
 type V0DoctorsCarouselProps = {
-  doctors: readonly DoctorRecord[];
+  doctors: readonly DoctorCardContent[];
   eyebrow?: ReactNode;
   title?: ReactNode;
   description?: ReactNode;

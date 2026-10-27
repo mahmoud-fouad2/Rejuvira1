@@ -11,6 +11,10 @@ import {
   getServices,
 } from "@/lib/content-repository";
 import { getPublicSiteKey } from "@/lib/recaptcha";
+import {
+  bookingServiceOptions,
+  megaMenuContent,
+} from "@/lib/public-client-content";
 
 import { BookingModal } from "./BookingModal";
 import { BrandLogo } from "./BrandLogo";
@@ -84,6 +88,12 @@ export async function SiteHeader({
   const publishedDevices = devices.filter(
     (device) => device.status === ContentStatus.PUBLISHED,
   );
+  const bookingServices = bookingServiceOptions(publishedServices);
+  const menuContent = megaMenuContent({
+    services: publishedServices,
+    doctors: publishedDoctors,
+    devices: publishedDevices,
+  });
 
   const primaryPhone = phoneOverride?.trim() || runtimeSettings.contact.phone;
   const primaryTel = `tel:${primaryPhone.replace(/\D/g, "")}`;
@@ -172,12 +182,7 @@ export async function SiteHeader({
               <span className="lang-ar">{linkByHref["/"].labelAr}</span>
               <span className="lang-en">{linkByHref["/"].labelEn}</span>
             </Link>
-            <SiteMegaMenu
-              triggerLabel="استكشاف المركز"
-              services={publishedServices}
-              doctors={publishedDoctors}
-              devices={publishedDevices}
-            />
+            <SiteMegaMenu triggerLabel="استكشاف المركز" {...menuContent} />
             {(
               ["/gallery", "/journal", "/about", "/career", "/contact"] as const
             ).map((href) => {
@@ -193,7 +198,7 @@ export async function SiteHeader({
 
           <div className="rv-nav-actions">
             <BookingModal
-              services={publishedServices}
+              services={bookingServices}
               recaptchaSiteKey={getPublicSiteKey()}
             />
             <ThemeToggle />
@@ -202,7 +207,7 @@ export async function SiteHeader({
 
           <div className="rv-mobile-inline-actions">
             <BookingModal
-              services={publishedServices}
+              services={bookingServices}
               recaptchaSiteKey={getPublicSiteKey()}
               compactLabel
             />

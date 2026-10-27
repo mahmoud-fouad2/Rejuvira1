@@ -14,6 +14,7 @@ import { canAccessAdminRoute } from "./admin-permissions.ts";
 import { ContentStatus, UserRole } from "./prisma-enums.ts";
 import * as nodeCrypto from "node:crypto";
 import { doctorProfileSections } from "./doctor-profile-content.ts";
+import { bookingServiceOptions } from "./public-client-content.ts";
 
 function productionModule(
   relativePath: string,
@@ -327,6 +328,7 @@ for (const kind of ["services", "doctors"]) {
       "@/lib/clinic-contact": { clinicWhatsappHref: () => "" },
       "@/lib/recaptcha": { getPublicSiteKey: () => "" },
       "@/lib/doctor-profile-content": { doctorProfileSections },
+      "@/lib/public-client-content": { bookingServiceOptions },
       "next/image": {},
       "next/link": {},
       "react/jsx-runtime": {
