@@ -1,10 +1,30 @@
 /** Isolated visual preview: no database writes, tracking scripts or live submissions. */
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
+import { improveBodyContouringLanding } from "../src/lib/body-contouring-landing.ts";
 import { improveFaceliftLanding } from "../src/lib/facelift-landing.ts";
 import { sanitizeHtml } from "../src/lib/sanitize-html.ts";
 
-const response = await fetch("https://rejuvera.sa/p/facelift-riyadh");
+// PREVIEW_PAGE=body previews the body-contouring landing; PREVIEW_PORT overrides the port.
+const target =
+  process.env.PREVIEW_PAGE === "body"
+    ? {
+        slug: "body-contouring-riyadh",
+        improve: improveBodyContouringLanding,
+        marker: 'data-focused-landing="body-contouring"',
+        gallery: "body-gallery",
+        title: "نحت الجسم",
+      }
+    : {
+        slug: "facelift-riyadh",
+        improve: improveFaceliftLanding,
+        marker: 'data-facelift-optimized="1"',
+        gallery: "facelift-gallery",
+        title: "شد الوجه",
+      };
+const port = Number(process.env.PREVIEW_PORT) || 3012;
+
+const response = await fetch(`https://rejuvera.sa/p/${target.slug}`);
 if (!response.ok) throw new Error(`Source page returned ${response.status}`);
 const source = await response.text();
 // The CMS content has nested article cards; match the OUTER article boundary.
@@ -16,7 +36,7 @@ if (!article) throw new Error("Expected landing-page article not found");
 // preview-only input from its preserved form/gallery to exercise the NEW renderer.
 // Do not mutate the live page or submit this form.
 let previewSource = article;
-if (article.includes('data-facelift-optimized="1"')) {
+if (article.includes(target.marker)) {
   const originalForm = article
     .match(/<form\b[\s\S]*?<\/form>/i)?.[0]
     ?.replace(
@@ -24,14 +44,17 @@ if (article.includes('data-facelift-optimized="1"')) {
       "",
     );
   const existingGallery = article.match(
-    /<section\b[^>]*id="facelift-gallery"[\s\S]*?<\/section>/i,
+    new RegExp(
+      `<section\\b[^>]*id="${target.gallery}"[\\s\\S]*?<\\/section>`,
+      "i",
+    ),
   )?.[0];
   if (!originalForm || !existingGallery)
     throw new Error("Expected preserved form/gallery not found");
   previewSource = `${originalForm}<section><h2>أمثلة توضيحية قبل وبعد</h2>${(existingGallery.match(/<img\b[^>]*>/gi) ?? []).join("")}</section>`;
 }
-const enhanced = improveFaceliftLanding(previewSource, "facelift-riyadh");
-if (!enhanced.includes('data-facelift-optimized="1"'))
+const enhanced = target.improve(previewSource, target.slug);
+if (!enhanced.includes(target.marker))
   throw new Error("CMS layout did not match; preview refused");
 const html = sanitizeHtml(enhanced);
 const globals = await readFile(
@@ -86,7 +109,7 @@ const server = createServer(async (req, res) => {
     new URL("../src/app/p/[slug]/facelift.css", import.meta.url),
     "utf8",
   );
-  const previewQuery = new URL(req.url ?? "/", "http://127.0.0.1:3012")
+  const previewQuery = new URL(req.url ?? "/", `http://127.0.0.1:${port}`)
     .searchParams;
   const includeFullStyles = !focusedStylesOnly || previewQuery.has("full");
   // Visual fixtures only; these do not create or claim any backend lead receipt.
@@ -95,9 +118,9 @@ const server = createServer(async (req, res) => {
     ? `<div class="rv-custom-page__lead-notice rv-custom-page__lead-notice--${receipt}">معاينة رسالة ${receipt} فقط — لا يوجد طلب مرسل</div>`
     : "";
   res.end(
-    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — شد الوجه</title><style>${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="rv-custom-page rv-custom-page--uploaded">${notice}<article class="rv-custom-page__content rv-custom-page__content--uploaded">${html}</article></main></body></html>`,
+    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — ${target.title}</title><style>${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="rv-custom-page rv-custom-page--canvas rv-custom-page--uploaded">${notice}<article class="rv-custom-page__content rv-custom-page__content--uploaded">${html}</article></main></body></html>`,
   );
 });
-server.listen(3012, "127.0.0.1", () =>
-  console.log("Visual-only preview: http://127.0.0.1:3012 (POST disabled)"),
+server.listen(port, "127.0.0.1", () =>
+  console.log(`Visual-only preview: http://127.0.0.1:${port} (POST disabled)`),
 );

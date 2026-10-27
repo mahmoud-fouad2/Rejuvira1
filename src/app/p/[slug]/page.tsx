@@ -31,7 +31,11 @@ import {
 } from "@/lib/custom-page-quality";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import { getSiteUrl } from "@/lib/seo";
-import { improveFaceliftLanding } from "@/lib/facelift-landing";
+import {
+  improveFocusedLanding,
+  isFocusedFaceliftHtml,
+  isFocusedLandingHtml,
+} from "@/lib/focused-landing";
 import { publicEditorialCopy } from "@/lib/public-editorial-copy";
 import "./facelift.css";
 import "./search-content.css";
@@ -97,11 +101,12 @@ export async function generateMetadata({
   const ogTitle = title;
   const ogDescription = description;
   const ogImage = absoluteMediaUrl(page.ogImage);
+  const keywords = [...new Set([...seo.keywords, ...page.keywords])];
   return {
     metadataBase: new URL(getSiteUrl()),
     title: { absolute: title },
     description,
-    keywords: page.keywords.length ? [...page.keywords] : undefined,
+    keywords: keywords.length ? keywords : undefined,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -156,17 +161,14 @@ export default async function CustomPage({
   const pageLayout = readPageLayout(page.htmlContent);
   const repairedHtml = repairCustomPageMediaUrls(
     publicEditorialCopy(
-      stripCustomPageEditorState(
-        improveFaceliftLanding(page.htmlContent, slug),
-      ),
+      stripCustomPageEditorState(improveFocusedLanding(page.htmlContent, slug)),
     ),
   );
-  const isFocusedFacelift = repairedHtml.includes(
-    'data-facelift-optimized="1"',
-  );
+  const isFocusedFacelift = isFocusedFaceliftHtml(repairedHtml);
+  const isFocusedLanding = isFocusedLandingHtml(repairedHtml);
   // PageSpeed identifies this visible logo as the facelift LCP image.
   // Discover it in the document head, without delaying form/tracking scripts.
-  if (isFocusedFacelift) {
+  if (isFocusedLanding) {
     preload("/media/brand/facelift-logo-02.png", {
       as: "image",
       fetchPriority: "high",
@@ -249,14 +251,14 @@ export default async function CustomPage({
           <h1 className="rv-custom-page__semantic-title">{semanticTitle}</h1>
         ) : null}
         <article
-          className={`rv-custom-page__content ${isFocusedFacelift ? landingFont.variable : ""} ${
+          className={`rv-custom-page__content ${isFocusedLanding ? landingFont.variable : ""} ${
             isUploadedHtml ? "rv-custom-page__content--uploaded" : ""
           }`}
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
         <LandingSearchContent slug={page.slug} seoSlug={page.seoSlug ?? null} />
-        {!isFocusedFacelift ? (
+        {!isFocusedLanding ? (
           <aside
             className="rv-custom-page__contact-cta"
             aria-label="التواصل والحجز"

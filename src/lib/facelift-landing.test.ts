@@ -30,7 +30,7 @@ test("existing medical gallery assets are reused, not fabricated or attributed t
   assert.doesNotMatch(result, /case-[56]\.webp/);
   assert.match(result, /لا تمثل ضمانًا/);
   assert.doesNotMatch(result, /Repeated content/);
-  assert.equal((result.match(/<section\b/g) ?? []).length, 6);
+  assert.equal((result.match(/<section\b/g) ?? []).length, 7);
   assert.equal((result.match(/<h1>/g) ?? []).length, 1);
 });
 test("all contact links use central numbers and a neutral booking message", () => {
@@ -92,6 +92,7 @@ test("the supplied logo and visible natural search guide are scoped to this page
   assert.match(clean, /ميني فيس لفت/);
   assert.match(clean, /href="\/services\/face-neck-lift"/);
   assert.match(clean, /href="\/services\/neck-lift-surgery"/);
+  assert.match(clean, /href="\/services\/double-chin-liposuction"/);
   assert.ok(
     clean.indexOf('id="facelift-search-guide"') >
       clean.indexOf('id="facelift-questions"'),
@@ -120,4 +121,71 @@ test("the measured LCP logo retains eager/high priority through sanitization", (
   assert.match(logo, /fetchpriority="high"/);
   assert.match(logo, /width="562" height="563"/);
   assert.equal(result.match(/<form\b[\s\S]*?<\/form>/)?.[0], form);
+});
+
+test("the page features Dr. Loai with a large lazy portrait and only sourced credentials", () => {
+  const clean = sanitizeHtml(improveFaceliftLanding(source, "facelift-riyadh"));
+  const profile = clean.match(
+    /<section[^>]*id="dr-loai"[\s\S]*?<\/section>/,
+  )?.[0];
+  assert.ok(profile, "doctor profile section is present");
+  assert.match(
+    profile,
+    /<img src="\/media\/doctors\/loai-alsalmi\.webp"[^>]*width="800" height="800" loading="lazy"/,
+  );
+  for (const sourced of [
+    "البورد الكندي والزمالة الأمريكية",
+    "جامعة بنسلفانيا",
+    "UT Southwestern",
+    "مدينة الملك فهد الطبية",
+    "ملتقى الطب التجميلي الرابع",
+  ])
+    assert.ok(profile.includes(sourced), `missing credential: ${sourced}`);
+  assert.match(profile, /href="\/doctors\/loai-alsalmi"/);
+  // The profile must come right after the hero, before the options and gallery.
+  assert.ok(
+    clean.indexOf('id="dr-loai"') < clean.indexOf('id="facelift-options"'),
+  );
+});
+
+test("high-intent search language is present in human wording", () => {
+  const text = improveFaceliftLanding(source, "facelift-riyadh").replace(
+    /<[^>]+>/g,
+    " ",
+  );
+  for (const phrase of [
+    "الفيس لفت",
+    "شد الوجه العميق",
+    "الميني فيس لفت",
+    "شد الرقبة",
+    "تحديد الفك",
+    "اللغلوغ",
+    "للرجال",
+    "قبل وبعد",
+    "كم سعر الفيس لفت",
+    "بدون جراحة",
+  ])
+    assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
+  // Natural voice: no instruction-to-self "ask the doctor" filler as the hero message.
+  assert.doesNotMatch(text, /اسم التقنية وحده لا يحدد/);
+});
+
+test("no invented prices, rankings, guarantees or unverified credentials", () => {
+  const text = improveFaceliftLanding(source, "facelift-riyadh").replace(
+    /<[^>]+>/g,
+    " ",
+  );
+  assert.doesNotMatch(
+    text,
+    /رئيس قسم|Fox Chase|نتائج مضمونة|مضمون(?:ة)? 100|أفضل (?:دكتور|جراح|مركز)|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
+  );
+});
+
+test("the new design survives sanitization: details, lists, figures and groups", () => {
+  const clean = sanitizeHtml(improveFaceliftLanding(source, "facelift-riyadh"));
+  assert.equal((clean.match(/<details>/g) ?? []).length, 9);
+  assert.match(clean, /<div class="fl-trust" role="group"/);
+  assert.match(clean, /<ul class="fl-creds">/);
+  assert.match(clean, /<figure class="fl-portrait">/);
+  assert.match(clean, /data-facelift-optimized="1"/);
 });
