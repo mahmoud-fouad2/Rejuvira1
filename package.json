@@ -21,6 +21,8 @@
     "test:memory": "node --experimental-strip-types --test src/lib/public-content-cache.test.ts scripts/standalone-runtime.test.mjs",
     "seed:doctor-services": "node scripts/seed-doctor-service-landings.mjs",
     "test:seo-smoke": "node scripts/seo-smoke-test.mjs",
+    "test:seo-live": "node scripts/verify-public-seo.mjs",
+    "test:seo-followup": "node --experimental-strip-types --test src/lib/seo-followup.test.ts scripts/verify-public-seo.test.mjs",
     "test:content-seo": "node --experimental-strip-types scripts/content-seo-verification.mjs",
     "test:lead-tracking": "node --experimental-strip-types --test src/lib/clinic-contact.test.ts src/lib/conversion-dedupe.test.ts src/lib/lead-analytics.test.ts src/lib/lead-conversion-tracking.test.ts src/lib/lead-receipt.test.ts src/lib/lead-success.test.ts src/lib/request-tracking.test.ts src/lib/request-attribution.test.ts",
     "test:snap-capi": "node --experimental-strip-types --test src/lib/snap-capi.test.ts src/lib/snap-pixel.test.ts src/lib/snap-route-tracker.test.ts src/lib/snap-click-attribution.test.ts src/lib/snap-attribution-middleware.test.ts",

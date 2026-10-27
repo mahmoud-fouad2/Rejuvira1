@@ -12,6 +12,7 @@ import { ContactForm } from "@/components/forms/ContactForm";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
 import { getPublicSiteKey } from "@/lib/recaptcha";
 import { buildPageMetadata } from "@/lib/seo";
+import { bookingServiceOptions } from "@/lib/public-client-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({ page: "contact", path: "/contact" });
@@ -354,8 +355,10 @@ export default async function ContactPage() {
             </p>
             <div className="mt-7">
               <ContactForm
-                services={services.filter(
-                  (service) => service.status === ContentStatus.PUBLISHED,
+                services={bookingServiceOptions(
+                  services.filter(
+                    (service) => service.status === ContentStatus.PUBLISHED,
+                  ),
                 )}
                 recaptchaSiteKey={getPublicSiteKey()}
               />

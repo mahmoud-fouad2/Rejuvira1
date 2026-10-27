@@ -10,6 +10,7 @@ import { normalizeSocialUrl } from "@/components/layout/SocialIconCluster";
 import { ScrollToTopButton } from "@/components/layout/ScrollToTopButton";
 import { getRuntimeSettings, getServices } from "@/lib/content-repository";
 import { getPublicSiteKey } from "@/lib/recaptcha";
+import { bookingServiceOptions } from "@/lib/public-client-content";
 import {
   withGoogleWhatsappReferral,
   type LandingPageWhatsappContext,
@@ -375,6 +376,9 @@ export async function SiteFooter({
     getRuntimeSettings(),
     getServices(),
   ]);
+  const publishedServices = services.filter(
+    (service) => service.status === ContentStatus.PUBLISHED,
+  );
 
   const primaryPhone = phoneOverride?.trim() || runtimeSettings.contact.phone;
   const secondaryPhone = phoneOverride
@@ -546,7 +550,7 @@ export async function SiteFooter({
               <span className="lang-en">Services</span>
             </h3>
             <ul className="mt-5 space-y-3 text-sm">
-              {services.slice(0, 6).map((service) => (
+              {publishedServices.slice(0, 6).map((service) => (
                 <li key={service.id}>
                   <Link
                     href={`/services/${service.slug}` as Route}
@@ -667,9 +671,7 @@ export async function SiteFooter({
 
         <div className="rv-v0-footer-mobile-book">
           <BookingModal
-            services={services.filter(
-              (service) => service.status === ContentStatus.PUBLISHED,
-            )}
+            services={bookingServiceOptions(publishedServices)}
             recaptchaSiteKey={getPublicSiteKey()}
             compactLabel
             buttonClassName="rv-v0-footer-mobile-book-btn"

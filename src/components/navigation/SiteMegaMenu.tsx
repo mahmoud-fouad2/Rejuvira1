@@ -6,18 +6,11 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useLanguage } from "@/components/providers/LanguageProvider";
-import type {
-  DeviceRecord,
-  DoctorRecord,
-  ServiceRecord,
-} from "@/lib/content-repository";
+import type { MegaMenuContent } from "@/lib/public-client-content";
 
 type SiteMegaMenuProps = {
   triggerLabel: string;
-  services: readonly ServiceRecord[];
-  doctors: readonly DoctorRecord[];
-  devices: readonly DeviceRecord[];
-};
+} & MegaMenuContent;
 
 type Column = {
   titleAr: string;

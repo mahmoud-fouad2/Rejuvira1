@@ -2,6 +2,7 @@ import { GoogleMapsEmbed } from "@/components/contact/GoogleMapsEmbed";
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { getPublicSiteKey } from "@/lib/recaptcha";
+import { bookingServiceOptions } from "@/lib/public-client-content";
 import type { RuntimeSettings, ServiceRecord } from "@/lib/content-repository";
 
 const benefits = [
@@ -238,7 +239,7 @@ export function HomeContactSection({
             </div>
 
             <ContactForm
-              services={services}
+              services={bookingServiceOptions(services)}
               formClassName="rv-v0-home-contact-form"
               recaptchaSiteKey={getPublicSiteKey()}
               source="Homepage contact form"

@@ -5,12 +5,12 @@ import Link from "next/link";
 import type { Route } from "next";
 import type { ReactNode } from "react";
 
-import type { ServiceRecord } from "@/lib/content-repository";
+import type { ServiceCardContent } from "@/lib/public-client-content";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useSnapCarousel } from "@/lib/use-snap-carousel";
 
 type Props = {
-  services: readonly ServiceRecord[];
+  services: readonly ServiceCardContent[];
   eyebrow?: ReactNode;
   title?: ReactNode;
   description?: ReactNode;

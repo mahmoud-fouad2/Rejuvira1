@@ -4,13 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Route } from "next";
 
-import type { DoctorRecord, HomePageSettings } from "@/lib/content-repository";
+import type {
+  DoctorQuoteContent,
+  QuoteHeadingContent,
+} from "@/lib/public-client-content";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { useSnapCarousel } from "@/lib/use-snap-carousel";
 
 type V0DoctorQuotesSliderProps = {
-  homepage: HomePageSettings;
-  doctors: readonly DoctorRecord[];
+  homepage: QuoteHeadingContent;
+  doctors: readonly DoctorQuoteContent[];
 };
 
 export function V0DoctorQuotesSlider({
