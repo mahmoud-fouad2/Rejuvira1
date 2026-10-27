@@ -788,6 +788,15 @@ body:has(.fl-page) .rv-custom-page__lead-notice--duplicate {
   font-weight: 600;
   font-size: 14px;
 }
+/* The floating chat launcher and its welcome popup would sit on top of this bar
+   (and half-cover its main button on phones): lift both above it. These are the
+   widget's own class names; if they change the rule simply stops applying. */
+body:has(.fl-sticky) .fahimo-launcher {
+  bottom: calc(84px + env(safe-area-inset-bottom)) !important;
+}
+body:has(.fl-sticky) .fahimo-welcome-popup-shell {
+  bottom: calc(156px + env(safe-area-inset-bottom)) !important;
+}
 .fl-sticky a:first-child {
   background: var(--fl-purple);
   color: #fff;
