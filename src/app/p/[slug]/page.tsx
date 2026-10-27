@@ -35,6 +35,7 @@ import {
   improveFocusedLanding,
   isFocusedFaceliftHtml,
   isFocusedLandingHtml,
+  landingArticleClass,
 } from "@/lib/focused-landing";
 import { publicEditorialCopy } from "@/lib/public-editorial-copy";
 import "./facelift.css";
@@ -251,9 +252,11 @@ export default async function CustomPage({
           <h1 className="rv-custom-page__semantic-title">{semanticTitle}</h1>
         ) : null}
         <article
-          className={`rv-custom-page__content ${isFocusedLanding ? landingFont.variable : ""} ${
-            isUploadedHtml ? "rv-custom-page__content--uploaded" : ""
-          }`}
+          className={landingArticleClass({
+            focused: isFocusedLanding,
+            uploaded: isUploadedHtml,
+            fontVariable: landingFont.variable,
+          })}
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />

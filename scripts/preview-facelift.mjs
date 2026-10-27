@@ -19,7 +19,6 @@ const targets = {
     gallery: "facelift-gallery",
     title: "شد الوجه",
     main: uploaded,
-    article: "rv-custom-page__content rv-custom-page__content--uploaded",
   },
   body: {
     slug: "body-contouring-riyadh",
@@ -28,7 +27,6 @@ const targets = {
     gallery: "body-gallery",
     title: "نحت الجسم",
     main: uploaded,
-    article: "rv-custom-page__content rv-custom-page__content--uploaded",
   },
   booking: {
     slug: "book",
@@ -37,7 +35,6 @@ const targets = {
     gallery: null,
     title: "الحجز",
     main: "rv-custom-page rv-custom-page--theme",
-    article: "rv-custom-page__content",
   },
   tiktok: {
     slug: "tiktok-customer",
@@ -46,7 +43,6 @@ const targets = {
     gallery: null,
     title: "تيك توك",
     main: "rv-custom-page rv-custom-page--theme",
-    article: "rv-custom-page__content",
   },
   breast: {
     slug: "breast-surgery-riyadh",
@@ -55,7 +51,6 @@ const targets = {
     gallery: "breast-gallery",
     title: "جراحات الصدر",
     main: uploaded,
-    article: "rv-custom-page__content rv-custom-page__content--uploaded",
   },
 };
 const target =
@@ -67,7 +62,7 @@ if (!response.ok) throw new Error(`Source page returned ${response.status}`);
 const source = await response.text();
 // The CMS content has nested article cards; match the OUTER article boundary.
 const article = source.match(
-  /<article\b[^>]*class="rv-custom-page__content[^>]*>([\s\S]*?)<\/article>(?=\s*<(?:aside|section)\b|\s*<\/main>)/i,
+  /<article\b[^>]*class="(?:rv-custom-page__content|rv-landing-content)[^>]*>([\s\S]*?)<\/article>(?=\s*<(?:aside|section)\b|\s*<\/main>)/i,
 )?.[1];
 if (!article) throw new Error("Expected landing-page article not found");
 // A previously deployed presentation is not the CMS source. Reconstruct a
@@ -101,6 +96,8 @@ const globals = await readFile(
   new URL("../src/app/globals.css", import.meta.url),
   "utf8",
 );
+// Production order: the route stylesheet (facelift.css) loads BEFORE the site stylesheet, so
+// equal-specificity site rules win. Keep that order here or the preview hides real conflicts.
 const focusedStylesOnly = process.env.PREVIEW_CSS_MODE === "focused";
 const font = await readFile(
   new URL(
@@ -158,7 +155,7 @@ const server = createServer(async (req, res) => {
     ? `<div class="rv-custom-page__lead-notice rv-custom-page__lead-notice--${receipt}">معاينة رسالة ${receipt} فقط — لا يوجد طلب مرسل</div>`
     : "";
   res.end(
-    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — ${target.title}</title><style>${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}${css}</style></head><body><main class="${target.main}">${notice}<article class="${target.article}">${html}</article></main></body></html>`,
+    `<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>معاينة محلية — ${target.title}</title><style>${css}\n${includeFullStyles ? globals : ""}\n@font-face{font-family:PreviewArabic;src:url('/font.woff2')}body{margin:0;--font-rejuvira-sans:PreviewArabic}</style></head><body><main class="${target.main}">${notice}<article class="rv-landing-content">${html}</article></main></body></html>`,
   );
 });
 server.listen(port, "127.0.0.1", () =>

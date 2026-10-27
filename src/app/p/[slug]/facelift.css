@@ -20,7 +20,7 @@ body:has(.fl-page) {
   -webkit-font-smoothing: antialiased;
 }
 body:has(.fl-page) .rv-custom-page,
-body:has(.fl-page) .rv-custom-page__content {
+body:has(.fl-page) .rv-landing-content {
   width: 100%;
   min-width: 0;
   max-width: none;
