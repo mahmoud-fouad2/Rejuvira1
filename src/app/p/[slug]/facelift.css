@@ -67,6 +67,14 @@ body:has(.fl-page) .rv-custom-page__lead-notice--duplicate {
   border-style: solid;
   border-width: 0;
 }
+/* The site stylesheet sets its own family with !important on every common element, so on
+   the pages that load it the preloaded page font went unused and the late-loaded site
+   family made the text reflow (layout shift). Keep the whole landing on the page font. */
+.fl-page,
+.fl-page * {
+  font-family:
+    var(--font-facelift-sans, var(--font-rejuvira-sans)), Arial, sans-serif !important;
+}
 .fl-page :is(h1, h2, h3, p, figure, ul, ol) {
   margin: 0;
 }
@@ -91,9 +99,9 @@ body:has(.fl-page) .rv-custom-page__lead-notice--duplicate {
 .fl-page .rv-custom-page__privacy-note {
   margin: 0.75rem 0 0 !important;
   line-height: 1.65 !important;
-  color: inherit;
+  color: #645a6d;
   text-align: center;
-  opacity: 0.78;
+  opacity: 1;
 }
 @media (prefers-reduced-motion: reduce) {
   html:has(.fl-page) {
