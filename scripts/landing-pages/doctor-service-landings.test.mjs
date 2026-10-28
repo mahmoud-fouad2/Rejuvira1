@@ -42,3 +42,27 @@ test("published Natali identity is used and HTML-escaped", async () => {
   assert.match(writes[0].create.htmlContent, /src="\/photo.webp"/);
   assert.deepEqual(writes[0].update, {});
 });
+test("booking card speaks to its audience and keeps every lead field", () => {
+  const [natali, abdullah] = doctorServiceLandings;
+  const nataliHtml = buildDoctorServiceLanding(natali);
+  const abdullahHtml = buildDoctorServiceLanding(abdullah);
+  assert.match(nataliHtml, />احجزي استشارتك الخاصة<\/button>/);
+  assert.match(abdullahHtml, />احجز استشارتك الخاصة<\/button>/);
+  assert.doesNotMatch(abdullahHtml, /احجزي|تحدّثي|تتمنين/);
+  for (const html of [nataliHtml, abdullahHtml]) {
+    assert.match(html, /name="source" value="صفحة [^"]+ - طلب استشارة"/);
+    assert.match(html, /name="message" value="طلب موعد مع [^"]+"/);
+    assert.match(html, /name="fullName"[^>]*required/);
+    assert.match(html, /name="phone"[^>]*required/);
+    assert.match(html, /وفق <a href="\/privacy">سياسة الخصوصية<\/a>/);
+  }
+});
+test("public copy is reassuring: no paperwork lines, no reading lists, nothing leads off the clinic's pages", () => {
+  for (const profile of doctorServiceLandings) {
+    const html = buildDoctorServiceLanding(profile);
+    assert.doesNotMatch(html, /لا يعني تأكيد|وصف أفضل|أفضل دكتور|ساعات العمل|مراجع للقراءة|اسأل|ناقش|وفق التوفر/);
+    const hrefs = [...html.matchAll(/href="([^"]*)"/g)].map((match) => match[1]);
+    assert.ok(hrefs.every((href) => /^(#|\/|tel:|https:\/\/wa\.me\/)/.test(href)), hrefs.join(" "));
+    assert.equal("sources" in profile, false);
+  }
+});
