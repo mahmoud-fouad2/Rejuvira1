@@ -162,7 +162,10 @@ export function optimizeCustomPageImages(html: string): string {
       nextAttrs += ' decoding="async"';
     }
     if (!/\bloading\s*=/i.test(nextAttrs)) {
-      nextAttrs += ` loading="${imageIndex === 0 ? "eager" : "lazy"}"`;
+      // An image the author marked fetchpriority=high is above the fold: deferring it
+      // delays the largest paint (the hero photo sat behind the logo and was lazy).
+      const prioritized = /\bfetchpriority\s*=\s*["']?high\b/i.test(nextAttrs);
+      nextAttrs += ` loading="${imageIndex === 0 || prioritized ? "eager" : "lazy"}"`;
     }
     if (
       /\bsrc\s*=\s*(?:"https?:\/\/|'https?:\/\/|https?:\/\/)/i.test(

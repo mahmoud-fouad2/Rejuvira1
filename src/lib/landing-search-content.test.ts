@@ -110,3 +110,21 @@ test("measured intrinsic sizes reserve image space without guessing or overridin
   );
   assert.ok(!deferred.includes(" width="));
 });
+
+test("an image the author marked fetchpriority=high is never lazy-loaded; later images still are", () => {
+  const html = optimizeCustomPageImages(
+    '<img src="/media/brand/logo-light-header.png"><img class="hero" src="/media/doctors/bandar-alharthi.webp" fetchpriority="high"><img src="/media/doctors/najwa-batarfi.webp">',
+  );
+  const images = html.match(/<img\b[^>]*>/g)!;
+  assert.equal(images.length, 3);
+  assert.match(images[0]!, /loading="eager"/);
+  assert.match(images[1]!, /fetchpriority="high"/);
+  assert.match(images[1]!, /loading="eager"/);
+  assert.doesNotMatch(images[1]!, /loading="lazy"/);
+  assert.match(images[2]!, /loading="lazy"/);
+  // An explicit author choice for loading still wins.
+  const explicit = optimizeCustomPageImages(
+    '<img src="/a.webp"><img src="/b.webp" fetchpriority="high" loading="lazy">',
+  );
+  assert.match(explicit, /fetchpriority="high" loading="lazy"/);
+});
