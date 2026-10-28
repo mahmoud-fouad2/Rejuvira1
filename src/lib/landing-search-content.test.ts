@@ -4,6 +4,7 @@ import {
   landingSearchProfile,
   landingSearchProfiles,
 } from "./landing-search-content.ts";
+import { BANNED_LANDING_COPY } from "./landing-copy-rules.ts";
 import {
   stripCustomPageEditorState,
   optimizeCustomPageImages,
@@ -49,6 +50,18 @@ test("reviewed landing pages have distinct questions and readable text without e
     }
     assert.ok(
       !/[<>]|نتائج مضمونة|نسبة نجاح|خصم\s*\d/.test(JSON.stringify(profile)),
+    );
+  }
+});
+
+test("the editorial copy is reassuring: no lecturing, paperwork or guarantee phrases", () => {
+  for (const [slug, profile] of Object.entries(landingSearchProfiles)) {
+    const text = JSON.stringify(profile);
+    assert.doesNotMatch(text, BANNED_LANDING_COPY, slug);
+    assert.doesNotMatch(
+      text,
+      /اسأل|اسألي|اطلب\s|اطلبي|ناقشي|ناقش مع|تجنّب|بدل اختيار|بدل مقارنة|لا تفترض|لا تعتمد|وصف أفضل/,
+      `lecturing phrase in ${slug}`,
     );
   }
 });
