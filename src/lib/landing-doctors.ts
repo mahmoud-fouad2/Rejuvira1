@@ -35,7 +35,9 @@ const loaiCredentials: readonly LandingCredential[] = [
 export const LOAI_ALSALMI = {
   name: "د. لؤي السالمي",
   title: "استشاري جراحة التجميل والترميم",
-  photo: "/media/doctors/loai-alsalmi.webp",
+  // Portrait supplied by the clinic (2026-10-28); the jacket carries his own name.
+  // /media/doctors/loai-alsalmi.webp stays for the rest of the site.
+  photo: "/media/doctors/loai-alsalmi-portrait.webp",
   profile: "/doctors/loai-alsalmi",
   // Mirrors the clinic's own doctor record (yearsExperience: 25). It fits total
   // medical experience since graduation (~2001-2002) but not specialist practice,

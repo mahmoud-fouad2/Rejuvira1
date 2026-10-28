@@ -124,7 +124,7 @@ test("the above-fold doctor image is not lazy-loaded and the form attributes are
   const clean = sanitizeHtml(result);
   assert.match(
     result,
-    /<img[^>]*src="\/media\/doctors\/loai-alsalmi\.webp"[^>]*loading="eager"[^>]*fetchpriority="high"/,
+    /<img[^>]*src="\/media\/doctors\/loai-alsalmi-portrait\.webp"[^>]*loading="eager"[^>]*fetchpriority="high"/,
   );
   assertFormPolished(result);
   assert.match(clean, /loading="eager"[^>]*fetchpriority="high"/);
@@ -151,7 +151,7 @@ test("the page features Dr. Loai with a large lazy portrait and only sourced cre
   assert.ok(profile, "doctor profile section is present");
   assert.match(
     profile,
-    /<img src="\/media\/doctors\/loai-alsalmi\.webp"[^>]*width="800" height="800" loading="lazy"/,
+    /<img src="\/media\/doctors\/loai-alsalmi-portrait\.webp"[^>]*width="800" height="800" loading="lazy"/,
   );
   for (const sourced of [
     "البورد الكندي والزمالة الأمريكية",

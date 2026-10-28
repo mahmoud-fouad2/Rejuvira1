@@ -101,7 +101,7 @@ test("Dr. Loai is featured with sourced credentials and Dr. Saham keeps her own 
   assert.ok(profile);
   assert.match(
     profile,
-    /<img src="\/media\/doctors\/loai-alsalmi\.webp"[^>]*width="800" height="800" loading="lazy"/,
+    /<img src="\/media\/doctors\/loai-alsalmi-portrait\.webp"[^>]*width="800" height="800" loading="lazy"/,
   );
   for (const sourced of [
     "البورد الكندي والزمالة الأمريكية",
