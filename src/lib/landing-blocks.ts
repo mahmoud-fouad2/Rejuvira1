@@ -41,6 +41,31 @@ export function extractAnyLeadForm(html: string): string | null {
   return form;
 }
 
+/** Reassurance lines that read as paperwork; replaced only as whole sentences. */
+const FORM_NOTICE_REPLACEMENTS: ReadonlyArray<readonly [string, string]> = [
+  [
+    "إرسال الطلب لا يثبت الموعد تلقائيًا؛ يتواصل فريق ريجوفيرا لتأكيد الموعد وفق التوفر.",
+    "سيتواصل معك فريق ريجوفيرا لتنسيق الموعد الأنسب لك.",
+  ],
+];
+
+/**
+ * Polishes only the visible words of the CMS lead form: the submit label and the
+ * paperwork-style notice. Every attribute, field, hidden input and the privacy consent
+ * line stay byte-identical, so the POST, validation and attribution are untouched.
+ */
+export function polishForm(form: string, submitLabel: string): string {
+  const labelled = form.replace(
+    /(<button\b[^>]*\btype=["']submit["'][^>]*>)([\s\S]*?)(<\/button>)/i,
+    (_match, open: string, _text: string, close: string) =>
+      `${open}${submitLabel}${close}`,
+  );
+  return FORM_NOTICE_REPLACEMENTS.reduce(
+    (html, [from, to]) => html.replaceAll(from, to),
+    labelled,
+  );
+}
+
 /** Reuse only the page's existing before/after assets, never manufacture cases. */
 export function extractGalleryImages(html: string): string[] {
   const gallery = html
@@ -57,7 +82,7 @@ export function landingLinks() {
   );
   return {
     whatsapp,
-    contacts: `<a class="fl-button fl-button--outline" href="${CLINIC_PHONE_TEL}">اتصال مباشر</a><a class="fl-button fl-button--whatsapp" href="${whatsapp}" target="_blank" rel="noopener noreferrer">واتساب للمواعيد</a>`,
+    contacts: `<a class="fl-button fl-button--outline" href="${CLINIC_PHONE_TEL}">اتصال مباشر</a><a class="fl-button fl-button--whatsapp" href="${whatsapp}" target="_blank" rel="noopener noreferrer">تحدّث معنا عبر واتساب</a>`,
     book: (label: string) =>
       `<a class="fl-button" href="#consultation-form">${label}</a>`,
   };
@@ -67,7 +92,7 @@ export const pageShell = (marker: string, body: string) =>
   `<div class="fl-page" dir="rtl" ${marker}>${body}</div>`;
 
 export const topBar = (ariaLabel: string) =>
-  `<nav class="fl-top fl-wrap" aria-label="${ariaLabel}"><a class="fl-brand" href="/" aria-label="ريجوفيرا — الرئيسية"><img src="/media/brand/facelift-logo-02.png" alt="مركز ريجوفيرا الطبي" width="562" height="563" loading="eager" decoding="async" fetchpriority="high"></a><span>الرياض · مركز ريجوفيرا الطبي</span><a href="#consultation-form">طلب استشارة ←</a></nav>`;
+  `<nav class="fl-top fl-wrap" aria-label="${ariaLabel}"><a class="fl-brand" href="/" aria-label="ريجوفيرا — الرئيسية"><img src="/media/brand/facelift-logo-02.png" alt="مركز ريجوفيرا الطبي" width="562" height="563" loading="eager" decoding="async" fetchpriority="high"></a><span>الرياض · مركز ريجوفيرا الطبي</span><a href="#consultation-form">احجز استشارتك الخاصة ←</a></nav>`;
 
 export const checkList = (items: readonly string[]) =>
   `<ul class="fl-checks">${items.map((item) => `<li>${item}</li>`).join("")}</ul>`;
@@ -218,4 +243,4 @@ export const searchGuide = (id: string, content: string) =>
   `<div class="fl-wrap fl-bottom-guide"><div class="fl-search-content" id="${id}">${content}</div></div>`;
 
 export const stickyBar = (whatsapp: string) =>
-  `<nav class="fl-sticky" aria-label="التواصل السريع"><div><a href="#consultation-form">احجز تقييمك</a><a href="${CLINIC_PHONE_TEL}">اتصال مباشر</a><a href="${whatsapp}" target="_blank" rel="noopener noreferrer">واتساب</a></div></nav>`;
+  `<nav class="fl-sticky" aria-label="التواصل السريع"><div><a href="#consultation-form">احجز استشارتك</a><a href="${CLINIC_PHONE_TEL}">اتصال مباشر</a><a href="${whatsapp}" target="_blank" rel="noopener noreferrer">واتساب</a></div></nav>`;

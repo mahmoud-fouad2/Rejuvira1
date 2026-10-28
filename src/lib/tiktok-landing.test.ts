@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { improveTiktokLanding } from "./tiktok-landing.ts";
 import { improveFocusedLanding } from "./focused-landing.ts";
+import {
+  assertLandingCopyRules,
+  formSkeleton,
+  visibleText,
+} from "./landing-copy-rules.ts";
 import { sanitizeHtml } from "./sanitize-html.ts";
 import {
   CLINIC_PHONE_TEL,
@@ -27,12 +32,17 @@ const KNOWN_ROUTES = new Set([
   "/journal/prepare-for-aesthetic-consultation",
 ]);
 
-test("the CMS lead form and its hidden attribution are preserved byte-for-byte", () => {
+test("the CMS lead form keeps every field and hidden attribution; only the button words change", () => {
   for (const slug of ["tk", "tiktok-customer"]) {
     const result = improveTiktokLanding(source, slug);
     const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
     assert.equal(actual.length, 1);
-    assert.equal(actual[0], form);
+    assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
+    assert.match(
+      actual[0]!,
+      /<button type="submit">لنكتشف الخطة الأنسب لك ←<\/button>/,
+    );
+    assert.ok(actual[0]!.includes('name="gclid" value="sample_click"'));
     assert.doesNotMatch(
       result,
       /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(|ttq\(/,
@@ -96,19 +106,27 @@ test("every internal link points at a known live route", () => {
   }
 });
 
-test("copy speaks to the TikTok visitor without invented claims", () => {
-  const text = improveTiktokLanding(source, "tk").replace(/<[^>]+>/g, " ");
+test("copy turns the TikTok visitor's inspiration into a private consultation, without discouraging lines", () => {
+  const result = improveTiktokLanding(source, "tk");
+  const text = visibleText(result);
   for (const phrase of [
-    "وصلت من تيك توك",
-    "شاهدت نتيجة أعجبتك",
-    "حالة واحدة",
+    "ألهمتك نتيجة على تيك توك؟ لنكتشف معًا ما يناسب ملامحك وقوامك",
+    "شاركنا ما لفت انتباهك",
+    "استشارة مخصصة لملامحك",
+    "خطة واضحة ومريحة",
+    "لنكتشف الخطة الأنسب لك",
     "السعر الحالي",
-    "لا يثبت موعدًا",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
+  // The discouraging "this result is not about you" framing is gone.
   assert.doesNotMatch(
     text,
-    /رئيس قسم|نتائج مضمونة|أفضل (?:دكتور|جراح|مركز|عيادة)|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
+    /لا تعنيك|لا تفترض|حالة واحدة|لا يحدد بنفسه|ما يناسبك قد يختلف/,
+  );
+  assertLandingCopyRules(result);
+  assert.doesNotMatch(
+    text,
+    /رئيس قسم|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
   );
 });
 

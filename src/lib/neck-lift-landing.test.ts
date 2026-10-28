@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { improveFocusedLanding } from "./focused-landing.ts";
 import {
+  assertLandingCopyRules,
+  formSkeleton,
+  visibleText,
+} from "./landing-copy-rules.ts";
+import {
   improveNeckLiftLanding,
   NECK_LIFT_GALLERY,
 } from "./neck-lift-landing.ts";
@@ -13,15 +18,23 @@ import {
 } from "./clinic-contact.ts";
 
 // The live page uses the generic builder form (no rvx-form class), unlike the other landings.
-const form = `<form class="rv-builder-lead-form-fields" data-rejuvera-guard="1" action="/api/leads" method="post"><input type="hidden" name="formRenderedAt" value="1793115168160"><input type="hidden" name="landingPageSlug" value="lp-face-neck-lift"><div aria-hidden="true" style="position:absolute!important"><label>Company<input type="text" name="rv_hp_field" tabindex="-1" autocomplete="off"></label></div><input type="hidden" name="source" value="شد الوجه والرقبة - صفحة هبوط"><label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required placeholder="الاسم الثلاثي"></label><label><span>رقم الجوال</span><input name="phone" type="tel" required minlength="10" maxlength="13"></label><button type="submit">إرسال طلب</button></form>`;
+const form = `<form class="rv-builder-lead-form-fields" data-rejuvera-guard="1" action="/api/leads" method="post"><input type="hidden" name="formRenderedAt" value="1793115168160"><input type="hidden" name="landingPageSlug" value="lp-face-neck-lift"><div aria-hidden="true" style="position:absolute!important"><label>Company<input type="text" name="rv_hp_field" tabindex="-1" autocomplete="off"></label></div><input type="hidden" name="source" value="شد الوجه والرقبة - صفحة هبوط"><label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required placeholder="الاسم الثلاثي"></label><label><span>رقم الجوال</span><input name="phone" type="tel" required minlength="10" maxlength="13"></label><button type="submit">إرسال طلب</button><p class="rv-custom-page__privacy-note">بإرسال الطلب، أنت توافق على استخدام البيانات للتواصل معك وفق <a href="/privacy">سياسة الخصوصية</a>.</p></form>`;
 const source = `<div class="rvx-page"><section><h2>شد الوجه والرقبة</h2><img src="/hero-old-illustration.webp" alt="old hero"></section><section><h2>لمحة سريعة</h2><div>1 أطباء مناسبون</div><div>حسب الخطة أجهزة مرتبطة</div></section><section>${form}</section><section id="landing-guide">Repeated content</section></div>`;
 const slug = "lp-face-neck-lift";
 
-test("the CMS lead form is preserved byte-for-byte and nothing executable is added", () => {
+test("the CMS lead form keeps every field and hidden attribution; only the button words change", () => {
   const result = improveNeckLiftLanding(source, slug);
   const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
   assert.equal(actual.length, 1);
-  assert.equal(actual[0], form);
+  assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
+  assert.match(
+    actual[0]!,
+    /<button type="submit">احجز تقييم خط الفك والرقبة مع الاستشاري ←<\/button>/,
+  );
+  assert.ok(actual[0]!.includes('<a href="/privacy">سياسة الخصوصية</a>'));
+  assert.ok(
+    actual[0]!.includes('name="landingPageSlug" value="lp-face-neck-lift"'),
+  );
   assert.doesNotMatch(
     result,
     /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(/,
@@ -49,7 +62,7 @@ test("template leftovers are dropped; the clinic's own neck and double-chin pair
       result.includes(`<figcaption>${caption}</figcaption>`),
       `missing caption: ${caption}`,
     );
-  assert.match(result, /ولا تمثل ضمانًا لنتيجتك/);
+  assert.match(result, /تختلف النتائج من شخص لآخر/);
 });
 
 test("structure and contact links: one H1, eight sections, three tel and three wa.me", () => {
@@ -96,15 +109,14 @@ test("Dr. Loai is featured with only sourced facts and the clinic's own service 
     "البورد الكندي والزمالة الأمريكية",
     "جامعة بنسلفانيا",
     "UT Southwestern",
-    "الأطباء المرتبطين بخدمات شد الرقبة وشفط اللغلوغ وشد الوجه والرقبة",
+    "تشمل خدمات د. لؤي في ريجوفيرا شد الرقبة وشفط اللغلوغ وشد الوجه والرقبة",
   ])
     assert.ok(profile.includes(sourced), `missing: ${sourced}`);
-  assert.match(clean, /plasticsurgery\.org\/cosmetic-procedures\/neck-lift/);
 });
 
-test("high-intent neck and jawline language, honest limits and no invented claims", () => {
+test("high-intent neck and jawline language in warm, aspirational wording", () => {
   const result = improveNeckLiftLanding(source, slug);
-  const text = result.replace(/<[^>]+>/g, " ");
+  const text = visibleText(result);
   for (const phrase of [
     "شد الرقبة",
     "تحديد الفك",
@@ -113,20 +125,22 @@ test("high-intent neck and jawline language, honest limits and no invented claim
     "الندبات",
     "كم سعر شد الرقبة",
     "كم تكلفة شد الرقبة",
-    "لا توقف التقدم في العمر",
-    "لا يعطي نتيجتها عند الترهل الواضح",
+    "تحديد خط الفك واستعادة انسيابية الرقبة",
+    "خطوتك الأولى نحو فك أوضح ورقبة أكثر انسيابية",
+    "احجز تقييم خط الفك والرقبة مع الاستشاري",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
+  assertLandingCopyRules(result);
   assert.doesNotMatch(
     text,
-    /رئيس قسم|Fox Chase|نتائج مضمونة|أفضل (?:دكتور|جراح|مركز)|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d|بدون ألم|بدون جراحة/,
+    /رئيس قسم|Fox Chase|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d|بدون جراحة/,
   );
   for (const href of Array.from(result.matchAll(/href="(\/[^"]+)"/g)).map(
     (m) => m[1]!,
   )) {
     assert.match(
       href,
-      /^\/(services\/(neck-lift-surgery|double-chin-liposuction|face-neck-lift)|doctors\/loai-alsalmi|p\/facelift-riyadh|journal\/(skin-tightening-options-guide|face-neck-lift-threads-fillers)|gallery)$/,
+      /^\/(services\/(neck-lift-surgery|double-chin-liposuction|face-neck-lift)|doctors\/loai-alsalmi|p\/facelift-riyadh|journal\/(skin-tightening-options-guide|face-neck-lift-threads-fillers)|gallery|privacy)$/,
     );
   }
 });

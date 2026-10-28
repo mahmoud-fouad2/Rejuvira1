@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { improveBookingLanding } from "./booking-landing.ts";
 import { improveFocusedLanding } from "./focused-landing.ts";
+import {
+  assertLandingCopyRules,
+  formSkeleton,
+  visibleText,
+} from "./landing-copy-rules.ts";
 import { sanitizeHtml } from "./sanitize-html.ts";
 import {
   CLINIC_PHONE_TEL,
@@ -30,12 +35,22 @@ const KNOWN_ROUTES = new Set([
   "/privacy",
 ]);
 
-test("the CMS lead form and its hidden attribution are preserved byte-for-byte", () => {
+test("the CMS lead form keeps every field and hidden attribution; only the button words change", () => {
   for (const slug of ["book", "rejuvera-booking"]) {
     const result = improveBookingLanding(source, slug);
     const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
     assert.equal(actual.length, 1);
-    assert.equal(actual[0], form);
+    assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
+    assert.match(
+      actual[0]!,
+      /<button type="submit">احجز استشارتك الخاصة الآن ←<\/button>/,
+    );
+    assert.ok(
+      actual[0]!.includes(
+        '<p class="rv-custom-page__privacy-note">بإرسال الطلب، أنت توافق</p>',
+      ),
+    );
+    assert.ok(actual[0]!.includes('name="gclid" value="sample_click"'));
     assert.doesNotMatch(
       result,
       /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(/,
@@ -106,22 +121,24 @@ test("every internal link points at a known live route", () => {
     assert.ok(hrefs.includes(known), `missing link to ${known}`);
 });
 
-test("copy is human, message-matched to the ads, and makes no unverifiable claims", () => {
-  const text = improveBookingLanding(source, "book").replace(/<[^>]+>/g, " ");
+test("copy is a private concierge voice, message-matched to the ads, with no unverifiable claims", () => {
+  const result = improveBookingLanding(source, "book");
+  const text = visibleText(result);
   for (const phrase of [
-    "قبل أن تقرر",
     "استشاريي التجميل في الرياض",
+    "الإنصات لأولوياتك الجمالية",
+    "احجز استشارتك الخاصة الآن",
     "شد الوجه",
     "تجميل الأنف",
     "شفط الدهون",
     "التجميل النسائي",
     "رسوم الاستشارة",
-    "لا يثبت موعدًا",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
+  assertLandingCopyRules(result);
   assert.doesNotMatch(
     text,
-    /رئيس قسم|نتائج مضمونة|أفضل (?:دكتور|جراح|مركز|عيادة)|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d|نورة|العتيبي|سعوديون بخبرة عالمية/,
+    /رئيس قسم|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d|نورة|العتيبي|سعوديون بخبرة عالمية/,
   );
 });
 

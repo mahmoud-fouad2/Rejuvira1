@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { improveBreastSurgeryLanding } from "./breast-surgery-landing.ts";
 import { improveFocusedLanding } from "./focused-landing.ts";
+import {
+  assertLandingCopyRules,
+  formSkeleton,
+  visibleText,
+} from "./landing-copy-rules.ts";
 import { sanitizeHtml } from "./sanitize-html.ts";
 import {
   CLINIC_PHONE_TEL,
@@ -16,11 +21,15 @@ const source = (n = 2) =>
   `<div class="rvx-page"><section class="rvx-hero">${form}<img src="/hero-wrong-facelift.webp" alt="wrong hero image"></section>${gallery(n)}<section id="landing-guide">Repeated content</section></div>`;
 const slug = "breast-surgery-riyadh";
 
-test("the CMS lead form is preserved byte-for-byte and nothing executable is added", () => {
+test("the CMS lead form keeps every field and hidden attribution; only the button words change", () => {
   const result = improveBreastSurgeryLanding(source(), slug);
   const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
   assert.equal(actual.length, 1);
-  assert.equal(actual[0], form);
+  assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
+  assert.match(
+    actual[0]!,
+    /<button class="rvx-submit" type="submit">تنسيق استشارتك الخاصة ←<\/button>/,
+  );
   assert.doesNotMatch(
     result,
     /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(/,
@@ -38,7 +47,7 @@ test("only the before/after section images are reused: one pair for two images, 
   assert.doesNotMatch(two, /breast-[56]\.webp/);
   assert.doesNotMatch(two, /fl-gallery--single/);
   const none = improveBreastSurgeryLanding(source(0), slug);
-  assert.match(none, /اطلبي مشاهدة أمثلة مناسبة لحالتك/);
+  assert.match(none, /نعرض لك أمثلة تناسب حالتك خلال جلستك الاستشارية/);
 });
 
 test("structure and contact links: one H1, eight sections, three tel and three wa.me", () => {
@@ -94,12 +103,12 @@ test("Dr. Loai and Dr. Saham are featured with only sourced facts; breast servic
   ])
     assert.ok(profile.includes(sourced), `missing: ${sourced}`);
   assert.match(profile, /href="\/doctors\/saham-arfaj"/);
-  assert.match(clean, /لا يثبت موعدًا مع طبيب محدد/);
+  assert.match(profile, /ينسّق لك الفريق الموعد مع الجرّاح الأنسب/);
 });
 
-test("high-intent breast-surgery language, honest limits and no invented claims", () => {
+test("elegant, private and reassuring breast-surgery language; no invented claims or leaks", () => {
   const result = improveBreastSurgeryLanding(source(), slug);
-  const text = result.replace(/<[^>]+>/g, " ");
+  const text = visibleText(result);
   for (const phrase of [
     "شد الصدر",
     "تصغير الصدر",
@@ -109,11 +118,15 @@ test("high-intent breast-surgery language, honest limits and no invented claims"
     "الندبات",
     "التثدي",
     "كم تكلفة جراحات الصدر",
+    "تناسق أنثوي راقٍ",
+    "خصوصية وسرية تامة",
+    "تنسيق استشارتك الخاصة",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
+  assertLandingCopyRules(result);
   assert.doesNotMatch(
     text,
-    /رئيس قسم|Fox Chase|نتائج مضمونة|أفضل (?:دكتور|جراح|مركز)|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
+    /رئيس قسم|Fox Chase|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
   );
   for (const href of Array.from(result.matchAll(/href="(\/[^"]+)"/g)).map(
     (m) => m[1]!,

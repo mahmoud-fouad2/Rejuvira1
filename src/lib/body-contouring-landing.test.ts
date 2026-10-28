@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { improveBodyContouringLanding } from "./body-contouring-landing.ts";
 import { improveFocusedLanding } from "./focused-landing.ts";
+import {
+  assertLandingCopyRules,
+  formSkeleton,
+  visibleText,
+} from "./landing-copy-rules.ts";
 import { sanitizeHtml } from "./sanitize-html.ts";
 import {
   CLINIC_PHONE_TEL,
@@ -14,11 +19,21 @@ const gallery = `<section class="rvx-section"><h2>أمثلة توضيحية قب
 const source = `<div class="rvx-page" data-layout="canvas" data-header="false" data-footer="false"><style>.rvx-hero{padding:90px}</style><section class="rvx-hero">${form}</section>${gallery}<section class="rv-landing-guide" id="landing-guide-body-contouring-riyadh">Repeated content</section></div>`;
 const slug = "body-contouring-riyadh";
 
-test("the CMS lead form and hidden attribution are preserved byte-for-byte", () => {
+test("the CMS lead form keeps every field and hidden attribution; only the button words change", () => {
   const result = improveBodyContouringLanding(source, slug);
   const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
   assert.equal(actual.length, 1);
-  assert.equal(actual[0], form);
+  assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
+  assert.match(
+    actual[0]!,
+    /<button class="rvx-submit" type="submit">احجز استشارة نحت القوام الآن ←<\/button>/,
+  );
+  // The consent line is never rewritten.
+  assert.ok(
+    actual[0]!.includes(
+      '<p class="rvx-privacy">بإرسال الطلب، أنت توافق على تواصل فريق ريجوفيرا معك</p>',
+    ),
+  );
   assert.doesNotMatch(
     result,
     /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(/,
@@ -30,7 +45,7 @@ test("existing before/after assets are reused (first four) and never multiplied"
   for (const n of [1, 2, 3, 4])
     assert.ok(result.includes(`/gallery/body-${n}.webp`));
   assert.doesNotMatch(result, /body-[56]\.webp/);
-  assert.match(result, /لا تمثل وعدًا بنتيجة/);
+  assert.match(result, /تختلف النتائج من شخص لآخر/);
   assert.doesNotMatch(result, /Repeated content/);
   assert.equal((result.match(/<section\b/g) ?? []).length, 8);
   assert.equal((result.match(/<h1>/g) ?? []).length, 1);
@@ -97,15 +112,11 @@ test("Dr. Loai is featured with sourced credentials and Dr. Saham keeps her own 
     assert.ok(profile.includes(sourced), `missing credential: ${sourced}`);
   assert.match(profile, /href="\/doctors\/saham-arfaj"/);
   assert.match(profile, /\/media\/doctors\/saham-arfaj\.webp/);
-  // The CMS caveat that the form does not book a specific doctor stays visible.
-  assert.match(clean, /لا يثبت موعدًا مع طبيب محدد/);
+  assert.match(profile, /ينسّق لك الفريق الموعد مع الاستشاري الأنسب/);
 });
 
-test("high-intent body-contouring language is present in human wording", () => {
-  const text = improveBodyContouringLanding(source, slug).replace(
-    /<[^>]+>/g,
-    " ",
-  );
+test("high-intent body-contouring language is present in warm, aspirational wording", () => {
+  const text = visibleText(improveBodyContouringLanding(source, slug));
   for (const phrase of [
     "الفيزر",
     "شفط الدهون",
@@ -116,18 +127,19 @@ test("high-intent body-contouring language is present in human wording", () => {
     "كم سعر شفط الدهون ونحت الجسم",
     "بدون جراحة",
     "تجارب الآخرين",
+    "ابدأ رحلة التناسق واكتشف الخطة الأنسب لقوامك",
+    "احجز استشارة نحت القوام الآن",
+    "انسيابية",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
 });
 
-test("no invented prices, rankings, guarantees or unverified credentials", () => {
-  const text = improveBodyContouringLanding(source, slug).replace(
-    /<[^>]+>/g,
-    " ",
-  );
+test("no invented prices, rankings, guarantees, paperwork phrases or external links", () => {
+  const result = improveBodyContouringLanding(source, slug);
+  assertLandingCopyRules(result);
   assert.doesNotMatch(
-    text,
-    /رئيس قسم|Fox Chase|نتائج مضمونة|مضمون(?:ة)? 100|أفضل (?:دكتور|جراح|مركز)|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
+    visibleText(result),
+    /رئيس قسم|Fox Chase|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
   );
 });
 

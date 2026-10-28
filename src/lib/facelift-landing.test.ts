@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { improveFaceliftLanding } from "./facelift-landing.ts";
+import {
+  assertLandingCopyRules,
+  formSkeleton,
+  visibleText,
+} from "./landing-copy-rules.ts";
 import { sanitizeHtml } from "./sanitize-html.ts";
 import {
   CLINIC_PHONE_TEL,
@@ -8,16 +13,30 @@ import {
   LANDING_PAGE_WHATSAPP_MESSAGE,
 } from "./clinic-contact.ts";
 
-const form = `<form class="rvx-form" data-rejuvera-guard="1" action="/api/leads" method="post"><input name="fullName" required minlength="3"><input name="phone" type="tel" required pattern="(?:\\+?966|0)?5[0-9]{8}"><select name="serviceSlug" required><option value="face-neck-lift">شد الوجه والرقبة</option></select><input name="source" type="hidden" value="Landing page - Face Lift"><input name="landingPageSlug" type="hidden" value="face-lift-riyadh"><input name="rv_hp_field" type="text"><input name="rv_rendered_at" type="hidden" value="1791700000000"><input name="gclid" type="hidden" value="sample_click"><button type="submit">إرسال طلب الاستشارة مع د. لؤي</button><p>إرسال الطلب لا يثبت الموعد تلقائيًا</p></form>`;
+const form = `<form class="rvx-form" data-rejuvera-guard="1" action="/api/leads" method="post"><input name="fullName" required minlength="3"><input name="phone" type="tel" required pattern="(?:\\+?966|0)?5[0-9]{8}"><select name="serviceSlug" required><option value="face-neck-lift">شد الوجه والرقبة</option></select><input name="source" type="hidden" value="Landing page - Face Lift"><input name="landingPageSlug" type="hidden" value="face-lift-riyadh"><input name="rv_hp_field" type="text"><input name="rv_rendered_at" type="hidden" value="1791700000000"><input name="gclid" type="hidden" value="sample_click"><button type="submit">إرسال طلب الاستشارة مع د. لؤي</button><p>إرسال الطلب لا يثبت الموعد تلقائيًا؛ يتواصل فريق ريجوفيرا لتأكيد الموعد وفق التوفر.</p><p>بإرسال الطلب، أنت توافق على استخدام البيانات وفق <a href="/privacy">سياسة الخصوصية</a>.</p></form>`;
 const gallery = `<section><h2>أمثلة توضيحية قبل وبعد</h2>${[1, 2, 3, 4, 5, 6].map((n) => `<img src="/gallery/case-${n}.webp" alt="case ${n}">`).join("")}</section>`;
 const source = `<div id="rvx-page"><style>.rvx-hero{padding:90px}</style>${form}${gallery}<section id="landing-guide-facelift-riyadh">Repeated content</section></div>`;
 
-test("the original three-field form and hidden attribution are unchanged", () => {
-  const result = improveFaceliftLanding(source, "facelift-riyadh");
+/** The form keeps every tag, attribute, field and hidden input; only its words are polished. */
+function assertFormPolished(result: string) {
   const actual = result.match(/<form\b[\s\S]*?<\/form>/g)!;
   assert.equal(actual.length, 1);
-  assert.equal(actual[0], form);
-  assert.doesNotMatch(actual[0]!, /facelift-timing|name="message"|اختر الوقت/);
+  assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
+  assert.match(
+    actual[0]!,
+    /<button type="submit">تنسيق استشارتك الخاصة مع د\. لؤي ←<\/button>/,
+  );
+  assert.doesNotMatch(actual[0]!, /لا يثبت|وفق التوفر/);
+  // The consent line and its privacy link are never touched.
+  assert.ok(actual[0]!.includes('<a href="/privacy">سياسة الخصوصية</a>'));
+}
+
+test("the form keeps every field and hidden attribution; only the button and paperwork notice are polished", () => {
+  const result = improveFaceliftLanding(source, "facelift-riyadh");
+  assertFormPolished(result);
+  const actual = result.match(/<form\b[\s\S]*?<\/form>/g)![0]!;
+  assert.doesNotMatch(actual, /facelift-timing|name="message"|اختر الوقت/);
+  assert.ok(actual.includes('name="gclid" type="hidden" value="sample_click"'));
   assert.doesNotMatch(
     result,
     /onclick|onsubmit|<script|dataLayer|gtag\(|fbq\(|snaptr\(|oaiq\(/,
@@ -28,7 +47,7 @@ test("existing medical gallery assets are reused, not fabricated or attributed t
   for (const n of [1, 2, 3, 4])
     assert.ok(result.includes(`/gallery/case-${n}.webp`));
   assert.doesNotMatch(result, /case-[56]\.webp/);
-  assert.match(result, /لا تمثل ضمانًا/);
+  assert.match(result, /تختلف النتائج من شخص لآخر/);
   assert.doesNotMatch(result, /Repeated content/);
   assert.equal((result.match(/<section\b/g) ?? []).length, 7);
   assert.equal((result.match(/<h1>/g) ?? []).length, 1);
@@ -81,6 +100,7 @@ test("sanitization preserves the original form and plain contact links", () => {
   assert.match(clean, /pattern="\(\?:\\\+\?966\|0\)\?5\[0-9\]\{8\}"/);
   assert.doesNotMatch(clean, /facelift-timing|name="message"/);
   assert.match(clean, /href="#consultation-form"/);
+  assert.match(clean, /تنسيق استشارتك الخاصة مع د\. لؤي ←/);
 });
 
 test("the supplied logo and visible natural search guide are scoped to this page", () => {
@@ -99,14 +119,14 @@ test("the supplied logo and visible natural search guide are scoped to this page
   );
 });
 
-test("the above-fold doctor image is not lazy-loaded and form bytes are preserved", () => {
+test("the above-fold doctor image is not lazy-loaded and the form attributes are preserved", () => {
   const result = improveFaceliftLanding(source, "facelift-riyadh");
   const clean = sanitizeHtml(result);
   assert.match(
     result,
     /<img[^>]*src="\/media\/doctors\/loai-alsalmi\.webp"[^>]*loading="eager"[^>]*fetchpriority="high"/,
   );
-  assert.equal(result.match(/<form\b[\s\S]*?<\/form>/)?.[0], form);
+  assertFormPolished(result);
   assert.match(clean, /loading="eager"[^>]*fetchpriority="high"/);
 });
 
@@ -120,7 +140,7 @@ test("the measured LCP logo retains eager/high priority through sanitization", (
   assert.match(logo, /loading="eager"/);
   assert.match(logo, /fetchpriority="high"/);
   assert.match(logo, /width="562" height="563"/);
-  assert.equal(result.match(/<form\b[\s\S]*?<\/form>/)?.[0], form);
+  assertFormPolished(result);
 });
 
 test("the page features Dr. Loai with a large lazy portrait and only sourced credentials", () => {
@@ -148,11 +168,8 @@ test("the page features Dr. Loai with a large lazy portrait and only sourced cre
   );
 });
 
-test("high-intent search language is present in human wording", () => {
-  const text = improveFaceliftLanding(source, "facelift-riyadh").replace(
-    /<[^>]+>/g,
-    " ",
-  );
+test("high-intent search language is present in warm, aspirational wording", () => {
+  const text = visibleText(improveFaceliftLanding(source, "facelift-riyadh"));
   for (const phrase of [
     "الفيس لفت",
     "شد الوجه العميق",
@@ -164,20 +181,19 @@ test("high-intent search language is present in human wording", () => {
     "قبل وبعد",
     "كم سعر الفيس لفت",
     "بدون جراحة",
+    "إطلالة متجددة",
+    "خطوتك الأولى نحو إطلالة متجددة وواثقة",
+    "تنسيق استشارتك الخاصة",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
-  // Natural voice: no instruction-to-self "ask the doctor" filler as the hero message.
-  assert.doesNotMatch(text, /اسم التقنية وحده لا يحدد/);
 });
 
-test("no invented prices, rankings, guarantees or unverified credentials", () => {
-  const text = improveFaceliftLanding(source, "facelift-riyadh").replace(
-    /<[^>]+>/g,
-    " ",
-  );
+test("no invented prices, rankings, guarantees, paperwork phrases or external links", () => {
+  const result = improveFaceliftLanding(source, "facelift-riyadh");
+  assertLandingCopyRules(result);
   assert.doesNotMatch(
-    text,
-    /رئيس قسم|Fox Chase|نتائج مضمونة|مضمون(?:ة)? 100|أفضل (?:دكتور|جراح|مركز)|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
+    visibleText(result),
+    /رئيس قسم|Fox Chase|الأول في|\d[\d,.]*\s*(?:ريال|ر\.س|SAR)|خصم\s*\d/,
   );
 });
 
