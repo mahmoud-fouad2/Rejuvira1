@@ -130,8 +130,8 @@ test("18 distinct profiles add accessible content without forms, images, scripts
       profile.questions.length,
     );
     assert.match(html, /aria-labelledby="landing-guide-/);
-    for (const source of profile.sources)
-      assert.equal(new URL(source.url).protocol, "https:");
+    assert.equal("sources" in profile, false);
+    assert.doesNotMatch(html, /href="https?:/);
   }
 });
 

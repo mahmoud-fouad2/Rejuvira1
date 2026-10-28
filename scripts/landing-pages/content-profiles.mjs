@@ -1,43 +1,4 @@
 /** Patient search intents, scoped to the existing published CMS landing pages. */
-const source = {
-  surgery: {
-    label: "أسئلة السلامة واختيار جراح التجميل — ASPS",
-    url: "https://www.plasticsurgery.org/patient-safety",
-  },
-  nose: {
-    label: "أسئلة استشارة تجميل الأنف — ASPS",
-    url: "https://www.plasticsurgery.org/cosmetic-procedures/rhinoplasty/questions",
-  },
-  face: {
-    label: "أسئلة استشارة شد الوجه — ASPS",
-    url: "https://www.plasticsurgery.org/cosmetic-procedures/facelift/questions",
-  },
-  breast: {
-    label: "أسئلة استشارة شد الثدي — ASPS",
-    url: "https://www.plasticsurgery.org/cosmetic-procedures/breast-lift/questions",
-  },
-  fat: {
-    label: "أسئلة استشارة شفط الدهون — ASPS",
-    url: "https://www.plasticsurgery.org/cosmetic-procedures/liposuction/questions",
-  },
-  skin: {
-    label: "السلامة قبل إجراءات البشرة — AAD",
-    url: "https://www.aad.org/public/cosmetic/safety",
-  },
-  bladder: {
-    label: "مشكلات التحكم بالمثانة — NIDDK",
-    url: "https://www.niddk.nih.gov/health-information/urologic-diseases/bladder-control-problems",
-  },
-  lipedema: {
-    label: "العلامات وخيارات التعامل مع الوذمة الشحمية — NHS",
-    url: "https://www.nhs.uk/conditions/lipoedema/",
-  },
-  lumps: {
-    label: "تغيرات الثدي والكتل الحميدة — المعهد الوطني للسرطان",
-    url: "https://www.cancer.gov/types/breast/causes-risk-factors/benign-breast-lumps",
-  },
-};
-
 export const landingContentProfiles = [
   {
     slug: "body-contouring-riyadh",
@@ -69,7 +30,6 @@ export const landingContentProfiles = [
     ],
     services: ["liposuction", "body-contouring", "tummy-tuck", "arm-lift"],
     doctors: ["loai-alsalmi", "saham-arfaj"],
-    sources: [source.fat],
   },
   {
     slug: "body-pro",
@@ -101,7 +61,6 @@ export const landingContentProfiles = [
     ],
     services: ["tummy-tuck", "full-body-lift", "face-neck-lift", "breast-lift"],
     doctors: [],
-    sources: [source.surgery],
   },
   {
     slug: "breast-surgery-riyadh",
@@ -138,7 +97,6 @@ export const landingContentProfiles = [
       "breast-implant-replacement",
     ],
     doctors: ["saham-arfaj", "loai-alsalmi", "maher-alahdab"],
-    sources: [source.breast],
   },
   {
     slug: "derma-offers",
@@ -170,7 +128,6 @@ export const landingContentProfiles = [
     ],
     services: ["dermatology-consultation", "skin-rejuvenation", "botox"],
     doctors: [],
-    sources: [source.skin],
   },
   {
     slug: "dr-eman-alzahrani",
@@ -202,7 +159,6 @@ export const landingContentProfiles = [
     ],
     services: [],
     doctors: ["Eman-alzahrani"],
-    sources: [source.bladder],
   },
   {
     slug: "dr-karima-jamjoom",
@@ -238,7 +194,6 @@ export const landingContentProfiles = [
       "female-aesthetic-care",
     ],
     doctors: ["karima-jamjoom"],
-    sources: [],
   },
   {
     slug: "dr-maher-alahdab",
@@ -270,7 +225,6 @@ export const landingContentProfiles = [
     ],
     services: ["rhinoplasty-nose-reshaping", "rhinoplasty"],
     doctors: ["maher-alahdab"],
-    sources: [source.nose],
   },
   {
     slug: "eid-offers",
@@ -306,7 +260,6 @@ export const landingContentProfiles = [
       "body-contouring",
     ],
     doctors: [],
-    sources: [source.skin],
   },
   {
     slug: "exclusive-offers",
@@ -338,7 +291,6 @@ export const landingContentProfiles = [
       "aesthetic-surgery",
     ],
     doctors: [],
-    sources: [],
   },
   {
     slug: "facelift-riyadh",
@@ -374,7 +326,6 @@ export const landingContentProfiles = [
       "eyelid-lift-eye-rejuvenation",
     ],
     doctors: ["loai-alsalmi"],
-    sources: [source.face],
   },
   {
     slug: "lipedema-riyadh",
@@ -406,7 +357,6 @@ export const landingContentProfiles = [
     ],
     services: ["lipedema-treatment"],
     doctors: [],
-    sources: [source.lipedema],
   },
   {
     slug: "lp-face-neck-lift",
@@ -438,7 +388,6 @@ export const landingContentProfiles = [
     ],
     services: ["face-neck-lift", "neck-lift-surgery"],
     doctors: ["loai-alsalmi"],
-    sources: [source.face],
   },
   {
     slug: "najwa-batarfi",
@@ -474,7 +423,6 @@ export const landingContentProfiles = [
       "vaginal-rejuvenation",
     ],
     doctors: ["najwa-batarfi"],
-    sources: [],
   },
   {
     slug: "plastic-surgery-riyadh",
@@ -511,7 +459,6 @@ export const landingContentProfiles = [
       "breast-lift",
     ],
     doctors: ["loai-alsalmi", "maher-alahdab", "saham-arfaj"],
-    sources: [source.surgery],
   },
   {
     slug: "prof-bandar-alharthi",
@@ -543,7 +490,6 @@ export const landingContentProfiles = [
     ],
     services: [],
     doctors: ["bandar-alharthi"],
-    sources: [source.lumps],
   },
   {
     slug: "rejuvera-booking",
@@ -575,7 +521,6 @@ export const landingContentProfiles = [
     ],
     services: [],
     doctors: [],
-    sources: [],
   },
   {
     slug: "rejuvera-social-media",
@@ -595,7 +540,6 @@ export const landingContentProfiles = [
     ],
     services: [],
     doctors: [],
-    sources: [],
   },
   {
     slug: "tiktok-customer",
@@ -631,6 +575,5 @@ export const landingContentProfiles = [
       "body-contouring",
     ],
     doctors: [],
-    sources: [],
   },
 ];

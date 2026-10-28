@@ -37,8 +37,6 @@ const guideCss = `
 .rv-landing-guide .rv-lg-links a{padding:10px 15px;border:1px solid #d7c5e6;border-radius:12px;background:#fff;color:#5d2f94!important;text-decoration:none;font-size:14px;line-height:1.7}
 .rv-landing-guide .rv-lg-links a:hover{text-decoration:underline;border-color:#5d2f94}
 .rv-landing-guide h3{margin:24px 0 8px;color:#321847!important;font-size:18px;line-height:1.7;font-weight:700}
-.rv-landing-guide .rv-lg-sources{margin:24px 0 0;font-size:12px;line-height:1.9}
-.rv-landing-guide .rv-lg-sources a{color:#5d2f94!important;text-decoration:underline}
 @media(max-width:640px){.rv-landing-guide{width:calc(100% - 28px);padding:24px 18px;margin:24px auto;border-radius:20px}.rv-landing-guide h2{font-size:25px}.rv-landing-guide details{padding-inline:16px}}
 @media(max-width:640px){.rv-custom-page__content .rv-landing-guide{width:calc(100% - 28px)!important}}
 `;
@@ -75,12 +73,11 @@ export function buildLandingEnrichment(profile, records = {}) {
   const id = `landing-guide-${profile.slug}`;
   return `\n<!-- ${LANDING_RELEASE}:start -->\n<style>${guideCss}</style>
 <section class="rv-landing-guide" id="${id}" data-landing-content-release="${LANDING_RELEASE}" lang="ar" dir="rtl" aria-labelledby="${id}-title">
-<p class="rv-lg-kicker">دليل اختيار الاستشارة</p><h2 id="${id}-title">${escapeHtml(profile.heading)}</h2>
+<p class="rv-lg-kicker">قبل استشارتك</p><h2 id="${id}-title">${escapeHtml(profile.heading)}</h2>
 <p class="rv-lg-intro">${escapeHtml(profile.intro)}</p>
 ${profile.checklist.length ? `<ul>${profile.checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
 <div class="rv-lg-faqs">${profile.questions.map(([question, answer]) => `<details><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("")}</div>
-${links.length ? `<h3>اقرأ قبل الاستشارة</h3><nav class="rv-lg-links" aria-label="معلومات مرتبطة بموضوع الاستشارة">${links.map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`).join("")}</nav>` : ""}
-${profile.sources.length ? `<p class="rv-lg-sources">مراجع عامة لتحضير أسئلتك: ${profile.sources.map((item) => `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.label)}</a>`).join(" · ")}. التقييم الطبي يحدد ما يناسب حالتك.</p>` : ""}
+${links.length ? `<h3>تعرّف أكثر</h3><nav class="rv-lg-links" aria-label="معلومات مرتبطة بموضوع الاستشارة">${links.map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`).join("")}</nav>` : ""}
 </section>\n<!-- ${LANDING_RELEASE}:end -->`;
 }
 
