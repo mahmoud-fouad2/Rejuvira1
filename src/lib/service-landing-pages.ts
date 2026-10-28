@@ -264,12 +264,11 @@ export function buildServiceLandingPageInput(
   const serviceDoctors = relatedDoctors(service, doctors);
   const serviceDevices = relatedDevices(service, devices);
   const slug = `lp-${service.slug}`;
-  const doctorCount = serviceDoctors.length
-    ? `${serviceDoctors.length}`
-    : "حسب الحالة";
-  const deviceCount = serviceDevices.length
-    ? `${serviceDevices.length}`
-    : "حسب الخطة";
+  const supportLines = [
+    "نصمّمها لتناسب ملامحك وتطلعاتك.",
+    "بإشراف استشاري متخصص في كل مرحلة.",
+    "برعاية ومتابعة بخصوصية تامة.",
+  ];
 
   const blocks: LandingBlock[] = [
     {
@@ -277,9 +276,9 @@ export function buildServiceLandingPageInput(
       kind: "hero",
       title: service.name,
       subtitle: service.category,
-      body: `${service.excerpt}\nابدئي بطلب تواصل واضح، وسيقوم فريق ريجوفيرا بتأكيد التفاصيل وتوجيهك للخيار الأنسب لحالتك.`,
+      body: `${service.excerpt}\nاستشارة خاصة تبدأ بالإنصات لتطلعاتك، وسيرافقك فريق ريجوفيرا حتى تصلي إلى الخيار الأنسب لك بكل راحة وخصوصية.`,
       imageUrl: service.coverImageUrl,
-      buttonLabel: "احجزي استشارة",
+      buttonLabel: "احجزي استشارتك الخاصة",
       buttonHref: "#lead-form",
       accent,
       tone: "soft",
@@ -288,11 +287,12 @@ export function buildServiceLandingPageInput(
     {
       id: `${slug}-stats`,
       kind: "stats",
-      title: "لمحة سريعة",
+      title: "تجربة تليق بك",
       body: pairLines([
         { title: "القسم", body: service.category },
-        { title: "أطباء مناسبون", body: doctorCount },
-        { title: "أجهزة مرتبطة", body: deviceCount },
+        { title: "استشارة خاصة", body: "مع استشاريين متخصصين" },
+        { title: "خطة علاجية", body: "مخصصة لك" },
+        { title: "رعاية ومتابعة", body: "بخصوصية تامة" },
       ]),
       accent,
       tone: "light",
@@ -313,16 +313,16 @@ export function buildServiceLandingPageInput(
       title: "رحلة الحجز والمتابعة",
       body: pairLines([
         {
-          title: "تقييم أولي",
-          body: "يتم فهم الهدف الطبي والتجميلي وتحديد الخيار الأنسب للحالة.",
+          title: "جلسة تعارف وتقييم",
+          body: "ننصت لتطلعاتك الطبية والجمالية ونتعرف على الخيار الأنسب لك.",
         },
         {
           title: "خطة واضحة",
-          body: "توضيح الإجراء المناسب، التحضير، والتعليمات الأساسية قبل الموعد.",
+          body: "نشرح لك الإجراء المناسب والتحضير والتعليمات الأساسية قبل موعدك.",
         },
         {
-          title: "متابعة بعد الزيارة",
-          body: "يتابع فريق ريجوفيرا طلبك ويؤكد تفاصيل الحجز والخطوة المناسبة لك.",
+          title: "رعاية بعد الزيارة",
+          body: "يرافقك فريق ريجوفيرا بعد زيارتك ويتابع معك الخطوة المناسبة لك.",
         },
       ]),
       accent,
@@ -332,7 +332,7 @@ export function buildServiceLandingPageInput(
     {
       id: `${slug}-doctors`,
       kind: "doctors",
-      title: "الأطباء المرتبطون بالخدمة",
+      title: "استشاريونا لهذه الخدمة",
       body: pairLines(
         serviceDoctors.map((doctor) => ({
           title: doctor.name,
@@ -370,12 +370,12 @@ export function buildServiceLandingPageInput(
           ? service.benefits
           : [
               service.excerpt,
-              "تقييم طبي واضح قبل اختيار الإجراء.",
-              "متابعة منظمة بعد إرسال الطلب.",
+              "أمان طبي وإشراف استشاري متخصص في كل خطوة.",
+              "نتائج طبيعية متناغمة تُصمَّم لملامحك.",
             ]
-        ).map((benefit) => ({
+        ).map((benefit, index) => ({
           title: benefit,
-          body: "يتم شرح التفاصيل حسب حالتك قبل تأكيد الحجز.",
+          body: supportLines[index % supportLines.length]!,
         })),
       ),
       accent,
@@ -386,22 +386,22 @@ export function buildServiceLandingPageInput(
       id: `${slug}-offer`,
       kind: "offer",
       title: "لماذا تختارين ريجوفيرا؟",
-      subtitle: "تجربة طبية واضحة",
+      subtitle: "تجربة راقية بخصوصية تامة",
       body: pairLines([
         {
-          title: "تقييم قبل القرار",
-          body: "نبدأ بفهم حالتك وتوقعاتك قبل اقتراح أي إجراء.",
+          title: "استشارة تبدأ بالإنصات",
+          body: "نصغي لحالتك وتطلعاتك قبل اقتراح أي إجراء.",
         },
         {
           title: "خطة تناسبك",
-          body: "يتم توجيهك للخدمة والطبيب المناسبين حسب الهدف والحالة.",
+          body: "نوجّهك إلى الخدمة والاستشاري الأنسب لهدفك وحالتك.",
         },
         {
-          title: "تواصل سريع",
-          body: "فريق الاستقبال يتواصل لتأكيد التفاصيل خلال ساعات العمل.",
+          title: "تنسيق مريح",
+          body: "ينسّق لك فريقنا الموعد الذي يناسبك بكل ترحاب.",
         },
       ]),
-      buttonLabel: "اطلبي التواصل",
+      buttonLabel: "احجزي استشارتك الخاصة",
       buttonHref: "#lead-form",
       accent,
       tone: "soft",
@@ -414,15 +414,15 @@ export function buildServiceLandingPageInput(
       body: pairLines([
         {
           title: "هل أحتاج إلى استشارة قبل الخدمة؟",
-          body: "نعم، التقييم يساعد على اختيار الخطة المناسبة وتوضيح التوقعات الواقعية.",
+          body: "الاستشارة هي أجمل بداية: ننصت فيها لتطلعاتك ونوضح لك الخيارات الأنسب وما يمكن توقعه.",
         },
         {
           title: "هل النتائج متشابهة لكل الحالات؟",
-          body: "النتيجة تختلف حسب الحالة والخطة الطبية، لذلك لا يتم اعتماد القرار إلا بعد التقييم.",
+          body: "لكل شخص ملامحه وجسمه، ولذلك نصمّم الخطة لتناسبك أنت، وتختلف النتيجة من شخص لآخر.",
         },
         {
-          title: "ماذا يحدث بعد إرسال الطلب؟",
-          body: "يتواصل معك فريق ريجوفيرا لتأكيد البيانات وتحديد الخطوة الأنسب لحالتك.",
+          title: "ماذا يحدث بعد أن أشارككم بياناتي؟",
+          body: "يتواصل معك فريق ريجوفيرا ليرتّب لك الموعد الأنسب بكل خصوصية وراحة.",
         },
       ]),
       accent,
@@ -433,9 +433,9 @@ export function buildServiceLandingPageInput(
       id: `${slug}-lead-form`,
       kind: "leadForm",
       title: `احجزي استشارة ${service.name}`,
-      subtitle: "اطلبي التواصل",
-      body: "اتركي بياناتك وسيتم التواصل معك لتأكيد التفاصيل والإجابة عن أسئلتك.",
-      buttonLabel: "إرسال الطلب",
+      subtitle: "جلسة استشارية خاصة",
+      body: "سجلي بياناتك وسيتواصل معك مستشارك التجميلي لترتيب موعد استشارتك الخاصة والإجابة عن استفساراتك بكل خصوصية وراحة.",
+      buttonLabel: "احجزي استشارتك الخاصة الآن",
       buttonHref: "/api/leads",
       accent,
       tone: "soft",
@@ -446,9 +446,9 @@ export function buildServiceLandingPageInput(
     {
       id: `${slug}-cta`,
       kind: "cta",
-      title: "ابدئي بخطوة واضحة الآن",
-      body: "أرسلي طلبك وسيتم التواصل معك لتحديد الخيار الأنسب داخل ريجوفيرا.",
-      buttonLabel: "إرسال طلب",
+      title: "ابدئي رحلتك بجلسة تليق بك",
+      body: "شاركينا بياناتك، وينسّق لك فريق ريجوفيرا جلسة استشارية خاصة مع الاستشاري الأنسب.",
+      buttonLabel: "احجزي استشارتك الخاصة",
       buttonHref: "#lead-form",
       accent,
       tone: "dark",
@@ -462,9 +462,9 @@ export function buildServiceLandingPageInput(
     titleEn: service.nameEn ? `${service.nameEn} at Rejuvera` : undefined,
     htmlContent: renderPage(blocks),
     seoTitle: `${service.name} في ريجوفيرا`,
-    seoDescription: `${service.excerpt} اطلبي التواصل مع فريق ريجوفيرا لمعرفة الخيار الأنسب لحالتك.`,
+    seoDescription: `${service.excerpt} احجزي جلستك الاستشارية الخاصة في ريجوفيرا لتعرفي الخيار الأنسب لك.`,
     metaTitle: `${service.name} في ريجوفيرا`,
-    metaDescription: `${service.excerpt} اتركي بياناتك وسيتواصل معك فريق ريجوفيرا لتأكيد التفاصيل.`,
+    metaDescription: `${service.excerpt} سجلي بياناتك وسيتواصل معك مستشارك لترتيب استشارتك الخاصة.`,
     keywords: [service.name, service.category, "ريجوفيرا", "الرياض"],
     ogTitle: `${service.name} | Rejuvera`,
     ogDescription: service.excerpt,
