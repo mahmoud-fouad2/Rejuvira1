@@ -11,7 +11,7 @@ import { LOAI_ALSALMI } from "./landing-doctors.ts";
 type Pair = readonly [string, string];
 
 export const escapeAttr = (value: string) =>
-  value.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** The page's single CMS lead form, verbatim; null for any other layout. */
 export function extractLeadForm(html: string): string | null {
@@ -70,7 +70,11 @@ export function polishForm(form: string, submitLabel: string): string {
 export function extractGalleryImages(html: string): string[] {
   const gallery = html
     .match(/<section\b[^>]*>[\s\S]*?<\/section>/gi)
-    ?.find((section) => section.includes("أمثلة توضيحية قبل وبعد"));
+    ?.find(
+      (section) =>
+        section.includes("أمثلة توضيحية قبل وبعد") ||
+        /id="(?:facelift|body)-gallery"/.test(section),
+    );
   return gallery?.match(/<img\b[^>]*>/gi)?.slice(0, 4) ?? [];
 }
 
@@ -100,6 +104,10 @@ export const checkList = (items: readonly string[]) =>
 /** Compact doctor identity above the fold; same photo file as the profile section. */
 export const heroDoctor = () =>
   `<div class="fl-doctor"><img src="${LOAI_ALSALMI.photo}" alt="${LOAI_ALSALMI.name}" width="96" height="96" loading="eager" decoding="async" fetchpriority="high"><div><strong>${LOAI_ALSALMI.name}</strong><p>${LOAI_ALSALMI.title}</p><span>${LOAI_ALSALMI.experience} · ${LOAI_ALSALMI.languages}</span></div></div>`;
+
+/** A prominent real portrait on the two Loai-led campaign pages. */
+export const surgeonSpotlight = () =>
+  `<div class="fl-surgeon-spotlight"><img src="${LOAI_ALSALMI.photo}" alt="د. لؤي السالمي، استشاري جراحة التجميل والترميم" width="800" height="800" loading="eager" decoding="async" fetchpriority="high"><div><span class="fl-eyebrow">جرّاحك في ريجوفيرا</span><strong>${LOAI_ALSALMI.name}</strong><p>${LOAI_ALSALMI.title}</p><span>البورد الكندي · FRCSC</span><a class="fl-text-link" href="#dr-loai">تعرّف على خبرته ومؤهلاته ←</a></div></div>`;
 
 export type HeroPerson = {
   name: string;
@@ -212,9 +220,12 @@ export const teamTiles = (members: readonly TeamMember[]) =>
   `<div class="fl-team-grid">${members
     .map(
       (member) =>
-        `<a class="fl-team-tile" href="${member.href}"><img src="${member.photo}" alt="${member.name}" width="800" height="800" loading="lazy" decoding="async"><strong>${member.name}</strong><span>${member.title}</span><p>${member.blurb}</p></a>`,
+        `<a class="fl-team-tile" href="${escapeAttr(member.href)}"><img src="${escapeAttr(member.photo)}" alt="${escapeAttr(member.name)}" width="800" height="800" loading="lazy" decoding="async"><strong>${escapeText(member.name)}</strong><span>${escapeText(member.title)}</span>${member.blurb ? `<p>${escapeText(member.blurb)}</p>` : ""}</a>`,
     )
     .join("")}</div>`;
+
+const escapeText = (value: string) =>
+  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 export const journey = (id: string, heading: string, steps: readonly Pair[]) =>
   `<section class="fl-section fl-soft" id="${id}"><div class="fl-wrap"><h2>${heading}</h2><ol class="fl-grid fl-steps fl-steps--${steps.length}">${steps

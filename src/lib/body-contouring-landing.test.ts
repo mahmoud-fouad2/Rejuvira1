@@ -104,7 +104,7 @@ test("Dr. Loai is featured with sourced credentials and Dr. Saham keeps her own 
     /<img src="\/media\/doctors\/loai-alsalmi-portrait\.webp"[^>]*width="800" height="800" loading="lazy"/,
   );
   for (const sourced of [
-    "البورد الكندي والزمالة الأمريكية",
+    "البورد الكندي",
     "جامعة بنسلفانيا",
     "UT Southwestern",
     "مدينة الملك فهد الطبية",
@@ -127,7 +127,7 @@ test("high-intent body-contouring language is present in warm, aspirational word
     "كم سعر شفط الدهون ونحت الجسم",
     "بدون جراحة",
     "تجارب الآخرين",
-    "ابدأ رحلة التناسق واكتشف الخطة الأنسب لقوامك",
+    "احجز استشارة نحت الجسم",
     "احجز استشارة نحت القوام الآن",
     "انسيابية",
   ])

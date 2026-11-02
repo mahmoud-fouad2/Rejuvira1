@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { improveTiktokLanding } from "./tiktok-landing.ts";
 import { improveFocusedLanding } from "./focused-landing.ts";
+import { landingTeamFromDoctors } from "./landing-team.ts";
+import type { DoctorRecord } from "./content-repository";
 import {
   assertLandingCopyRules,
   formSkeleton,
@@ -17,8 +19,20 @@ import {
 const form = `<form class="rv-builder-lead-form-fields" data-rejuvera-guard="1" action="/api/leads" method="post"><div aria-hidden="true" style="position:absolute!important;width:1px!important;"><label>Company<input type="text" name="rv_hp_field" tabindex="-1" autocomplete="off"></label></div><label><span>الاسم الكامل</span><input name="fullName" autocomplete="name" required=""></label><label><span>رقم الجوال</span><input name="phone" type="tel" required="" pattern="(?:05[0-9]{8})"></label><label><span>الخدمة المطلوبة</span><select name="serviceSlug" required=""><option value="">اختاري الخدمة</option><option value="face">شد الجسم الكامل</option></select></label><input type="hidden" name="landingPageSlug" value="tiktok-customer"><input type="hidden" name="gclid" value="sample_click"><button type="submit">إرسال الطلب</button></form>`;
 const source = `<div class="rv-builder-page"><section>${form}</section><section><h2>بعض النتائج الحقيقيه</h2><img src="/old/result.webp" alt="نتيجة علاجية"></section><section><h2>اراء عملاؤنا</h2><p>تجربتي مع ريجوفيرا كانت ممتازة نورة السبيعي</p><p>هل يمكن تعديل الصفحة لاحقًا؟ نعم، يمكن تعديل البلوكات من لوحة التحكم.</p><p>12+ سنوات خبرة 100% متابعة منظمة</p></section></div>`;
 
+const roster = Array.from({ length: 14 }, (_, index) => ({
+  slug: index === 0 ? "loai-alsalmi" : `doctor-${index}`,
+  name: index === 0 ? "د. لؤي السالمي" : `الطبيب ${index}`,
+  title: "استشاري",
+  specialty: "تخصص طبي",
+  status: "PUBLISHED",
+  photoUrl: `/portrait-${index}.webp`,
+  coverImageUrl: "/cover.webp",
+})) as DoctorRecord[];
+const fullTeam = landingTeamFromDoctors(roster);
+
 const KNOWN_ROUTES = new Set([
   "/",
+  "/doctors",
   "/p/facelift-riyadh",
   "/p/body-contouring-riyadh",
   "/p/dr-maher-alahdab",
@@ -40,7 +54,7 @@ test("the CMS lead form keeps every field and hidden attribution; only the butto
     assert.equal(formSkeleton(actual[0]!), formSkeleton(form));
     assert.match(
       actual[0]!,
-      /<button type="submit">لنكتشف الخطة الأنسب لك ←<\/button>/,
+      /<button type="submit">احجز موعدك الآن ←<\/button>/,
     );
     assert.ok(actual[0]!.includes('name="gclid" value="sample_click"'));
     assert.doesNotMatch(
@@ -106,22 +120,22 @@ test("every internal link points at a known live route", () => {
   }
 });
 
-test("copy turns the TikTok visitor's inspiration into a private consultation, without discouraging lines", () => {
+test("visible copy introduces the clinic and its team without channel, defensive or technical framing", () => {
   const result = improveTiktokLanding(source, "tk");
   const text = visibleText(result);
   for (const phrase of [
-    "ألهمتك نتيجة على تيك توك؟ لنكتشف معًا ما يناسب ملامحك وقوامك",
-    "شاركنا ما لفت انتباهك",
-    "استشارة مخصصة لملامحك",
-    "خطة واضحة ومريحة",
-    "لنكتشف الخطة الأنسب لك",
-    "السعر الحالي",
+    "خبرة تطمئن لها.",
+    "واهتمام يليق بك.",
+    "تعرّف على أطباء ريجوفيرا",
+    "موعدك يبدأ من هنا",
+    "احجز موعدك الآن",
+    "هل أقدر أختار الطبيب؟",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
   // The discouraging "this result is not about you" framing is gone.
   assert.doesNotMatch(
     text,
-    /لا تعنيك|لا تفترض|حالة واحدة|لا يحدد بنفسه|ما يناسبك قد يختلف/,
+    /تيك توك|TikTok|المقطع|الفيديو|الإلهام|لا تعنيك|لا تفترض|حالة واحدة|لا يحدد بنفسه|ما يناسبك قد يختلف/,
   );
   assertLandingCopyRules(result);
   assert.doesNotMatch(
@@ -130,13 +144,52 @@ test("copy turns the TikTok visitor's inspiration into a private consultation, w
   );
 });
 
-test("sanitization keeps the form, three team tiles and the guide after the questions", () => {
-  const clean = sanitizeHtml(improveTiktokLanding(source, "tk"));
+test("sanitization keeps the complete published team, form and guide", () => {
+  const clean = sanitizeHtml(improveTiktokLanding(source, "tk", fullTeam));
   assert.match(clean, /action="\/api\/leads" method="post"/);
-  assert.equal((clean.match(/class="fl-team-tile"/g) ?? []).length, 3);
+  assert.equal(
+    (clean.match(/class="fl-team-tile"/g) ?? []).length,
+    roster.length,
+  );
   assert.equal((clean.match(/<details>/g) ?? []).length, 6);
   assert.ok(
     clean.indexOf('id="tiktok-search-guide"') >
       clean.indexOf('id="tiktok-questions"'),
   );
+});
+
+test("roster projection preserves order, excludes drafts, deduplicates and uses Loai's actual portrait", () => {
+  const members = landingTeamFromDoctors([
+    { ...roster[0]!, status: "DRAFT", slug: "private-doctor" },
+    ...roster,
+    roster[0]!,
+  ]);
+  assert.equal(members.length, roster.length);
+  assert.deepEqual(
+    members.map((member) => member.name),
+    roster.map((doctor) => doctor.name),
+  );
+  assert.equal(members[0]?.photo, "/media/doctors/loai-alsalmi-portrait.webp");
+  const result = improveFocusedLanding(source, "tk", members);
+  assert.equal(
+    (result.match(/class="fl-team-tile"/g) ?? []).length,
+    roster.length,
+  );
+  assert.doesNotMatch(result, /private-doctor/);
+  assert.equal(improveTiktokLanding(result, "tk", members), result);
+});
+
+test("dynamic roster names and specialties are text, never executable markup", () => {
+  const result = improveTiktokLanding(source, "tk", [
+    {
+      name: "<script>alert(1)</script>",
+      title: "Consultant",
+      blurb: '<img onerror="bad">',
+      photo: "/doctor.webp",
+      href: "/doctors/fixture",
+    },
+  ]);
+  assert.doesNotMatch(result, /<script>|<img onerror/);
+  assert.match(result, /&lt;script&gt;/);
+  assert.match(sanitizeHtml(result), /action="\/api\/leads"/);
 });

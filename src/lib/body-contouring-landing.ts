@@ -1,4 +1,4 @@
-import { LOAI_ALSALMI, SAHAM_ARFAJ } from "./landing-doctors.ts";
+import { SAHAM_ARFAJ } from "./landing-doctors.ts";
 import {
   beforeAfterGallery,
   checkList,
@@ -12,6 +12,7 @@ import {
   landingLinks,
   pageShell,
   polishForm,
+  surgeonSpotlight,
   searchGuide,
   stickyBar,
   topBar,
@@ -115,9 +116,6 @@ const searchGuideHtml = `<h2>نحت الجسم وشفط الدهون في الر
 const teamCard = () =>
   `<div class="fl-team-card"><img src="${SAHAM_ARFAJ.photo}" alt="${SAHAM_ARFAJ.name}" width="800" height="800" loading="lazy" decoding="async"><div><strong>${SAHAM_ARFAJ.name}</strong><span>${SAHAM_ARFAJ.title} · ${SAHAM_ARFAJ.experience}</span><p>${SAHAM_ARFAJ.summary}</p><a class="fl-text-link" href="${SAHAM_ARFAJ.profile}">اقرأ المزيد عن ${SAHAM_ARFAJ.name} ←</a></div></div>`;
 
-const heroTeam = () =>
-  `<div class="fl-doctors"><div class="fl-doctor"><img src="${LOAI_ALSALMI.photo}" alt="${LOAI_ALSALMI.name}" width="96" height="96" loading="eager" decoding="async" fetchpriority="high"><div><strong>${LOAI_ALSALMI.name}</strong><p>${LOAI_ALSALMI.title}</p><span>${LOAI_ALSALMI.experience}</span></div></div><div class="fl-doctor"><img src="${SAHAM_ARFAJ.photo}" alt="${SAHAM_ARFAJ.name}" width="96" height="96" loading="eager" decoding="async"><div><strong>${SAHAM_ARFAJ.name}</strong><p>${SAHAM_ARFAJ.title}</p><span>${SAHAM_ARFAJ.experience}</span></div></div></div>`;
-
 /** Presentation only. Keep the CMS form, hidden fields and native POST intact. */
 export function improveBodyContouringLanding(
   html: string,
@@ -125,7 +123,7 @@ export function improveBodyContouringLanding(
 ): string {
   if (
     slug !== "body-contouring-riyadh" ||
-    html.includes(BODY_CONTOURING_MARKER)
+    html.includes('data-loai-release="2026-11-02"')
   )
     return html;
   const form = extractLeadForm(html);
@@ -134,16 +132,16 @@ export function improveBodyContouringLanding(
   const { whatsapp, contacts, book } = landingLinks();
   const images = extractGalleryImages(html);
 
-  const hero = `<section class="fl-hero"><div class="fl-wrap fl-hero-grid"><div class="fl-intro"><p class="fl-eyebrow">نحت الجسم وشفط الدهون · ريجوفيرا الرياض</p><h1>شفط الدهون والفيزر ونحت الجسم في الرياض<span>قوام انسيابي متناسق، بخطة تلائم تفاصيل جسمك</span></h1><p class="fl-lead">نجمع بين الدقة الجراحية والرؤية الفنية في نحت الجسم 360 درجة وتقنيات الفيزر المتقدمة، لنساعدك على إبراز انسيابية الخصر والبطن والظهر بقوام متناسق يعزز ثقتك في كل إطلالة. تبدأ رحلتك في ريجوفيرا بجلسة استشارية خاصة مع جرّاحي التجميل والترميم د. لؤي السالمي أو د. سهام العرفج، حسب الإجراء، يتعرّفان فيها على جسمك وتطلعاتك، وتخرج بخطة واضحة تليق بك.</p>${checkList(
+  const hero = `<section class="fl-hero"><div class="fl-wrap fl-hero-grid"><div class="fl-intro"><p class="fl-eyebrow">نحت الجسم مع د. لؤي السالمي · ريجوفيرا</p><h1>شفط الدهون والفيزر ونحت الجسم في الرياض<span>الفرق في التناسق… وفي عين الجرّاح</span></h1><p class="fl-lead">خصر أوضح، وبطن أكثر تناسقًا، وخطوط تنسجم مع جسمك. مع د. لؤي السالمي، تُقرأ التفاصيل معًا: توزيع الدهون، مرونة الجلد، وشكل كل منطقة مع ما حولها. من هنا تتكوّن خطة النحت، بالفيزر أو شفط الدهون أو مع شد البطن، بخبرة استشاري يحمل البورد الكندي وزمالتين أمريكيتين.</p>${surgeonSpotlight()}${checkList(
     [
       "نحت 360 درجة وفيزر لإبراز انسيابية الخصر والبطن والظهر",
-      "بإشراف جرّاحَي تجميل وترميم استشاريَّين",
-      "خصوصية تامة وتجربة هادئة من أول تواصل",
+      "د. لؤي السالمي: البورد الكندي · FRCSC",
+      "فريق جراحة تجميل وترميم يضم د. سهام العرفج",
     ],
-  )}${heroTeam()}<div class="fl-actions">${contacts}</div><a class="fl-text-link" href="#body-options">استكشف خيارات نحت الجسم ↓</a></div>${formCard(
+  )}<div class="fl-actions">${contacts}</div><a class="fl-text-link" href="#body-options">استكشف خيارات نحت الجسم ↓</a></div>${formCard(
     "جلسة استشارية خاصة",
-    "ابدأ رحلة التناسق واكتشف الخطة الأنسب لقوامك",
-    "اختر المنطقة التي تهمّك وشاركنا بياناتك؛ يرتّب لك فريقنا جلسة استشارية خاصة مع الاستشاري الأنسب لحالتك.",
+    "احجز استشارة نحت الجسم",
+    "اختر المنطقة التي تهمّك واترك اسمك وجوالك. فريق ريجوفيرا سيتواصل معك لترتيب الموعد وتفاصيل الزيارة.",
     polishForm(form, "احجز استشارة نحت القوام الآن ←"),
   )}</div></section>`;
 
@@ -172,23 +170,23 @@ export function improveBodyContouringLanding(
   )}<p class="fl-note">تختلف النتائج من شخص لآخر، ويحدد الاستشاري الخطة الأنسب لك بعد الفحص.</p>`;
 
   return pageShell(
-    BODY_CONTOURING_MARKER,
+    `${BODY_CONTOURING_MARKER} data-loai-release="2026-11-02"`,
     [
       topBar("روابط صفحة نحت الجسم"),
       hero,
       trustStrip("لماذا ريجوفيرا لنحت الجسم", [
         ["جرّاحا تجميل وترميم", "استشاريّان: د. لؤي ود. سهام"],
-        ["البورد الكندي", "والزمالة الأمريكية (د. لؤي)"],
+        ["البورد الكندي · FRCSC", "وزمالتان تخصصيتان في الولايات المتحدة"],
         ["نحت دقيق", "360 درجة وفيزر"],
         ["خصوصية تامة", "من أول تواصل"],
       ]),
       doctorProfile({
         id: "dr-loai",
         eyebrow: "تعرّف على أحد جرّاحيك",
-        heading: "بين يدي د. لؤي السالمي",
+        heading: "د. لؤي السالمي… تأهيل دولي ونظرة للتفاصيل",
         paragraphs: [
-          "د. لؤي السالمي استشاري جراحة التجميل والترميم، حاصل على البورد الكندي والزمالة الأمريكية في جراحة التجميل. تدرّب في الولايات المتحدة على الجراحة الترميمية المجهرية في جامعة بنسلفانيا وعلى جراحة اليد في جامعة تكساس ساوث وسترن، وسبق له العمل في مدينة الملك فهد الطبية بالرياض.",
-          "تشمل خدماته الجراحية شفط الدهون ونحت الجسم وشد البطن وشد الذراعين والفخذين وشد الجسم بعد نزول الوزن، إضافة إلى جراحات الوجه والصدر. في جلسته الاستشارية ينصت لما تريد إبرازه في جسمك، ثم يرسم معك خطة تسعى إلى قوام متناسق يشبهك.",
+          "تدرّب د. لؤي السالمي في جراحة التجميل بجامعة ماكجيل في كندا، وحصل على البورد الكندي وFRCSC. وأكمل زمالتين تخصصيتين في الولايات المتحدة: جراحة اليد في UT Southwestern، والجراحة المجهرية في جامعة بنسلفانيا ومركز فوكس تشيس للسرطان. وتشمل خبرته قيادة قسم جراحة التجميل والترميم بمدينة الملك فهد الطبية، وحضورًا علميًا ضمن قائمة متحدثي IAM Plast دبي 2026.",
+          "في نحت الجسم، لا تُقرأ منطقة البطن وحدها؛ فالخصر والجوانب والظهر تصنع التناسق معًا. يناقش معك د. لؤي المناطق التي ترغب في إبرازها، والحاجة إلى الشفط أو الشد، ثم يشرح شكل الخطة والتعافي والمتابعة. وتشمل خدماته نحت الجسم وشفط الدهون وشد البطن والذراعين والفخذين، وجراحات شد الجسم بعد نزول الوزن.",
         ],
         principlesHeading: "رحلتك مع د. لؤي",
         principles: [

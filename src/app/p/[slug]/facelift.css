@@ -532,6 +532,63 @@ body:has(.fl-page) .rv-custom-page__lead-notice--duplicate {
   gap: 52px;
   align-items: center;
 }
+
+.fl-surgeon-spotlight {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  margin: 24px 0;
+  padding: 12px;
+  border: 1px solid #d8c6df;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fff, #f3ebf7);
+  box-shadow: 0 12px 32px #4125500d;
+}
+.fl-surgeon-spotlight img {
+  display: block;
+  width: 150px;
+  height: 180px;
+  border-radius: 15px;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+.fl-surgeon-spotlight strong {
+  display: block;
+  font-size: 24px;
+  line-height: 1.5;
+  color: #432450;
+}
+.fl-surgeon-spotlight p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+.fl-surgeon-spotlight span:not(.fl-eyebrow) {
+  font-size: 13px;
+  color: #685071;
+}
+.fl-surgeon-spotlight .fl-text-link {
+  display: block;
+  font-size: 13px;
+  margin-top: 10px;
+}
+@media (max-width: 480px) {
+  .fl-surgeon-spotlight {
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px;
+  }
+  .fl-surgeon-spotlight img {
+    width: 112px;
+    height: 150px;
+  }
+  .fl-surgeon-spotlight strong {
+    font-size: 21px;
+  }
+  .fl-surgeon-spotlight .fl-eyebrow {
+    font-size: 11px;
+  }
+}
 .fl-portrait {
   width: 100%;
   max-width: 400px;
