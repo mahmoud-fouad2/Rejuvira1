@@ -10,7 +10,8 @@ import { LandingSearchContent } from "@/components/content/LandingSearchContent"
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { RouteStyles } from "@/components/layout/RouteStyles";
-import { getCustomPageBySlug } from "@/lib/content-repository";
+import { getCustomPageBySlug, getDoctors } from "@/lib/content-repository";
+import { isTeamLanding, landingTeamFromDoctors } from "@/lib/landing-team";
 import {
   LANDING_PAGE_PHONE_DISPLAY,
   addLandingPageWhatsappReferralHtml,
@@ -160,9 +161,14 @@ export default async function CustomPage({
   const showHeader = readBuilderBoolean(page.htmlContent, "header");
   const showFooter = readBuilderBoolean(page.htmlContent, "footer");
   const pageLayout = readPageLayout(page.htmlContent);
+  const team = isTeamLanding(slug)
+    ? landingTeamFromDoctors(await getDoctors())
+    : undefined;
   const repairedHtml = repairCustomPageMediaUrls(
     publicEditorialCopy(
-      stripCustomPageEditorState(improveFocusedLanding(page.htmlContent, slug)),
+      stripCustomPageEditorState(
+        improveFocusedLanding(page.htmlContent, slug, team),
+      ),
     ),
   );
   const isFocusedFacelift = isFocusedFaceliftHtml(repairedHtml);

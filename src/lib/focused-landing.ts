@@ -4,20 +4,25 @@ import { improveBreastSurgeryLanding } from "./breast-surgery-landing.ts";
 import { improveFaceliftLanding } from "./facelift-landing.ts";
 import { improveNeckLiftLanding } from "./neck-lift-landing.ts";
 import { improveTiktokLanding } from "./tiktok-landing.ts";
+import type { TeamMember } from "./landing-blocks.ts";
 
 const FACELIFT_MARKER = 'data-facelift-optimized="1"';
 const FOCUSED_MARKER = /data-focused-landing="[a-z-]+"/;
 
 /** Only the supported pages are re-rendered; any other slug or CMS layout is untouched. */
-export function improveFocusedLanding(html: string, slug: string): string {
-  return [
+export function improveFocusedLanding(
+  html: string,
+  slug: string,
+  team?: readonly TeamMember[],
+): string {
+  const focused = [
     improveFaceliftLanding,
     improveBodyContouringLanding,
     improveBookingLanding,
     improveBreastSurgeryLanding,
     improveNeckLiftLanding,
-    improveTiktokLanding,
   ].reduce((current, improve) => improve(current, slug), html);
+  return improveTiktokLanding(focused, slug, team);
 }
 
 export const isFocusedFaceliftHtml = (html: string) =>

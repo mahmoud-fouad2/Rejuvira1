@@ -1,5 +1,5 @@
 import { bookingServices } from "./booking-landing.ts";
-import { LOAI_ALSALMI, NATALI_DOMLOJ, SAHAM_ARFAJ } from "./landing-doctors.ts";
+import { isTeamLanding } from "./landing-team.ts";
 import {
   checkList,
   extractAnyLeadForm,
@@ -16,158 +16,117 @@ import {
   teamTiles,
   topBar,
   trustStrip,
+  type TeamMember,
 } from "./landing-blocks.ts";
 
+// Existing attribution/layout IDs stay stable; visible copy is channel-neutral.
 export const TIKTOK_MARKER = 'data-focused-landing="tiktok"';
-
-// `tk` is a CMS alias of `tiktok-customer`; both routes show the same page.
-const TIKTOK_SLUGS = new Set(["tk", "tiktok-customer"]);
+const RELEASE = 'data-team-release="2026-11-02"';
 
 const tips = [
   [
-    "شاركنا ما لفت انتباهك",
-    "الفيديو أو اسم الإجراء الذي أعجبك، لنفهم ذوقك وتطلعاتك بدقة.",
+    "ابدأ بما يشغلك",
+    "خط الفك، تناسق الجسم، أو العناية بالبشرة. أخبرنا بالخدمة التي تبحث عنها، وسنرتّب لك الخطوة الأولى.",
   ],
   [
-    "استشارة مخصصة لملامحك",
-    "يقيّم استشاريونا ما يحقق لك التناسق الطبيعي الأنسب لملامحك وقوامك.",
+    "تعرّف على طبيبك",
+    "استعرض الفريق وتخصصاته، واختر الطبيب الذي ترغب في زيارته. ويساعدك فريقنا في تنسيق الموعد.",
   ],
   [
-    "خطة واضحة ومريحة",
-    "معرفة تامة بتفاصيل الإجراء والتعافي والنتيجة المتوقعة، لتقرر براحة.",
+    "اعرف تفاصيل زيارتك",
+    "موعد الاستشارة، وما تحتاجه قبل الحضور، وتكلفتها. كل التفاصيل تصلك من فريق ريجوفيرا مباشرة.",
   ],
-] as const;
-
-const team = [
-  {
-    name: LOAI_ALSALMI.name,
-    title: LOAI_ALSALMI.title,
-    photo: LOAI_ALSALMI.photo,
-    blurb: "جراحات الوجه والجسم والصدر",
-    href: LOAI_ALSALMI.profile,
-  },
-  {
-    name: NATALI_DOMLOJ.name,
-    title: NATALI_DOMLOJ.title,
-    photo: NATALI_DOMLOJ.photo,
-    blurb: NATALI_DOMLOJ.focus,
-    href: NATALI_DOMLOJ.profile,
-  },
-  {
-    name: SAHAM_ARFAJ.name,
-    title: SAHAM_ARFAJ.title,
-    photo: SAHAM_ARFAJ.photo,
-    blurb: "تخطيط متكامل للجراحات التجميلية مع اهتمام بالخصوصية والتناسق",
-    href: SAHAM_ARFAJ.profile,
-  },
 ] as const;
 
 const faqItems = [
   [
-    "هل أستطيع حجز الخدمة نفسها التي رأيتها في المقطع؟",
-    "بالتأكيد؛ شاركنا اسم الخدمة أو فكرة المقطع، ويرتّب لك الفريق جلسة استشارية مع الاستشاري المناسب لتتعرّف على الخيارات التي تلائم ملامحك وقوامك.",
+    "كيف أحجز موعدًا؟",
+    "اترك اسمك ورقم جوالك واختر الخدمة من النموذج، أو تواصل معنا مباشرة عبر الاتصال أو واتساب. سيتولى فريقنا ترتيب الموعد معك.",
   ],
   [
-    "هل سيمنحني الإجراء النتيجة نفسها التي رأيتها؟",
-    "لكل وجه وجسم ملامحه، ولذلك نصمّم الخطة على مقاسك لتنسجم مع تفاصيلك أنت. وفي جلستك الاستشارية تتعرّف على أمثلة وخيارات تناسب تطلعاتك.",
+    "هل أقدر أختار الطبيب؟",
+    "نعم. تعرّف على أطبائنا وتخصصاتهم في هذه الصفحة، وأخبر الفريق باسم الطبيب الذي ترغب في زيارته عند تنسيق موعدك.",
   ],
   [
-    "هل السعر الذي رأيته في الفيديو هو السعر الحالي؟",
-    "يطلعك فريقنا على الأسعار والعروض الحالية بوضوح عند التواصل، وتعرف تكلفة خطتك كاملة بعد الجلسة الاستشارية.",
+    "ما الخدمات المتوفرة في المركز؟",
+    "جراحات التجميل للوجه والجسم والصدر، والجلدية والليزر والعناية بالبشرة، وصحة المرأة والتجميل النسائي. ستجد روابط الخدمات والفريق الطبي هنا لتتعرف عليها أكثر.",
   ],
   [
-    "لا أعرف اسم الإجراء الذي أريده، فماذا أفعل؟",
-    "يكفي أن تخبرنا بما أعجبك أو بما تتمنى تغييره، وسنوجّهك إلى الاستشاري المناسب ونحدد معك الإجراء الأنسب.",
+    "ماذا تشمل الاستشارة؟",
+    "لقاء مع الطبيب لمناقشة ما ترغب في تحسينه، والفحص، والتعرّف على الخيارات المناسبة لك. وتعرف خلاله تفاصيل الإجراء والتعافي والمتابعة.",
   ],
   [
-    "كيف أختار الطبيب المناسب؟",
-    "لا داعي للحيرة؛ يوجّه فريقنا طلبك إلى الاستشاري الأنسب لما ألهمك، وتتعرّف عليه في جلسة خاصة تطمئن فيها إلى خطتك.",
+    "كيف أعرف التكلفة؟",
+    "يطلعك الفريق على تكلفة الاستشارة عند الحجز. أما تكلفة الإجراء فتتضح بعد معرفة تفاصيله والخطة التي يناقشها معك الطبيب.",
   ],
   [
-    "هل أحتاج استشارة قبل الإجراء؟",
-    "الاستشارة هي بداية كل رحلة؛ فيها نصغي لتطلعاتك ونعرض الخيارات والتكلفة والتعافي، وتقرر بعدها بكل راحة.",
+    "أين يقع مركز ريجوفيرا؟",
+    "نستقبلك في الرياض. تواصل معنا وسيرسل لك الفريق الموقع وتفاصيل الوصول مع موعد زيارتك.",
   ],
 ] as const;
 
-const searchGuideHtml = `<h2>شاهدت نتيجة على تيك توك؟ هكذا تبدأ رحلتك</h2><p>إذا وصلت إلى ريجوفيرا بعد مقطع عن تجميل الوجه أو الجسم أو العناية بالبشرة، فيكفي أن تشاركنا ما أعجبك ليرتّب لك الفريق جلسة استشارية خاصة مع الاستشاري المناسب.</p><h3>هل أستطيع حجز الخدمة التي ظهرت في المقطع؟</h3><p>نعم؛ نؤكد لك اسم الخدمة والاستشاري المناسب والموعد، وتتعرّف في جلستك على الخيارات الأقرب لملامحك. وللاستعداد لموعدك اقرأ <a href="/journal/prepare-for-aesthetic-consultation">كيف تستعد لاستشارة التجميل</a>.</p><h3>رأيت سعرًا في فيديو قديم؟</h3><p>نطلعك على الأسعار والعروض الحالية بوضوح عند التواصل، وتعرف تكلفة خطتك كاملة بعد الجلسة الاستشارية.</p><h3>كيف أختار الطبيب؟</h3><p>تعرّف على استشاريينا <a href="${LOAI_ALSALMI.profile}">د. لؤي السالمي</a> و<a href="${NATALI_DOMLOJ.profile}">د. ناتالي دوملوج</a> و<a href="${SAHAM_ARFAJ.profile}">د. سهام العرفج</a>، وللمزيد اقرأ <a href="/journal/choose-plastic-surgeon-riyadh">كيف تختار جرّاح التجميل في الرياض</a>. <a href="#consultation-form">لنكتشف الخطة الأنسب لك</a>.</p>`;
+const searchGuideHtml = `<h2>ريجوفيرا: جراحة التجميل والجلدية في الرياض</h2><p>من شد الوجه والرقبة إلى نحت الجسم والعناية بالبشرة، تجد في ريجوفيرا تخصصات متعددة وفريقًا تتعرّف عليه قبل زيارتك. استعرض الخدمات وأطبائها، ثم احجز موعدك بالتواصل المباشر مع المركز.</p><h3>طبيبك وخدمتك في مكان واحد</h3><p>تعرّف على <a href="/doctors">الفريق الطبي كاملًا</a>، أو <a href="#consultation-form">احجز موعد استشارتك</a>. وإذا كان لديك سؤال عن الخدمة أو التوقيت، يسعد فريق ريجوفيرا بمساعدتك.</p>`;
 
-/** Presentation only. Keep the CMS form, hidden fields and native POST intact. */
-export function improveTiktokLanding(html: string, slug: string): string {
-  if (!TIKTOK_SLUGS.has(slug) || html.includes(TIKTOK_MARKER)) return html;
+/** Reuse the original CMS form; never rebuild its fields or attribution. */
+export function improveTiktokLanding(
+  html: string,
+  slug: string,
+  team?: readonly TeamMember[],
+): string {
+  if (!isTeamLanding(slug) || (html.includes(RELEASE) && team === undefined))
+    return html;
   const form = extractAnyLeadForm(html);
   if (!form) return html;
-
   const { whatsapp, contacts, book } = landingLinks();
+  const members = team ?? [];
 
-  const hero = `<section class="fl-hero"><div class="fl-wrap fl-hero-grid"><div class="fl-intro"><p class="fl-eyebrow">من تيك توك إلى ريجوفيرا</p><h1>من تيك توك إلى استشارة تجميل خاصة في الرياض<span>ألهمتك نتيجة على تيك توك؟ لنكتشف معًا ما يناسب ملامحك وقوامك</span></h1><p class="fl-lead">الإلهام يبدأ من نتيجة أعجبتك، والجمال الحقيقي هو ما يشبهك أنت. في ريجوفيرا نصغي لما أثار إعجابك، ثم يقدّم لك استشاريو التجميل والجلدية جلسة خاصة يرسمون فيها معك الخطة الأنسب لملامحك وقوامك، بكل اهتمام وخصوصية.</p>${checkList(
+  const hero = `<section class="fl-hero"><div class="fl-wrap fl-hero-grid"><div class="fl-intro"><p class="fl-eyebrow">ريجوفيرا · الرياض</p><h1>خبرة تطمئن لها.<span>واهتمام يليق بك.</span></h1><p class="fl-lead">تفاصيل الوجه، تناسق الجسم، وصحة البشرة… لكل منها طبيب يعرفها جيدًا. في ريجوفيرا تجد فريقًا يجمع جراحة التجميل والجلدية وصحة المرأة، لتختار خدمتك وطبيبك في مكان واحد.</p>${checkList(
     [
-      "جلسة استشارية مصممة لملامحك وقوامك",
-      "استشاريون في جراحة التجميل والجلدية",
-      "خصوصية تامة من أول تواصل",
+      "جراحة التجميل والترميم والجلدية وصحة المرأة",
+      "عناية تبدأ بالاستشارة وتستمر مع المتابعة",
+      "تواصل مباشر مع فريق المركز في الرياض",
     ],
-  )}<div class="fl-actions">${contacts}</div><a class="fl-text-link" href="#tiktok-tips">كيف تبدأ رحلتك؟ ↓</a></div>${formCard(
-    "جلسة استشارية خاصة",
-    "خطوتك الأولى لتحويل الإلهام إلى خطة",
-    "الخدمة التي لفتت انتباهك تكفي لنبدأ؛ وسيتواصل معك فريقنا لتنسيق جلستك الاستشارية الخاصة بكل اهتمام.",
-    polishForm(form, "لنكتشف الخطة الأنسب لك ←"),
+  )}<div class="fl-actions">${contacts}</div><a class="fl-text-link" href="#tiktok-team">تعرّف على أطباء ريجوفيرا ↓</a></div>${formCard(
+    "يسعدنا استقبالك",
+    "موعدك يبدأ من هنا",
+    "اختر خدمتك واترك رقمك. فريق ريجوفيرا سيتواصل معك لترتيب الموعد والإجابة عن أسئلتك.",
+    polishForm(form, "احجز موعدك الآن ←"),
   )}</div></section>`;
 
-  const tipsSection = `<section class="fl-section" id="tiktok-tips"><div class="fl-wrap"><p class="fl-eyebrow">رحلتك في ثلاث خطوات</p><h2>من الإلهام إلى خطة تناسبك</h2><div class="fl-grid fl-options">${tips
-    .map(
-      ([title, text], index) =>
-        `<div class="fl-card"><span class="fl-number">0${index + 1}</span><h3>${title}</h3><p>${text}</p></div>`,
-    )
-    .join("")}</div></div></section>`;
-
-  const servicesSection = `<section class="fl-section fl-soft" id="booking-services"><div class="fl-wrap"><p class="fl-eyebrow">الخدمات الأكثر طلبًا</p><h2>اكتشف ما ألهمك</h2><p class="fl-intro-text">لكل خدمة صفحة تعرض تفاصيلها، أو شاركنا ما أعجبك وسنوجّهك إلى الاستشاري الأنسب.</p>${serviceLinks(
-    bookingServices,
-  )}<div class="fl-actions fl-actions--center">${book("لنكتشف الخطة الأنسب لك")}</div></div></section>`;
-
-  const teamSection = `<section class="fl-section" id="tiktok-team"><div class="fl-wrap"><p class="fl-eyebrow">فريقك الطبي</p><h2>استشاريون يرافقونك في رحلتك</h2><p class="fl-intro-text">يختار لك فريقنا الاستشاري الأنسب لما ألهمك، وينسّق لك موعدًا يناسبك.</p>${teamTiles(
-    team,
-  )}</div></section>`;
-
-  const faqAfter = `${finalBand(
-    "جاهز لتحويل الإلهام إلى خطة؟",
-    "جلسة استشارية خاصة في ريجوفيرا، بكل اهتمام وخصوصية.",
-    `${book("لنكتشف الخطة الأنسب لك")}${contacts}`,
-  )}<p class="fl-note">تختلف النتائج من شخص لآخر، ويحدد الاستشاري الخطة الأنسب لك بعد الفحص.</p>`;
+  const teamSection = `<section class="fl-section fl-soft" id="tiktok-team"><div class="fl-wrap"><p class="fl-eyebrow">الفريق الطبي</p><h2>تعرّف على أطباء ريجوفيرا</h2><p class="fl-intro-text">خبرات متنوعة، يجمعها الاهتمام بالتفاصيل. استعرض تخصص كل طبيب وتعرّف عليه أكثر قبل زيارتك.</p>${members.length ? teamTiles(members) : '<a class="fl-button" href="/doctors">استعرض الفريق الطبي</a>'}</div></section>`;
+  const servicesSection = `<section class="fl-section" id="booking-services"><div class="fl-wrap"><p class="fl-eyebrow">خدمات ريجوفيرا</p><h2>وجه، جسم، وبشرة… عناية تجمع التفاصيل</h2><p class="fl-intro-text">تعرّف على الخدمة التي تهمّك، واكتشف ما يقدّمه أطباؤنا فيها.</p>${serviceLinks(bookingServices)}<div class="fl-actions fl-actions--center">${book("احجز موعد استشارتك")}</div></div></section>`;
+  const tipsSection = `<section class="fl-section" id="tiktok-tips"><div class="fl-wrap"><p class="fl-eyebrow">قبل زيارتك</p><h2>نرتّب التفاصيل معك</h2><div class="fl-grid fl-options">${tips.map(([title, text], index) => `<div class="fl-card"><span class="fl-number">0${index + 1}</span><h3>${title}</h3><p>${text}</p></div>`).join("")}</div></div></section>`;
 
   return pageShell(
-    TIKTOK_MARKER,
+    `${TIKTOK_MARKER} ${RELEASE}`,
     [
-      topBar("روابط صفحة الحجز"),
+      topBar("روابط ريجوفيرا"),
       hero,
-      trustStrip("لماذا ريجوفيرا", [
-        ["جلسة خاصة", "تبدأ بالإنصات إليك"],
-        ["فريق متخصص", "أطباء وخبرات متعددة"],
-        ["تنسيق مباشر", "يرتّب لك الفريق الموعد"],
-        ["خصوصية وراحة", "تجربة هادئة وسرية"],
+      trustStrip("ريجوفيرا", [
+        ["تخصصات متعددة", "جراحة التجميل والجلدية وصحة المرأة"],
+        ["فريق طبي", "تعرّف على طبيبك قبل الزيارة"],
+        ["تنسيق مباشر", "حجز ومتابعة مع فريق المركز"],
+        ["في الرياض", "نرحّب بك في ريجوفيرا"],
       ]),
-      tipsSection,
-      servicesSection,
       teamSection,
-      journey("tiktok-steps", "من الإلهام إلى جلستك", [
-        [
-          "شاركنا ما ألهمك",
-          "اسمك وجوالك والخدمة التي لفتت انتباهك، في أقل من دقيقة.",
-        ],
-        [
-          "ينسّق معك فريقنا",
-          "يرتّب لك الفريق الموعد المناسب مع الاستشاري الأنسب.",
-        ],
-        [
-          "جلستك الاستشارية الخاصة",
-          "ينصت إليك الاستشاري ويعرض عليك الخيارات والتكلفة والتعافي بوضوح.",
-        ],
-        ["قرارك بكل هدوء", "تقرر في وقتك، وإن اخترت الإجراء نرافقك بعده."],
+      servicesSection,
+      tipsSection,
+      journey("tiktok-steps", "من الحجز إلى لقائك بالطبيب", [
+        ["اختر خدمتك", "حدّد الخدمة واترك وسيلة للتواصل معك."],
+        ["نرتّب موعدك", "يتواصل معك الفريق لتأكيد وقت الزيارة والطبيب."],
+        ["قابل طبيبك", "ناقش تفاصيلك وأسئلتك وتعرّف على الخيارات."],
+        ["متابعة معك", "تعرف الخطوة التالية وكيف تتواصل مع فريقك الطبي."],
       ]),
       faqSection({
         id: "tiktok-questions",
-        eyebrow: "أسئلة قبل الحجز",
-        heading: "أسئلة يطرحها من وصل من تيك توك",
+        eyebrow: "أسئلتك تهمّنا",
+        heading: "قبل أن تحجز",
         items: faqItems,
-        after: faqAfter,
+        after: finalBand(
+          "نرحّب بك في ريجوفيرا",
+          "اختر طبيبك، واترك لنا ترتيب الموعد.",
+          `${book("احجز موعدك الآن")}${contacts}`,
+        ),
       }),
       searchGuide("tiktok-search-guide", searchGuideHtml),
       stickyBar(whatsapp),

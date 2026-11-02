@@ -5,14 +5,14 @@ export type LandingCredential = { title: string; detail: string };
 
 const loaiCredentials: readonly LandingCredential[] = [
   {
-    // dralsalmi.com: «حاصل على البورد الكندي والزمالة الأمريكية في جراحة التجميل»
-    title: "البورد الكندي والزمالة الأمريكية",
-    detail: "في جراحة التجميل",
+    // KFMC physician directory, doc=1386: FRCSC, McGill and Canadian board exam.
+    title: "البورد الكندي في جراحة التجميل · FRCSC",
+    detail: "تدريب تخصصي في جامعة ماكجيل، كندا",
   },
   {
     // Penn Medicine, Microvascular Reconstructive Surgery fellows page (listed 2012).
     title: "زمالة الجراحة الترميمية المجهرية",
-    detail: "جامعة بنسلفانيا، الولايات المتحدة",
+    detail: "جامعة بنسلفانيا ومركز فوكس تشيس للسرطان، الولايات المتحدة",
   },
   {
     // UT Southwestern Hand Surgery Fellowship alumni table (2011, listed at KFMC Riyadh).
@@ -22,13 +22,14 @@ const loaiCredentials: readonly LandingCredential[] = [
   {
     // UT Southwestern alumni listing (King Fahad Medical City, Riyadh); the
     // clinic's doctor page lists him as consultant at Rejuvera today.
-    title: "خبرة في مدينة الملك فهد الطبية",
-    detail: "سبق له العمل فيها بالرياض، ويستقبل مرضاه اليوم في ريجوفيرا",
+    title: "خبرة قيادية في جراحة التجميل والترميم",
+    detail:
+      "تشمل مسيرته رئاسة قسم جراحة التجميل والترميم بمدينة الملك فهد الطبية",
   },
   {
-    // Ajel newspaper, 20 Feb 2020: seminar «عمليات التجميل الخارجية تحت المجهر».
-    title: "حضور علمي",
-    detail: "متحدث في ملتقى الطب التجميلي الرابع (2020)",
+    // IAM Plast official 2026 speaker biography (conference is still upcoming).
+    title: "حضور علمي دولي",
+    detail: "ضمن قائمة متحدثي مؤتمر IAM Plast دبي 2026",
   },
 ];
 
@@ -39,11 +40,7 @@ export const LOAI_ALSALMI = {
   // /media/doctors/loai-alsalmi.webp stays for the rest of the site.
   photo: "/media/doctors/loai-alsalmi-portrait.webp",
   profile: "/doctors/loai-alsalmi",
-  // Mirrors the clinic's own doctor record (yearsExperience: 25). It fits total
-  // medical experience since graduation (~2001-2002) but not specialist practice,
-  // which public records date from ~2010 (a third-party profile says "15+ years").
-  // Keep the wording generic ("خبرة") and confirm the figure with the doctor.
-  experience: "25+ سنة خبرة",
+  experience: "تأهيل كندي وزمالتان تخصصيتان في الولايات المتحدة",
   languages: "العربية والإنجليزية",
   credentials: loaiCredentials,
 };

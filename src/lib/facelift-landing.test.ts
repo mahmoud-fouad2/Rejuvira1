@@ -154,11 +154,11 @@ test("the page features Dr. Loai with a large lazy portrait and only sourced cre
     /<img src="\/media\/doctors\/loai-alsalmi-portrait\.webp"[^>]*width="800" height="800" loading="lazy"/,
   );
   for (const sourced of [
-    "البورد الكندي والزمالة الأمريكية",
+    "البورد الكندي",
     "جامعة بنسلفانيا",
     "UT Southwestern",
     "مدينة الملك فهد الطبية",
-    "ملتقى الطب التجميلي الرابع",
+    "IAM Plast",
   ])
     assert.ok(profile.includes(sourced), `missing credential: ${sourced}`);
   assert.match(profile, /href="\/doctors\/loai-alsalmi"/);
@@ -182,7 +182,7 @@ test("high-intent search language is present in warm, aspirational wording", () 
     "كم سعر الفيس لفت",
     "بدون جراحة",
     "إطلالة متجددة",
-    "خطوتك الأولى نحو إطلالة متجددة وواثقة",
+    "احجز موعدك مع د. لؤي",
     "تنسيق استشارتك الخاصة",
   ])
     assert.ok(text.includes(phrase), `missing phrase: ${phrase}`);
