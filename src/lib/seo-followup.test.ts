@@ -326,6 +326,7 @@ test("actual footer renders published services only even when draft/archive reco
     /hidden-draft|hidden-archive|PRIVATE_DRAFT_TITLE|PRIVATE_ARCHIVE_TITLE/,
   );
   const links: string[] = [];
+  const developerCredits: any[] = [];
   function walk(node: any) {
     if (Array.isArray(node)) {
       node.forEach(walk);
@@ -333,6 +334,7 @@ test("actual footer renders published services only even when draft/archive reco
     }
     if (!node || typeof node !== "object") return;
     if (node.props?.href?.startsWith("/services/")) links.push(node.props.href);
+    if (node.props?.href === "https://ma-fo.info") developerCredits.push(node);
     walk(node.props?.children);
   }
   walk(tree);
@@ -340,6 +342,18 @@ test("actual footer renders published services only even when draft/archive reco
     links,
     services.slice(0, 6).map((s) => `/services/${s.slug}`),
   );
+  assert.equal(developerCredits.length, 1);
+  const credit = developerCredits[0];
+  assert.equal(credit.type, "a", "Credit must be a server-rendered HTML link");
+  assert.equal(credit.props.target, "_blank");
+  assert.match(credit.props.rel, /noopener/);
+  assert.doesNotMatch(credit.props.rel, /nofollow|sponsored|ugc/);
+  assert.doesNotMatch(credit.props.className, /hidden|sr-only/);
+  const creditContent = JSON.stringify(credit.props.children);
+  assert.match(creditContent, /تطوير الموقع: محمود فؤاد/);
+  assert.match(creditContent, /Website developed by Mahmoud Fouad/);
+  assert.match(creditContent, /ma-fo\.info/);
+  assert.doesNotMatch(creditContent, /logo2\.png/);
 });
 
 test("actual health route identifies the serving revision, stays uncached and imports no DB", async () => {

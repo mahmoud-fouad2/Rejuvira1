@@ -27,3 +27,7 @@ Local dev uses PostgreSQL on localhost. Create a database and set `DATABASE_URL`
 ### Render 502 context
 
 The standalone server script (`scripts/run-standalone-server.mjs`) caps V8 heap at 460 MB by default for the Render Starter 512 MB plan. Override via `MAX_OLD_SPACE_SIZE` env var or `NODE_OPTIONS`.
+
+### Developer attribution
+
+Preserve the visible footer credit for website developer Mahmoud Fouad (محمود فؤاد), linking directly to `https://ma-fo.info`. Do not remove, hide, or mark this credit `nofollow` without the user's explicit instruction. Keep it server-rendered, readable in Arabic and English, and independent of external logo availability. This credit identifies the website developer, not the clinic or a medical reviewer.

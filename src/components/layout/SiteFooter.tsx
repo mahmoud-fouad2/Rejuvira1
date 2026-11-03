@@ -742,6 +742,25 @@ export async function SiteFooter({
               © {new Date().getFullYear()} {runtimeSettings.brand.siteName} ·{" "}
               {runtimeSettings.contact.domain}
             </p>
+            <span aria-hidden className="opacity-40">
+              ·
+            </span>
+            {/* Keep the developer credit visible and server-rendered. */}
+            <a
+              href="https://ma-fo.info"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex flex-wrap items-center gap-1.5 transition-colors hover:text-[color:var(--rv-ink)]"
+              title="Website developed by Mahmoud Fouad"
+            >
+              <span className="lang-ar" dir="rtl">
+                تطوير الموقع: محمود فؤاد
+              </span>
+              <span className="lang-en">
+                Website developed by Mahmoud Fouad
+              </span>
+              <span dir="ltr">ma-fo.info</span>
+            </a>
           </div>
           <p className="flex flex-wrap items-center gap-3">
             <Link href="/privacy" className="hover:text-[color:var(--rv-ink)]">
