@@ -215,6 +215,12 @@ export function buildSiteCreatorJsonLd(settings: {
     url: baseUrl,
     inLanguage: ["ar", "en"],
     publisher: { "@id": `${baseUrl}#organization` },
+    creator: {
+      "@type": "Person",
+      name: "Mahmoud Fouad",
+      alternateName: "محمود فؤاد",
+      url: "https://ma-fo.info",
+    },
   } as const;
 }
 

@@ -30,4 +30,4 @@ The standalone server script (`scripts/run-standalone-server.mjs`) caps V8 heap 
 
 ### Developer attribution
 
-Preserve the visible footer credit for website developer Mahmoud Fouad (محمود فؤاد), linking directly to `https://ma-fo.info`. Do not remove, hide, or mark this credit `nofollow` without the user's explicit instruction. Keep it server-rendered, readable in Arabic and English, and independent of external logo availability. This credit identifies the website developer, not the clinic or a medical reviewer.
+Preserve the visible footer credit linking directly to `https://ma-fo.info`: show only `Development By` beside the original MA-FO logo from `https://ma-fo.info/logo2.png` (a local copy is stored at `public/media/brand/ma-fo-logo.png`). Do not add visible Arabic/English developer names or domain text. Keep Mahmoud Fouad (محمود فؤاد) in the WebSite creator structured data and accessible link label. Do not remove, hide, or mark the credit `nofollow` without the user's explicit instruction. Keep the credit server-rendered and independent of external logo availability. This credit identifies the website developer, not the clinic or a medical reviewer.

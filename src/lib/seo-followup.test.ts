@@ -350,10 +350,10 @@ test("actual footer renders published services only even when draft/archive reco
   assert.doesNotMatch(credit.props.rel, /nofollow|sponsored|ugc/);
   assert.doesNotMatch(credit.props.className, /hidden|sr-only/);
   const creditContent = JSON.stringify(credit.props.children);
-  assert.match(creditContent, /تطوير الموقع: محمود فؤاد/);
-  assert.match(creditContent, /Website developed by Mahmoud Fouad/);
-  assert.match(creditContent, /ma-fo\.info/);
-  assert.doesNotMatch(creditContent, /logo2\.png/);
+  assert.match(creditContent, /Development By/);
+  assert.match(creditContent, /\/media\/brand\/ma-fo-logo\.png/);
+  assert.doesNotMatch(creditContent, /Mahmoud Fouad|محمود فؤاد|ma-fo\.info/);
+  assert.match(credit.props["aria-label"], /Mahmoud Fouad/);
 });
 
 test("actual health route identifies the serving revision, stays uncached and imports no DB", async () => {

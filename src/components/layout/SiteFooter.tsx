@@ -750,16 +750,20 @@ export async function SiteFooter({
               href="https://ma-fo.info"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex flex-wrap items-center gap-1.5 transition-colors hover:text-[color:var(--rv-ink)]"
-              title="Website developed by Mahmoud Fouad"
+              className="inline-flex shrink-0 items-center gap-2.5 opacity-85 transition-opacity hover:opacity-100"
+              aria-label="Development by Mahmoud Fouad — محمود فؤاد"
             >
-              <span className="lang-ar" dir="rtl">
-                تطوير الموقع: محمود فؤاد
+              <span className="text-[11px] font-medium tracking-wide">
+                Development By
               </span>
-              <span className="lang-en">
-                Website developed by Mahmoud Fouad
-              </span>
-              <span dir="ltr">ma-fo.info</span>
+              <Image
+                src="/media/brand/ma-fo-logo.png"
+                alt="MA-FO"
+                width={560}
+                height={503}
+                className="h-9 w-auto object-contain sm:h-10"
+                unoptimized
+              />
             </a>
           </div>
           <p className="flex flex-wrap items-center gap-3">
