@@ -737,33 +737,26 @@ export async function SiteFooter({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[color:var(--rv-line)] px-6 py-5 text-xs text-[color:var(--rv-muted)] lg:px-10">
-          <div className="flex flex-wrap items-center gap-2.5" dir="ltr">
+          <div
+            className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3"
+            dir="ltr"
+          >
             <p>
               © {new Date().getFullYear()} {runtimeSettings.brand.siteName} ·{" "}
               {runtimeSettings.contact.domain}
             </p>
-            <span aria-hidden className="opacity-40">
-              ·
-            </span>
             {/* Keep the developer credit visible and server-rendered. */}
             <a
               href="https://ma-fo.info"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center gap-1.5 align-middle opacity-90 transition-opacity hover:opacity-100"
+              className="inline-flex shrink-0 items-baseline gap-1.5 rounded-sm text-[11px] leading-relaxed whitespace-nowrap transition-colors hover:text-[color:var(--rv-ink)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--rv-accent)]"
               aria-label="Development by Mahmoud Fouad — محمود فؤاد"
             >
-              <span className="text-[10px] leading-none font-medium whitespace-nowrap sm:text-[11px]">
-                Development By
+              <span>Development By</span>
+              <span className="font-semibold tracking-wide text-[color:var(--rv-ink)]">
+                MA-FO
               </span>
-              <Image
-                src="/media/brand/ma-fo-logo.png"
-                alt="MA-FO"
-                width={560}
-                height={503}
-                className="h-5 w-auto shrink-0 object-contain sm:h-6"
-                unoptimized
-              />
             </a>
           </div>
           <p className="flex flex-wrap items-center gap-3">

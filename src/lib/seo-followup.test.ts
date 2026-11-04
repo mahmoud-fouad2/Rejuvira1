@@ -351,7 +351,7 @@ test("actual footer renders published services only even when draft/archive reco
   assert.doesNotMatch(credit.props.className, /hidden|sr-only/);
   const creditContent = JSON.stringify(credit.props.children);
   assert.match(creditContent, /Development By/);
-  assert.match(creditContent, /\/media\/brand\/ma-fo-logo\.png/);
+  assert.match(creditContent, /MA-FO/);
   assert.doesNotMatch(creditContent, /Mahmoud Fouad|محمود فؤاد|ma-fo\.info/);
   assert.match(credit.props["aria-label"], /Mahmoud Fouad/);
 });
