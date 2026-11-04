@@ -750,10 +750,10 @@ export async function SiteFooter({
               href="https://ma-fo.info"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex shrink-0 items-center gap-2.5 opacity-85 transition-opacity hover:opacity-100"
+              className="inline-flex shrink-0 items-center gap-1.5 align-middle opacity-90 transition-opacity hover:opacity-100"
               aria-label="Development by Mahmoud Fouad — محمود فؤاد"
             >
-              <span className="text-[11px] font-medium tracking-wide">
+              <span className="text-[10px] leading-none font-medium whitespace-nowrap sm:text-[11px]">
                 Development By
               </span>
               <Image
@@ -761,7 +761,7 @@ export async function SiteFooter({
                 alt="MA-FO"
                 width={560}
                 height={503}
-                className="h-9 w-auto object-contain sm:h-10"
+                className="h-5 w-auto shrink-0 object-contain sm:h-6"
                 unoptimized
               />
             </a>
