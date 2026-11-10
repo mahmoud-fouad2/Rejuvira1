@@ -328,7 +328,7 @@ export default async function AboutPage() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-2">
-            {aboutProfiles.map((profile, index) => (
+            {aboutProfiles.map((profile) => (
               <article
                 key={profile.key}
                 className="surface-panel grid overflow-hidden rounded-[2.5rem] shadow-sm md:grid-cols-[0.86fr_1.14fr]"
@@ -368,11 +368,6 @@ export default async function AboutPage() {
                     <Link href="/doctors" className="btn-secondary mt-7 w-fit">
                       <span className="lang-ar">تعرّف على الأطباء</span>
                       <span className="lang-en">Meet the doctors</span>
-                    </Link>
-                  ) : index === 0 ? (
-                    <Link href="/contact" className="btn-secondary mt-7 w-fit">
-                      <span className="lang-ar">تواصلي معنا</span>
-                      <span className="lang-en">Contact us</span>
                     </Link>
                   ) : null}
                 </div>

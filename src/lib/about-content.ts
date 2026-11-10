@@ -12,7 +12,7 @@ export const ABOUT_SECTION_DEFAULTS = {
 export const ABOUT_PROFILE_DEFAULTS = [
   {
     key: "ceo",
-    labelAr: "الرئيس التنفيذي",
+    labelAr: "الرئيس التنفيذي (CEO)",
     labelEn: "Chief Executive Officer (CEO)",
     nameAr: "د. لؤي السالمي",
     nameEn: "Dr. Loai Al-Salmi",
@@ -26,8 +26,8 @@ export const ABOUT_PROFILE_DEFAULTS = [
   },
   {
     key: "gm",
-    labelAr: "المدير العام",
-    labelEn: "General Manager",
+    labelAr: "المدير العام (GM)",
+    labelEn: "General Manager (GM)",
     nameAr: "عمرو الشيمي",
     nameEn: "Amr El-Sheimi",
     titleAr: "إدارة التشغيل وتجربة المراجعين",
