@@ -221,7 +221,7 @@ export function buildSiteCreatorJsonLd(settings: {
       alternateName: "محمود فؤاد",
       url: "https://ma-fo.info",
       jobTitle: ["Marketing Director", "Business Developer"],
-      telephone: "0530047640",
+      telephone: "+966530047640",
     },
   } as const;
 }
