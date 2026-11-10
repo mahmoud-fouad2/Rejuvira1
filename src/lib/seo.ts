@@ -220,6 +220,8 @@ export function buildSiteCreatorJsonLd(settings: {
       name: "Mahmoud Fouad",
       alternateName: "محمود فؤاد",
       url: "https://ma-fo.info",
+      jobTitle: ["Marketing Director", "Business Developer"],
+      telephone: "0530047640",
     },
   } as const;
 }

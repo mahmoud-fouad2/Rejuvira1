@@ -339,7 +339,11 @@ export default async function AboutPage() {
                     alt={profile.nameAr}
                     fill
                     sizes="(max-width: 768px) 100vw, 24vw"
-                    className="object-cover"
+                    className={
+                      profile.key === "ceo" || profile.key === "gm"
+                        ? "object-cover object-top"
+                        : "object-cover"
+                    }
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
                 </div>

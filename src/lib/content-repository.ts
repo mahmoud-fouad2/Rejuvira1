@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import type { Prisma } from "@prisma/client";
 
 import {
+  ABOUT_LEGACY_LEADERSHIP_FIELDS,
   ABOUT_PROFILE_DEFAULTS,
   ABOUT_SECTION_DEFAULTS,
 } from "@/lib/about-content";
@@ -3296,12 +3297,20 @@ export async function getSettingsGroups() {
     for (const setting of settings) {
       const group = groups.get(setting.groupName);
       const fieldKey = readSettingFieldKey(setting.key, setting.groupName);
+      const storedValue = stringifySettingValue(setting.value);
+      const legacyLeadershipField =
+        setting.groupName === "about"
+          ? ABOUT_LEGACY_LEADERSHIP_FIELDS.get(fieldKey)
+          : undefined;
       const entry = {
         key: fieldKey,
         label:
           group?.fields.find((field) => field.key === fieldKey)?.label ??
           fieldKey,
-        value: stringifySettingValue(setting.value),
+        value:
+          legacyLeadershipField && storedValue === legacyLeadershipField[0]
+            ? legacyLeadershipField[1]
+            : storedValue,
       };
 
       if (group) {
