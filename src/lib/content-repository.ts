@@ -3307,10 +3307,9 @@ export async function getSettingsGroups() {
         label:
           group?.fields.find((field) => field.key === fieldKey)?.label ??
           fieldKey,
-        value:
-          legacyLeadershipField && storedValue === legacyLeadershipField[0]
-            ? legacyLeadershipField[1]
-            : storedValue,
+        value: legacyLeadershipField?.[0].includes(storedValue)
+          ? legacyLeadershipField[1]
+          : storedValue,
       };
 
       if (group) {

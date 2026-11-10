@@ -28,8 +28,8 @@ export const ABOUT_PROFILE_DEFAULTS = [
     key: "gm",
     labelAr: "المدير العام (GM)",
     labelEn: "General Manager (GM)",
-    nameAr: "عمرو الشيمي",
-    nameEn: "Amr El-Sheimi",
+    nameAr: "د. عمرو الشيمي",
+    nameEn: "Dr. Amr El-Sheimi",
     titleAr: "إدارة التشغيل وتجربة المراجعين",
     titleEn: "Operations and patient experience",
     descriptionAr:
@@ -77,23 +77,23 @@ const legacyLeadershipImageBase =
 // Replace only the known legacy values so later admin edits remain authoritative.
 export const ABOUT_LEGACY_LEADERSHIP_FIELDS = new Map<
   string,
-  readonly [string, string]
+  readonly [previous: readonly string[], current: string]
 >([
-  ["ceoNameAr", ["CEO", ceoProfile.nameAr]],
-  ["ceoNameEn", ["CEO Team", ceoProfile.nameEn]],
+  ["ceoNameAr", [["CEO"], ceoProfile.nameAr]],
+  ["ceoNameEn", [["CEO Team"], ceoProfile.nameEn]],
   [
     "ceoImageUrl",
     [
-      `${legacyLeadershipImageBase}53756a2e87ccd4fd-image-1780250306140.webp`,
+      [`${legacyLeadershipImageBase}53756a2e87ccd4fd-image-1780250306140.webp`],
       ceoProfile.imageUrl,
     ],
   ],
-  ["gmNameAr", ["General Manager", gmProfile.nameAr]],
-  ["gmNameEn", ["General Manager", gmProfile.nameEn]],
+  ["gmNameAr", [["General Manager", "عمرو الشيمي"], gmProfile.nameAr]],
+  ["gmNameEn", [["General Manager", "Amr El-Sheimi"], gmProfile.nameEn]],
   [
     "gmImageUrl",
     [
-      `${legacyLeadershipImageBase}497704242f30e6fd-image-1780250049248.webp`,
+      [`${legacyLeadershipImageBase}497704242f30e6fd-image-1780250049248.webp`],
       gmProfile.imageUrl,
     ],
   ],
