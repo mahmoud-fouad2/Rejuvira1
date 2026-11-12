@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import {
   AppointmentStatus,
   ChecklistPhase,
+  DocumentVisibility,
   FeedbackStatus,
   MessageStatus,
   NotificationChannel,
@@ -19,6 +20,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  canManagePatientDocuments,
   hasPortalCapability,
   type PortalCapability,
 } from "@/lib/portal/permissions";
@@ -53,6 +55,7 @@ import {
   SAUDI_MOBILE_ERROR_MESSAGE,
 } from "@/lib/saudi-phone";
 import { updatePortalSettings } from "@/lib/portal/settings";
+import { canReadPatientDocuments } from "@/lib/storage/r2";
 
 export type PortalActionState = {
   status: "idle" | "success" | "error";
@@ -97,6 +100,43 @@ function ok(
 function revalidatePatients(patientId?: string) {
   revalidatePath("/admin/patients");
   if (patientId) revalidatePath(`/admin/patients/${patientId}`);
+}
+
+export async function setPatientDocumentVisibilityAction(formData: FormData) {
+  const staff = await requireCapability("documents.upload");
+  if (!staff?.id || !canManagePatientDocuments(staff.role)) return;
+
+  const patientId = formData.get("patientId");
+  const id = formData.get("documentId");
+  const visibility = formData.get("visibility");
+  if (typeof patientId !== "string" || typeof id !== "string" ||
+      (visibility !== DocumentVisibility.STAFF_ONLY &&
+        visibility !== DocumentVisibility.PATIENT_VISIBLE)) return;
+  if (visibility === DocumentVisibility.PATIENT_VISIBLE && !canReadPatientDocuments()) return;
+
+  const { count } = await prisma.patientDocument.updateMany({
+    where: {
+      id,
+      patientId,
+      archivedAt: null,
+      patient: { archivedAt: null },
+      visibility: { not: visibility },
+    },
+    data: { visibility },
+  });
+  if (!count) return;
+  await writePortalAudit({
+    actorType: PortalActorType.STAFF,
+    actorId: staff.id,
+    actorName: staff.name,
+    action: "document.visibility_changed",
+    entityType: "document",
+    entityId: id,
+    patientId,
+    changes: { visibility },
+  });
+  revalidatePath(`/admin/patients/${patientId}`);
+  revalidatePath("/portal/documents");
 }
 
 // ------------------------------------------------------------------

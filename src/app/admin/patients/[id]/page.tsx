@@ -5,11 +5,13 @@ import { PortalActorType } from "@prisma/client";
 
 import { auth } from "@/auth";
 import { AdminConfirmSubmitButton } from "@/components/admin/AdminConfirmSubmitButton";
+import { PatientDocumentUpload } from "@/components/admin/patients/PatientDocumentUpload";
 import { PatientsSubNav } from "@/components/admin/patients/PatientsSubNav";
 import { SendActivationPanel } from "@/components/admin/patients/SendActivationPanel";
 import {
   archivePatientAction,
   restorePatientAction,
+  setPatientDocumentVisibilityAction,
   setMessageStatusAction,
 } from "../actions";
 import {
@@ -27,10 +29,12 @@ import {
 import { getPatientFile } from "@/lib/portal/repository";
 import { writePortalAudit } from "@/lib/portal/audit";
 import {
+  canManagePatientDocuments,
   displayPhone,
   hasPortalCapability,
 } from "@/lib/portal/permissions";
 import { prisma } from "@/lib/prisma";
+import { canReadPatientDocuments, canUploadPatientDocuments } from "@/lib/storage/r2";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +72,8 @@ export default async function PatientFilePage(props: {
   const canSeeAudit = hasPortalCapability(role, "audit.view");
   const canSeeMessages = hasPortalCapability(role, "messages.view");
   const canSeeDocuments = hasPortalCapability(role, "documents.view");
+  const canManageDocuments = !patient.archivedAt && canManagePatientDocuments(role);
+  const canShareDocuments = canManageDocuments && canReadPatientDocuments();
   const canPrint = hasPortalCapability(role, "pdf.print");
 
   // Viewing a patient file is a sensitive operation — always audited.
@@ -445,6 +451,14 @@ export default async function PatientFilePage(props: {
         )
       ) : null}
 
+      {activeTab === "documents" && canSeeDocuments && canManageDocuments ? (
+        canUploadPatientDocuments() ? (
+          <PatientDocumentUpload patientId={patient.id} />
+        ) : (
+          <p>رفع المستندات متاح بعد ربط التخزين الخاص.</p>
+        )
+      ) : null}
+
       {activeTab === "documents" && canSeeDocuments ? (
         patient.documents.length === 0 ? (
           <div className="admin-empty-state">
@@ -460,6 +474,7 @@ export default async function PatientFilePage(props: {
                   <th>الظهور للمريض</th>
                   <th>رفع بواسطة</th>
                   <th>التاريخ</th>
+                  {canManageDocuments ? <th>الإجراء</th> : null}
                 </tr>
               </thead>
               <tbody>
@@ -474,6 +489,22 @@ export default async function PatientFilePage(props: {
                     </td>
                     <td>{document.uploadedByName ?? "—"}</td>
                     <td>{formatDate(document.createdAt)}</td>
+                    {canManageDocuments ? (
+                      <td>
+                        {canShareDocuments || document.visibility === "PATIENT_VISIBLE" ? (
+                        <form action={setPatientDocumentVisibilityAction}>
+                          <input type="hidden" name="patientId" value={patient.id} />
+                          <input type="hidden" name="documentId" value={document.id} />
+                          <input type="hidden" name="visibility" value={
+                            document.visibility === "PATIENT_VISIBLE" ? "STAFF_ONLY" : "PATIENT_VISIBLE"
+                          } />
+                          <button type="submit" className="admin-button admin-button--ghost">
+                            {document.visibility === "PATIENT_VISIBLE" ? "إلغاء الإتاحة" : "إتاحة للمريض"}
+                          </button>
+                        </form>
+                        ) : "—"}
+                      </td>
+                    ) : null}
                   </tr>
                 ))}
               </tbody>

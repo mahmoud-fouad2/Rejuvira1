@@ -16,6 +16,7 @@ import * as nodeCrypto from "node:crypto";
 import { doctorProfileSections } from "./doctor-profile-content.ts";
 import { bookingServiceOptions } from "./public-client-content.ts";
 import { isPublicIntegrationAddress, parseIntegrationEndpoint } from "./integration-endpoint.ts";
+import * as patientUpload from "./portal/document-upload.ts";
 
 function productionModule(
   relativePath: string,
@@ -52,6 +53,71 @@ function productionModule(
   );
   return exports;
 }
+
+test("staff document uploads are authorized, private by default and bounded to the patient", async () => {
+  let role: UserRole = UserRole.RECEPTIONIST;
+  let configured = false;
+  let writes = 0;
+  let persisted: Record<string, unknown> | undefined;
+  const { POST } = productionModule("../app/api/admin/patients/[id]/documents/route.ts", {
+    "node:crypto": nodeCrypto,
+    "@prisma/client": {
+      DocumentVisibility: { STAFF_ONLY: "STAFF_ONLY", PATIENT_VISIBLE: "PATIENT_VISIBLE" },
+      PortalActorType: { STAFF: "STAFF" },
+    },
+    "@/auth": { auth: async () => ({ user: { id: "staff-1", role } }) },
+    "@/lib/portal/audit": { writePortalAudit: async () => {} },
+    "@/lib/portal/document-upload": patientUpload,
+    "@/lib/portal/permissions": {
+      canManagePatientDocuments: (role: UserRole) => role === UserRole.ADMIN,
+    },
+    "@/lib/prisma": {
+      prisma: {
+        patient: { findFirst: async ({ where }: any) => {
+          assert.equal(where.id, "patient-1");
+          assert.equal(where.archivedAt, null);
+          return { id: "patient-1" };
+        } },
+        patientDocument: { create: async ({ data }: any) => { persisted = data; } },
+      },
+    },
+    "@/lib/storage/r2": {
+      canUploadPatientDocuments: () => configured,
+      writePatientDocumentObject: async (id: string, upload: { body: Buffer; contentType: string }) => {
+        assert.equal(upload.contentType, "application/pdf");
+        assert.equal(upload.body.toString(), "%PDF-1.4\nsynthetic");
+        writes++;
+        return `patient-documents/${id}`;
+      },
+    },
+  }, { Buffer, File, RangeError });
+
+  const args = { params: Promise.resolve({ id: "patient-1" }) };
+  function submit(content: string, origin = "https://rejuvera.sa") {
+    const form = new FormData();
+    form.set("title", "Synthetic document");
+    form.set("file", new File([content], "fixture.pdf", { type: "application/pdf" }));
+    return POST(new Request("https://rejuvera.sa/api/admin/patients/patient-1/documents", {
+      method: "POST",
+      headers: { origin },
+      body: form,
+    }), args);
+  }
+
+  assert.equal((await submit("%PDF-1.4\nsynthetic")).status, 403);
+  role = UserRole.ADMIN;
+  assert.equal((await submit("%PDF-1.4\nsynthetic", "https://example.test")).status, 403);
+  assert.equal((await submit("%PDF-1.4\nsynthetic")).status, 503);
+  configured = true;
+  assert.equal((await submit("Plain text")).status, 415);
+  assert.equal(writes, 0);
+  assert.equal((await submit("%PDF-1.4\nsynthetic")).status, 201);
+  assert.equal(writes, 1);
+  assert.equal(persisted?.patientId, "patient-1");
+  assert.equal(persisted?.visibility, "STAFF_ONLY");
+  assert.equal(persisted?.fileName, "document.pdf");
+  assert.equal(persisted?.storageKey, `patient-documents/${persisted?.id}`);
+});
 
 test("integration egress allows public HTTPS and denies non-public addresses", () => {
   assert.equal(parseIntegrationEndpoint("https://example.com/api").pathname, "/api");

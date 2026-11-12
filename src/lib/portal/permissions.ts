@@ -213,6 +213,11 @@ export function hasPortalCapability(
   return CAPABILITIES[capability].includes(role);
 }
 
+export function canManagePatientDocuments(role: UserRole | undefined) {
+  return hasPortalCapability(role, "patients.edit") &&
+    hasPortalCapability(role, "documents.upload");
+}
+
 /** Throwable guard for server actions and API routes. */
 export function assertPortalCapability(
   role: UserRole | undefined,

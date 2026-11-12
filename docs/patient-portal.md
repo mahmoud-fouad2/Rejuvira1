@@ -113,7 +113,18 @@
 
 1. مُضاف تلقائيًا إلى `render.yaml` build:
    `prisma migrate deploy` → `seed:core` → `seed:landing` → **`seed:templates`** → build.
-2. لا متغيرات بيئة جديدة مطلوبة (يُعيد استخدام `SITE_URL`, بيانات المركز, الخط).
+2. يتطلب تنزيل المستندات حاوية R2 خاصة على نفس حساب `R2_ENDPOINT`، منفصلة
+   عن حاوية وسائط الموقع. اترك النطاقات العامة و`r2.dev` مغلقين لهذه
+   الحاوية. في Render اضبط `R2_PATIENT_DOCUMENTS_BUCKET` وأضف مفتاح
+   Object Read المقيّد بالحاوية عبر `R2_PATIENT_DOCUMENTS_ACCESS_KEY_ID`
+   و`R2_PATIENT_DOCUMENTS_SECRET_ACCESS_KEY`. لإتاحة الرفع من ملف المريض،
+   أضف مفتاح Object Read & Write مقيّد بالحاوية عبر
+   `R2_PATIENT_DOCUMENTS_WRITE_ACCESS_KEY_ID`
+   و`R2_PATIENT_DOCUMENTS_WRITE_SECRET_ACCESS_KEY`.
+   احفظ القيم في إعدادات الخدمة وابدأ النشر، ثم اختبر ملف PDF اصطناعيًا
+   على حساب مريض تجريبي. اختبر الإتاحة ثم إلغاءها من تبويب المستندات.
+   [إعداد مفاتيح R2](https://developers.cloudflare.com/r2/api/tokens/)
+   [متغيرات Render](https://render.com/docs/configure-environment-variables)
 3. بعد النشر: يعتمد المدير الطبي القوالب من `/admin/patients/templates` قبل
    استخدامها مع المرضى.
 

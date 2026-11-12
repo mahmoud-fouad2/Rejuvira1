@@ -360,34 +360,71 @@ export function getSignedReadUrl(
   return url.toString();
 }
 
-/** Read patient files only from a separately provisioned, private R2 bucket. */
-export async function readPatientDocumentObject(key: string) {
+function patientDocumentCredentials(write: boolean): R2Credentials | null {
   const endpoint = process.env.R2_ENDPOINT?.trim().replace(/\/$/, "");
   const bucket = process.env.R2_PATIENT_DOCUMENTS_BUCKET?.trim();
-  const accessKeyId = process.env.R2_PATIENT_DOCUMENTS_ACCESS_KEY_ID?.trim();
-  const secretAccessKey = process.env.R2_PATIENT_DOCUMENTS_SECRET_ACCESS_KEY?.trim();
+  const accessKeyId = (write
+    ? process.env.R2_PATIENT_DOCUMENTS_WRITE_ACCESS_KEY_ID
+    : process.env.R2_PATIENT_DOCUMENTS_ACCESS_KEY_ID)?.trim();
+  const secretAccessKey = (write
+    ? process.env.R2_PATIENT_DOCUMENTS_WRITE_SECRET_ACCESS_KEY
+    : process.env.R2_PATIENT_DOCUMENTS_SECRET_ACCESS_KEY)?.trim();
   if (
     !endpoint || !bucket || !accessKeyId || !secretAccessKey ||
     !/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(bucket) ||
     bucket === process.env.R2_BUCKET?.trim()
   ) {
-    throw new Error("Private patient document storage is unavailable.");
+    return null;
   }
+  return { endpoint, bucket, accessKeyId, secretAccessKey, accountId: "" };
+}
+
+export function canReadPatientDocuments() {
+  return Boolean(patientDocumentCredentials(false));
+}
+
+export function canUploadPatientDocuments() {
+  return canReadPatientDocuments() && Boolean(patientDocumentCredentials(true));
+}
+
+/** Read patient files only from a separately provisioned, private R2 bucket. */
+export async function readPatientDocumentObject(key: string) {
+  const credentials = patientDocumentCredentials(false);
+  if (!credentials) throw new Error("Private patient document storage is unavailable.");
   const segments = key.split("/");
   if (segments.some((segment) => !segment || segment === "." || segment === "..") ||
       /[\\%\u0000-\u001f\u007f]/.test(key) || key.includes("://")) {
     return new Response(null, { status: 404 });
   }
-  const signed = signRequest(
-    { endpoint, bucket, accessKeyId, secretAccessKey, accountId: "" },
-    { method: "GET", key },
-  );
+  const signed = signRequest(credentials, { method: "GET", key });
   return fetch(signed.url, {
     headers: signed.headers,
     cache: "no-store",
     redirect: "error",
     signal: AbortSignal.timeout(60_000),
   });
+}
+
+export async function writePatientDocumentObject(
+  id: string,
+  upload?: { body: Buffer; contentType: string },
+) {
+  const credentials = patientDocumentCredentials(true);
+  if (!credentials) throw new Error("Private patient document storage is unavailable.");
+  const key = `patient-documents/${id}`;
+  const method = upload ? "PUT" : "DELETE";
+  const signed = signRequest(credentials, { method, key, ...upload });
+  const response = await fetch(signed.url, {
+    method,
+    headers: signed.headers,
+    ...(upload ? { body: new Uint8Array(upload.body) } : {}),
+    cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(30_000),
+  });
+  await response.body?.cancel();
+  if (!response.ok) throw new Error("Private patient document storage request failed.");
+  return key;
 }
 
 // Namespaces holding sensitive, non-public content: always served via a
