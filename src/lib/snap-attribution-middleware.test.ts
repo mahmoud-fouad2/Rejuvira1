@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+import { getMetaRequestSignals } from "./meta-capi.ts";
+import { metaClickCookieForRequest } from "./meta-click-attribution.ts";
 import { snapClickCookieForRequest } from "./snap-click-attribution.ts";
 
 function middleware() {
@@ -31,6 +33,7 @@ function middleware() {
       buildCanonicalUrl: (path: string) => new URL(path, "https://rejuvera.sa"),
     },
     "@/lib/csp": { buildCsp: () => "default-src 'self'" },
+    "@/lib/meta-click-attribution": { metaClickCookieForRequest },
     "@/lib/public-service-slug": { publicServiceSlug: (slug: string) => slug },
     "@/lib/snap-click-attribution": { snapClickCookieForRequest },
   };
@@ -53,6 +56,7 @@ function middleware() {
       crypto,
       btoa,
       Headers,
+      process: { env: { META_CAPI_ENABLED: "1" } },
       URL,
       Response,
     },
@@ -99,4 +103,51 @@ test("attribution does not bypass admin authentication or weaken opt-out respons
   });
   assert.match(optedOut.headers.get("set-cookie")!, /Max-Age=0/);
   assert.equal(optedOut.headers.get("cache-control"), "private, no-store");
+});
+
+test("a Meta click can be matched after navigating to a clean form URL", () => {
+  const run = middleware();
+  const landing = run(
+    "https://rejuvera.sa/p/private?fbclid=actual-click&phone=0500000000",
+  );
+  const setCookie = landing.headers.get("set-cookie")!;
+  assert.match(
+    setCookie,
+    /^rv_meta_click=fb\.1\.\d{13}\.actual-click; Path=\/; HttpOnly; Secure; SameSite=Lax$/,
+  );
+  assert.equal(landing.headers.get("cache-control"), "private, no-store");
+  const cookie = setCookie.split(";")[0]!;
+  const submission = new Request("https://rejuvera.sa/api/contact", {
+    method: "POST",
+    headers: {
+      cookie: `_fbc=fb.1.1700000000000.old-click; ${cookie}`,
+      referer: "https://rejuvera.sa/contact",
+    },
+  });
+  assert.equal(getMetaRequestSignals(submission).fbc, cookie.split("=")[1]);
+  assert.equal(
+    run("https://rejuvera.sa/contact?fbclid=actual-click", { cookie })
+      .headers.get("set-cookie"),
+    null,
+  );
+  const optedOut = run("https://rejuvera.sa/contact?fbclid=other-click", {
+    cookie,
+    "sec-gpc": "1",
+  });
+  assert.match(optedOut.headers.get("set-cookie")!, /rv_meta_click=;.*Max-Age=0/);
+  assert.equal(optedOut.headers.get("cache-control"), "private, no-store");
+});
+
+test("Meta click storage excludes prefetch, private routes and unrelated origins", () => {
+  const run = middleware();
+  for (const response of [
+    run("https://rejuvera.sa/contact?fbclid=meta-click", {
+      "sec-purpose": "prefetch",
+    }),
+    run("https://rejuvera.sa/api/health?fbclid=meta-click"),
+    run("https://other.example/contact?fbclid=meta-click"),
+    run("https://rejuvera.sa/contact?fbclid=invalid%3Bvalue"),
+  ]) {
+    assert.equal(response.headers.get("set-cookie"), null);
+  }
 });

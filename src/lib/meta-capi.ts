@@ -1,5 +1,11 @@
 /** Server-only Meta CAPI. Never expose the access token to the browser. */
 import { isIP } from "node:net";
+import {
+  hasMetaTrackingOptOut,
+  makeMetaClickCookie,
+  META_CLICK_COOKIE,
+  metaClickIdFromUrl,
+} from "./meta-click-attribution.ts";
 
 export type MetaLeadPayload = {
   requestId: string;
@@ -24,45 +30,46 @@ export function getMetaRequestSignals(request: Request) {
     const index = part.indexOf("=");
     if (index < 0) continue;
     const key = part.slice(0, index).trim();
-    if (key !== "_fbc" && key !== "_fbp") continue;
+    if (key !== "_fbc" && key !== "_fbp" && key !== META_CLICK_COOKIE) continue;
     try {
       cookies.set(key, decodeURIComponent(part.slice(index + 1).trim()));
     } catch {
       // Ignore malformed cookies; never log cookie values.
     }
   }
-  let fbc = cleanCookie(cookies.get("_fbc"));
-  if (!fbc) {
-    for (const candidate of [
-      request.headers.get("x-rejuvera-current-url"),
-      request.headers.get("referer"),
-      request.url,
-    ]) {
-      if (!candidate) continue;
-      try {
-        const url = new URL(candidate);
-        if (
-          url.hostname !== "rejuvera.sa" &&
-          url.hostname !== "www.rejuvera.sa"
-        )
-          continue;
-        const clickId = url.searchParams.get("fbclid");
-        if (clickId && /^[a-zA-Z0-9_-]{1,250}$/.test(clickId)) {
-          fbc = `fb.1.${Date.now()}.${clickId}`;
-          break;
-        }
-      } catch {
-        // Do not forward or log the referring URL.
+  const pixelClick = cleanCookie(cookies.get("_fbc"));
+  const storedClick = cleanCookie(cookies.get(META_CLICK_COOKIE));
+  let fbc = pixelClick ?? storedClick;
+  if (pixelClick && storedClick) {
+    const [, , pixelTime, pixelId] = pixelClick.split(".");
+    const [, , storedTime, storedId] = storedClick.split(".");
+    if (pixelId !== storedId && Number(storedTime) > Number(pixelTime)) {
+      fbc = storedClick;
+    }
+  }
+  for (const candidate of [
+    request.headers.get("x-rejuvera-current-url"),
+    ...(!fbc ? [request.headers.get("referer"), request.url] : []),
+  ]) {
+    if (!candidate) continue;
+    try {
+      const clickId = metaClickIdFromUrl(new URL(candidate));
+      if (!clickId) continue;
+      if (!fbc?.endsWith(`.${clickId}`)) {
+        fbc = [pixelClick, storedClick].find((value) =>
+          value?.endsWith(`.${clickId}`),
+        ) ?? makeMetaClickCookie(clickId);
       }
+      break;
+    } catch {
+      // Do not forward or log the referring URL.
     }
   }
   return {
     fbc,
     fbp: cleanCookie(cookies.get("_fbp")),
     userAgent: request.headers.get("user-agent") ?? undefined,
-    trackingDisabled:
-      request.headers.get("sec-gpc") === "1" ||
-      request.headers.get("dnt") === "1",
+    trackingDisabled: hasMetaTrackingOptOut(request.headers),
   };
 }
 

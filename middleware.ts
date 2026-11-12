@@ -9,6 +9,7 @@ import {
   shouldRedirectToCanonicalHost,
 } from "@/lib/canonical-host";
 import { buildCsp } from "@/lib/csp";
+import { metaClickCookieForRequest } from "@/lib/meta-click-attribution";
 import { publicServiceSlug } from "@/lib/public-service-slug";
 import { snapClickCookieForRequest } from "@/lib/snap-click-attribution";
 
@@ -236,9 +237,18 @@ function handleRequest(request: NextRequest, session: Session | null) {
     response.headers.set("X-Robots-Tag", "all");
   }
 
-  const snapClickCookie = snapClickCookieForRequest(request);
-  if (snapClickCookie) {
-    response.headers.append("Set-Cookie", snapClickCookie);
+  const attributionCookies = [snapClickCookieForRequest(request)];
+  if (
+    process.env.META_CAPI_ENABLED === "1" &&
+    !isSensitiveSurface &&
+    !hasAuthenticatedUser &&
+    !hasPrivateCookie
+  ) {
+    attributionCookies.push(metaClickCookieForRequest(request, nextUrl));
+  }
+  for (const cookie of attributionCookies) {
+    if (!cookie) continue;
+    response.headers.append("Set-Cookie", cookie);
     // A response carrying a visitor-specific cookie must never enter a shared cache.
     response.headers.set("Cache-Control", "private, no-store");
   }
