@@ -4909,6 +4909,8 @@ export async function createContactLead(
     } catch (error) {
       if (attempt >= 3 || (error as { code?: string })?.code !== "P2034")
         throw error;
+      const delay = 50 * 2 ** attempt + Math.floor(Math.random() * 50);
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }

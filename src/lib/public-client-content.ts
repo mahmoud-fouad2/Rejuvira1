@@ -18,15 +18,15 @@ export function bookingServiceOptions(
 export type MegaMenuContent = {
   services: readonly Pick<
     ServiceRecord,
-    "slug" | "name" | "category" | "coverImageUrl"
+    "slug" | "name" | "nameEn" | "category" | "categoryEn" | "coverImageUrl"
   >[];
   doctors: readonly Pick<
     DoctorRecord,
-    "slug" | "name" | "specialty" | "photoUrl" | "coverImageUrl"
+    "slug" | "name" | "nameEn" | "specialty" | "specialtyEn" | "photoUrl" | "coverImageUrl"
   >[];
   devices: readonly Pick<
     DeviceRecord,
-    "name" | "certifications" | "imageUrl"
+    "name" | "nameEn" | "certifications" | "imageUrl"
   >[];
 };
 
@@ -35,25 +35,30 @@ export function megaMenuContent(content: MegaMenuContent): MegaMenuContent {
   return {
     services: content.services
       .slice(0, 4)
-      .map(({ slug, name, category, coverImageUrl }) => ({
+      .map(({ slug, name, nameEn, category, categoryEn, coverImageUrl }) => ({
         slug,
         name,
+        nameEn: nameEn ?? null,
         category,
+        categoryEn: categoryEn ?? null,
         coverImageUrl,
       })),
     doctors: content.doctors
       .slice(0, 4)
-      .map(({ slug, name, specialty, photoUrl, coverImageUrl }) => ({
+      .map(({ slug, name, nameEn, specialty, specialtyEn, photoUrl, coverImageUrl }) => ({
         slug,
         name,
+        nameEn: nameEn ?? null,
         specialty,
+        specialtyEn: specialtyEn ?? null,
         photoUrl,
         coverImageUrl,
       })),
     devices: content.devices
       .slice(0, 4)
-      .map(({ name, certifications, imageUrl }) => ({
+      .map(({ name, nameEn, certifications, imageUrl }) => ({
         name,
+        nameEn: nameEn ?? null,
         certifications: certifications.slice(0, 1),
         imageUrl,
       })),

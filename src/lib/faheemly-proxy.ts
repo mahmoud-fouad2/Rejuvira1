@@ -157,22 +157,30 @@ export async function proxyFaheemlyRequest(
   headers.set("origin", FAHEEMLY_ALLOWED_ORIGIN);
   headers.set("referer", `${FAHEEMLY_ALLOWED_ORIGIN}/`);
 
-  const init: RequestInit = {
+  const init: RequestInit & { duplex?: "half" } = {
     method: request.method,
     headers,
     redirect: "follow",
     cache: "no-store",
   };
 
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    const body = await request.arrayBuffer();
-    if (body.byteLength > MAX_REQUEST_BODY_BYTES) {
-      return jsonResponse(413, { error: "Payload too large" });
-    }
-    init.body = body;
-  }
-
   const controller = new AbortController();
+  let bodyTooLarge = false;
+  if (request.body && request.method !== "GET" && request.method !== "HEAD") {
+    let bytes = 0;
+    init.duplex = "half";
+    init.body = request.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+      transform(chunk, stream) {
+        bytes += chunk.byteLength;
+        if (bytes > MAX_REQUEST_BODY_BYTES) {
+          bodyTooLarge = true;
+          stream.error(new Error("Payload too large"));
+          return;
+        }
+        stream.enqueue(chunk);
+      },
+    }));
+  }
   const timer = setTimeout(
     () => controller.abort(),
     pathname.startsWith("/api/chat") ? CHAT_TIMEOUT_MS : DEFAULT_TIMEOUT_MS,
@@ -188,6 +196,9 @@ export async function proxyFaheemlyRequest(
     if (
       cacheKey &&
       upstream.status === 200 &&
+      upstream.headers.has("content-length") &&
+      Number(upstream.headers.get("content-length")) <= CACHE_MAX_BODY_BYTES &&
+      !upstream.headers.has("content-encoding") &&
       !upstream.headers.has("set-cookie") &&
       !/no-store|private/i.test(upstream.headers.get("cache-control") ?? "")
     ) {
@@ -210,6 +221,7 @@ export async function proxyFaheemlyRequest(
       headers: responseHeaders(contentType),
     });
   } catch (err) {
+    if (bodyTooLarge) return jsonResponse(413, { error: "Payload too large" });
     return jsonResponse(controller.signal.aborted ? 504 : 502, {
       error: "Faheemly proxy failed",
       details: String(err),

@@ -330,7 +330,7 @@ export function AdminMediaLibrary() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/avif,image/gif,image/svg+xml"
+            accept="image/png,image/jpeg,image/webp,image/avif,image/gif"
             className="hidden"
             onChange={(event) => {
               const file = event.target.files?.[0];

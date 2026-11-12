@@ -1,3 +1,5 @@
+import { isIP } from "node:net";
+
 /**
  * Lightweight in-memory token-bucket rate limiter.
  *
@@ -98,11 +100,13 @@ function normalizeForwardedIp(value: string | null | undefined) {
 
   const withoutQuotes = first.replace(/^["']|["']$/g, "");
   const bracketedIpv6 = withoutQuotes.match(/^\[([a-f0-9:.]+)\](?::\d+)?$/i);
-  if (bracketedIpv6?.[1]) return bracketedIpv6[1];
+  if (bracketedIpv6?.[1]) {
+    return isIP(bracketedIpv6[1]) === 6 ? bracketedIpv6[1] : null;
+  }
 
   const ipv4WithPort = withoutQuotes.match(/^(\d{1,3}(?:\.\d{1,3}){3}):\d+$/);
   const candidate = ipv4WithPort?.[1] ?? withoutQuotes;
-  return /^[a-f0-9:.]+$/i.test(candidate) ? candidate : null;
+  return isIP(candidate) ? candidate : null;
 }
 
 export function normalizeClientIp(value: string | null | undefined) {
@@ -110,6 +114,11 @@ export function normalizeClientIp(value: string | null | undefined) {
 }
 
 export function extractClientIp(headers: Headers): string {
+  if (process.env.RENDER === "true") {
+    // Render sets the first X-Forwarded-For address at its public ingress.
+    return normalizeForwardedIp(headers.get("x-forwarded-for")) ?? "unknown";
+  }
+
   const directHeaders = [
     "cf-connecting-ip",
     "true-client-ip",

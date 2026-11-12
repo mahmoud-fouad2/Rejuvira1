@@ -31,7 +31,6 @@ const ALLOWED_CONTENT_TYPES = new Set([
   "image/jpeg",
   "image/webp",
   "image/avif",
-  "image/svg+xml",
   "image/gif",
   "image/x-icon",
   "image/vnd.microsoft.icon",
@@ -89,6 +88,9 @@ export async function POST(request: Request) {
 
   const fileName = file.name || "upload.bin";
   const lowerName = fileName.toLowerCase();
+  if (/\.svgz?$/.test(lowerName)) {
+    return badRequest("Upload a PNG or WebP image instead of SVG.");
+  }
   const contentType =
     file.type ||
     (lowerName.endsWith(".ico") ? "image/x-icon" : "application/octet-stream");

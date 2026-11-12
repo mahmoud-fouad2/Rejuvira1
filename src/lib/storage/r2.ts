@@ -360,6 +360,36 @@ export function getSignedReadUrl(
   return url.toString();
 }
 
+/** Read patient files only from a separately provisioned, private R2 bucket. */
+export async function readPatientDocumentObject(key: string) {
+  const endpoint = process.env.R2_ENDPOINT?.trim().replace(/\/$/, "");
+  const bucket = process.env.R2_PATIENT_DOCUMENTS_BUCKET?.trim();
+  const accessKeyId = process.env.R2_PATIENT_DOCUMENTS_ACCESS_KEY_ID?.trim();
+  const secretAccessKey = process.env.R2_PATIENT_DOCUMENTS_SECRET_ACCESS_KEY?.trim();
+  if (
+    !endpoint || !bucket || !accessKeyId || !secretAccessKey ||
+    !/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(bucket) ||
+    bucket === process.env.R2_BUCKET?.trim()
+  ) {
+    throw new Error("Private patient document storage is unavailable.");
+  }
+  const segments = key.split("/");
+  if (segments.some((segment) => !segment || segment === "." || segment === "..") ||
+      /[\\%\u0000-\u001f\u007f]/.test(key) || key.includes("://")) {
+    return new Response(null, { status: 404 });
+  }
+  const signed = signRequest(
+    { endpoint, bucket, accessKeyId, secretAccessKey, accountId: "" },
+    { method: "GET", key },
+  );
+  return fetch(signed.url, {
+    headers: signed.headers,
+    cache: "no-store",
+    redirect: "error",
+    signal: AbortSignal.timeout(60_000),
+  });
+}
+
 // Namespaces holding sensitive, non-public content: always served via a
 // signed, expiring URL, never via the permanent public CDN base — even
 // when R2_PUBLIC_BASE_URL is configured for the (public) media namespaces.

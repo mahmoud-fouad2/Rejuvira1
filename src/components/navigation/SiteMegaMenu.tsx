@@ -86,8 +86,8 @@ export function SiteMegaMenu({
       titleAr: "خدماتنا",
       titleEn: "Services",
       items: services.slice(0, 4).map((service) => ({
-        title: service.name,
-        subtitle: service.category,
+        title: lang === "en" ? service.nameEn || service.name : service.name,
+        subtitle: lang === "en" ? service.categoryEn || service.category : service.category,
         href: `/services/${service.slug}` as Route,
         image: service.coverImageUrl,
       })),
@@ -96,8 +96,8 @@ export function SiteMegaMenu({
       titleAr: "الأطباء",
       titleEn: "Doctors",
       items: doctors.slice(0, 4).map((doctor) => ({
-        title: doctor.name,
-        subtitle: doctor.specialty,
+        title: lang === "en" ? doctor.nameEn || doctor.name : doctor.name,
+        subtitle: lang === "en" ? doctor.specialtyEn || doctor.specialty : doctor.specialty,
         href: `/doctors/${doctor.slug}` as Route,
         image: doctor.photoUrl || doctor.coverImageUrl,
       })),
@@ -106,8 +106,8 @@ export function SiteMegaMenu({
       titleAr: "الأجهزة",
       titleEn: "Devices",
       items: devices.slice(0, 4).map((device) => ({
-        title: device.name,
-        subtitle: device.certifications[0] ?? "تقنية معتمدة",
+        title: lang === "en" ? device.nameEn || device.name : device.name,
+        subtitle: device.certifications[0] ?? (lang === "en" ? "Certified technology" : "تقنية معتمدة"),
         href: "/devices" as Route,
         image: device.imageUrl,
       })),

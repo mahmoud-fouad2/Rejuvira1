@@ -14,7 +14,7 @@ import { publicServiceSlug } from "@/lib/public-service-slug";
 import { snapClickCookieForRequest } from "@/lib/snap-click-attribution";
 
 /**
- * Edge middleware:
+ * Request proxy:
  * 1. Canonical host redirect (legacy domains -> SITE_URL).
  * 2. Auth gate for `/admin/*` (redirect anon -> /login).
  * 3. Role-based gate for protected admin routes.
@@ -267,7 +267,7 @@ const authenticatedMiddleware = auth((request, event: NextFetchEvent) => {
   return handleRequest(request, request.auth);
 });
 
-export default function middleware(
+export function proxy(
   request: NextRequest,
   event: NextFetchEvent,
 ) {

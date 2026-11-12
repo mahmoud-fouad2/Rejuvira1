@@ -8,7 +8,7 @@ const imageUnoptimized = process.env.IMAGE_UNOPTIMIZED === "1";
 
 /**
  * The public/admin Content-Security-Policy is built and set per-request by
- * middleware.ts (src/lib/csp.ts's `buildCsp`), because it carries a fresh
+ * src/proxy.ts (src/lib/csp.ts's `buildCsp`), because it carries a fresh
  * nonce on every request. next.config.ts can only emit a static header, so
  * it no longer sets Content-Security-Policy for the routes middleware
  * covers — see `securityHeaders` / `adminFrameProtectionHeaders` below.
@@ -182,7 +182,7 @@ const nextConfig: NextConfig = {
         ],
       },
       // robots.txt + sitemap files: short cache, plus permissive indexing.
-      // These file routes are excluded from middleware.ts's matcher (by
+      // These file routes are excluded from proxy.ts's matcher (by
       // extension), so they no longer get a CSP from there either — they
       // never render HTML/script, so a locked-down static policy is enough.
       {

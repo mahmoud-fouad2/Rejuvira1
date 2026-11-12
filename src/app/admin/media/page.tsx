@@ -51,7 +51,7 @@ export default async function AdminMediaPage() {
       labelEn: "Favicon",
       value: mediaSelections.favicon,
       namespace: "brand",
-      accept: "image/png,image/svg+xml,image/x-icon,.ico",
+      accept: "image/png,image/webp,image/x-icon,.ico",
     },
     {
       key: "appleIcon",

@@ -9,7 +9,7 @@ import { snapClickCookieForRequest } from "./snap-click-attribution.ts";
 
 function middleware() {
   const exports = {} as {
-    default: (request: Request & { nextUrl: URL }) => Response;
+    proxy: (request: Request & { nextUrl: URL }) => Response;
   };
   const modules: Record<string, unknown> = {
     "next/server": {
@@ -39,7 +39,7 @@ function middleware() {
   };
   vm.runInNewContext(
     ts.transpileModule(
-      readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../proxy.ts", import.meta.url), "utf8"),
       {
         compilerOptions: {
           module: ts.ModuleKind.CommonJS,
@@ -64,7 +64,7 @@ function middleware() {
   return (url: string, headers: HeadersInit = {}) => {
     const request = new Request(url, { headers }) as Request & { nextUrl: URL };
     request.nextUrl = new URL(url);
-    return exports.default(request);
+    return exports.proxy(request);
   };
 }
 

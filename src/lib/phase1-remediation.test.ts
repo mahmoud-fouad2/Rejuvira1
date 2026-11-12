@@ -29,7 +29,7 @@ function createMiddlewareRunner(
   initialHeaders: Record<string, string> = {},
 ) {
   const exports = {} as {
-    default: (request: Request & { nextUrl: URL; auth?: any }) => Response;
+    proxy: (request: Request & { nextUrl: URL; auth?: any }) => Response;
   };
   const modules: Record<string, unknown> = {
     "next/server": {
@@ -57,13 +57,14 @@ function createMiddlewareRunner(
       buildCanonicalUrl: (path: string) => new URL(path, "https://rejuvera.sa"),
     },
     "@/lib/csp": { buildCsp: () => "default-src 'self'" },
+    "@/lib/meta-click-attribution": { metaClickCookieForRequest: () => null },
     "@/lib/public-service-slug": { publicServiceSlug: (slug: string) => slug },
     "@/lib/snap-click-attribution": { snapClickCookieForRequest: () => null },
   };
 
   vm.runInNewContext(
     ts.transpileModule(
-      readFileSync(new URL("../../middleware.ts", import.meta.url), "utf8"),
+      readFileSync(new URL("../proxy.ts", import.meta.url), "utf8"),
       {
         compilerOptions: {
           module: ts.ModuleKind.CommonJS,
@@ -82,6 +83,7 @@ function createMiddlewareRunner(
       Headers,
       URL,
       Response,
+      process: { env: {} },
     },
   );
 
@@ -93,7 +95,7 @@ function createMiddlewareRunner(
       auth?: any;
     };
     request.nextUrl = new URL(url);
-    return exports.default(request);
+    return exports.proxy(request);
   };
 }
 

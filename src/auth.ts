@@ -72,6 +72,7 @@ async function tryBootstrapLogin(email: string, password: string) {
       },
     });
 
+    if (!user.isActive) return null;
     return {
       id: user.id,
       name: user.name,
@@ -79,18 +80,8 @@ async function tryBootstrapLogin(email: string, password: string) {
       role: user.role,
     };
   } catch (error) {
-    console.error(
-      "[auth] Bootstrap upsert failed, signing in without DB record",
-      error,
-    );
-    // Fall back to an in-memory session so admin can still sign in even when
-    // the database is unreachable.
-    return {
-      id: `bootstrap:${bootstrap.email}`,
-      name: bootstrap.name,
-      email: bootstrap.email,
-      role: UserRole.SUPER_ADMIN,
-    };
+    console.error("[auth] Bootstrap upsert failed", error);
+    return null;
   }
 }
 
@@ -101,13 +92,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   trustHost: true,
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        return token;
       }
 
-      return token;
+      if (typeof token.id !== "string" || !token.id || token.id.startsWith("bootstrap:")) {
+        return null;
+      }
+
+      try {
+        const account = await prisma.user.findUnique({
+          where: { id: token.id },
+          select: { isActive: true, role: true },
+        });
+        if (!account?.isActive) return null;
+        token.role = account.role;
+        return token;
+      } catch {
+        // Never serve staff-only data when current authorization cannot be checked.
+        return null;
+      }
     },
     session({ session, token }) {
       if (session.user) {

@@ -7,6 +7,10 @@ import {
   type IntegrationToolLog,
 } from "@prisma/client";
 
+import {
+  parseIntegrationEndpoint,
+  requestIntegrationEndpoint,
+} from "@/lib/integration-endpoint";
 import { prisma } from "@/lib/prisma";
 
 /* ── Types ─────────────────────────────────────────────────────── */
@@ -541,12 +545,11 @@ export async function executeIntegration(
     if (coerced.value !== undefined) collected[param.name] = coerced.value;
   }
 
-  let url: string;
+  let url: URL;
   try {
-    url = interpolateUrl(integration.url, collected);
-    new URL(url);
+    url = parseIntegrationEndpoint(interpolateUrl(integration.url, collected));
   } catch {
-    const result = errorResult("Invalid endpoint URL.", start);
+    const result = errorResult("Use a valid public HTTPS endpoint URL.", start);
     if (persistLog) await logExecution(integration, params, result, null);
     return result;
   }
@@ -577,22 +580,19 @@ export async function executeIntegration(
   );
   const timer = setTimeout(() => controller.abort(), timeout);
 
-  let response: Response | null = null;
-  let bodyText = "";
   let parsedBody: unknown = null;
   let error: string | null = null;
   let httpStatus: number | null = null;
 
   try {
-    const init: RequestInit = {
+    const response = await requestIntegrationEndpoint(url, {
       method,
       headers,
       signal: controller.signal,
-    };
-    if (sendBody && built) init.body = built.body;
-    response = await fetch(url, init);
+      body: sendBody ? built?.body : undefined,
+    });
     httpStatus = response.status;
-    bodyText = await response.text();
+    const bodyText = response.body;
     if (bodyText) {
       try {
         parsedBody = JSON.parse(bodyText);
@@ -622,12 +622,12 @@ export async function executeIntegration(
       error,
       executionMs: elapsed,
     };
-  } else if (!response || response.status < 200 || response.status >= 300) {
+  } else if (httpStatus === null || httpStatus < 200 || httpStatus >= 300) {
     const message =
       typeof parsedBody === "object" && parsedBody !== null
         ? (((parsedBody as Record<string, unknown>).message as string) ??
-          `HTTP ${response?.status ?? "?"}`)
-        : `HTTP ${response?.status ?? "?"}`;
+          `HTTP ${httpStatus ?? "?"}`)
+        : `HTTP ${httpStatus ?? "?"}`;
     result = {
       success: false,
       message,

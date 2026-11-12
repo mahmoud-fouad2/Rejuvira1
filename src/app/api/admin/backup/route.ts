@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
@@ -10,7 +11,10 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   const cronToken = process.env.BACKUP_TRIGGER_TOKEN;
   const authHeader = request.headers.get("authorization") ?? "";
-  const allowToken = cronToken && authHeader === `Bearer ${cronToken}`;
+  const allowToken = cronToken && timingSafeEqual(
+    createHash("sha256").update(authHeader).digest(),
+    createHash("sha256").update(`Bearer ${cronToken}`).digest(),
+  );
 
   if (!allowToken) {
     const session = await auth();

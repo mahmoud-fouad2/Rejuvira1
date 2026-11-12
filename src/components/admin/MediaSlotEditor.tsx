@@ -30,7 +30,7 @@ export function MediaSlotEditor({
   labelEn,
   value,
   namespace = "media/uploads",
-  accept = "image/png,image/jpeg,image/webp,image/avif,image/svg+xml,image/x-icon,.ico",
+  accept = "image/png,image/jpeg,image/webp,image/avif,image/x-icon,.ico",
 }: Props) {
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);

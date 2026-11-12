@@ -4,7 +4,7 @@ const isProd = process.env.NODE_ENV === "production";
  * Content Security Policy.
  *
  * Notes:
- * - `script-src` carries a per-request nonce (passed in by middleware.ts,
+ * - `script-src` carries a per-request nonce (passed in by proxy.ts,
  *   which also mirrors the resulting policy onto the request headers so
  *   Next's own renderer can nonce its own internal scripts) plus
  *   `'strict-dynamic'`, so a nonced script may itself load further scripts

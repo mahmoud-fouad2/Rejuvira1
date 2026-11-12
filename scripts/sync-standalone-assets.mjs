@@ -2,7 +2,7 @@
  * Copies public + `.next/static` into `.next/standalone` so Render can run
  * `node server.js` from that directory per Next standalone deployment docs.
  */
-import { cpSync, existsSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
@@ -19,6 +19,15 @@ if (!existsSync(standalone)) {
 
 if (!existsSync(staticSrc)) {
   console.error("[sync-standalone] Missing .next/static.");
+  process.exit(1);
+}
+
+const server = path.join(standalone, ".next", "server");
+const functionsManifest = JSON.parse(
+  readFileSync(path.join(server, "functions-config-manifest.json"), "utf8"),
+);
+if (!functionsManifest.functions?.["/_middleware"] || !existsSync(path.join(server, "middleware.js"))) {
+  console.error("[sync-standalone] Missing request proxy. Refusing to package a build without the request guards.");
   process.exit(1);
 }
 

@@ -15,6 +15,7 @@ import { ContentStatus, UserRole } from "./prisma-enums.ts";
 import * as nodeCrypto from "node:crypto";
 import { doctorProfileSections } from "./doctor-profile-content.ts";
 import { bookingServiceOptions } from "./public-client-content.ts";
+import { isPublicIntegrationAddress, parseIntegrationEndpoint } from "./integration-endpoint.ts";
 
 function productionModule(
   relativePath: string,
@@ -51,6 +52,144 @@ function productionModule(
   );
   return exports;
 }
+
+test("integration egress allows public HTTPS and denies non-public addresses", () => {
+  assert.equal(parseIntegrationEndpoint("https://example.com/api").pathname, "/api");
+  assert.equal(isPublicIntegrationAddress("8.8.8.8"), true);
+  assert.equal(isPublicIntegrationAddress("2606:4700::1111"), true);
+  assert.equal(isPublicIntegrationAddress("127.0.0.1"), false);
+  assert.equal(isPublicIntegrationAddress("fd00::1"), false);
+  assert.throws(() => parseIntegrationEndpoint("http://example.com/api"));
+  assert.throws(() => parseIntegrationEndpoint("https://127.0.0.1/api"));
+});
+
+test("Render client IP comes from the ingress header", () => {
+  const { extractClientIp } = productionModule("./rate-limit.ts", {
+    "node:net": { isIP: (value: string) => value === "203.0.113.8" ? 4 : 0 },
+  }, { process: { env: { RENDER: "true" } } });
+  assert.equal(extractClientIp(new Headers({
+    "x-forwarded-for": "203.0.113.8",
+    "x-client-ip": "203.0.113.9",
+  })), "203.0.113.8");
+  assert.equal(extractClientIp(new Headers({
+    "x-client-ip": "203.0.113.8",
+  })), "unknown");
+});
+
+test("Faheemly forwards the body as a stream with a byte limit", async () => {
+  let forwarded = 0;
+  const { proxyFaheemlyRequest } = productionModule("./faheemly-proxy.ts", {
+    "@/lib/rate-limit": { extractClientIp: () => "unknown" },
+  }, {
+    AbortController,
+    TransformStream,
+    setTimeout,
+    clearTimeout,
+    fetch: async (_url: string, init: RequestInit & { duplex?: string }) => {
+      assert.equal(init.duplex, "half");
+      const reader = (init.body as ReadableStream<Uint8Array>).getReader();
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        forwarded += value.byteLength;
+      }
+      return new Response("OK");
+    },
+  });
+  const url = "https://rejuvera.sa/api/chat/upload";
+  const normal = new Request(url, { method: "POST", body: "message" });
+  assert.equal((await proxyFaheemlyRequest(normal, "/api/chat/upload")).status, 200);
+  assert.equal(forwarded, 7);
+
+  forwarded = 0;
+  const megabyte = new Uint8Array(1024 * 1024);
+  let remaining = 13;
+  const body = new ReadableStream({
+    pull(stream) {
+      if (remaining-- > 0) stream.enqueue(megabyte);
+      else stream.close();
+    },
+  });
+  const options = { method: "POST", body, duplex: "half" } as const;
+  assert.equal(
+    (await proxyFaheemlyRequest(new Request(url, options), "/api/chat/upload")).status,
+    413,
+  );
+  assert.equal(forwarded, 12 * megabyte.byteLength);
+});
+
+test("staff sessions check active status and the current role", async () => {
+  let account: { isActive: boolean; role: UserRole } | null = {
+    isActive: true, role: UserRole.VIEWER,
+  };
+  let databaseAvailable = true;
+  const { auth: jwt } = productionModule("../auth.ts", {
+    "@prisma/client": { UserRole },
+    "next/headers": {},
+    "next-auth": { default: (config: any) => ({ auth: config.callbacks.jwt }) },
+    "next-auth/providers/credentials": { default: () => ({}) },
+    bcryptjs: {},
+    "@/lib/prisma": {
+      prisma: { user: { findUnique: async () => {
+        if (!databaseAvailable) throw new Error("Database unavailable");
+        return account;
+      } } },
+    },
+    "@/lib/app-log": {},
+    "@/lib/rate-limit": {},
+  }, { process: { env: {} } });
+  const token = { id: "staff-1", role: UserRole.SUPER_ADMIN };
+  assert.equal((await jwt({ token })).role, UserRole.VIEWER);
+  account.isActive = false;
+  assert.equal(await jwt({ token }), null);
+  account = null;
+  assert.equal(await jwt({ token }), null);
+  databaseAvailable = false;
+  assert.equal(await jwt({ token }), null);
+});
+
+test("patient documents require current ownership, visibility and expiry checks", async () => {
+  let session: { patientId: string; fullNameAr: string; mustChangePassword: boolean } | null = null;
+  let document: { id: string; storageKey: string; fileName: string } | null = null;
+  let reads = 0;
+  let auditCount = 0;
+  const { GET } = productionModule("../app/api/portal/documents/[id]/route.ts", {
+    "@prisma/client": { PortalActorType: { PATIENT: "PATIENT" } },
+    "@/lib/portal/audit": { writePortalAudit: async () => { auditCount++; } },
+    "@/lib/portal/patient-auth": { getPatientSession: async () => session },
+    "@/lib/prisma": {
+      prisma: { patientDocument: { findFirst: async ({ where }: any) => {
+        assert.equal(where.id, "doc-1");
+        assert.equal(where.patientId, "patient-1");
+        assert.equal(where.visibility, "PATIENT_VISIBLE");
+        assert.equal(where.archivedAt, null);
+        assert.equal(where.OR.length, 2);
+        assert.equal(where.OR[0].expiresAt, null);
+        assert.ok(Number.isFinite(where.OR[1].expiresAt.gte.getTime()));
+        return document;
+      } } },
+    },
+    "@/lib/storage/r2": { readPatientDocumentObject: async (key: string) => {
+      assert.equal(key, "portal/file-1.pdf");
+      reads++;
+      return new Response("synthetic file");
+    } },
+  });
+  const request = new Request("https://rejuvera.sa/api/portal/documents/doc-1");
+  const args = { params: Promise.resolve({ id: "doc-1" }) };
+  assert.equal((await GET(request, args)).status, 401);
+  session = { patientId: "patient-1", fullNameAr: "Test patient", mustChangePassword: false };
+  assert.equal((await GET(request, args)).status, 404);
+  assert.equal(reads, 0);
+  document = { id: "doc-1", storageKey: "portal/file-1.pdf", fileName: "File.pdf" };
+  const response = await GET(request, args);
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-disposition")!, /^attachment;/);
+  assert.equal(response.headers.get("cache-control"), "private, no-store");
+  assert.equal(await response.text(), "synthetic file");
+  assert.equal(reads, 1);
+  assert.equal(auditCount, 1);
+});
 
 async function withLeadDatabase(run: (tx: any) => Promise<void>) {
   const originalTransaction = prisma.$transaction;

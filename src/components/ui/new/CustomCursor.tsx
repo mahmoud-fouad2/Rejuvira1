@@ -46,34 +46,27 @@ export function CustomCursor() {
           : null;
     };
 
-    const onHoverableEnter = () => {
-      ring.style.width = "64px";
-      ring.style.height = "64px";
-      ring.style.borderColor = "var(--gold)";
-      ring.style.background = "oklch(100% 0 0 / 0.08)";
-    };
-    const onHoverableLeave = () => {
-      ring.style.width = "40px";
-      ring.style.height = "40px";
-      ring.style.borderColor = "var(--gold)";
-      ring.style.background = "transparent";
+    const onHoverChange = (event: PointerEvent) => {
+      const target = event.type === "pointerout" ? event.relatedTarget : event.target;
+      const hoverable =
+        target instanceof Element && target.closest("a, button, [data-hoverable]");
+      ring.style.width = hoverable ? "64px" : "40px";
+      ring.style.height = hoverable ? "64px" : "40px";
+      ring.style.background = hoverable
+        ? "oklch(100% 0 0 / 0.08)"
+        : "transparent";
     };
 
     window.addEventListener("pointermove", onMove);
 
-    const hoverables = document.querySelectorAll("a, button, [data-hoverable]");
-    hoverables.forEach((el) => {
-      (el as HTMLElement).addEventListener("pointerenter", onHoverableEnter);
-      (el as HTMLElement).addEventListener("pointerleave", onHoverableLeave);
-    });
+    document.addEventListener("pointerover", onHoverChange);
+    document.addEventListener("pointerout", onHoverChange);
 
     return () => {
       window.removeEventListener("pointermove", onMove);
       if (raf !== null) cancelAnimationFrame(raf);
-      hoverables.forEach((el) => {
-        el.removeEventListener("pointerenter", onHoverableEnter);
-        el.removeEventListener("pointerleave", onHoverableLeave);
-      });
+      document.removeEventListener("pointerover", onHoverChange);
+      document.removeEventListener("pointerout", onHoverChange);
     };
   }, []);
 
