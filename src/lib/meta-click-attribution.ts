@@ -1,8 +1,6 @@
 export const META_CLICK_COOKIE = "rv_meta_click";
 
-type ClickUrl = Pick<URL, "protocol" | "hostname" | "searchParams">;
-
-export function metaClickIdFromUrl(url: ClickUrl) {
+export function metaClickIdFromUrl(url: URL) {
   if (
     url.protocol !== "https:" ||
     (url.hostname !== "rejuvera.sa" && url.hostname !== "www.rejuvera.sa")
@@ -23,7 +21,7 @@ export function makeMetaClickCookie(clickId: string) {
 }
 
 /** Keep the click timestamp and ID across pages in this browser session. */
-export function metaClickCookieForRequest(request: Request, url: ClickUrl) {
+export function metaClickCookieForRequest(request: Request, url: URL) {
   const cookies = (request.headers.get("cookie") ?? "").split(/;\s*/);
   const stored = cookies.find((cookie) =>
     cookie.startsWith(`${META_CLICK_COOKIE}=`),

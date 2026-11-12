@@ -244,7 +244,13 @@ function handleRequest(request: NextRequest, session: Session | null) {
     !hasAuthenticatedUser &&
     !hasPrivateCookie
   ) {
-    attributionCookies.push(metaClickCookieForRequest(request, nextUrl));
+    // The internal Next URL can use the Render origin instead of the public host.
+    const publicUrl = `${currentOrigin}${nextUrl.pathname}${nextUrl.search}`;
+    if (URL.canParse(publicUrl)) {
+      attributionCookies.push(
+        metaClickCookieForRequest(request, new URL(publicUrl)),
+      );
+    }
   }
   for (const cookie of attributionCookies) {
     if (!cookie) continue;

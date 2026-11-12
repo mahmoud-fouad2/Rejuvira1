@@ -108,7 +108,8 @@ test("attribution does not bypass admin authentication or weaken opt-out respons
 test("a Meta click can be matched after navigating to a clean form URL", () => {
   const run = middleware();
   const landing = run(
-    "https://rejuvera.sa/p/private?fbclid=actual-click&phone=0500000000",
+    "http://localhost:10000/p/private?fbclid=actual-click&phone=0500000000",
+    { host: "rejuvera.sa", "x-forwarded-proto": "https" },
   );
   const setCookie = landing.headers.get("set-cookie")!;
   assert.match(
