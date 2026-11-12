@@ -9,6 +9,7 @@ const FAHEEMLY_ALLOWED_ORIGIN = "https://www.rejuvera.sa";
 const RATE_LIMIT_PER_MINUTE = 300;
 // The widget lets visitors upload 5 MB files; leave room for multipart/base64.
 const MAX_REQUEST_BODY_BYTES = 12 * 1024 * 1024;
+const MAX_VISITOR_SESSION_BYTES = 64 * 1024;
 
 // Bounds time-to-headers only, so long streamed chat replies aren't cut off.
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -117,9 +118,11 @@ export async function proxyFaheemlyRequest(
     }
   }
 
-  if (
-    Number(request.headers.get("content-length") ?? 0) > MAX_REQUEST_BODY_BYTES
-  ) {
+  const isVisitorSession = pathname === "/api/visitor/session";
+  const maxBodyBytes = isVisitorSession
+    ? MAX_VISITOR_SESSION_BYTES
+    : MAX_REQUEST_BODY_BYTES;
+  if (Number(request.headers.get("content-length") ?? 0) > maxBodyBytes) {
     return jsonResponse(413, { error: "Payload too large" });
   }
 
@@ -166,27 +169,33 @@ export async function proxyFaheemlyRequest(
 
   const controller = new AbortController();
   let bodyTooLarge = false;
-  if (request.body && request.method !== "GET" && request.method !== "HEAD") {
-    let bytes = 0;
-    init.duplex = "half";
-    init.body = request.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
-      transform(chunk, stream) {
-        bytes += chunk.byteLength;
-        if (bytes > MAX_REQUEST_BODY_BYTES) {
-          bodyTooLarge = true;
-          stream.error(new Error("Payload too large"));
-          return;
-        }
-        stream.enqueue(chunk);
-      },
-    }));
-  }
   const timer = setTimeout(
     () => controller.abort(),
     pathname.startsWith("/api/chat") ? CHAT_TIMEOUT_MS : DEFAULT_TIMEOUT_MS,
   );
 
   try {
+    if (request.body && request.method !== "GET" && request.method !== "HEAD") {
+      let bytes = 0;
+      const body = request.body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+        transform(chunk, stream) {
+          bytes += chunk.byteLength;
+          if (bytes > maxBodyBytes) {
+            bodyTooLarge = true;
+            stream.error(new Error("Payload too large"));
+            return;
+          }
+          stream.enqueue(chunk);
+        },
+      }));
+      if (isVisitorSession) {
+        // Faheemly's session endpoint requires a known Content-Length.
+        init.body = await new Response(body).arrayBuffer();
+      } else {
+        init.duplex = "half";
+        init.body = body;
+      }
+    }
     const upstream = await fetch(targetUrl, {
       ...init,
       signal: controller.signal,

@@ -184,6 +184,32 @@ test("Faheemly forwards the body as a stream with a byte limit", async () => {
   assert.equal(forwarded, 12 * megabyte.byteLength);
 });
 
+test("Faheemly visitor sessions forward a small body with a known length", async () => {
+  let calls = 0;
+  const body = JSON.stringify({ visitorId: "test" });
+  const { proxyFaheemlyRequest } = productionModule("./faheemly-proxy.ts", {
+    "@/lib/rate-limit": { extractClientIp: () => "unknown" },
+  }, {
+    AbortController,
+    TransformStream,
+    setTimeout,
+    clearTimeout,
+    fetch: async (_url: string, init: RequestInit) => {
+      calls++;
+      assert.ok(init.body instanceof ArrayBuffer);
+      assert.equal(await new Response(init.body).text(), body);
+      return new Response("OK");
+    },
+  });
+  const path = "/api/visitor/session";
+  const url = `https://rejuvera.sa${path}`;
+  const response = await proxyFaheemlyRequest(new Request(url, { method: "POST", body }), path);
+  assert.equal(response.status, 200);
+  const oversized = new Request(url, { method: "POST", body: new Uint8Array(64 * 1024 + 1) });
+  assert.equal((await proxyFaheemlyRequest(oversized, path)).status, 413);
+  assert.equal(calls, 1);
+});
+
 test("staff sessions check active status and the current role", async () => {
   let account: { isActive: boolean; role: UserRole } | null = {
     isActive: true, role: UserRole.VIEWER,
