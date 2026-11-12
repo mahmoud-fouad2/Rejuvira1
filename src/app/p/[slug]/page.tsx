@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { ContentStatus } from "@prisma/client";
-import localFont from "next/font/local";
 import { preload } from "react-dom";
 
 import { PhoneCallLink } from "@/components/contact/PhoneCallLink";
@@ -31,6 +30,7 @@ import {
   resolveCustomPageSeo,
 } from "@/lib/custom-page-quality";
 import { sanitizeHtml } from "@/lib/sanitize-html";
+import { needsFullSiteStyles } from "@/lib/route-styles";
 import { getSiteUrl } from "@/lib/seo";
 import {
   improveFocusedLanding,
@@ -43,27 +43,6 @@ import "./facelift.css";
 import "./search-content.css";
 
 export const dynamic = "force-dynamic";
-
-// Preload only the two weights used above the fold, with the same local font.
-// No analytics or form scripts are deferred by this performance improvement.
-const landingFont = localFont({
-  src: [
-    {
-      path: "../../../../public/assets/fonts/IBMPlexSansArabic-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../../../public/assets/fonts/IBMPlexSansArabic-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-facelift-sans",
-  display: "swap",
-  preload: true,
-  fallback: ["Arial", "sans-serif"],
-});
 
 function readBuilderBoolean(html: string, attr: "header" | "footer") {
   const match = html.match(new RegExp(`data-${attr}="(true|false)"`));
@@ -173,6 +152,9 @@ export default async function CustomPage({
   );
   const isFocusedFacelift = isFocusedFaceliftHtml(repairedHtml);
   const isFocusedLanding = isFocusedLandingHtml(repairedHtml);
+  const hasRouteStyles = slug === "facelift-riyadh"
+    ? isFocusedFacelift && !showHeader && !showFooter
+    : isFocusedLanding;
   // PageSpeed identifies this visible logo as the facelift LCP image.
   // Discover it in the document head, without delaying form/tracking scripts.
   if (isFocusedLanding) {
@@ -216,8 +198,7 @@ export default async function CustomPage({
 
   return (
     <>
-      {slug === "facelift-riyadh" &&
-      (!isFocusedFacelift || showHeader || showFooter) ? (
+      {!needsFullSiteStyles(`/p/${slug}`) && !hasRouteStyles ? (
         <RouteStyles forceFullStyles />
       ) : null}
       <script
@@ -261,7 +242,6 @@ export default async function CustomPage({
           className={landingArticleClass({
             focused: isFocusedLanding,
             uploaded: isUploadedHtml,
-            fontVariable: landingFont.variable,
           })}
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}

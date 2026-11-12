@@ -65,6 +65,9 @@ const adminFrameProtectionHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
+  // Extend the Next 16.2 default list so Googlebot also gets metadata in the head.
+  htmlLimitedBots:
+    /Googlebot|[\w-]+-Google|Google-[\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight/i,
   skipTrailingSlashRedirect: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,

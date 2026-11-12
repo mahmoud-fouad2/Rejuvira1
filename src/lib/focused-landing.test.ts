@@ -10,27 +10,19 @@ test("focused landings never receive the CMS prose class", () => {
     const className = landingArticleClass({
       focused: true,
       uploaded,
-      fontVariable: "landing-font",
     });
-    assert.equal(className, "rv-landing-content landing-font");
+    assert.equal(className, "rv-landing-content");
     assert.doesNotMatch(className, /rv-custom-page__content/);
   }
 });
 
-test("an empty font variable leaves no trailing space", () => {
-  assert.equal(
-    landingArticleClass({ focused: true, uploaded: false, fontVariable: "" }),
-    "rv-landing-content",
-  );
-});
-
 test("every other page keeps its existing article classes", () => {
   assert.equal(
-    landingArticleClass({ focused: false, uploaded: false, fontVariable: "f" }),
+    landingArticleClass({ focused: false, uploaded: false }),
     "rv-custom-page__content",
   );
   assert.equal(
-    landingArticleClass({ focused: false, uploaded: true, fontVariable: "f" }),
+    landingArticleClass({ focused: false, uploaded: true }),
     "rv-custom-page__content rv-custom-page__content--uploaded",
   );
 });

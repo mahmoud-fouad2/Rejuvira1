@@ -59,7 +59,7 @@ body:has(.fl-page) .rv-custom-page__lead-notice--duplicate {
   background: #fff;
   padding-bottom: 94px;
   font-family:
-    var(--font-facelift-sans, var(--font-rejuvira-sans)), Arial, sans-serif;
+    var(--font-rejuvira-sans), Arial, sans-serif;
   line-height: 1.7;
 }
 .fl-page * {
@@ -73,7 +73,7 @@ body:has(.fl-page) .rv-custom-page__lead-notice--duplicate {
 .fl-page,
 .fl-page * {
   font-family:
-    var(--font-facelift-sans, var(--font-rejuvira-sans)), Arial, sans-serif !important;
+    var(--font-rejuvira-sans), Arial, sans-serif !important;
 }
 .fl-page :is(h1, h2, h3, p, figure, ul, ol) {
   margin: 0;

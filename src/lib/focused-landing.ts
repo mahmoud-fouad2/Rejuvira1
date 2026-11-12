@@ -40,10 +40,8 @@ export const isFocusedLandingHtml = (html: string) =>
 export function landingArticleClass(options: {
   focused: boolean;
   uploaded: boolean;
-  fontVariable: string;
 }): string {
-  if (options.focused)
-    return `rv-landing-content ${options.fontVariable}`.trim();
+  if (options.focused) return "rv-landing-content";
   return options.uploaded
     ? "rv-custom-page__content rv-custom-page__content--uploaded"
     : "rv-custom-page__content";

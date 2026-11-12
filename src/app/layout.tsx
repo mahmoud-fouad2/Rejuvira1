@@ -265,7 +265,7 @@ export default async function RootLayout({
       </head>
       <body
         className={[
-          isLandingPage ? "" : "page-enter",
+          pathname === "/" || isLandingPage ? "" : "page-enter",
           "flex min-h-full min-w-0 flex-col",
         ]
           .filter(Boolean)
