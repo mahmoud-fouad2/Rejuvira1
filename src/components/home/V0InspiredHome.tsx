@@ -390,14 +390,9 @@ export function V0InspiredHome({
                     src={src}
                     alt={settings.brand.logoAlt}
                     fill
-                    priority={index === 0}
-                    fetchPriority={index === 0 ? "high" : "low"}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    sizes={
-                      index === 0
-                        ? "(max-width: 640px) 90vw, (max-width: 1024px) 70vw, 42vw"
-                        : "(max-width: 640px) 0px, (max-width: 1024px) 40vw, 24vw"
-                    }
+                    fetchPriority={index === 0 ? "auto" : "low"}
+                    loading="lazy"
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 70vw, 42vw"
                     className="object-cover"
                   />
                 </div>

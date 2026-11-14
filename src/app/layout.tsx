@@ -199,12 +199,31 @@ export default async function RootLayout({
       dir={initialLang === "ar" ? "rtl" : "ltr"}
       data-lang={initialLang}
       data-theme={initialTheme}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${rejuviraSans.variable} ${rejuviraDisplay.variable} h-full antialiased`}
     >
       <head>
         <RouteStyles forceFullStyles={showMaintenance} />
         {/* IBM Plex Arabic is loaded locally through next/font. */}
+
+        {!isAdminOrAuth && !pathname.startsWith("/portal") ? (
+          <script
+            id="rejuvera-reload-scroll"
+            nonce={nonce}
+            dangerouslySetInnerHTML={{
+              __html: `(function(){
+  if(location.hash||!('scrollRestoration' in history)||performance.getEntriesByType('navigation')[0]?.type!=='reload')return;
+  var previous=history.scrollRestoration;
+  history.scrollRestoration='manual';
+  window.addEventListener('pageshow',function(){
+    if(!location.hash)window.scrollTo({top:0,behavior:'instant'});
+    requestAnimationFrame(function(){history.scrollRestoration=previous;});
+  },{once:true});
+})();`,
+            }}
+          />
+        ) : null}
 
         {/* Initial UI state: language + theme before hydration */}
         <Script
