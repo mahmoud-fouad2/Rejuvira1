@@ -2,6 +2,7 @@ import {
   stripDuplicateSnapBootstrap,
   stripDuplicateSnapBootstraps,
 } from "./snap-integration.ts";
+import type { GoogleTagConfig } from "./google-tag.ts";
 
 /** Retire only the standalone October card, preserving adjacent integrations. */
 export function stripRetiredAwarenessCampaign(html: string): string {
@@ -31,11 +32,24 @@ export function normalizeIntegrationHtml(html: string): string {
 }
 
 /** Head and body share the same verified Snap/GTM bootstrap owner. */
-export function normalizeIntegrationSnippets(head: string, body: string) {
+export function normalizeIntegrationSnippets(
+  head: string,
+  body: string,
+  googleTagConfig?: GoogleTagConfig | null,
+) {
   const [customHeadCode, customBodyCode] = stripDuplicateSnapBootstraps(
     [head, body].map(stripRetiredAwarenessCampaign),
   ).map((html) =>
     html.replace(/https?:\/\/faheemly\.com/g, "https://www.faheemly.com"),
+  ).map((html) =>
+    // The root Google tag already loads this Ads destination from its config.
+    // Retain the inline config and conversion calls, plus every GTM snippet.
+    googleTagConfig?.kind === "gtag"
+      ? html.replace(
+          /<script\s+async(?:=["'](?:async)?["'])?\s+src=["']https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=AW-16511038360["']\s*>\s*<\/script\s*>/gi,
+          "",
+        )
+      : html,
   );
   return { customHeadCode: customHeadCode!, customBodyCode: customBodyCode! };
 }

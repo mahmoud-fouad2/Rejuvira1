@@ -191,6 +191,7 @@ export default async function RootLayout({
   const integrationSnippets = normalizeIntegrationSnippets(
     runtimeSettings.integrations.customHeadCode,
     runtimeSettings.integrations.customBodyCode,
+    googleTagConfig,
   );
 
   return (

@@ -7,6 +7,7 @@ import {
   isFaceliftDistraction,
 } from "./integration-snippets.ts";
 import { REDUNDANT_SNAP_BOOTSTRAP } from "./snap-integration.ts";
+import { normalizeGoogleTagConfig } from "./google-tag.ts";
 
 const campaign = `<script>
 (function () {
@@ -102,4 +103,27 @@ test("paired normalization removes only the known Snap duplicate across head/bod
     customHeadCode: "",
     customBodyCode: "",
   });
+});
+
+test("an active root Google tag replaces only the verified duplicate Ads script", () => {
+  const loader = '<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16511038360"></script>';
+  const config = "<script>gtag('config', 'AW-16511038360');</script>";
+  const conversion = "<script>function report(){gtag('event','conversion',{send_to:'AW-16511038360/test'});}</script>";
+  const other = '<script src="https://www.googletagmanager.com/gtm.js?id=GTM-other"></script>';
+  const head = loader + config;
+  const body = other + loader + conversion;
+  for (const active of [undefined, null, normalizeGoogleTagConfig("GTM-test")]) {
+    assert.deepEqual(normalizeIntegrationSnippets(head, body, active), {
+      customHeadCode: head,
+      customBodyCode: body,
+    });
+  }
+  const active = normalizeGoogleTagConfig("G-test");
+  const result = normalizeIntegrationSnippets(head, body, active);
+  assert.deepEqual(result, { customHeadCode: config, customBodyCode: other + conversion });
+  assert.deepEqual(normalizeIntegrationSnippets(result.customHeadCode, result.customBodyCode, active), result);
+  const combined = loader.replace("</script>", "otherCode()</script>");
+  assert.equal(normalizeIntegrationSnippets(combined, "", active).customHeadCode, combined);
+  const customLoad = loader.replace(" async", ' onload="otherCode()" async');
+  assert.equal(normalizeIntegrationSnippets(customLoad, "", active).customHeadCode, customLoad);
 });
