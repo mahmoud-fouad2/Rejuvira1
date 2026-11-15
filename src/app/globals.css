@@ -11740,6 +11740,15 @@ footer .rv-brand-logo-footer {
     inset: 1rem 0.55rem 0.5rem !important;
   }
 
+  /* Keep the first photo, and let native lazy loading skip the hidden stack. */
+  .rv-v0-hero-card-stack .rv-v0-hero-card:not(:first-child) {
+    display: none;
+  }
+
+  .rv-v0-hero-card-1 {
+    animation: none !important;
+  }
+
   header .rv-brand-logo,
   header .rv-brand-logo-header {
     width: clamp(9.8rem, 39vw, 12rem) !important;
