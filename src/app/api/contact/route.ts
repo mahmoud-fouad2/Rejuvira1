@@ -65,8 +65,6 @@ const contactSchema = z.object({
   gclid: z.string().max(250).optional().or(z.literal("")),
   gbraid: z.string().max(250).optional().or(z.literal("")),
   wbraid: z.string().max(250).optional().or(z.literal("")),
-  /** Client-generated deduplication ID for Snap Pixel / CAPI dedup. */
-  snapDedupId: z.string().max(128).optional().or(z.literal("")),
 });
 
 function formString(formData: FormData, key: string) {
@@ -148,8 +146,6 @@ export async function POST(request: Request) {
       gclid: formString(formData, "gclid"),
       gbraid: formString(formData, "gbraid"),
       wbraid: formString(formData, "wbraid"),
-      // Snap dedup ID: sent by the client before firing the browser Pixel event.
-      snapDedupId: formString(formData, "snapDedupId"),
     },
     request,
   );
@@ -401,12 +397,8 @@ export async function POST(request: Request) {
       payload: buildContactWebhookPayload("contact_submission.created", false),
     });
 
-    // New, persisted leads only. Native redirects use the saved ID so the
-    // verified receipt can reproduce the same Pixel/CAPI deduplication key.
-    const snapDedupId =
-      wantsJson(request) && parsed.data.snapDedupId
-        ? parsed.data.snapDedupId
-        : `rv_snap_${result.submission.id}`;
+    // Use the saved ID for both JSON responses and verified redirect receipts.
+    const snapDedupId = `rv_snap_${result.submission.id}`;
     const snapPayload = {
       dedupId: snapDedupId,
       ip: clientIp !== "unknown" ? clientIp : undefined,

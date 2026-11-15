@@ -481,7 +481,7 @@ for (const route of ["contact", "leads"] as const) {
   });
 }
 
-test("contact JSON response and CAPI share the browser's booking ID, even after navigation", async () => {
+test("contact JSON response and CAPI share the saved ID even with an older client ID", async () => {
   const h = routeHarness("contact", "database");
   const form = new FormData();
   form.set("fullName", "Local Test");
@@ -501,7 +501,7 @@ test("contact JSON response and CAPI share the browser's booking ID, even after 
   );
   const json = await response.json();
   assert.equal(json.saved, true);
-  assert.equal(json.snapDedupId, "booking-uuid-1");
+  assert.equal(json.snapDedupId, "rv_snap_saved-1");
   assert.equal(h.capiCalls.length, 0);
   await h.afterTasks[0]!();
   const payload = h.capiCalls[0] as { dedupId: string; clickId: string };
