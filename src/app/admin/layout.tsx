@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Route } from "next";
 import "admin-lte/dist/css/adminlte.rtl.min.css";
+import "./admin-ui.css";
 import "./adminlte-rejuvera.css";
 
 import { AdminLanguageBridge } from "@/components/admin/AdminLanguageBridge";
