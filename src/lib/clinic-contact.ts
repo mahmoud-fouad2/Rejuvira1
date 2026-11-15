@@ -13,21 +13,31 @@ export type LandingPageWhatsappContext = {
   pageUrl: string;
 };
 
-/** Legacy helper name: add page context without claiming a traffic source. */
-export function withGoogleWhatsappReferral(
-  href: string,
-  context?: LandingPageWhatsappContext,
-) {
+function parseWhatsappPhoneHref(href: string) {
   try {
     const url = new URL(href.replace(/&(?:amp|#38|#x26);/gi, "&"));
-    if (!/^https?:$/.test(url.protocol)) return href;
+    if (!/^https?:$/.test(url.protocol)) return null;
     const isPhoneLink =
       (url.hostname === "wa.me" && /^\/\+?\d+\/?$/.test(url.pathname)) ||
       (["api.whatsapp.com", "whatsapp.com", "www.whatsapp.com"].includes(
         url.hostname,
       ) &&
-        /^\/send\/?$/.test(url.pathname));
-    if (!isPhoneLink) return href;
+        /^\/send\/?$/.test(url.pathname) &&
+        /^\+?\d+$/.test(url.searchParams.get("phone") ?? ""));
+    return isPhoneLink ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Legacy helper name: add page context without claiming a traffic source. */
+export function withGoogleWhatsappReferral(
+  href: string,
+  context?: LandingPageWhatsappContext,
+) {
+  const url = parseWhatsappPhoneHref(href);
+  if (!url) return href;
+  try {
     // Remove only the exact source claim previously appended by this helper.
     // The public landing-page URL alone cannot establish how a visitor arrived.
     let message =
@@ -76,6 +86,27 @@ export function addLandingPageWhatsappReferralHtml(
       return `${before}href=${quote}${updated.replace(/&/g, "&amp;")}${quote}`;
     },
   );
+}
+
+/** Decorate sanitized landing links without changing their markup or destinations. */
+export function brandLandingPageWhatsappLinks(html: string) {
+  let hasWhatsapp = false;
+  const brandedHtml = html.replace(
+    /(<a\b[^>]*\shref=(['"])([^'"]*)\2[^>]*)>([\s\S]*?)<\/a>/gi,
+    (match, opening: string, _quote: string, href: string, label: string) => {
+      if (!parseWhatsappPhoneHref(href)) return match;
+      hasWhatsapp = true;
+      if (/\sdata-landing-whatsapp-cta=/.test(opening)) return match;
+      const hasIcon = /<(?:img|svg)\b/i.test(label);
+      const isFloatingButton =
+        /\sclass=(['"])[^'"]*\brejuvera-google-whatsapp\b[^'"]*\1/.test(opening);
+      // Icon cards and floating icon-only links have their own layout.
+      if (hasIcon && !isFloatingButton) return match;
+      const variant = hasIcon ? "with-icon" : "button";
+      return `${opening} data-landing-whatsapp-cta="${variant}">${label}</a>`;
+    },
+  );
+  return { html: brandedHtml, hasWhatsapp };
 }
 
 /** WhatsApp requires international digits, not a Saudi local trunk prefix. */

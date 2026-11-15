@@ -13,6 +13,7 @@ import {
   LANDING_PAGE_WHATSAPP_MESSAGE,
   withGoogleWhatsappReferral,
   addLandingPageWhatsappReferralHtml,
+  brandLandingPageWhatsappLinks,
 } from "./clinic-contact.ts";
 
 test("site and landing pages share the official number for calls and WhatsApp", () => {
@@ -148,10 +149,41 @@ test("Google WhatsApp prefill does not modify unrelated or invalid URLs", () => 
     "https://example.com/send?text=hello",
     "https://wa.me/channel/123",
     "https://wa.me.evil.example/966114999959",
+    "https://api.whatsapp.com/send?text=share",
     "javascript:alert(1)",
   ]) {
     assert.equal(withGoogleWhatsappReferral(href), href);
   }
+});
+
+test("landing WhatsApp buttons get a logo marker while existing icon layouts keep theirs", () => {
+  const call = '<a href="tel:0114999959">اتصال مباشر</a>';
+  const plain = `<a class='d-btn' href='${CLINIC_WHATSAPP_URL}' data-track="whatsapp">واتساب للمواعيد</a>`;
+  const existingIcon = `<a class="rv-link" href="${CLINIC_WHATSAPP_URL}"><img src="/logo.svg" alt="WhatsApp"></a>`;
+  const floatingButton = existingIcon.replace("rv-link", "rejuvera-google-whatsapp");
+  const channel = '<a href="https://wa.me/channel/123">WhatsApp channel</a>';
+  const input = call + plain + existingIcon + floatingButton + channel;
+  const result = brandLandingPageWhatsappLinks(input);
+  assert.equal(result.hasWhatsapp, true);
+  assert.equal(
+    result.html,
+    call +
+      plain.replace(
+        'data-track="whatsapp">',
+        'data-track="whatsapp" data-landing-whatsapp-cta="button">',
+      ) +
+      existingIcon +
+      floatingButton.replace(
+        "><img",
+        ' data-landing-whatsapp-cta="with-icon"><img',
+      ) +
+      channel,
+  );
+  assert.deepEqual(brandLandingPageWhatsappLinks(result.html), result);
+  assert.deepEqual(brandLandingPageWhatsappLinks(call + channel), {
+    html: call + channel,
+    hasWhatsapp: false,
+  });
 });
 
 test("landing messages identify the public doctor/page, preserve custom copy and do not duplicate source", () => {

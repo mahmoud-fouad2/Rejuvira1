@@ -12,9 +12,12 @@ import { RouteStyles } from "@/components/layout/RouteStyles";
 import { getCustomPageBySlug, getDoctors } from "@/lib/content-repository";
 import { isTeamLanding, landingTeamFromDoctors } from "@/lib/landing-team";
 import {
+  CLINIC_WHATSAPP_URL,
   LANDING_PAGE_PHONE_DISPLAY,
   addLandingPageWhatsappReferralHtml,
+  brandLandingPageWhatsappLinks,
   normalizeClinicContactHtml,
+  withGoogleWhatsappReferral,
 } from "@/lib/clinic-contact";
 import { hardenCustomPageLeadForms } from "@/lib/custom-page-form-hardening";
 import { verifyLeadReceipt } from "@/lib/lead-receipt";
@@ -41,6 +44,7 @@ import {
 import { publicEditorialCopy } from "@/lib/public-editorial-copy";
 import "./facelift.css";
 import "./search-content.css";
+import "./whatsapp-cta.css";
 
 export const dynamic = "force-dynamic";
 
@@ -167,16 +171,21 @@ export default async function CustomPage({
   const canonicalSlug = page.seoSlug || page.slug;
   const canonicalUrl = `${getSiteUrl()}/p/${canonicalSlug}`;
   const whatsappContext = { pageTitle: seo.title, pageUrl: canonicalUrl };
-  const safeHtml = addLandingPageWhatsappReferralHtml(
-    normalizeClinicContactHtml(
-      hardenCustomPageLeadForms(
-        sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
-        undefined,
-        page.slug,
+  const { html: safeHtml, hasWhatsapp } = brandLandingPageWhatsappLinks(
+    addLandingPageWhatsappReferralHtml(
+      normalizeClinicContactHtml(
+        hardenCustomPageLeadForms(
+          sanitizeHtml(optimizeCustomPageImages(repairedHtml)),
+          undefined,
+          page.slug,
+        ),
       ),
+      whatsappContext,
     ),
-    whatsappContext,
   );
+  const fallbackWhatsapp = hasWhatsapp
+    ? null
+    : withGoogleWhatsappReferral(CLINIC_WHATSAPP_URL, whatsappContext);
   const pageJsonLd = buildCustomPageJsonLd({
     page,
     routeSlug: slug,
@@ -198,7 +207,7 @@ export default async function CustomPage({
 
   return (
     <>
-      {!needsFullSiteStyles(`/p/${slug}`) && !hasRouteStyles ? (
+      {!needsFullSiteStyles(`/p/${slug}`) && (!hasRouteStyles || fallbackWhatsapp) ? (
         <RouteStyles forceFullStyles />
       ) : null}
       <script
@@ -246,8 +255,7 @@ export default async function CustomPage({
           dir="auto"
           dangerouslySetInnerHTML={{ __html: safeHtml }}
         />
-        <LandingSearchContent slug={page.slug} seoSlug={page.seoSlug ?? null} />
-        {!isFocusedLanding ? (
+        {!isFocusedLanding || fallbackWhatsapp ? (
           <aside
             className="rv-custom-page__contact-cta"
             aria-label="التواصل والحجز"
@@ -258,7 +266,9 @@ export default async function CustomPage({
               </p>
               <h2>تواصل مع فريق ريجوفيرا</h2>
               <p>
-                اتصل بنا مباشرة أو أرسل طلبك ليؤكد الفريق التفاصيل المناسبة.
+                {fallbackWhatsapp
+                  ? "اتصل بنا أو تواصل عبر واتساب لتنسيق موعدك."
+                  : "اتصل بنا مباشرة أو أرسل طلبك ليؤكد الفريق التفاصيل المناسبة."}
               </p>
             </div>
             <div className="rv-custom-page__contact-actions">
@@ -270,12 +280,23 @@ export default async function CustomPage({
                   اتصال مباشر
                 </PhoneCallLink>
               ) : null}
+              {fallbackWhatsapp ? (
+                <a
+                  href={fallbackWhatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-landing-whatsapp-cta="button"
+                >
+                  واتساب للمواعيد
+                </a>
+              ) : null}
               <a href="/contact" className="rv-custom-page__contact-book">
                 احجز استشارة
               </a>
             </div>
           </aside>
         ) : null}
+        <LandingSearchContent slug={page.slug} seoSlug={page.seoSlug ?? null} />
       </main>
       {showFooter && !isFocusedLanding ? (
         <SiteFooter
