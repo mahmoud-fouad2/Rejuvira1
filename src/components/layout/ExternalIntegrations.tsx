@@ -55,6 +55,28 @@ function setupFaheemlyProxyInterceptor() {
   };
 }
 
+function mountAfterPageLoad(target: HTMLElement, script: HTMLScriptElement) {
+  let timeout: number;
+  const mount = () => {
+    window.removeEventListener("load", onLoad);
+    target.appendChild(script);
+  };
+  const onLoad = () => {
+    window.clearTimeout(timeout);
+    timeout = window.setTimeout(mount, 250);
+  };
+  if (document.readyState === "complete") {
+    onLoad();
+  } else {
+    window.addEventListener("load", onLoad, { once: true });
+    timeout = window.setTimeout(mount, 4000);
+  }
+  return () => {
+    window.removeEventListener("load", onLoad);
+    window.clearTimeout(timeout);
+  };
+}
+
 function appendSnippet(
   target: HTMLElement,
   html: string,
@@ -67,7 +89,8 @@ function appendSnippet(
     `[data-rejuvira-snippet="${marker}"]:not([data-rejuvira-measurement])`,
   );
   existing.forEach((node) => node.remove());
-  if (!html.trim()) return;
+  const cancelMounts: Array<() => void> = [];
+  if (!html.trim()) return cancelMounts;
 
   const normalizedHtml = normalizeIntegrationHtml(html);
 
@@ -84,6 +107,7 @@ function appendSnippet(
     )
       return;
     let nextNode = node.cloneNode(true) as ChildNode;
+    let deferWidget = false;
     if (node.nodeName.toLowerCase() === "script") {
       const sourceScript = node as HTMLScriptElement;
       const scriptContent =
@@ -120,6 +144,15 @@ function appendSnippet(
       ) {
         script.setAttribute("data-api-url", window.location.origin);
       }
+      // Only the standalone chat loader can wait. Keep ad tags at their existing timing.
+      deferWidget =
+        window.location.pathname === "/" &&
+        window.matchMedia("(max-width: 640px)").matches &&
+        sourceScript.hasAttribute("data-business-id") &&
+        !sourceScript.text.trim() &&
+        /^https:\/\/www\.faheemly\.com\/api\/widget\/loader\.js(?:\?|$)/i.test(
+          script.src,
+        );
 
       nextNode = script;
       if (measurementKey) {
@@ -130,8 +163,13 @@ function appendSnippet(
     if (nextNode instanceof HTMLElement) {
       nextNode.dataset.rejuviraSnippet = marker;
     }
-    target.appendChild(nextNode);
+    if (deferWidget && nextNode instanceof HTMLScriptElement) {
+      cancelMounts.push(mountAfterPageLoad(target, nextNode));
+    } else {
+      target.appendChild(nextNode);
+    }
   });
+  return cancelMounts;
 }
 
 function normalizeChatbaseId(value: string) {
@@ -185,20 +223,26 @@ export function ExternalIntegrations({
       customHeadCode,
       customBodyCode,
     );
-    appendSnippet(
+    const cancelHeadMounts = appendSnippet(
       document.head,
       snippets.customHeadCode,
       "head",
       nonce,
       focusedFacelift,
     );
-    appendSnippet(
+    const cancelBodyMounts = appendSnippet(
       document.body,
       snippets.customBodyCode,
       "body",
       nonce,
       focusedFacelift,
     );
+    const cleanUpSnippets = () => {
+      [...cancelHeadMounts, ...cancelBodyMounts].forEach((cancel) => cancel());
+      document
+        .querySelectorAll('[data-rejuvira-snippet]:not([data-rejuvira-measurement])')
+        .forEach((node) => node.remove());
+    };
     if (focusedFacelift) {
       // Covers widgets left over after a client-side navigation from another page.
       const hideDistractions = () => {
@@ -213,20 +257,10 @@ export function ExternalIntegrations({
         observer.disconnect();
         const widget = document.getElementById("fahimo-widget-root");
         if (widget) widget.hidden = false;
-        document
-          .querySelectorAll(
-            "[data-rejuvira-snippet]:not([data-rejuvira-measurement])",
-          )
-          .forEach((node) => node.remove());
+        cleanUpSnippets();
       };
     }
-    return () => {
-      document
-        .querySelectorAll(
-          "[data-rejuvira-snippet]:not([data-rejuvira-measurement])",
-        )
-        .forEach((node) => node.remove());
-    };
+    return cleanUpSnippets;
   }, [customHeadCode, customBodyCode, nonce, focusedFacelift]);
 
   useEffect(() => {

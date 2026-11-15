@@ -11749,6 +11749,20 @@ footer .rv-brand-logo-footer {
     animation: none !important;
   }
 
+  .rv-v0-home .rv-v0-orbit {
+    animation: none;
+  }
+
+  /* Reserve space while the browser skips rendering offscreen homepage sections. */
+  body:not(:has(:target)) .rv-v0-home > :is(
+      .rv-v0-testimonials-section,
+      .rv-v0-doctor-quotes-section,
+      .rv-v0-home-journal-section
+    ) {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 36rem;
+  }
+
   header .rv-brand-logo,
   header .rv-brand-logo-header {
     width: clamp(9.8rem, 39vw, 12rem) !important;

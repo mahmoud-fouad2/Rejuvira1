@@ -1,6 +1,3 @@
-"use client";
-
-import { useMemo } from "react";
 import Image from "next/image";
 
 export type TestimonialItem = {
@@ -34,10 +31,7 @@ function initialsFromName(name: string) {
 }
 
 export function TestimonialsSplitCarousel({ items, perRow = 6 }: Props) {
-  const visibleItems = useMemo(() => {
-    const list = items.length > 0 ? items : [];
-    return list.slice(0, Math.max(1, perRow));
-  }, [items, perRow]);
+  const visibleItems = items.slice(0, Math.max(1, perRow));
 
   if (visibleItems.length === 0) return null;
 

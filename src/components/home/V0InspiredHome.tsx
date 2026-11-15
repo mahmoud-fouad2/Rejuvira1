@@ -23,7 +23,10 @@ import {
   journalCardContent,
   quoteHeadingContent,
 } from "@/lib/public-client-content";
-import type { TestimonialItem } from "@/components/home/TestimonialsSplitCarousel";
+import {
+  TestimonialsSplitCarousel,
+  type TestimonialItem,
+} from "@/components/home/TestimonialsSplitCarousel";
 
 const V0DoctorQuotesSlider = dynamic(() =>
   import("@/components/home/V0DoctorQuotesSlider").then(
@@ -40,12 +43,6 @@ const V0JournalCarousel = dynamic(() =>
     (m) => m.V0JournalCarousel,
   ),
 );
-const TestimonialsSplitCarousel = dynamic(() =>
-  import("@/components/home/TestimonialsSplitCarousel").then(
-    (m) => m.TestimonialsSplitCarousel,
-  ),
-);
-
 type V0InspiredHomeProps = {
   settings: RuntimeSettings;
   services: ServiceRecord[];
