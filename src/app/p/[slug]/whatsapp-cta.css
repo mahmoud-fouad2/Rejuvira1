@@ -49,3 +49,12 @@
   inline-size: 1rem;
   block-size: 1rem;
 }
+
+@media (max-width: 480px) {
+  .rv-custom-page .d-actions > a.d-btn[data-landing-whatsapp-cta="button"] {
+    gap: 0.375rem;
+    padding-inline: 0.625rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.35 !important;
+  }
+}
