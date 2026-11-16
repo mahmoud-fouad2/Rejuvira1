@@ -38,13 +38,17 @@ export function withGoogleWhatsappReferral(
   const url = parseWhatsappPhoneHref(href);
   if (!url) return href;
   try {
-    // Remove only the exact source claim previously appended by this helper.
+    // Remove known source claims baked into older landing-page messages.
     // The public landing-page URL alone cannot establish how a visitor arrived.
     let message =
       url.searchParams
         .get("text")
         ?.replace(
           /(?:^|[ \t]+)لقد عثرت عليكم من Google\.?(?=\r?\n|$)/g,
+          "",
+        )
+        .replace(
+          /(?:^|\r?\n)[ \t]*المصدر:[ \t]*Google Ads[.!]?[ \t]*(?=\r?\n|$)/gi,
           "",
         )
         .trim() || LANDING_PAGE_WHATSAPP_MESSAGE;

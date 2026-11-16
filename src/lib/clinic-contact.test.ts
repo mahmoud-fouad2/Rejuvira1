@@ -101,13 +101,17 @@ test("previously generated Google claims are removed without losing page context
     pageUrl: "https://rejuvera.sa/p/sample-page?utm_source=facebook#booking",
   };
   const message = "مرحبًا، أريد تنسيق استشارة.";
-  const legacyMessage = `${message} لقد عثرت عليكم من Google.\nجئت من صفحة: ${context.pageTitle}.\nرابط الصفحة: https://rejuvera.sa/p/sample-page`;
+  const legacyMessage = `${message} لقد عثرت عليكم من Google.\nالمصدر: Google Ads\nجئت من صفحة: ${context.pageTitle}.\nرابط الصفحة: https://rejuvera.sa/p/sample-page`;
   const original = `${CLINIC_WHATSAPP_URL}?text=${encodeURIComponent(legacyMessage)}&app_absent=0`;
   const updated = withGoogleWhatsappReferral(original, context);
   const url = new URL(updated);
   const text = url.searchParams.get("text")!;
   assert.ok(text.startsWith(message));
   assert.doesNotMatch(text, /Google|utm_source|facebook|#booking/);
+  assert.equal(
+    text,
+    `${message}\nجئت من صفحة: ${context.pageTitle}.\nرابط الصفحة: https://rejuvera.sa/p/sample-page`,
+  );
   assert.equal(text.split(`جئت من صفحة: ${context.pageTitle}.`).length, 2);
   assert.equal(text.split("https://rejuvera.sa/p/sample-page").length, 2);
   assert.equal(url.searchParams.get("app_absent"), "0");
